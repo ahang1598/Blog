@@ -1,5 +1,5 @@
 # Java学习记录
 
-> 个人简历
+> [个人简历](https://ahang1598.github.io/resume/)
 
-> GitHub
+> GitHub(https://github.com/ahang1598)
