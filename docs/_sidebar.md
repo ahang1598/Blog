@@ -12,3 +12,7 @@
 - [IDEA快捷键](IDEA快捷键.md)
 - [HTML](HTML.md)
 - [CSS](CSS.md)
+- [移动Web](移动web.md)
+- [jQuery](jQuery.html)
+
+- [Git](Git.md)

@@ -1,11 +1,12 @@
 <img width="180px" style="border-radius: 50%" bor src="https://nodejsred.oss-cn-shanghai.aliyuncs.com/nodejs_roadmap-logo.jpeg?x-oss-process=style/may">
 
-# Node.js技术栈指南
+# 一位研一自学Java的独白
 
-- 本文档是作者从事 ```Node.js Developer``` 以来的学习历程，旨在为大家提供一个较详细的学习教程，侧重点更倾向于 Node.js 服务端所涉及的技术栈，如果本文能为您得到帮助，请给予支持！
+- 在科研中苦寻无果，自学Java求温饱！
+- 分享我的学习历程和经验，以及收藏整理的各种Java学习书籍！
 
 [![stars](https://badgen.net/github/stars/Q-Angelo/Nodejs-Roadmap?icon=github&color=4ab8a1)](https://github.com/Q-Angelo/Nodejs-Roadmap) [![forks](https://badgen.net/github/forks/Q-Angelo/Nodejs-Roadmap?icon=github&color=4ab8a1)](https://github.com/Q-Angelo/Nodejs-Roadmap)
 
-[GitHub](<https://github.com/Q-Angelo/Nodejs-Roadmap>)
+[GitHub](<https://github.com/ahang1598/Blog/>)
 [开始阅读](README.md)
 

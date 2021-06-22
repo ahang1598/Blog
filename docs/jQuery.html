@@ -1,0 +1,2375 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="UTF-8" />
+    <title>jQuery学习笔记 - YS.Zou</title>
+    <meta name="generator" content="http://txt2tags.org" />
+    <meta name="author" content="Yesheng Zou,YS.Zou,邹业盛"/>
+</head>
+
+<body class="z" style="color: #333; font-size: 16px; letter-spacing: 0.2em; font-family: 'Microsoft YaHei','WenQuanYi Micro Hei',SimHei,tahoma,sans-serif; -webkit-font-smoothing: antialiased; margin: 0;">
+    <div class="content" style="width: 900px; margin: auto; padding: 30px; box-sizing: border-box; position: relative">
+        <div class="header">
+            <h1 style="text-align: center; font-size: 26px; margin: 0;">jQuery学习笔记</h1>
+            <div class="user" style="margin: 20px auto; text-align: center;">
+                <span>邹业盛</span>
+                <span>2016-01-10 16:55 更新</span>
+            </div>
+        </div>
+
+<div class="toc">
+
+  <ol style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+  <li style="margin: 10px auto;"><a href="#toc1" style="color: #0184b7; text-decoration: none">jQuery 是如何工作的</a>
+    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+    <li style="margin: 10px auto;"><a href="#toc2" style="color: #0184b7; text-decoration: none">1.1. 开始使用jQuery</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc3" style="color: #0184b7; text-decoration: none">1.2. jQuery对象与DOM对象之间的转换</a>
+    </li>
+    </ul>
+  </li>
+  <li style="margin: 10px auto;"><a href="#toc4" style="color: #0184b7; text-decoration: none">丰富的选择器</a>
+    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+    <li style="margin: 10px auto;"><a href="#toc5" style="color: #0184b7; text-decoration: none">2.1. 常规选择器</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc6" style="color: #0184b7; text-decoration: none">2.2. 属性选择器</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc7" style="color: #0184b7; text-decoration: none">2.3. 控件选择器</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc8" style="color: #0184b7; text-decoration: none">2.4. 其它选择器</a>
+    </li>
+    </ul>
+  </li>
+  <li style="margin: 10px auto;"><a href="#toc9" style="color: #0184b7; text-decoration: none">节点漫游</a>
+    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+    <li style="margin: 10px auto;"><a href="#toc10" style="color: #0184b7; text-decoration: none">3.1. 调用链处理</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc11" style="color: #0184b7; text-decoration: none">3.2. 子节点</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc12" style="color: #0184b7; text-decoration: none">3.3. 兄弟节点</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc13" style="color: #0184b7; text-decoration: none">3.4. 父节点</a>
+    </li>
+    </ul>
+  </li>
+  <li style="margin: 10px auto;"><a href="#toc14" style="color: #0184b7; text-decoration: none">元素控制相关</a>
+    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+    <li style="margin: 10px auto;"><a href="#toc15" style="color: #0184b7; text-decoration: none">4.1. attributes和properties的区别</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc16" style="color: #0184b7; text-decoration: none">4.2. 类与属性控制</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc17" style="color: #0184b7; text-decoration: none">4.3. 样式控制</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc18" style="color: #0184b7; text-decoration: none">4.4. 结构控制</a>
+      <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+      <li style="margin: 10px auto;"><a href="#toc19" style="color: #0184b7; text-decoration: none">4.4.1. 文本节点</a>
+      </li>
+      <li style="margin: 10px auto;"><a href="#toc20" style="color: #0184b7; text-decoration: none">4.4.2. 子节点</a>
+      </li>
+      <li style="margin: 10px auto;"><a href="#toc21" style="color: #0184b7; text-decoration: none">4.4.3. 兄弟节点</a>
+      </li>
+      <li style="margin: 10px auto;"><a href="#toc22" style="color: #0184b7; text-decoration: none">4.4.4. 父节点</a>
+      </li>
+      <li style="margin: 10px auto;"><a href="#toc23" style="color: #0184b7; text-decoration: none">4.4.5. 复制/删除/替换节点</a>
+      </li>
+      </ul>
+    </li>
+    </ul>
+  </li>
+  <li style="margin: 10px auto;"><a href="#toc24" style="color: #0184b7; text-decoration: none">工具函数</a>
+    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+    <li style="margin: 10px auto;"><a href="#toc25" style="color: #0184b7; text-decoration: none">5.1. jQuery对象序列</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc26" style="color: #0184b7; text-decoration: none">5.2. 通用工具</a>
+    </li>
+    </ul>
+  </li>
+  <li style="margin: 10px auto;"><a href="#toc27" style="color: #0184b7; text-decoration: none">上下文绑定</a>
+  </li>
+  <li style="margin: 10px auto;"><a href="#toc28" style="color: #0184b7; text-decoration: none">把数据存到节点中</a>
+  </li>
+  <li style="margin: 10px auto;"><a href="#toc29" style="color: #0184b7; text-decoration: none">事件处理</a>
+    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+    <li style="margin: 10px auto;"><a href="#toc30" style="color: #0184b7; text-decoration: none">8.1. 事件绑定</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc31" style="color: #0184b7; text-decoration: none">8.2. 事件触发</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc32" style="color: #0184b7; text-decoration: none">8.3. 事件类型</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc33" style="color: #0184b7; text-decoration: none">8.4. 事件对象</a>
+    </li>
+    </ul>
+  </li>
+  <li style="margin: 10px auto;"><a href="#toc34" style="color: #0184b7; text-decoration: none">AJAX</a>
+    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+    <li style="margin: 10px auto;"><a href="#toc35" style="color: #0184b7; text-decoration: none">9.1. 请求与回调</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc36" style="color: #0184b7; text-decoration: none">9.2. 请求的状态</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc37" style="color: #0184b7; text-decoration: none">9.3. 工具函数</a>
+    </li>
+    </ul>
+  </li>
+  <li style="margin: 10px auto;"><a href="#toc38" style="color: #0184b7; text-decoration: none">泛化回调</a>
+    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+    <li style="margin: 10px auto;"><a href="#toc39" style="color: #0184b7; text-decoration: none">10.1. Deferred</a>
+    </li>
+    <li style="margin: 10px auto;"><a href="#toc40" style="color: #0184b7; text-decoration: none">10.2. Callbacks</a>
+    </li>
+    </ul>
+  </li>
+  </ol>
+
+</div>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+历史：
+</p>
+
+<ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+<li style="margin: 10px auto;">原文发于2010年11月，先把旧文重新排过来，计划近期会修订此文。
+</li>
+<li style="margin: 10px auto;">此文于2013年1月，参照 jQuery 1.8.3 进行了修订。
+</li>
+</ul>
+
+<a class="anchor" name="toc1"></a>
+<h1 style="font-size: 20px; margin: 35px auto; border-bottom: 1px solid gray; padding-top: 5px; padding-bottom: 5px;">1. jQuery 是如何工作的</h1>
+
+<a class="anchor" name="toc2"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">1.1. 开始使用jQuery</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+jQuery 本身只有一个 js 文件，所以，要使用它，就和使用其它的 js 文件一样，直接将它引入就可以使用了。
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;script </span><span style="color: #008080">type=</span><span style="color: #dd1144">&quot;text/javascript&quot;</span> <span style="color: #008080">src=</span><span style="color: #dd1144">&quot;jquery-1.8.3.js&quot;</span><span style="color: #000080">&gt;&lt;/script&gt;</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+但是，要注意一点，因为 jQuery 大部分功能需要根据文档的 DOM 模型来工作，所以，它首先需要正确地解析到整个文档的 DOM 模型结构。为此，一般，我们使用 jQuery 所做的工作都需要在整个文档被浏览器完全加载完毕后才开始进行：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;script&gt;</span>
+$(<span style="color: #0086B3">document</span>).ready(<span style="color: #000000; font-weight: bold">function</span>(){
+  alert(<span style="color: #dd1144">&#39;Hello World!&#39;</span>);
+  $(<span style="color: #dd1144">&quot;p&quot;</span>).click(<span style="color: #000000; font-weight: bold">function</span>(event){
+    alert(<span style="color: #dd1144">&#39;Thanks for visiting!&#39;</span>);
+  });
+});
+<span style="color: #000080">&lt;/script&gt;</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">$</em> 是在 jQuery 中被定义的一个函数，它可以简单方便地取到相关结点。 <em style="color: #d75100; font-style: normal;">$(document).ready</em> 是一个事件绑定，这在文档加载完毕后被调用。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+事实上 <em style="color: #d75100; font-style: normal;">$()</em> 等于 <em style="color: #d75100; font-style: normal;">jQuery()</em> 即 jQuery 的核心函数的一个简写。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+之后的 javascript 代码，都默认是写在 <em style="color: #d75100; font-style: normal;">$(document).ready</em> 这个事件绑定当中的。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+当然， <em style="color: #d75100; font-style: normal;">$(document).ready()</em> 可以简写成 <em style="color: #d75100; font-style: normal;">$()</em> 。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+前面说了， <em style="color: #d75100; font-style: normal;">$</em> 是一个在 jQuery 中被使用了的一个变量名，如果因为某些原因，你不能让 jQuery 使用它，那么你可以使用 <em style="color: #d75100; font-style: normal;">jQuery.noConflict()</em> 做到这一点，它的返回值就是 jQuery 这个对象。
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">jQuery.noConflict();
+$j <span style="color: #000000; font-weight: bold">=</span> jQuery.noConflict();
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc3"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">1.2. jQuery对象与DOM对象之间的转换</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+通常，使用 <em style="color: #d75100; font-style: normal;">$()</em> 得到的是一个 jQuery 对象。它封装了很多 DOM 对象的操作，但是，它和 DOM 对象之间是不同的。比如，如果你要使用 <em style="color: #d75100; font-style: normal;">obj.innerHTML</em> ，那只有当 <em style="color: #d75100; font-style: normal;">obj</em> 是一个 DOM 对象时才能用，相应地，如果是 jQuery 对象你应该使用 <em style="color: #d75100; font-style: normal;">obj.html()</em> 。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+从 DOM 对象转到 jQuery 对象： <em style="color: #d75100; font-style: normal;">$(obj)</em> 。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+从 jQuery 对象转到 DOM 对象： <em style="color: #d75100; font-style: normal;">obj[0]</em> 。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+比较正规地从 jQuery 对象到 DOM 的转换，是使用 jQuery 对象的 <em style="color: #d75100; font-style: normal;">get()</em> 方法：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;ul&gt;</span>
+  <span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;foo&quot;</span><span style="color: #000080">&gt;</span>foo<span style="color: #000080">&lt;/li&gt;</span>
+  <span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;bar&quot;</span><span style="color: #000080">&gt;</span>bar<span style="color: #000080">&lt;/li&gt;</span>
+<span style="color: #000080">&lt;/ul&gt;</span>
+
+$(&#39;li&#39;).get();
+//[<span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;foo&quot;</span><span style="color: #000080">&gt;</span>, <span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;bar&quot;</span><span style="color: #000080">&gt;</span>]
+
+$(&#39;li&#39;).get(0);
+//<span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;foo&quot;</span><span style="color: #000080">&gt;</span>
+
+$(&#39;li&#39;).get(-1);
+//<span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;bar&quot;</span><span style="color: #000080">&gt;</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc4"></a>
+<h1 style="font-size: 20px; margin: 35px auto; border-bottom: 1px solid gray; padding-top: 5px; padding-bottom: 5px;">2. 丰富的选择器</h1>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+完整的列表在 <a href="https://api.jquery.com/category/selectors/" style="color: #0184b7; text-decoration: none">http://api.jquery.com/category/selectors/</a> 。
+</p>
+
+<a class="anchor" name="toc5"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">2.1. 常规选择器</h2>
+
+<dl style="">
+<dt style="">$("*")</dt><dd style="">
+    选择所有结点
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">(“#id”)</em></dt><dd style="">
+    ID选择器，注意其中的一些特殊字符，比如 <strong style="color: red; font-weight: normal;">.</strong>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">(“.class”)</em></dt><dd style="">
+    类选择器
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">(“tag”)</em></dt><dd style="">
+    按标签选择
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">(“ancestor descendant”)</em></dt><dd style="">
+    选择子元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">(“parent &gt; child”)</em></dt><dd style="">
+    选择直接子元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:focus</em></dt><dd style="">
+    获取焦点元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:first-child</em> <em style="color: #d75100; font-style: normal;">:last-child</em></dt><dd style="">
+    选择第一个/最后一个子元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:first</em> <em style="color: #d75100; font-style: normal;">:last</em></dt><dd style="">
+    截取第一个/最后一个符合条件的元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">(“prev + next”)</em></dt><dd style="">
+    直接兄弟元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">(“prev ~ siblings”)</em></dt><dd style="">
+    兄弟元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:nth-child()</em></dt><dd style="">
+    索引选择，索引从 1 开始 <em style="color: #d75100; font-style: normal;">:nth-child(odd)</em> <em style="color: #d75100; font-style: normal;">:nth-child(even)</em> <em style="color: #d75100; font-style: normal;">:nth-child(4n)</em>
+</dd>
+</dl>
+
+<a class="anchor" name="toc6"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">2.2. 属性选择器</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">[name~="value"]</em></dt><dd style="">
+    属性中包括某单词
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">[name="value"]</em></dt><dd style="">
+    属性完全等于指定值
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">[name!="value"]</em></dt><dd style="">
+    属性不等于指定值
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">[name]</em></dt><dd style="">
+    包括有指定属性的元素
+</dd>
+</dl>
+
+<a class="anchor" name="toc7"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">2.3. 控件选择器</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">:checked</em></dt><dd style="">
+    选择所有被中的元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:selected</em></dt><dd style="">
+    被选择了的元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:disabled</em> <em style="color: #d75100; font-style: normal;">:enabled</em></dt><dd style="">
+    选择被禁用/未禁用的元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:hidden</em></dt><dd style="">
+    选择隐藏元素，不仅是 <em style="color: #d75100; font-style: normal;">[type="hidden"]</em> ，还有 <em style="color: #d75100; font-style: normal;">display: none</em>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:visible</em></dt><dd style="">
+    可见控件， <em style="color: #d75100; font-style: normal;">visibility: hidden</em> 和 <em style="color: #d75100; font-style: normal;">opacity: 0</em> 同样被认为是可见。
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;"></p>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:input</em> <em style="color: #d75100; font-style: normal;">:button</em> <em style="color: #d75100; font-style: normal;">:checkbox</em> <em style="color: #d75100; font-style: normal;">:file</em> <em style="color: #d75100; font-style: normal;">:image</em> <em style="color: #d75100; font-style: normal;">:password</em> <em style="color: #d75100; font-style: normal;">:radio</em> <em style="color: #d75100; font-style: normal;">:reset</em> <em style="color: #d75100; font-style: normal;">:submit</em> <em style="color: #d75100; font-style: normal;">:text</em></dt><dd style="">
+    具体控件，图像控件是 <em style="color: #d75100; font-style: normal;">[type="image"]</em>
+</dd>
+</dl>
+
+<a class="anchor" name="toc8"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">2.4. 其它选择器</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">[name="value"][name2="value2"]</em></dt><dd style="">
+    多个 AND 条件
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">(“selector1, selector2, selectorN”)</em></dt><dd style="">
+    多个 OR 条件
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:not()</em></dt><dd style="">
+    否定选择
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">(':contains("text")')</em></dt><dd style="">
+    包含有指定内容的元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:eq()</em> <em style="color: #d75100; font-style: normal;">:lt()</em> <em style="color: #d75100; font-style: normal;">:gt()</em> <em style="color: #d75100; font-style: normal;">:even</em> <em style="color: #d75100; font-style: normal;">:odd</em></dt><dd style="">
+    列表索引选择（不支持负数）
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">(':has(selector)')</em></dt><dd style="">
+    符合条件的再次过滤
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:header</em></dt><dd style="">
+    选择像 h1,h2,h3 这些标题元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:only-child</em></dt><dd style="">
+    仅有一个子元素的元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:empty</em></dt><dd style="">
+    空元素，即无内容也无子元素
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">:parent</em></dt><dd style="">
+    非空元素
+</dd>
+</dl>
+
+<a class="anchor" name="toc9"></a>
+<h1 style="font-size: 20px; margin: 35px auto; border-bottom: 1px solid gray; padding-top: 5px; padding-bottom: 5px;">3. 节点漫游</h1>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+完整列表在 <a href="https://api.jquery.com/category/traversing/" style="color: #0184b7; text-decoration: none">http://api.jquery.com/category/traversing/</a>
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+通过上面的选择器，我们可以得到希望处理的节点。但是通常，我们还希望得到当前节点的一些相对节点，以便下一步处理，比如“所有子节点”，“下一个兄弟节点”之类的东西。
+</p>
+
+<a class="anchor" name="toc10"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">3.1. 调用链处理</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.add()</em></dt><dd style="">
+    向已有的节点序列中添加新的对象
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.andSelf()</em></dt><dd style="">
+    在调用链中，随时加入原始序列
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.eq()</em></dt><dd style="">
+    指定索引选取节点， <strong style="color: red; font-weight: normal;">支持负数</strong> 
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.filter()</em> <em style="color: #d75100; font-style: normal;">.is()</em> <em style="color: #d75100; font-style: normal;">.not()</em> <em style="color: #d75100; font-style: normal;">.find()</em> <em style="color: #d75100; font-style: normal;">.first()</em> <em style="color: #d75100; font-style: normal;">.last()</em> <em style="color: #d75100; font-style: normal;">.has()</em></dt><dd style="">
+    序列选择
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.end()</em></dt><dd style="">
+    链点回溯
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;ul</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;first&quot;</span><span style="color: #000080">&gt;</span>
+   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;foo&quot;</span><span style="color: #000080">&gt;</span>list item 1<span style="color: #000080">&lt;/li&gt;</span>
+   <span style="color: #000080">&lt;li&gt;</span>list item 2<span style="color: #000080">&lt;/li&gt;</span>
+   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;bar&quot;</span><span style="color: #000080">&gt;</span>list item 3<span style="color: #000080">&lt;/li&gt;</span>
+<span style="color: #000080">&lt;/ul&gt;</span>
+<span style="color: #000080">&lt;ul</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;second&quot;</span><span style="color: #000080">&gt;</span>
+   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;foo&quot;</span><span style="color: #000080">&gt;</span>list item 1<span style="color: #000080">&lt;/li&gt;</span>
+   <span style="color: #000080">&lt;li&gt;</span>list item 2<span style="color: #000080">&lt;/li&gt;</span>
+   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;bar&quot;</span><span style="color: #000080">&gt;</span>list item 3<span style="color: #000080">&lt;/li&gt;</span>
+<span style="color: #000080">&lt;/ul&gt;</span>
+
+$(&#39;ul.first&#39;).find(&#39;.foo&#39;).css(&#39;background-color&#39;, &#39;red&#39;)
+  .end().find(&#39;.bar&#39;).css(&#39;background-color&#39;, &#39;green&#39;);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc11"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">3.2. 子节点</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.children()</em></dt><dd style="">
+    所有的子节点，可加入过滤条件， <em style="color: #d75100; font-style: normal;">.children(selector)</em>
+</dd>
+</dl>
+
+<a class="anchor" name="toc12"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">3.3. 兄弟节点</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.siblings()</em> <em style="color: #d75100; font-style: normal;">.next()</em> <em style="color: #d75100; font-style: normal;">.nextAll()</em> <em style="color: #d75100; font-style: normal;">.nextUntil()</em> <em style="color: #d75100; font-style: normal;">.prev()</em> <em style="color: #d75100; font-style: normal;">.prevAll()</em> <em style="color: #d75100; font-style: normal;">.prevUntil()</em> <em style="color: #d75100; font-style: normal;">.closest()</em></dt><dd style="">
+    兄弟节点选择
+</dd>
+</dl>
+
+<a class="anchor" name="toc13"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">3.4. 父节点</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.parent()</em> <em style="color: #d75100; font-style: normal;">.parents()</em> <em style="color: #d75100; font-style: normal;">.parentsUntil()</em></dt><dd style="">
+    父节点选择
+</dd>
+</dl>
+
+<a class="anchor" name="toc14"></a>
+<h1 style="font-size: 20px; margin: 35px auto; border-bottom: 1px solid gray; padding-top: 5px; padding-bottom: 5px;">4. 元素控制相关</h1>
+
+<a class="anchor" name="toc15"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">4.1. attributes和properties的区别</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">attributes</em> 是 XML 结构中的属性节点概念范畴：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;body</span> <span style="color: #008080">onload=</span><span style="color: #dd1144">&quot;prettyPrint()&quot;</span><span style="color: #000080">&gt;&lt;/body&gt;</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+上面的代码表示了 <em style="color: #d75100; font-style: normal;">body</em> 这个节点，有一个名为 <em style="color: #d75100; font-style: normal;">onload</em> 的 <em style="color: #d75100; font-style: normal;">attributes</em> 。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">properties</em> 则是对于 DOM 对象的，对象属性概念范畴。这一般就没有直观的表现，但是它总是可以被访问到的，比如：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(&#39;body&#39;).get(0).tagName;
+//BODY
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+虽然 <em style="color: #d75100; font-style: normal;">attributes</em> 与 <em style="color: #d75100; font-style: normal;">properties</em> 是不同的概念范畴，但是它们对于某些特殊的属性是有共同的访问属性名的，比如 <em style="color: #d75100; font-style: normal;">id</em> 。
+</p>
+
+<a class="anchor" name="toc16"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">4.2. 类与属性控制</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.addClass()</em> <em style="color: #d75100; font-style: normal;">.hasClass()</em> <em style="color: #d75100; font-style: normal;">.removeClass()</em></dt><dd style="">
+    添加一个类，判断是否有指定类，删除类
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(&#39;body&#39;).addClass(&#39;test&#39;);
+$(&#39;body&#39;).addClass(function(index, current){return current + &#39;new&#39;});
+
+$(&#39;body&#39;).removeClass(&#39;test&#39;);
+$(&#39;body&#39;).removeClass(function(index, current){return current + &#39; &#39; + &#39;other&#39;});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.toggleClass()</em></dt><dd style="">
+    类的开关式转换，它的使用方法有多种：
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;img</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;test other&quot;</span> <span style="color: #000080">/&gt;</span>
+
+$(&#39;img&#39;).toggleClass(); //对所有类的开关
+$(&#39;img&#39;).toggleClass(&#39;test&#39;); //对指定类的开关
+$(&#39;img&#39;).toggleClass(isTrue); //根据isTrue判断所有类的开关
+$(&#39;img&#39;).toggleClass(&#39;test&#39;, isTrue); //根据isTrue判断指定类的开关
+
+//同 $(&#39;img&#39;).toggleClass(&#39;test&#39;) 只是类名由函数返回
+$(&#39;img&#39;).toggleClass(function(index, class, isTrue){return &#39;name&#39;});
+
+//isTrue会作为函数的第三个参数传入
+$(&#39;img&#39;).toggleClass(function(index, class, isTrue){return &#39;name&#39;}, isTrue);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.attr()</em></dt><dd style="">
+    获取或者设置一个属性值，它的使用方法有多种：
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;img</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;greatphoto&quot;</span> <span style="color: #008080">src=</span><span style="color: #dd1144">&quot;brush-seller.jpg&quot;</span> <span style="color: #008080">alt=</span><span style="color: #dd1144">&quot;brush seller&quot;</span> <span style="color: #000080">/&gt;</span>
+
+$(&#39;#greatphoto&#39;).attr(&#39;alt&#39;); //获取属性
+$(&#39;#greatphoto&#39;).attr(&#39;alt&#39;, &#39;Beijing Brush Seller&#39;); //设置属性
+
+//同时设置多个属性
+$(&#39;#greatphoto&#39;).attr({
+  alt: &#39;Beijing Brush Seller&#39;,
+  title: &#39;photo by Kelly Clark&#39;
+});
+
+//设置属性为函数返回值, 函数的上下文为当前元素
+$(&#39;#greatphoto&#39;).attr(&#39;title&#39;, function(i, val) {
+  return val + &#39; - photo by Kelly Clark&#39;;
+});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.prop()</em></dt><dd style="">
+    用法同 <em style="color: #d75100; font-style: normal;">.attr()</em> ，只是对象变成了 <em style="color: #d75100; font-style: normal;">properties</em>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.removeAttr()</em> <em style="color: #d75100; font-style: normal;">.removeProp()</em></dt><dd style="">
+    删除属性
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.val()</em></dt><dd style="">
+    设置或获取元素的表单值，通常用于表单元素。
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;input</span> <span style="color: #008080">type=</span><span style="color: #dd1144">&quot;hidden&quot;</span> <span style="color: #008080">value=</span><span style="color: #dd1144">&quot;test&quot;</span> <span style="color: #000080">/&gt;</span>
+
+$(&#39;input&#39;).val();
+$(&#39;input&#39;).val(&#39;other&#39;);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.html()</em></dt><dd style="">
+    设置或获取元素的节点文件本值。
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div&gt;&lt;span&gt;</span>测试<span style="color: #000080">&lt;/span&gt;&lt;/div&gt;</span>
+
+$(&#39;div&#39;).html();
+$(&#39;div&#39;).html(&#39;<span style="color: #000080">&lt;div&gt;</span>测试<span style="color: #000080">&lt;/div&gt;</span>&#39;);
+$(&#39;div&#39;).html(function(index, old){return old + &#39;<span style="color: #000080">&lt;span&gt;</span>另外的内容<span style="color: #000080">&lt;/span&gt;</span>&#39;});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc17"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">4.3. 样式控制</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.css()</em></dt><dd style="">
+    获取或设置指定的 css 样式：
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(&#39;body&#39;).css(&#39;background-color&#39;);
+$(&#39;body&#39;).css(&#39;background-color&#39;, &#39;red&#39;);
+$(&#39;body&#39;).css(&#39;background-color&#39;, function(index, value){return value + &#39;1&#39;});
+$(&#39;body&#39;).css({color: &#39;green&#39;, &#39;background-color&#39;: &#39;red&#39;});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.width()</em> <em style="color: #d75100; font-style: normal;">.height()</em></dt><dd style="">
+    获取或设置元素的宽和高
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(&#39;body&#39;).width();
+$(&#39;body&#39;).width(50);
+$(&#39;body&#39;).width(function(index, value){return value += 10});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.innerWidth()</em> <em style="color: #d75100; font-style: normal;">.innerHeight()</em> <em style="color: #d75100; font-style: normal;">.outerHeight()</em> <em style="color: #d75100; font-style: normal;">.outerWidth()</em></dt><dd style="">
+    元素的其它尺寸值
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;"></p>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.scrollLeft()</em> <em style="color: #d75100; font-style: normal;">.scrollTop()</em></dt><dd style="">
+    获取或设置滚动条的位置
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;"></p>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.offset()</em> <em style="color: #d75100; font-style: normal;">.position()</em></dt><dd style="">
+    获取元素的坐标。 <em style="color: #d75100; font-style: normal;">offset</em> 是相对于 <em style="color: #d75100; font-style: normal;">document</em> ， <em style="color: #d75100; font-style: normal;">position</em> 是相对于父级元素
+</dd>
+</dl>
+
+<a class="anchor" name="toc18"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">4.4. 结构控制</h2>
+
+<a class="anchor" name="toc19"></a>
+<h3 style="font-size: 16px; margin: 25px auto;">4.4.1. 文本节点</h3>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.html()</em> <em style="color: #d75100; font-style: normal;">.text()</em></dt><dd style="">
+    设置和获取节点的文值。设置时 <em style="color: #d75100; font-style: normal;">.text()</em> 会转义标签，获取时 <em style="color: #d75100; font-style: normal;">.text()</em> 会移除所有标签。
+</dd>
+</dl>
+
+<a class="anchor" name="toc20"></a>
+<h3 style="font-size: 16px; margin: 25px auto;">4.4.2. 子节点</h3>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.append()</em> <em style="color: #d75100; font-style: normal;">.prepend()</em></dt><dd style="">
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;h2&gt;</span>Greetings<span style="color: #000080">&lt;/h2&gt;</span>
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+
+$(&#39;.inner&#39;).append(&#39;<span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>&#39;);
+
+<span style="color: #000080">&lt;h2&gt;</span>Greetings<span style="color: #000080">&lt;/h2&gt;</span>
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>
+    Hello
+    <span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>
+  <span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>
+    Goodbye
+    <span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>
+  <span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+参数可以有多种形式：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> $newdiv1 <span style="color: #000000; font-weight: bold">=</span> $(<span style="color: #dd1144">&#39;&lt;div id=&quot;object1&quot;/&gt;&#39;</span>),
+    newdiv2 <span style="color: #000000; font-weight: bold">=</span> <span style="color: #0086B3">document</span>.createElement(<span style="color: #dd1144">&#39;div&#39;</span>),
+    existingdiv1 <span style="color: #000000; font-weight: bold">=</span> <span style="color: #0086B3">document</span>.getElementById(<span style="color: #dd1144">&#39;foo&#39;</span>);
+
+$(<span style="color: #dd1144">&#39;body&#39;</span>).append($newdiv1, [newdiv2, existingdiv1]);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc21"></a>
+<h3 style="font-size: 16px; margin: 25px auto;">4.4.3. 兄弟节点</h3>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.after()</em> <em style="color: #d75100; font-style: normal;">.before()</em></dt><dd style="">
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;h2&gt;</span>Greetings<span style="color: #000080">&lt;/h2&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+
+$(&#39;.inner&#39;).after(&#39;<span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>&#39;);
+
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;h2&gt;</span>Greetings<span style="color: #000080">&lt;/h2&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc22"></a>
+<h3 style="font-size: 16px; margin: 25px auto;">4.4.4. 父节点</h3>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.wrap()</em> <em style="color: #d75100; font-style: normal;">.wrapAll()</em> <em style="color: #d75100; font-style: normal;">.wrapInner()</em></dt><dd style="">
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+
+$(&#39;.inner&#39;).wrap(&#39;<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span> <span style="color: #000080">/&gt;</span>&#39;);
+
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span><span style="color: #000080">&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span><span style="color: #000080">&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+
+
+$(&#39;.inner&#39;).wrapAll(&#39;<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span> <span style="color: #000080">/&gt;</span>&#39;);
+
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span><span style="color: #000080">&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+
+
+$(&#39;.inner&#39;).wrapInner(&#39;<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span> <span style="color: #000080">/&gt;</span>&#39;);
+
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc23"></a>
+<h3 style="font-size: 16px; margin: 25px auto;">4.4.5. 复制/删除/替换节点</h3>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.clone()</em></dt><dd style="">
+    复制节点，可选参数表示是否处理已绑定的事件与数据
+    <dl style="">
+    <dt style=""><em style="color: #d75100; font-style: normal;">.clone(true)</em></dt><dd style="">
+        处理当前节点的事件与数据
+    </dd>
+    <dt style=""><em style="color: #d75100; font-style: normal;">.clone(true, true)</em></dt><dd style="">
+        处理当前节点及所有子节点的事件与数据
+    </dd>
+    </dl>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.detach()</em></dt><dd style="">
+    暂时移除节点，之后可以再次恢复了指定位置。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.remove()</em></dt><dd style="">
+    永久移除节点。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.empty()</em></dt><dd style="">
+    清除一个节点的所有内部内容。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.unwrap()</em></dt><dd style="">
+    移除节点的父节点。
+</dd>
+</dl>
+
+<a class="anchor" name="toc24"></a>
+<h1 style="font-size: 20px; margin: 35px auto; border-bottom: 1px solid gray; padding-top: 5px; padding-bottom: 5px;">5. 工具函数</h1>
+
+<a class="anchor" name="toc25"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">5.1. jQuery对象序列</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.map()</em></dt><dd style="">
+    遍历所有成员
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;:checkbox&#39;</span>).map(<span style="color: #000000; font-weight: bold">function</span>() {
+  <span style="color: #000000; font-weight: bold">return</span> <span style="color: #000000; font-weight: bold">this</span>.id;
+}).get().join(<span style="color: #dd1144">&#39;,&#39;</span>);
+
+
+$(<span style="color: #dd1144">&#39;:checkbox&#39;</span>).map(<span style="color: #000000; font-weight: bold">function</span>(index, node) {
+  <span style="color: #000000; font-weight: bold">return</span> node.id;
+}).get().join(<span style="color: #dd1144">&#39;,&#39;</span>);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.slice()</em></dt><dd style="">
+    序列切片, 支持一个或两个参数，支持负数
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;li&#39;</span>).slice(<span style="color: #009999">2</span>).css(<span style="color: #dd1144">&#39;background-color&#39;</span>, <span style="color: #dd1144">&#39;red&#39;</span>);
+$(<span style="color: #dd1144">&#39;li&#39;</span>).slice(<span style="color: #009999">2</span>, <span style="color: #009999">4</span>).css(<span style="color: #dd1144">&#39;background-color&#39;</span>, <span style="color: #dd1144">&#39;red&#39;</span>);
+$(<span style="color: #dd1144">&#39;li&#39;</span>).slice(<span style="color: #000000; font-weight: bold">-</span><span style="color: #009999">2</span>, <span style="color: #000000; font-weight: bold">-</span><span style="color: #009999">1</span>).css(<span style="color: #dd1144">&#39;background-color&#39;</span>, <span style="color: #dd1144">&#39;red&#39;</span>);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc26"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">5.2. 通用工具</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.each()</em> <em style="color: #d75100; font-style: normal;">$.map()</em></dt><dd style="">
+    遍历列表, <em style="color: #d75100; font-style: normal;">$.map()</em> 可以作用于对象。
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$.each([<span style="color: #009999">52</span>, <span style="color: #009999">97</span>], <span style="color: #000000; font-weight: bold">function</span>(index, value) { 
+  alert(index <span style="color: #000000; font-weight: bold">+</span> <span style="color: #dd1144">&#39;: &#39;</span> <span style="color: #000000; font-weight: bold">+</span> value); 
+});
+
+$.map( [<span style="color: #009999">0</span>,<span style="color: #009999">1</span>,<span style="color: #009999">2</span>], <span style="color: #000000; font-weight: bold">function</span>(index, n){
+  <span style="color: #000000; font-weight: bold">return</span> n <span style="color: #000000; font-weight: bold">+</span> <span style="color: #009999">4</span>;
+});
+<span style="color: #999988">//[4, 5, 6]</span>
+
+$.map( [<span style="color: #009999">0</span>,<span style="color: #009999">1</span>,<span style="color: #009999">2</span>], <span style="color: #000000; font-weight: bold">function</span>(n){
+  <span style="color: #000000; font-weight: bold">return</span> n <span style="color: #000000; font-weight: bold">&gt;</span> <span style="color: #009999">0</span> <span style="color: #000000; font-weight: bold">?</span> n <span style="color: #000000; font-weight: bold">+</span> <span style="color: #009999">1</span> <span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">null</span>;
+});
+<span style="color: #999988">//[2, 3]</span>
+
+$.map( [<span style="color: #009999">0</span>,<span style="color: #009999">1</span>,<span style="color: #009999">2</span>], <span style="color: #000000; font-weight: bold">function</span>(n){
+  <span style="color: #000000; font-weight: bold">return</span> [ n, n <span style="color: #000000; font-weight: bold">+</span> <span style="color: #009999">1</span> ];
+});
+<span style="color: #999988">//[0, 1, 1, 2, 2, 3]</span>
+
+<span style="color: #000000; font-weight: bold">var</span> dimensions <span style="color: #000000; font-weight: bold">=</span> { width<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">10</span>, height<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">15</span>, length<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">20</span> };
+$.map( dimensions, <span style="color: #000000; font-weight: bold">function</span>( value, key ) {
+  <span style="color: #000000; font-weight: bold">return</span> value <span style="color: #000000; font-weight: bold">*</span> <span style="color: #009999">2</span>;
+});
+<span style="color: #999988">//[20, 30, 40] </span>
+
+<span style="color: #000000; font-weight: bold">var</span> dimensions <span style="color: #000000; font-weight: bold">=</span> { width<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">10</span>, height<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">15</span>, length<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">20</span> },
+$.map( dimensions, <span style="color: #000000; font-weight: bold">function</span>( value, key ) {
+  <span style="color: #000000; font-weight: bold">return</span> key;
+});
+<span style="color: #999988">//[&quot;width&quot;, &quot;height&quot;, &quot;length&quot;]</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.extend()</em></dt><dd style="">
+    合并对象，第一个参数表示是否进行递归深入
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> object <span style="color: #000000; font-weight: bold">=</span> $.extend({}, object1, object2);
+<span style="color: #000000; font-weight: bold">var</span> object <span style="color: #000000; font-weight: bold">=</span> $.extend(<span style="color: #000000; font-weight: bold">true</span>, {}, object1, object2);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.merge()</em></dt><dd style="">
+    合并列表
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$.merge( [<span style="color: #009999">0</span>,<span style="color: #009999">1</span>,<span style="color: #009999">2</span>], [<span style="color: #009999">2</span>,<span style="color: #009999">3</span>,<span style="color: #009999">4</span>] )
+<span style="color: #999988">//[0,1,2,2,3,4] </span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.grep()</em></dt><dd style="">
+    过滤列表，第三个参数表示是否为取反
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$.grep( [<span style="color: #009999">0</span>,<span style="color: #009999">1</span>,<span style="color: #009999">2</span>], <span style="color: #000000; font-weight: bold">function</span>(array,index){ <span style="color: #000000; font-weight: bold">return</span> n <span style="color: #000000; font-weight: bold">&gt;</span> <span style="color: #009999">0</span>; }); <span style="color: #999988">//[1,2]</span>
+$.grep( [<span style="color: #009999">0</span>,<span style="color: #009999">1</span>,<span style="color: #009999">2</span>], <span style="color: #000000; font-weight: bold">function</span>(array,index){ <span style="color: #000000; font-weight: bold">return</span> n <span style="color: #000000; font-weight: bold">&gt;</span> <span style="color: #009999">0</span>; }, <span style="color: #000000; font-weight: bold">true</span>); <span style="color: #999988">//[0]</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.inArray()</em></dt><dd style="">
+    存在判断
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$.inArray( value, array [, fromIndex] )
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.isArray()</em> <em style="color: #d75100; font-style: normal;">$.isEmptyObject()</em> <em style="color: #d75100; font-style: normal;">$.isFunction()</em> <em style="color: #d75100; font-style: normal;">$.isNumeric()</em> <em style="color: #d75100; font-style: normal;">$.isPlainObject()</em> <em style="color: #d75100; font-style: normal;">$.isWindow()</em> <em style="color: #d75100; font-style: normal;">$.isXMLDoc()</em></dt><dd style="">
+    类型判断
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">$.noop()</em></dt><dd style="">
+    空函数
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">$.now()</em></dt><dd style="">
+    当前时间戳，值为 <em style="color: #d75100; font-style: normal;">(new Date).getTime()</em>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">$.parseJson()</em> <em style="color: #d75100; font-style: normal;">$.parseXML()</em></dt><dd style="">
+    把字符串解析为对象
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> xml <span style="color: #000000; font-weight: bold">=</span> <span style="color: #dd1144">&quot;&lt;rss version=&#39;2.0&#39;&gt;&lt;channel&gt;&lt;title&gt;RSS Title&lt;/title&gt;&lt;/channel&gt;&lt;/rss&gt;&quot;</span>,
+xmlDoc <span style="color: #000000; font-weight: bold">=</span> $.parseXML( xml ),
+$xml <span style="color: #000000; font-weight: bold">=</span> $( xmlDoc ),
+$title <span style="color: #000000; font-weight: bold">=</span> $xml.find( <span style="color: #dd1144">&quot;title&quot;</span> );
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.trim()</em></dt><dd style="">
+    去头去尾， <em style="color: #d75100; font-style: normal;">$.trim(str)</em>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">$.type()</em></dt><dd style="">
+    判定参数的类型
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #a61717; background-color: #e3d2d2">#</span> If the object is <span style="color: #000000; font-weight: bold">undefined</span> or <span style="color: #000000; font-weight: bold">null</span>,
+<span style="color: #a61717; background-color: #e3d2d2">#</span>then <span style="color: #dd1144">&quot;undefined&quot;</span> or <span style="color: #dd1144">&quot;null&quot;</span> is returned accordingly.
+
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">undefined</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;undefined&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type() <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;undefined&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #0086B3">window</span>.notDefined) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;undefined&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">null</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;null&quot;</span>
+
+<span style="color: #a61717; background-color: #e3d2d2">#</span> If the object has an internal [[Class]] equivalent to
+<span style="color: #a61717; background-color: #e3d2d2">#</span>one of the browser<span style="color: #a61717; background-color: #e3d2d2">&#39;</span>s built<span style="color: #000000; font-weight: bold">-in</span> objects, the associated name is returned.
+<span style="color: #a61717; background-color: #e3d2d2">#</span>(More details about <span style="color: #000000; font-weight: bold">this</span> technique.)
+
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">true</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;boolean&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #009999">3</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;number&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #dd1144">&quot;test&quot;</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;string&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">function</span>(){}) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;function&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type([]) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;array&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">new</span> <span style="color: #0086B3">Date</span>()) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;date&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #009926">/test/</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;regexp&quot;</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.unique()</em></dt><dd style="">
+    遍历后去重， <em style="color: #d75100; font-style: normal;">$.unique(array)</em>
+</dd>
+</dl>
+
+<a class="anchor" name="toc27"></a>
+<h1 style="font-size: 20px; margin: 35px auto; border-bottom: 1px solid gray; padding-top: 5px; padding-bottom: 5px;">6. 上下文绑定</h1>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+上下文绑定在函数型的语言当中起着非常重要的作用。不过， jQuery 中对此似乎并没有怎么强调，它的很多函数都默认处理了上下文，文档中也会告诉你，在某个函数当中， <strong style="color: red; font-weight: normal;">this</strong> 是什么东西，我觉得这种做法不太好。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+jQuery 中有一个函数专门用于处理上下文绑定，虽然我觉得把 <em style="color: #d75100; font-style: normal;">context</em> 放在后面的格式非常别扭，不过好过没有吧。
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.proxy()</em></dt><dd style="">
+    为函数绑定上下文
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+它有两种使用方法，第一种就是最普通的，提供函数，和上下文对象，然后返回一个新函数：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$.proxy( <span style="color: #000000; font-weight: bold">function</span>, context )
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+第二种，是提供一个上下文对象，及在这个上下文当中的一个成员名，然后把这个上下文绑定到这个成员之后，再返回这个成员。
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$.proxy( context, name )
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+看下面的例子，来理解上下文：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> o <span style="color: #000000; font-weight: bold">=</span> {
+  x<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;123&#39;</span>,
+  f<span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #000000; font-weight: bold">this</span>.x)},
+}
+<span style="color: #000000; font-weight: bold">var</span> go <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">function</span>(f){f()}
+
+o.f() <span style="color: #999988">// 123</span>
+go(o.f) <span style="color: #999988">// undefined</span>
+go($.proxy(o.f, o)) <span style="color: #999988">//123</span>
+$.proxy(o, <span style="color: #dd1144">&#39;f&#39;</span>)() <span style="color: #999988">//123</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<strong style="color: red; font-weight: normal;">当一个函数被传递之后，它就失去原先的上下文了。</strong>
+</p>
+
+<a class="anchor" name="toc28"></a>
+<h1 style="font-size: 20px; margin: 35px auto; border-bottom: 1px solid gray; padding-top: 5px; padding-bottom: 5px;">7. 把数据存到节点中</h1>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+jQuery 提供了一种机制，可以把节点作为数据存储的容器。
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.data()</em></dt><dd style="">
+    往节点中获取/设置数据
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">$.removeData()</em></dt><dd style="">
+    删除数据
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+在内部实现上， jQuery 会在指定节点添加一个内部标识，以此为 <em style="color: #d75100; font-style: normal;">key</em> ，把数据存在内部闭包的一个结构当中。事实上， jQuery 的事件绑定机制也使用了这套数据接口。
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$.data($(<span style="color: #dd1144">&#39;#data&#39;</span>).get(<span style="color: #009999">0</span>), <span style="color: #dd1144">&#39;test&#39;</span>, <span style="color: #dd1144">&#39;123&#39;</span>);
+$(<span style="color: #dd1144">&#39;#data&#39;</span>).data(<span style="color: #dd1144">&#39;test&#39;</span>, <span style="color: #dd1144">&#39;456&#39;</span>);
+console.log($.data($(<span style="color: #dd1144">&#39;#data&#39;</span>).get(<span style="color: #009999">0</span>), <span style="color: #dd1144">&#39;test&#39;</span>));
+console.log($(<span style="color: #dd1144">&#39;#data&#39;</span>).data(<span style="color: #dd1144">&#39;test&#39;</span>));
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc29"></a>
+<h1 style="font-size: 20px; margin: 35px auto; border-bottom: 1px solid gray; padding-top: 5px; padding-bottom: 5px;">8. 事件处理</h1>
+
+<a class="anchor" name="toc30"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">8.1. 事件绑定</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+在 jQuery1.7 之后，推荐统一使用 <em style="color: #d75100; font-style: normal;">on()</em> 来进行事件绑定。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+在讲事件绑定之前，需要首先明确一个概念。通常，我们是需要对具体的节点的相关事件作处理，比如一个按钮被点击了之类的。但这里有一个问题，如果我们能获取到具体的节点，当然没什么说的。不过有时，我们要处理的节点却还没有存在，但是我们又要预定义它的事件处理。比如，我们说在一个 <em style="color: #d75100; font-style: normal;">UL</em> 中，每一个 <em style="color: #d75100; font-style: normal;">LI</em> 被点击时，都要执行一个函数。但是， <em style="color: #d75100; font-style: normal;">UL</em> 中的内容本身可能是变化的，开始时它只有两个 <em style="color: #d75100; font-style: normal;">LI</em> ，之后又变成了三个 <em style="color: #d75100; font-style: normal;">LI</em> ，多出的那一个 <em style="color: #d75100; font-style: normal;">LI</em> 也要能响应事件才行。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+上述的情况是一个普遍的需求。我们可以利用事件的冒泡机制来实现目的。我们把事件处理绑定在 <em style="color: #d75100; font-style: normal;">UL</em> 上，这样，当 <em style="color: #d75100; font-style: normal;">LI</em> 被点击时，会冒泡到上级的 <em style="color: #d75100; font-style: normal;">UL</em> ，这样在处理事件时就可以判断出具体是哪个节点的事件，以便作下一步处理。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+当然，原理是这样，具体操作时， <em style="color: #d75100; font-style: normal;">on()</em> 这个方法已经把一切都封装好了。
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.on()</em></dt><dd style="">
+    绑定事件
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.off()</em></dt><dd style="">
+    移除绑定
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.one()</em></dt><dd style="">
+    绑定单次事件
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">on()</em> 的基本使用方式是： <em style="color: #d75100; font-style: normal;">.on(event, handler)</em>
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+最基本的使用：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click&#39;</span>,
+  <span style="color: #000000; font-weight: bold">function</span>(eventObj){
+    console.log(<span style="color: #dd1144">&#39;haha&#39;</span>)<span style="color: #a61717; background-color: #e3d2d2">；</span>
+  }
+);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+对于 <em style="color: #d75100; font-style: normal;">handler</em> ，它默认的上下文是触发事件的节点（与行为节点无关）：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;btn&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div&gt;</span>哈哈<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;btn2&quot;</span><span style="color: #000080">&gt;</span>哈哈<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div&gt;</span>哈哈<span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+
+$(&#39;#btn&#39;).on(&#39;click&#39;,
+  function(eventObj){
+    console.log(this);
+  }
+);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+你看到是 <em style="color: #d75100; font-style: normal;">div#btn</em> 。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+当然，使用 <em style="color: #d75100; font-style: normal;">$.proxy()</em> 你可以随意控制上下文：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click&#39;</span>,
+  $.proxy(<span style="color: #000000; font-weight: bold">function</span>(eventObj){
+    console.log(<span style="color: #000000; font-weight: bold">this</span>.a);
+  }, {a<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">123</span>})
+);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">event</em> 参数还支持通过：
+</p>
+
+<ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+<li style="margin: 10px auto;">以 <strong style="color: red; font-weight: normal;">.</strong> 分割的子名字，这些名字父子的名字空间效果。
+</li>
+<li style="margin: 10px auto;">以空格分割的多个事件。
+</li>
+</ul>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+名字空间效果：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click.my&#39;</span>,
+  <span style="color: #000000; font-weight: bold">function</span>(eventObj){
+    console.log(<span style="color: #dd1144">&#39;123&#39;</span>);
+  }
+);
+
+<span style="color: #000000; font-weight: bold">var</span> f <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">function</span>(){
+  $(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click.my&#39;</span>);
+}
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click.my.other&#39;</span>,
+  <span style="color: #000000; font-weight: bold">function</span>(eventObj){
+    console.log(<span style="color: #dd1144">&#39;123&#39;</span>);
+  }
+);
+
+<span style="color: #000000; font-weight: bold">var</span> f <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">function</span>(){
+  $(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click.my&#39;</span>);
+}
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+多个事件：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click.my click.other&#39;</span>,
+  <span style="color: #000000; font-weight: bold">function</span>(eventObj){
+    console.log(<span style="color: #dd1144">&#39;123&#39;</span>);
+  }
+);
+
+<span style="color: #000000; font-weight: bold">var</span> f <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">function</span>(){
+  $(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click.my&#39;</span>);
+}
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">on()</em> 的扩展使用方式为： <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">.on( events [, selector] [, data], handler(eventObject) )</code> 。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+其中的 <em style="color: #d75100; font-style: normal;">data</em> 是一个数据存储空间，在 <em style="color: #d75100; font-style: normal;">eventObj.data</em> 中访问到。
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click&#39;</span>, {a<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">123</span>},
+  <span style="color: #000000; font-weight: bold">function</span>(eventObj){
+    console.log(eventObj.data.a);
+  }
+);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+而 <em style="color: #d75100; font-style: normal;">selector</em> 则是一个过滤规则，这对于在前面讲过的，在父级节点预定义不存在节点的行为很有用。
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;btn&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;span&gt;</span>哈哈<span style="color: #000080">&lt;/span&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+
+$(&#39;#btn&#39;).on(&#39;click&#39;, &#39;p&#39;,
+  function(eventObj){
+    console.log(&#39;here&#39;);
+  }
+);
+var f = function(){
+  $(&#39;#btn&#39;).append(&#39;<span style="color: #000080">&lt;p&gt;</span>新的<span style="color: #000080">&lt;/p&gt;</span>&#39;);
+}
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">on()</em> 的另外一种调用形式： <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">.on( events-map [, selector] [, data] )</code> ：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(
+  {
+    <span style="color: #dd1144">&#39;click&#39;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(eventObj){console.log(<span style="color: #dd1144">&#39;click&#39;</span>)},
+    <span style="color: #dd1144">&#39;mousemove&#39;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(eventObj){console.log(<span style="color: #dd1144">&#39;move&#39;</span>)}
+  }
+);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">off()</em> 的使用方式与 <em style="color: #d75100; font-style: normal;">on()</em> 完全类似：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> f <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">function</span>(eventObj){
+  console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+}
+$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click&#39;</span>, f);
+$(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click&#39;</span>);
+$(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click&#39;</span>, <span style="color: #dd1144">&#39;.cls&#39;</span>);
+$(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click&#39;</span>, f);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc31"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">8.2. 事件触发</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+事件的触发有两种方式，一是使用预定的“事件函数”，二是使用 <em style="color: #d75100; font-style: normal;">trigger()</em> 或 <em style="color: #d75100; font-style: normal;">triggerHandler()</em> 。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+预定的“事件函数”就是类似于 <em style="color: #d75100; font-style: normal;">.click()</em> <em style="color: #d75100; font-style: normal;">.focus()</em> 这些。
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;input</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;btn&quot;</span> <span style="color: #000080">/&gt;</span>
+
+$(&#39;#btn&#39;).on(&#39;click&#39;,
+  function(eventObj){
+    console.log(&#39;here&#39;);
+  }
+);
+
+$(&#39;#btn&#39;).click();
+$(&#39;#btn&#39;).trigger(&#39;click&#39;);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">trigger()</em> 还可以直接接受一个 <em style="color: #d75100; font-style: normal;">Event</em> 对象，比如一个死循环：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click&#39;</span>,
+  <span style="color: #000000; font-weight: bold">function</span>(eventObj){
+    console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+    $(<span style="color: #000000; font-weight: bold">this</span>).trigger(eventObj);
+  }
+);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">trigger()</em> 与 <em style="color: #d75100; font-style: normal;">triggerHandler()</em> 的不同之处在于前面是触发事件，而后者是执行绑定函数。这在一些有原生行为的事件上就有明显区别了：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;focus&#39;</span>,
+  <span style="color: #000000; font-weight: bold">function</span>(eventObj){
+    console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+  }
+);
+
+<span style="color: #999988">//$(&#39;#btn&#39;).trigger(&#39;focus&#39;);</span>
+$(<span style="color: #dd1144">&#39;#btn&#39;</span>).triggerHandler(<span style="color: #dd1144">&#39;focus&#39;</span>);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">trigger()</em> 和 <em style="color: #d75100; font-style: normal;">triggerHandler()</em> 也用于触发自定义事件：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;my&#39;</span>,
+  <span style="color: #000000; font-weight: bold">function</span>(eventObj){
+    console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+  }
+);
+
+$(<span style="color: #dd1144">&#39;#btn&#39;</span>).trigger(<span style="color: #dd1144">&#39;my&#39;</span>);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">trigger()</em> 和 <em style="color: #d75100; font-style: normal;">triggerHandler()</em> 触发事件时，可以带上参数：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;my&#39;</span>,
+  <span style="color: #000000; font-weight: bold">function</span>(eventObj, obj){
+    console.log(obj);
+  }
+);
+
+$(<span style="color: #dd1144">&#39;#btn&#39;</span>).trigger(<span style="color: #dd1144">&#39;my&#39;</span>, {a<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">123</span>});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc32"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">8.3. 事件类型</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+行为事件：
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.click()</em></dt><dd style="">
+    单击
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">dblclick()</em></dt><dd style="">
+    双击
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.blur()</em></dt><dd style="">
+    失去焦点时
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.change()</em></dt><dd style="">
+    值变化时
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.focus()</em></dt><dd style="">
+    获取焦点时
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.focusin()</em></dt><dd style="">
+    jQuery 扩展的获取焦点
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.focusout()</em></dt><dd style="">
+    jQuery 扩展的失去焦点
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.resize()</em></dt><dd style="">
+    调整大小
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.scroll()</em></dt><dd style="">
+    滚动
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.select()</em></dt><dd style="">
+    被选择
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.submit()</em></dt><dd style="">
+    表单被提交
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+键盘事件：
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.keydown()</em></dt><dd style="">
+    按下键
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.keyup()</em></dt><dd style="">
+    放开键
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+鼠标事件：
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.mousedown()</em></dt><dd style="">
+    点下鼠标
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.mouseup()</em></dt><dd style="">
+    松开鼠标
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.mouseover()</em></dt><dd style="">
+    光标移入
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.mouseout()</em></dt><dd style="">
+    光标移出
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.mousemove()</em></dt><dd style="">
+    光标在之上移动
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.mouseleave()</em> <em style="color: #d75100; font-style: normal;">.mouseenter()</em></dt><dd style="">
+    光标移出移入
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+页面事件：
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.ready()</em></dt><dd style="">
+    就绪
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.unload()</em></dt><dd style="">
+    离开当前页时，针对 <em style="color: #d75100; font-style: normal;">window</em> 对象。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.error()</em></dt><dd style="">
+    发生错误时
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.load()</em></dt><dd style="">
+    正在载入
+</dd>
+</dl>
+
+<a class="anchor" name="toc33"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">8.4. 事件对象</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+每一个事件的绑定函数，都接受一个事件对象为参数。这个事件对象当中，包括了很多事件的信息。
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">event.currentTarget</em> , <em style="color: #d75100; font-style: normal;">event.target</em></dt><dd style="">
+    事件绑定节点 / 事件的触发节点(冒泡行为)
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.delegateTarget</em></dt><dd style="">
+    绑定事件的对象，通常就是 <em style="color: #d75100; font-style: normal;">event.currentTarget</em>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.relatedTarget</em></dt><dd style="">
+    相关的节点，主要用于一些转换式的事件。比如鼠标移入，表示它从哪个节点来的
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.which</em></dt><dd style="">
+    标明哪个按键触发了事件，鼠标和键盘的键标识统一在这个属性中了
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.preventDefault()</em> , <em style="color: #d75100; font-style: normal;">event.isDefaultPrevented()</em></dt><dd style="">
+    禁止默认行为
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.stopImmediatePropagation()</em> , <em style="color: #d75100; font-style: normal;">event.isImmediatePropagationStopped()</em></dt><dd style="">
+    不光禁止冒泡，还终止绑定函数链的继续进行。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.stopPropagation()</em> , <em style="color: #d75100; font-style: normal;">event.isPropagationStopped()</em></dt><dd style="">
+    禁止冒泡
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.pageX</em> , <em style="color: #d75100; font-style: normal;">event.pageY</em></dt><dd style="">
+    事件触发时相对于 <em style="color: #d75100; font-style: normal;">document</em> 的鼠标位置
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.namespace</em></dt><dd style="">
+    事件触发时的名字空间，比如 <em style="color: #d75100; font-style: normal;">trigger('click.namespace')</em>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.data</em></dt><dd style="">
+    额外传入的数据
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.result</em></dt><dd style="">
+    上一个绑定函数的返回值
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.timeStamp</em></dt><dd style="">
+    事件触发时的时间，其值为 <em style="color: #d75100; font-style: normal;">(new Date).getTime()</em>
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">event.type</em></dt><dd style="">
+    事件类型
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+如果一个绑定函数最后返回了 <em style="color: #d75100; font-style: normal;">false</em> ，则默认是 <em style="color: #d75100; font-style: normal;">event.preventDefault()</em> 和 <em style="color: #d75100; font-style: normal;">event.stopPropagation()</em> 行为。
+</p>
+
+<a class="anchor" name="toc34"></a>
+<h1 style="font-size: 20px; margin: 35px auto; border-bottom: 1px solid gray; padding-top: 5px; padding-bottom: 5px;">9. AJAX</h1>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+jQuery 对 AJAX 的封装参数比较多，而且，大部分在普通 Web 应用中用得很少，如果真是需要控制到那么精细的地步，我觉得首先应该反思一下设计。jQuery 的 AJAX 封装中，已经包括了两种异步请求类型， <em style="color: #d75100; font-style: normal;">XHR</em> ， <em style="color: #d75100; font-style: normal;">script</em> , 还差一种 <em style="color: #d75100; font-style: normal;">iframe</em> 就齐全了。同时， jQuery 的 AJAX 封装中，包括了对 <em style="color: #d75100; font-style: normal;">jsonp</em> 形式的支持。
+</p>
+
+<a class="anchor" name="toc35"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">9.1. 请求与回调</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+jQuery 的 AJAX ，核心的请求处理函数只有一个，就是 <em style="color: #d75100; font-style: normal;">$.ajax()</em> ，然后就是一个简单的上层函数。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">$.ajax()</em> 的基本使用形式是：
+</p>
+
+<dl style="">
+<dt style=""><code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">jQuery.ajax( settings )</code></dt><dd style="">
+    <em style="color: #d75100; font-style: normal;">settings</em> 是一个对象，里面包含了所有的配置项。
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+这里，只介绍常用的 <em style="color: #d75100; font-style: normal;">settings</em> 项：
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">url</em></dt><dd style="">
+    请求的地址。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">type</em></dt><dd style="">
+    请求的方法类型， <em style="color: #d75100; font-style: normal;">GET</em> , <em style="color: #d75100; font-style: normal;">POST</em> 。 默认是 <em style="color: #d75100; font-style: normal;">GET</em> 。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">data</em></dt><dd style="">
+    要发送出去的数据。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">dataType</em></dt><dd style="">
+    服务器返回的数据类型，支持： 'xml', 'html', 'script', 'json', 'jsonp', 'text' 。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">success</em></dt><dd style="">
+    请求成功时调用的处理函数。 <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">success(data, textStatus, jqXHR)</code> 。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">context</em></dt><dd style="">
+    回调函数执行时的上下文
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">cache</em></dt><dd style="">
+    默认为 <em style="color: #d75100; font-style: normal;">true</em> ，是否为请求单独添加一个随机参数以防止浏览器缓存
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">error</em></dt><dd style="">
+    请求错误时的调用函数。 <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">error(jqXHR, textStatus, errorThrown)</code> ，第二个参数是表示请求状态的字符串： "timeout", "error", "abort", "parsererror" 。第三个参数是当 HTTP 错误发生时，具体的错误描述： "Not Found", "Internal Server Error." 等。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">complete</em></dt><dd style="">
+    请求结束（无论成功或失败）时的一个回调函数。 <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">complete(jqXHR, textStatus)</code> ，第二个参数是表示请求状态的字符串： "success", "notmodified", "error", "timeout", "abort", "parsererror" 。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">jsonp</em></dt><dd style="">
+    一个参数名，默认是 <em style="color: #d75100; font-style: normal;">callback</em> ，一般用于指明回调函数名。设置成 <em style="color: #d75100; font-style: normal;">false</em> 可以让请求没有 <em style="color: #d75100; font-style: normal;">callback</em> 参数。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">jsonpCallback</em></dt><dd style="">
+    <em style="color: #d75100; font-style: normal;">callback</em> 参数值。默认是自动生成的一个随机值。
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+对于整套应用来说，其资源请求通常有一套约定的规则，使用 <em style="color: #d75100; font-style: normal;">$.ajaxSetup()</em> 可以配置参数的默认值，参数就是上面介绍的那些（不完整）。
+</p>
+
+<dl style="">
+<dt style=""><code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">$.ajax(options)</code></dt><dd style="">
+    AJAX 请求的默认配置。
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+前面提到过， <em style="color: #d75100; font-style: normal;">$.ajax()</em> 是一个核心函数，在其之上，有一些现成的封装，常用的是：
+</p>
+
+<dl style="">
+<dt style=""><code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">$.get( url [, data] [, success(data, textStatus, jqXHR)] [, dataType] )</code></dt><dd style="">
+    GET 请求
+</dd>
+<dt style=""><code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">$.post( url [, data] [, success(data, textStatus, jqXHR)] [, dataType] )</code></dt><dd style="">
+    POST 请求
+</dd>
+</dl>
+
+<a class="anchor" name="toc36"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">9.2. 请求的状态</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+一个 AJAX 请求可以看成是一个触发了一连串事件的总事件。这样，对于全局的所有 AJAX 请求而言，我们可以在任意节点上，绑定到全局任意 AJAX 请求的每一个事件：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&quot;#loading&quot;</span>).ajaxStart(<span style="color: #000000; font-weight: bold">function</span>(){
+   $(<span style="color: #000000; font-weight: bold">this</span>).show();
+ });
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.ajaxStart()</em></dt><dd style="">
+    请求将要发出时
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.ajaxSend()</em></dt><dd style="">
+    请求将要发出时(在 <em style="color: #d75100; font-style: normal;">.ajaxStart()</em> 后)
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.ajaxSuccess()</em></dt><dd style="">
+    请求成功
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.ajaxError()</em></dt><dd style="">
+    请求错误
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.ajaxComplete()</em></dt><dd style="">
+    请求完成
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">.ajaxStop()</em></dt><dd style="">
+    请求结束(在 <em style="color: #d75100; font-style: normal;">.ajaxComplete()</em> 后)
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+上面这几个 ajax 的全局事件，一般只在 <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">document</code> 上处理。
+</p>
+
+<a class="anchor" name="toc37"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">9.3. 工具函数</h2>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.serialize()</em></dt><dd style="">
+    解析表单参数项，返回字符串。
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;form&#39;</span>).submit(<span style="color: #000000; font-weight: bold">function</span>() {
+  alert($(<span style="color: #000000; font-weight: bold">this</span>).serialize());
+  <span style="color: #000000; font-weight: bold">return</span> <span style="color: #000000; font-weight: bold">false</span>;
+});
+<span style="color: #999988">//a=1&amp;b=2</span>
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">.serializeArray()</em></dt><dd style="">
+    解析表单参数项，返回一个列表对象。
+</dd>
+</dl>
+
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;form&#39;</span>).submit(<span style="color: #000000; font-weight: bold">function</span>() {
+  console.log($(<span style="color: #000000; font-weight: bold">this</span>).serializeArray());
+  <span style="color: #000000; font-weight: bold">return</span> <span style="color: #000000; font-weight: bold">false</span>;
+});
+
+<span style="color: #999988">//</span>
+[
+  {name<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;a&#39;</span>, value<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;1&#39;</span>},
+  {name<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;b&#39;</span>, value<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;2&#39;</span>}
+]
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc38"></a>
+<h1 style="font-size: 20px; margin: 35px auto; border-bottom: 1px solid gray; padding-top: 5px; padding-bottom: 5px;">10. 泛化回调</h1>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+前面已经介绍过的 AJAX 是一种典型的异步回调的过程，我们发出请求，然后定义了当请求返回时要做什么事。显然，同样的机制可以应用于任何的地方，特别是在于 javascript 这种本来大部分时候都处于异步的运行环境中时，回调的方式更是大有用武之地。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+好了，其实我要说的就是在除 AJAX 之外的地方，也应该有机制来支持我们使用异步回调。
+</p>
+
+<a class="anchor" name="toc39"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">10.1. Deferred</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">Deferred</em> 对象是在 jQuery1.5 中引入的回调管理对象。其作用，大概就是把一堆函数按顺序放入一个调用链，然后根据状态，来依次调用这些函数。 AJAX 的所有操作都是使用它来进行封装的。比如我们定义的，当请求正常返回时，会调用 <em style="color: #d75100; font-style: normal;">success</em> 定义的函数，失败时，会调用 <em style="color: #d75100; font-style: normal;">error</em> 定义的函数。这里的“失败”，“正常”就是状态，而对应的函数，只是调用链中的一个而且。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+先来看一个直观的例子：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> obj <span style="color: #000000; font-weight: bold">=</span> $.Deferred(<span style="color: #000000; font-weight: bold">function</span>(a){});
+obj.done(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">&#39;1&#39;</span>)});
+obj.done(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">&#39;2&#39;</span>)});
+obj.resolve();
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+这样，我们就可以按顺序看到 1 , 2 这两个输出了。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+总的来说， jQuery 的 <em style="color: #d75100; font-style: normal;">Deferred</em> 对象有三个状态： <em style="color: #d75100; font-style: normal;">done</em> , <em style="color: #d75100; font-style: normal;">fail</em> , <em style="color: #d75100; font-style: normal;">process</em> 。
+</p>
+
+<ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+<li style="margin: 10px auto;"><em style="color: #d75100; font-style: normal;">process</em> 只能先于其它两个状态先被激发。
+</li>
+<li style="margin: 10px auto;"><em style="color: #d75100; font-style: normal;">done</em> 和 <em style="color: #d75100; font-style: normal;">fail</em> 互斥，只能激发一个。
+</li>
+<li style="margin: 10px auto;"><em style="color: #d75100; font-style: normal;">process</em> 可以被重复激发，而 <em style="color: #d75100; font-style: normal;">done</em> 和 <em style="color: #d75100; font-style: normal;">fail</em> 只能激发一次。
+</li>
+</ul>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+然后， jQuery 提供了一些函数用于添加回调，激发状态等：
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">deferred.done()</em></dt><dd style="">
+    添加一个或多个成功回调。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">deferred.fail()</em></dt><dd style="">
+    添加一个或多个失败回调。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">deferred.always()</em></dt><dd style="">
+    添加一个函数，同时应用于成功和失败。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">deferred.progress()</em></dt><dd style="">
+    添加一个函数用于准备回调。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">deferred.then()</em></dt><dd style="">
+    依次接受三个函数，分别用于成功，失败，准备状态。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">deferred.reject()</em></dt><dd style="">
+    激发失败状态。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">deferred.resolve()</em></dt><dd style="">
+    激发成功状态。
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">deferred.notify()</em></dt><dd style="">
+    激发准备状态。
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+如果一个 <em style="color: #d75100; font-style: normal;">Deferred</em> 已经被激发，则新添加的对应的函数会被立即执行。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+除了上面的这些操作函数之外， jQuery 还提供了一个 <em style="color: #d75100; font-style: normal;">jQuery.when()</em> 的回调管理函数，可以用于方便地管理多个事件并发的情况，先看一个 AJAX 的“原始状态”例子：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> defer <span style="color: #000000; font-weight: bold">=</span> $.ajax({
+  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json.html&#39;</span>,
+  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>
+});
+
+defer.done(<span style="color: #000000; font-weight: bold">function</span>(data){console.log(data)});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">.done()</em> 做的事和使用 <em style="color: #d75100; font-style: normal;">success</em> 定义是一样的。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+当我们需要完成，像“请求A和请求B都完成时，执行函数”之类的需求时，使用 <em style="color: #d75100; font-style: normal;">$.when()</em> 就可以了：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> defer_1 <span style="color: #000000; font-weight: bold">=</span> $.ajax({
+  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json.html&#39;</span>,
+  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>
+});
+
+<span style="color: #000000; font-weight: bold">var</span> defer_2 <span style="color: #000000; font-weight: bold">=</span> $.ajax({
+  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/jsonp.html&#39;</span>,
+  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;jsonp&#39;</span>
+});
+
+<span style="color: #000000; font-weight: bold">var</span> new_defer <span style="color: #000000; font-weight: bold">=</span> $.when(defer_1, defer_2);
+new_defer.done(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">&#39;haha&#39;</span>)});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+在 <em style="color: #d75100; font-style: normal;">$.when()</em> 中的 <em style="color: #d75100; font-style: normal;">Deferred</em> ，只要有一个是 <em style="color: #d75100; font-style: normal;">fail</em> ，则整体结果为 <em style="color: #d75100; font-style: normal;">fail</em> 。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">Deferred</em> 的回调函数的执行顺序与它们的添加顺序一致。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+这里特别注意一点，就是 <em style="color: #d75100; font-style: normal;">done</em> / <em style="color: #d75100; font-style: normal;">fail</em> / <em style="color: #d75100; font-style: normal;">always</em> 与 <em style="color: #d75100; font-style: normal;">then</em> 的返回值的区别。从功能上看，它们都可以添加回调函数，但是，方法的返回值是不同的。 前组的返回值是原来的那个 <em style="color: #d75100; font-style: normal;">defer</em> 对象，而 <em style="color: #d75100; font-style: normal;">then</em> 返回的是一个新的 <em style="color: #d75100; font-style: normal;">defer</em> 对象。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">then</em> 返回新的 <em style="color: #d75100; font-style: normal;">defer</em> 这种形式，可以用于方便地实现异步函数的链式调用。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+比如对于：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> defer <span style="color: #000000; font-weight: bold">=</span> $.ajax({
+    url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json&#39;</span>,
+    dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>
+});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+如果使用 <em style="color: #d75100; font-style: normal;">done</em> 方法：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">defer.done(<span style="color: #000000; font-weight: bold">function</span>(){
+  <span style="color: #000000; font-weight: bold">return</span> $.ajax({
+    url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json&#39;</span>,
+    dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>,
+    success<span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(){
+      console.log(<span style="color: #dd1144">&#39;inner&#39;</span>)
+    }
+  });
+}).done(<span style="color: #000000; font-weight: bold">function</span>(){
+  console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+等同于是调用了两次 <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">defer.done</code> , <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">defer.done</code> ，注册的两次回调函数依次被执行后，我们看到的输出是：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">here
+inner
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+这是两次 <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">defer.done</code> 的结果，第一个回调函数返回了一个新的 <em style="color: #d75100; font-style: normal;">defer</em> 没任何作用。
+</p>
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+如果换成 <em style="color: #d75100; font-style: normal;">then</em> 方法的话：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">defer.then(<span style="color: #000000; font-weight: bold">function</span>(){
+  <span style="color: #000000; font-weight: bold">return</span> $.ajax({
+    url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json&#39;</span>,
+    dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>,
+    success<span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(){
+      console.log(<span style="color: #dd1144">&#39;inner&#39;</span>)
+    }
+  });
+}).done(<span style="color: #000000; font-weight: bold">function</span>(){
+  console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+上面的代码相当于：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> new_defer <span style="color: #000000; font-weight: bold">=</span> defer.then(...);
+new_defer.done(...);
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+它跟两次 <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">defer.done</code> 是不同的。 <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">new_defer</code> 会在 <code style="margin: auto 3px; color: #228b22; font-family: monospace; letter-spacing: 0;">inner</code> 那里的 defer 被触发时再被触发，所以输出结果是：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">inner
+here
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+更一般地来说 <em style="color: #d75100; font-style: normal;">then</em> 的行为，就是前面的注册函数的返回值，会作为后面注册函数的参数值：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> defer <span style="color: #000000; font-weight: bold">=</span> $.ajax({
+  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json&#39;</span>,
+  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>
+});
+
+defer.then(<span style="color: #000000; font-weight: bold">function</span>(res){
+  console.log(res);
+  <span style="color: #000000; font-weight: bold">return</span> <span style="color: #009999">1</span>;
+}).then(<span style="color: #000000; font-weight: bold">function</span>(res){
+  console.log(res);
+  <span style="color: #000000; font-weight: bold">return</span> <span style="color: #009999">2</span>;
+}).then(<span style="color: #000000; font-weight: bold">function</span>(res){
+  console.log(res);
+});
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+上面代码的输入结果是：
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">ajax response
+1
+2
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<a class="anchor" name="toc40"></a>
+<h2 style="font-size: 18px; margin: 30px auto;">10.2. Callbacks</h2>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+讲了 <em style="color: #d75100; font-style: normal;">Deferred</em> ，现在再来看 <em style="color: #d75100; font-style: normal;">Callbacks</em> ，这才是本源。事实上， <em style="color: #d75100; font-style: normal;">Deferred</em> 机制，只是在 <em style="color: #d75100; font-style: normal;">Callbacks</em> 机制的上层进行了一层简单封装而且。 <em style="color: #d75100; font-style: normal;">Callbacks</em> 对象，才是真正的 jQuery 中定义的原始的回调管理机制。
+</p>
+
+<div class="code" style="margin: 25px auto;">
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> obj <span style="color: #000000; font-weight: bold">=</span> $.Callbacks();
+obj.add(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">&#39;1&#39;</span>)});
+obj.add(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">&#39;2&#39;</span>)});
+obj.fire();
+</pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
+
+</div>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">Callbacks</em> 对象的初始化支持一组控制参数：
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">$.Callbacks( flags )</em></dt><dd style="">
+    初始化一个回调管理对象。 <em style="color: #d75100; font-style: normal;">flags</em> 是空格分割的多个字符串，以定义此回调对象的行为：
+    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
+    <li style="margin: 10px auto;"><em style="color: #d75100; font-style: normal;">once</em> 回调链只能被激发一次
+    </li>
+    <li style="margin: 10px auto;"><em style="color: #d75100; font-style: normal;">memory</em> 回调链被激发后，新添加的函数被立即执行
+    </li>
+    <li style="margin: 10px auto;"><em style="color: #d75100; font-style: normal;">unique</em> 相同的回调函数只能被添加一次
+    </li>
+    <li style="margin: 10px auto;"><em style="color: #d75100; font-style: normal;">stopOnFalse</em> 当有回调函数返回 <em style="color: #d75100; font-style: normal;">false</em> 时终止调用链的执行
+    </li>
+    </ul>
+</dd>
+</dl>
+
+<p style="line-height: 1.8em; margin: 25px auto; word-break: break-word; word-wrap: break-word;">
+<em style="color: #d75100; font-style: normal;">Callbacks</em> 的控制方法：
+</p>
+
+<dl style="">
+<dt style=""><em style="color: #d75100; font-style: normal;">callbacks.add()</em></dt><dd style="">
+    添加一个或一串回调函数
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">callbacks.fire()</em></dt><dd style="">
+    激发回调
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">callbacks.remove()</em></dt><dd style="">
+    从调用链中移除指定的函数
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">callbacks.empty()</em></dt><dd style="">
+    清空调用链
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">callbacks.disable()</em></dt><dd style="">
+    关闭调用链的继续执行，新添加的函数也不会被执行
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">callbacks.lock()</em></dt><dd style="">
+    锁定调用链，但是如果打开了 <em style="color: #d75100; font-style: normal;">memory</em> 的 flag ，新添加的函数仍然会执行
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">callbacks.has()</em></dt><dd style="">
+    检查一个函数是否处于回调链之中
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">callbacks.fired()</em></dt><dd style="">
+    检查调用链是否已经被激发
+</dd>
+<dt style=""><em style="color: #d75100; font-style: normal;">callbacks.locked()</em></dt><dd style="">
+    检查调用链是否被锁定
+</dd>
+</dl>
+
+
+<style type="text/css">
+body.z { background-color: #eff3fa; }
+body.z > .content { background-color: white; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); }
+body.z > .content > h1 { background-color: #0184b7; color: white; border-bottom: none; padding-left: 10px; border-radius: 5px; text-shadow: 0 2px 5px rgba(0, 0, 0, 0.9); }
+body.z > .content > .toc a:hover { background-color: #ddd; }
+body.z > .content > table th { background-color: rgba(223, 151, 27, 0.3);}
+body.z > .content > .quote:before { content: '引'; font-size: 30px; color: #ddd; font-family: "'Microsoft YaHei','WenQuanYi Micro Hei',SimHei,tahoma,sans-serif"; }
+body.z > .content ul > li, body.z > .content ol > li  { text-indent: -1em; }
+body.z > .content  > .toc ul > li, body.z > .content  > .toc ol > li  { text-indent: 0; }
+</style>
+    
+
+<script type="text/javascript" src="https://upcdn.b0.upaiyun.com/libs/jquery/jquery-2.0.3.min.js"></script>
+<script type="text/javascript">
+
+$(function(){
+    function bind_scroll(){
+        $('body.z > .content > .toc ol').css({listStyle: 'none'})
+        $('body.z > .content > .toc ul').css({listStyle: 'none'})
+        $('body.z > .content > .toc a').css({display: 'block', paddingLeft: '10px'})
+
+        var anchor_list = $.map($('.anchor'), function(n){
+            return $(n).offset().top;
+        });
+        var item = $('body.z > .content > .toc a');
+        var last = 0;
+        var flag = 0;
+
+        $(window).on('scroll', function(eventObj){
+            _set_item();
+        });
+
+        function set_item(){
+            var top = $(window).scrollTop();
+            if(top < anchor_list[0]){
+                item.eq(last).css({backgroundColor: '', color: '#0184b7'});
+                last = 0;
+                return;
+            }
+
+            for(var i = 0, l = anchor_list.length; i < l; i++){
+                if(top < anchor_list[i]){break}
+                flag = i;
+            }
+            item.eq(last).css({backgroundColor: '', color: '#0184b7'});
+            item.eq(flag).css({backgroundColor: '#ddd', color: '#333'});
+            last = flag;
+        }
+
+        var timer = null;
+        function _set_item(){
+            if(timer){
+                clearTimeout(timer);
+            }
+            timer = setTimeout(set_item, 100);
+        }
+    }
+
+    function create_toc(){
+        if($('body.z > .content > .toc').length == 0){
+            $('body.z > .content > .header').css('min-height', '200px');
+            return;
+        }
+        if($('body.z > .content > .toc').height() < 50){return}
+
+        //至少200空间
+        var space = ($(window).width() - $('body.z > .content').outerWidth());
+        if( space < 200 ){return}
+
+        $('body.z > .content > .header').css('min-height', '200px');
+
+        var toc_width = (space > 400 ? 400 : space);
+        var content_left = (space - toc_width - 20) / 2;
+
+        $('body.z > .content > .toc ol').css({
+            paddingLeft: '20px'
+        });
+        $('body.z > .content > .toc ul').css({
+            paddingLeft: '20px'
+        });
+
+        $('body.z > .content').css({
+            marginLeft: content_left + 'px'
+        });
+
+        $('body.z > .content > .toc').css({
+            fontSize: '12px',
+            width: toc_width + 'px',
+            backgroundColor: 'white',
+            border: '1px solid #ccc',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.3)',
+            position: 'fixed',
+            zIndex: 9999,
+            padding: '10px',
+            boxSizing: 'border-box',
+            top: '50px',
+            right: content_left + 'px',
+            overflow: 'auto',
+            maxHeight: $(window).height() - 100 + 'px'
+        });
+
+        bind_scroll();
+    }
+
+    function is_mobile(){
+        if(window.devicePixelRatio > 1 || navigator.userAgent.indexOf('Android') >= 0){
+            return true;
+        }
+        return false;
+    }
+
+    function mobile_meta(){
+        var ua=navigator.userAgent;
+        var meta = '';
+        if(ua.indexOf('Android')!=-1){
+            var isUC= /UC /.test(ua) || /UCBrowser/.test(ua) || /baidubrowser/.test(ua)|| /qq/i.test(ua);
+            if(isUC){
+                meta='<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,target-densitydpi=device-dpi,user-scalable=no" />';
+            } else {
+                meta='<meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=0.5,target-densitydpi=320,user-scalable=no" />';
+            }
+        }else{
+            meta='<meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=0.5,target-densitydpi=device-dpi,user-scalable=no,minimal-ui" />';
+        }
+        $('head').append(meta);
+    }
+
+    function mobile_adjust(){
+        $('body.z > .content').css({ width: '100%', padding: '15px' });
+        $('#qr').hide();
+        $('#disqus_thread').css({ width: '100%' });
+        $('body.z').css({ letterSpacing: 0 });
+        $('body.z p, body.z ul, body.z ol').css({ lineHeight: '1.5em' });
+        $('body.z ul > li, body.z ol > li').css({ textIndent: '-2em' });
+        $('body.z > .content > .toc ul > li, body.z > .content > .toc ol > li').css({ textIndent: 0, margin: 0 });
+        $('body.z pre').css({ whiteSpace: 'pre-wrap', wordWrap: 'break-word' });
+    }
+
+    function normal_adjust(){
+        $('body.z > .content > .toc ul > li, body.z > .content > .toc ol > li').css({ textIndent: 0, margin: 0 });
+    }
+
+    function code_view(){
+
+        $('pre').click(function(eventObj){
+            var $node = $($.clone(this));
+            $node.attr('style', '');
+            $node.css({
+                fontSize: '24px',
+                fontFamily: 'monospace',
+                whiteSpace: 'pre-wrap',
+                wordWrap: 'break-word',
+                lineHeight: '1.5em',
+                width: $(window).height(),
+                height: $(window).width(),
+                boxSizing: 'border-box',
+                padding: '10px',
+                paddingBottom: '30px',
+                overflow: 'hidden'
+            });
+            var $wrapper = $('<div></div>').css({
+                position: 'fixed',
+                padding: 0,
+                margin: 0,
+                boxSizing: 'border-box',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                width: $(window).height(),
+                height: $(window).width(),
+                overflow: 'hidden',
+                top: ($(window).height() - $(window).width()) / 2,
+                left: ($(window).width() - $(window).height()) / 2,
+                transform: 'rotate(90deg)',
+                zIndex: 999999
+            });
+
+            var $close = $('<div>&times;</div>').css({
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                width: '100px',
+                height: '100px',
+                lineHeight: '80px',
+                fontSize: '80px',
+                textAlign: 'center',
+                backgroundColor: 'rgba(204, 204, 204, 0.5)'
+            });
+
+            var $up = $('<div>△</div>').css({
+                position: 'absolute',
+                right: 0,
+                bottom: '300px',
+                width: '100px',
+                height: '100px',
+                lineHeight: '50px',
+                fontSize: '50px',
+                textAlign: 'center',
+                backgroundColor: 'rgba(204, 204, 204, 0.5)',
+                userSelect: 'none',
+                '-webkit-user-select': 'none'
+            });
+
+            var $down = $('<div>▽</div>').css({
+                position: 'absolute',
+                right: 0,
+                bottom: '100px',
+                width: '100px',
+                height: '100px',
+                lineHeight: '150px',
+                fontSize: '50px',
+                textAlign: 'center',
+                backgroundColor: 'rgba(204, 204, 204, 0.5)',
+                userSelect: 'none',
+                '-webkit-user-select': 'none'
+            });
+
+            $wrapper.append($node);
+            $wrapper.append($close);
+            $wrapper.append($up);
+            $wrapper.append($down);
+
+            $wrapper.on('touchstart', function(){
+                return false;
+            });
+
+            $close.on('touchstart', function(){
+                $close.css({ backgroundColor: '#0184b7' });
+                return false;
+            });
+            $close.on('touchend', function(){
+
+                $wrapper.off('touchend');
+                $close.off('touchstart');
+                $close.off('touchend');
+                $up.off('touchstart');
+                $up.off('touchend');
+                $down.off('touchstart');
+                $down.off('touchend');
+                $wrapper.remove();
+
+                return false;
+            });
+
+            var up_timer = null;
+            $up.on('touchstart', function(eventObj){
+                var start = $node.scrollTop();
+                var dx = 0;
+                $up.css({ backgroundColor: '#0184b7' });
+                up_timer = setInterval(function(){
+                    dx += 20;
+                    $node.scrollTop(start - dx);
+                }, 25);
+                return false;
+            });
+            $up.on('touchend', function(eventObj){
+                if(up_timer){clearInterval(up_timer)};
+                $up.css({ backgroundColor: 'rgba(204, 204, 204, 0.5)' });
+                return false;
+            });
+
+            var down_timer = null;
+            $down.on('touchstart', function(eventObj){
+                var start = $node.scrollTop();
+                var dx = 0;
+                $down.css({ backgroundColor: '#0184b7' });
+                down_timer = setInterval(function(){
+                    dx += 20;
+                    $node.scrollTop(start + dx);
+                }, 25);
+                return false;
+            });
+            $down.on('touchend', function(eventObj){
+                if(down_timer){clearInterval(down_timer)};
+                $down.css({ backgroundColor: 'rgba(204, 204, 204, 0.5)' });
+                return false;
+            });
+
+            $(this).before($wrapper);
+        });
+    
+    }
+
+    if(is_mobile()){
+        mobile_meta();
+        mobile_adjust();
+        code_view();
+    } else {
+        create_toc();
+        normal_adjust();
+    }
+});
+</script>
+    
+
+    <div style="padding: 4px; line-height: 1.4em; font-size: 22px; margin-top: 100px; margin-bottom: 20px; clear: both; text-align: center; font-weight: bold; ">评论</div>
+<div id="disqus_thread" style="width: 800px; margin: auto; "></div>
+<script type="text/javascript">
+  var disqus_shortname = 'zys';
+  var disqus_identifier = 'jquery';
+  var disqus_url = 'https://www.zouyesheng.com/jquery.html';
+  var disqus_title = 'jQuery学习笔记';
+
+  (function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>评论功能需要javascript的支持</noscript>
+    
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-29492100-1', {siteSpeedSampleRate: 100});
+ga('require', 'linkid');
+ga('set', 'dimension1', (new Date()).getDay().toString());
+ga('send', 'pageview');
+</script>
+    
+
+<div id="qr" style="position: absolute; right: 30px; top: 80px;"><img style="border: 1px solid gray;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKUAAAClAQAAAAAVUAB3AAABrElEQVR4nN2XMa7bMBBE31oC6I66
+AX2RL/lKvwxgwwKUe+QMuYHpXES6AdnRgKxJ41/F6cwi2XKLGcwSs7M08Wfddy+a8O91o5ntyeNi
+x9xiZnaoyGaSiB0B/IqT1nraWshdwARS9/mDeDxVn+9H9zBs0fxm3NfdWx6DWfc41GVDUZKL6RRK
+TyMnraHU0yYzA8BP6dvhbtbW1CZJiqmZSw9BklRNG7r6SQwag5MkLDX12Hb0+W4ldizlxsPcI9zr
+uRtdAQaNOGnEbVTU1tIDigb5+FPa396D+1cHpMuMpeYZBr0fazqg93YoH2FcnDQGxUVzVXePuKhp
+dlErDIl62nhazU/SFYKufqrpt80/ZZXej2irzEYzl96vuM2r+p78pfOwJ7cB8vmQh+57zcTp87oU
+OHHf+Wn2Mb0J92Uppovc5qUyaARLl5rv9pUBclcIijUd8HVz+ZUypBN7/FTP3c+b66ODPUAhV7y5
+UEwEp3QK2vwK1N2TAMTQArkN7kpTc5IA9JwAr7mQK6bpDrxmbrDYLp8PmFxNbTIzbHGz2/y43I/v
+wn1V9h//qH4DVHwBC/FRZZQAAAAASUVORK5CYII=
+" title="本文二维码网址" /></div>
+    
+
+<div style="font-size: 10px; text-align: right; margin-top: 50px; letter-spacing: 0;">
+&copy;2010-2016 zouyesheng.com All rights reserved. Powered by <a href="https://github.com/" target="_blank">GitHub</a> , <a href="http://txt2tags.org/" target="_blank">txt2tags</a> , <a href="https://www.mathjax.org/" target="_blank">MathJax</a>
+</div>
+    
+<!-- xhtml code generated by txt2tags 2.6 (http://txt2tags.org) -->
+</div></body></html>
