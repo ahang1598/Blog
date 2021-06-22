@@ -1,15 +1,5 @@
-<!DOCTYPE html>
-<html lang="zh-cmn-Hans">
-<head>
-    <meta charset="UTF-8" />
-    <title>jQuery学习笔记 - YS.Zou</title>
-    <meta name="generator" content="http://txt2tags.org" />
-    <meta name="author" content="Yesheng Zou,YS.Zou,邹业盛"/>
-</head>
-
-<body class="z" style="color: #333; font-size: 16px; letter-spacing: 0.2em; font-family: 'Microsoft YaHei','WenQuanYi Micro Hei',SimHei,tahoma,sans-serif; -webkit-font-smoothing: antialiased; margin: 0;">
-    <div class="content" style="width: 900px; margin: auto; padding: 30px; box-sizing: border-box; position: relative">
-        <div class="header">
+<div class="content" style="width: 900px; margin: auto auto auto 291.5px; padding: 30px; box-sizing: border-box; position: relative;">
+        <div class="header" style="min-height: 200px;">
             <h1 style="text-align: center; font-size: 26px; margin: 0;">jQuery学习笔记</h1>
             <div class="user" style="margin: 20px auto; text-align: center;">
                 <span>邹业盛</span>
@@ -17,104 +7,104 @@
             </div>
         </div>
 
-<div class="toc">
+<div class="toc" style="font-size: 12px; width: 400px; background-color: white; border: 1px solid rgb(204, 204, 204); box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 5px; position: fixed; z-index: 9999; padding: 10px; box-sizing: border-box; top: 50px; right: 291.5px; overflow: auto; max-height: 869px;">
 
-  <ol style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
-  <li style="margin: 10px auto;"><a href="#toc1" style="color: #0184b7; text-decoration: none">jQuery 是如何工作的</a>
-    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
-    <li style="margin: 10px auto;"><a href="#toc2" style="color: #0184b7; text-decoration: none">1.1. 开始使用jQuery</a>
+  <ol style="line-height: 1.6em; list-style: none; padding: 0px 0px 0px 20px; margin: auto;">
+  <li style="margin: 0px; text-indent: 0px;"><a href="#toc1" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">jQuery 是如何工作的</a>
+    <ul style="line-height: 1.6em; list-style: none; padding: 0px 0px 0px 20px; margin: auto;">
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc2" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">1.1. 开始使用jQuery</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc3" style="color: #0184b7; text-decoration: none">1.2. jQuery对象与DOM对象之间的转换</a>
-    </li>
-    </ul>
-  </li>
-  <li style="margin: 10px auto;"><a href="#toc4" style="color: #0184b7; text-decoration: none">丰富的选择器</a>
-    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
-    <li style="margin: 10px auto;"><a href="#toc5" style="color: #0184b7; text-decoration: none">2.1. 常规选择器</a>
-    </li>
-    <li style="margin: 10px auto;"><a href="#toc6" style="color: #0184b7; text-decoration: none">2.2. 属性选择器</a>
-    </li>
-    <li style="margin: 10px auto;"><a href="#toc7" style="color: #0184b7; text-decoration: none">2.3. 控件选择器</a>
-    </li>
-    <li style="margin: 10px auto;"><a href="#toc8" style="color: #0184b7; text-decoration: none">2.4. 其它选择器</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc3" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">1.2. jQuery对象与DOM对象之间的转换</a>
     </li>
     </ul>
   </li>
-  <li style="margin: 10px auto;"><a href="#toc9" style="color: #0184b7; text-decoration: none">节点漫游</a>
-    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
-    <li style="margin: 10px auto;"><a href="#toc10" style="color: #0184b7; text-decoration: none">3.1. 调用链处理</a>
+  <li style="margin: 0px; text-indent: 0px;"><a href="#toc4" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">丰富的选择器</a>
+    <ul style="line-height: 1.6em; list-style: none; padding: 0px 0px 0px 20px; margin: auto;">
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc5" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">2.1. 常规选择器</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc11" style="color: #0184b7; text-decoration: none">3.2. 子节点</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc6" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">2.2. 属性选择器</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc12" style="color: #0184b7; text-decoration: none">3.3. 兄弟节点</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc7" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">2.3. 控件选择器</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc13" style="color: #0184b7; text-decoration: none">3.4. 父节点</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc8" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">2.4. 其它选择器</a>
     </li>
     </ul>
   </li>
-  <li style="margin: 10px auto;"><a href="#toc14" style="color: #0184b7; text-decoration: none">元素控制相关</a>
-    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
-    <li style="margin: 10px auto;"><a href="#toc15" style="color: #0184b7; text-decoration: none">4.1. attributes和properties的区别</a>
+  <li style="margin: 0px; text-indent: 0px;"><a href="#toc9" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">节点漫游</a>
+    <ul style="line-height: 1.6em; list-style: none; padding: 0px 0px 0px 20px; margin: auto;">
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc10" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">3.1. 调用链处理</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc16" style="color: #0184b7; text-decoration: none">4.2. 类与属性控制</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc11" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">3.2. 子节点</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc17" style="color: #0184b7; text-decoration: none">4.3. 样式控制</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc12" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">3.3. 兄弟节点</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc18" style="color: #0184b7; text-decoration: none">4.4. 结构控制</a>
-      <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
-      <li style="margin: 10px auto;"><a href="#toc19" style="color: #0184b7; text-decoration: none">4.4.1. 文本节点</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc13" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">3.4. 父节点</a>
+    </li>
+    </ul>
+  </li>
+  <li style="margin: 0px; text-indent: 0px;"><a href="#toc14" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">元素控制相关</a>
+    <ul style="line-height: 1.6em; list-style: none; padding: 0px 0px 0px 20px; margin: auto;">
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc15" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">4.1. attributes和properties的区别</a>
+    </li>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc16" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">4.2. 类与属性控制</a>
+    </li>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc17" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">4.3. 样式控制</a>
+    </li>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc18" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">4.4. 结构控制</a>
+      <ul style="line-height: 1.6em; list-style: none; padding: 0px 0px 0px 20px; margin: auto;">
+      <li style="margin: 0px; text-indent: 0px;"><a href="#toc19" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">4.4.1. 文本节点</a>
       </li>
-      <li style="margin: 10px auto;"><a href="#toc20" style="color: #0184b7; text-decoration: none">4.4.2. 子节点</a>
+      <li style="margin: 0px; text-indent: 0px;"><a href="#toc20" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">4.4.2. 子节点</a>
       </li>
-      <li style="margin: 10px auto;"><a href="#toc21" style="color: #0184b7; text-decoration: none">4.4.3. 兄弟节点</a>
+      <li style="margin: 0px; text-indent: 0px;"><a href="#toc21" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">4.4.3. 兄弟节点</a>
       </li>
-      <li style="margin: 10px auto;"><a href="#toc22" style="color: #0184b7; text-decoration: none">4.4.4. 父节点</a>
+      <li style="margin: 0px; text-indent: 0px;"><a href="#toc22" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">4.4.4. 父节点</a>
       </li>
-      <li style="margin: 10px auto;"><a href="#toc23" style="color: #0184b7; text-decoration: none">4.4.5. 复制/删除/替换节点</a>
+      <li style="margin: 0px; text-indent: 0px;"><a href="#toc23" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">4.4.5. 复制/删除/替换节点</a>
       </li>
       </ul>
     </li>
     </ul>
   </li>
-  <li style="margin: 10px auto;"><a href="#toc24" style="color: #0184b7; text-decoration: none">工具函数</a>
-    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
-    <li style="margin: 10px auto;"><a href="#toc25" style="color: #0184b7; text-decoration: none">5.1. jQuery对象序列</a>
+  <li style="margin: 0px; text-indent: 0px;"><a href="#toc24" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">工具函数</a>
+    <ul style="line-height: 1.6em; list-style: none; padding: 0px 0px 0px 20px; margin: auto;">
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc25" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">5.1. jQuery对象序列</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc26" style="color: #0184b7; text-decoration: none">5.2. 通用工具</a>
-    </li>
-    </ul>
-  </li>
-  <li style="margin: 10px auto;"><a href="#toc27" style="color: #0184b7; text-decoration: none">上下文绑定</a>
-  </li>
-  <li style="margin: 10px auto;"><a href="#toc28" style="color: #0184b7; text-decoration: none">把数据存到节点中</a>
-  </li>
-  <li style="margin: 10px auto;"><a href="#toc29" style="color: #0184b7; text-decoration: none">事件处理</a>
-    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
-    <li style="margin: 10px auto;"><a href="#toc30" style="color: #0184b7; text-decoration: none">8.1. 事件绑定</a>
-    </li>
-    <li style="margin: 10px auto;"><a href="#toc31" style="color: #0184b7; text-decoration: none">8.2. 事件触发</a>
-    </li>
-    <li style="margin: 10px auto;"><a href="#toc32" style="color: #0184b7; text-decoration: none">8.3. 事件类型</a>
-    </li>
-    <li style="margin: 10px auto;"><a href="#toc33" style="color: #0184b7; text-decoration: none">8.4. 事件对象</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc26" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">5.2. 通用工具</a>
     </li>
     </ul>
   </li>
-  <li style="margin: 10px auto;"><a href="#toc34" style="color: #0184b7; text-decoration: none">AJAX</a>
-    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
-    <li style="margin: 10px auto;"><a href="#toc35" style="color: #0184b7; text-decoration: none">9.1. 请求与回调</a>
+  <li style="margin: 0px; text-indent: 0px;"><a href="#toc27" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">上下文绑定</a>
+  </li>
+  <li style="margin: 0px; text-indent: 0px;"><a href="#toc28" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">把数据存到节点中</a>
+  </li>
+  <li style="margin: 0px; text-indent: 0px;"><a href="#toc29" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">事件处理</a>
+    <ul style="line-height: 1.6em; list-style: none; padding: 0px 0px 0px 20px; margin: auto;">
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc30" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">8.1. 事件绑定</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc36" style="color: #0184b7; text-decoration: none">9.2. 请求的状态</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc31" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">8.2. 事件触发</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc37" style="color: #0184b7; text-decoration: none">9.3. 工具函数</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc32" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">8.3. 事件类型</a>
+    </li>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc33" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">8.4. 事件对象</a>
     </li>
     </ul>
   </li>
-  <li style="margin: 10px auto;"><a href="#toc38" style="color: #0184b7; text-decoration: none">泛化回调</a>
-    <ul style="line-height: 1.6em; list-style: inside square; padding: 0px; padding-left: 50px; margin: auto;">
-    <li style="margin: 10px auto;"><a href="#toc39" style="color: #0184b7; text-decoration: none">10.1. Deferred</a>
+  <li style="margin: 0px; text-indent: 0px;"><a href="#toc34" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">AJAX</a>
+    <ul style="line-height: 1.6em; list-style: none; padding: 0px 0px 0px 20px; margin: auto;">
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc35" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">9.1. 请求与回调</a>
     </li>
-    <li style="margin: 10px auto;"><a href="#toc40" style="color: #0184b7; text-decoration: none">10.2. Callbacks</a>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc36" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">9.2. 请求的状态</a>
+    </li>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc37" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">9.3. 工具函数</a>
+    </li>
+    </ul>
+  </li>
+  <li style="margin: 0px; text-indent: 0px;"><a href="#toc38" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">泛化回调</a>
+    <ul style="line-height: 1.6em; list-style: none; padding: 0px 0px 0px 20px; margin: auto;">
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc39" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">10.1. Deferred</a>
+    </li>
+    <li style="margin: 0px; text-indent: 0px;"><a href="#toc40" style="color: rgb(1, 132, 183); text-decoration: none; display: block; padding-left: 10px;">10.2. Callbacks</a>
     </li>
     </ul>
   </li>
@@ -143,7 +133,7 @@ jQuery 本身只有一个 js 文件，所以，要使用它，就和使用其它
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;script </span><span style="color: #008080">type=</span><span style="color: #dd1144">&quot;text/javascript&quot;</span> <span style="color: #008080">src=</span><span style="color: #dd1144">&quot;jquery-1.8.3.js&quot;</span><span style="color: #000080">&gt;&lt;/script&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;script </span><span style="color: #008080">type=</span><span style="color: #dd1144">"text/javascript"</span> <span style="color: #008080">src=</span><span style="color: #dd1144">"jquery-1.8.3.js"</span><span style="color: #000080">&gt;&lt;/script&gt;</span>
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -155,9 +145,9 @@ jQuery 本身只有一个 js 文件，所以，要使用它，就和使用其它
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;script&gt;</span>
 $(<span style="color: #0086B3">document</span>).ready(<span style="color: #000000; font-weight: bold">function</span>(){
-  alert(<span style="color: #dd1144">&#39;Hello World!&#39;</span>);
-  $(<span style="color: #dd1144">&quot;p&quot;</span>).click(<span style="color: #000000; font-weight: bold">function</span>(event){
-    alert(<span style="color: #dd1144">&#39;Thanks for visiting!&#39;</span>);
+  alert(<span style="color: #dd1144">'Hello World!'</span>);
+  $(<span style="color: #dd1144">"p"</span>).click(<span style="color: #000000; font-weight: bold">function</span>(event){
+    alert(<span style="color: #dd1144">'Thanks for visiting!'</span>);
   });
 });
 <span style="color: #000080">&lt;/script&gt;</span>
@@ -206,18 +196,18 @@ $j <span style="color: #000000; font-weight: bold">=</span> jQuery.noConflict();
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;ul&gt;</span>
-  <span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;foo&quot;</span><span style="color: #000080">&gt;</span>foo<span style="color: #000080">&lt;/li&gt;</span>
-  <span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;bar&quot;</span><span style="color: #000080">&gt;</span>bar<span style="color: #000080">&lt;/li&gt;</span>
+  <span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"foo"</span><span style="color: #000080">&gt;</span>foo<span style="color: #000080">&lt;/li&gt;</span>
+  <span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"bar"</span><span style="color: #000080">&gt;</span>bar<span style="color: #000080">&lt;/li&gt;</span>
 <span style="color: #000080">&lt;/ul&gt;</span>
 
-$(&#39;li&#39;).get();
-//[<span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;foo&quot;</span><span style="color: #000080">&gt;</span>, <span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;bar&quot;</span><span style="color: #000080">&gt;</span>]
+$('li').get();
+//[<span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"foo"</span><span style="color: #000080">&gt;</span>, <span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"bar"</span><span style="color: #000080">&gt;</span>]
 
-$(&#39;li&#39;).get(0);
-//<span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;foo&quot;</span><span style="color: #000080">&gt;</span>
+$('li').get(0);
+//<span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"foo"</span><span style="color: #000080">&gt;</span>
 
-$(&#39;li&#39;).get(-1);
-//<span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;bar&quot;</span><span style="color: #000080">&gt;</span>
+$('li').get(-1);
+//<span style="color: #000080">&lt;li</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"bar"</span><span style="color: #000080">&gt;</span>
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -383,19 +373,19 @@ $(&#39;li&#39;).get(-1);
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;ul</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;first&quot;</span><span style="color: #000080">&gt;</span>
-   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;foo&quot;</span><span style="color: #000080">&gt;</span>list item 1<span style="color: #000080">&lt;/li&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;ul</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"first"</span><span style="color: #000080">&gt;</span>
+   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"foo"</span><span style="color: #000080">&gt;</span>list item 1<span style="color: #000080">&lt;/li&gt;</span>
    <span style="color: #000080">&lt;li&gt;</span>list item 2<span style="color: #000080">&lt;/li&gt;</span>
-   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;bar&quot;</span><span style="color: #000080">&gt;</span>list item 3<span style="color: #000080">&lt;/li&gt;</span>
+   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"bar"</span><span style="color: #000080">&gt;</span>list item 3<span style="color: #000080">&lt;/li&gt;</span>
 <span style="color: #000080">&lt;/ul&gt;</span>
-<span style="color: #000080">&lt;ul</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;second&quot;</span><span style="color: #000080">&gt;</span>
-   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;foo&quot;</span><span style="color: #000080">&gt;</span>list item 1<span style="color: #000080">&lt;/li&gt;</span>
+<span style="color: #000080">&lt;ul</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"second"</span><span style="color: #000080">&gt;</span>
+   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"foo"</span><span style="color: #000080">&gt;</span>list item 1<span style="color: #000080">&lt;/li&gt;</span>
    <span style="color: #000080">&lt;li&gt;</span>list item 2<span style="color: #000080">&lt;/li&gt;</span>
-   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;bar&quot;</span><span style="color: #000080">&gt;</span>list item 3<span style="color: #000080">&lt;/li&gt;</span>
+   <span style="color: #000080">&lt;li</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"bar"</span><span style="color: #000080">&gt;</span>list item 3<span style="color: #000080">&lt;/li&gt;</span>
 <span style="color: #000080">&lt;/ul&gt;</span>
 
-$(&#39;ul.first&#39;).find(&#39;.foo&#39;).css(&#39;background-color&#39;, &#39;red&#39;)
-  .end().find(&#39;.bar&#39;).css(&#39;background-color&#39;, &#39;green&#39;);
+$('ul.first').find('.foo').css('background-color', 'red')
+  .end().find('.bar').css('background-color', 'green');
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -438,7 +428,7 @@ $(&#39;ul.first&#39;).find(&#39;.foo&#39;).css(&#39;background-color&#39;, &#39;
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;body</span> <span style="color: #008080">onload=</span><span style="color: #dd1144">&quot;prettyPrint()&quot;</span><span style="color: #000080">&gt;&lt;/body&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;body</span> <span style="color: #008080">onload=</span><span style="color: #dd1144">"prettyPrint()"</span><span style="color: #000080">&gt;&lt;/body&gt;</span>
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -451,7 +441,7 @@ $(&#39;ul.first&#39;).find(&#39;.foo&#39;).css(&#39;background-color&#39;, &#39;
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(&#39;body&#39;).get(0).tagName;
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$('body').get(0).tagName;
 //BODY
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -472,11 +462,11 @@ $(&#39;ul.first&#39;).find(&#39;.foo&#39;).css(&#39;background-color&#39;, &#39;
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(&#39;body&#39;).addClass(&#39;test&#39;);
-$(&#39;body&#39;).addClass(function(index, current){return current + &#39;new&#39;});
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$('body').addClass('test');
+$('body').addClass(function(index, current){return current + 'new'});
 
-$(&#39;body&#39;).removeClass(&#39;test&#39;);
-$(&#39;body&#39;).removeClass(function(index, current){return current + &#39; &#39; + &#39;other&#39;});
+$('body').removeClass('test');
+$('body').removeClass(function(index, current){return current + ' ' + 'other'});
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -489,18 +479,18 @@ $(&#39;body&#39;).removeClass(function(index, current){return current + &#39; &#
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;img</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;test other&quot;</span> <span style="color: #000080">/&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;img</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"test other"</span> <span style="color: #000080">/&gt;</span>
 
-$(&#39;img&#39;).toggleClass(); //对所有类的开关
-$(&#39;img&#39;).toggleClass(&#39;test&#39;); //对指定类的开关
-$(&#39;img&#39;).toggleClass(isTrue); //根据isTrue判断所有类的开关
-$(&#39;img&#39;).toggleClass(&#39;test&#39;, isTrue); //根据isTrue判断指定类的开关
+$('img').toggleClass(); //对所有类的开关
+$('img').toggleClass('test'); //对指定类的开关
+$('img').toggleClass(isTrue); //根据isTrue判断所有类的开关
+$('img').toggleClass('test', isTrue); //根据isTrue判断指定类的开关
 
-//同 $(&#39;img&#39;).toggleClass(&#39;test&#39;) 只是类名由函数返回
-$(&#39;img&#39;).toggleClass(function(index, class, isTrue){return &#39;name&#39;});
+//同 $('img').toggleClass('test') 只是类名由函数返回
+$('img').toggleClass(function(index, class, isTrue){return 'name'});
 
 //isTrue会作为函数的第三个参数传入
-$(&#39;img&#39;).toggleClass(function(index, class, isTrue){return &#39;name&#39;}, isTrue);
+$('img').toggleClass(function(index, class, isTrue){return 'name'}, isTrue);
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -513,20 +503,20 @@ $(&#39;img&#39;).toggleClass(function(index, class, isTrue){return &#39;name&#39
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;img</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;greatphoto&quot;</span> <span style="color: #008080">src=</span><span style="color: #dd1144">&quot;brush-seller.jpg&quot;</span> <span style="color: #008080">alt=</span><span style="color: #dd1144">&quot;brush seller&quot;</span> <span style="color: #000080">/&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;img</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"greatphoto"</span> <span style="color: #008080">src=</span><span style="color: #dd1144">"brush-seller.jpg"</span> <span style="color: #008080">alt=</span><span style="color: #dd1144">"brush seller"</span> <span style="color: #000080">/&gt;</span>
 
-$(&#39;#greatphoto&#39;).attr(&#39;alt&#39;); //获取属性
-$(&#39;#greatphoto&#39;).attr(&#39;alt&#39;, &#39;Beijing Brush Seller&#39;); //设置属性
+$('#greatphoto').attr('alt'); //获取属性
+$('#greatphoto').attr('alt', 'Beijing Brush Seller'); //设置属性
 
 //同时设置多个属性
-$(&#39;#greatphoto&#39;).attr({
-  alt: &#39;Beijing Brush Seller&#39;,
-  title: &#39;photo by Kelly Clark&#39;
+$('#greatphoto').attr({
+  alt: 'Beijing Brush Seller',
+  title: 'photo by Kelly Clark'
 });
 
 //设置属性为函数返回值, 函数的上下文为当前元素
-$(&#39;#greatphoto&#39;).attr(&#39;title&#39;, function(i, val) {
-  return val + &#39; - photo by Kelly Clark&#39;;
+$('#greatphoto').attr('title', function(i, val) {
+  return val + ' - photo by Kelly Clark';
 });
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -546,10 +536,10 @@ $(&#39;#greatphoto&#39;).attr(&#39;title&#39;, function(i, val) {
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;input</span> <span style="color: #008080">type=</span><span style="color: #dd1144">&quot;hidden&quot;</span> <span style="color: #008080">value=</span><span style="color: #dd1144">&quot;test&quot;</span> <span style="color: #000080">/&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;input</span> <span style="color: #008080">type=</span><span style="color: #dd1144">"hidden"</span> <span style="color: #008080">value=</span><span style="color: #dd1144">"test"</span> <span style="color: #000080">/&gt;</span>
 
-$(&#39;input&#39;).val();
-$(&#39;input&#39;).val(&#39;other&#39;);
+$('input').val();
+$('input').val('other');
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -564,9 +554,9 @@ $(&#39;input&#39;).val(&#39;other&#39;);
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div&gt;&lt;span&gt;</span>测试<span style="color: #000080">&lt;/span&gt;&lt;/div&gt;</span>
 
-$(&#39;div&#39;).html();
-$(&#39;div&#39;).html(&#39;<span style="color: #000080">&lt;div&gt;</span>测试<span style="color: #000080">&lt;/div&gt;</span>&#39;);
-$(&#39;div&#39;).html(function(index, old){return old + &#39;<span style="color: #000080">&lt;span&gt;</span>另外的内容<span style="color: #000080">&lt;/span&gt;</span>&#39;});
+$('div').html();
+$('div').html('<span style="color: #000080">&lt;div&gt;</span>测试<span style="color: #000080">&lt;/div&gt;</span>');
+$('div').html(function(index, old){return old + '<span style="color: #000080">&lt;span&gt;</span>另外的内容<span style="color: #000080">&lt;/span&gt;</span>'});
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -582,10 +572,10 @@ $(&#39;div&#39;).html(function(index, old){return old + &#39;<span style="color:
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(&#39;body&#39;).css(&#39;background-color&#39;);
-$(&#39;body&#39;).css(&#39;background-color&#39;, &#39;red&#39;);
-$(&#39;body&#39;).css(&#39;background-color&#39;, function(index, value){return value + &#39;1&#39;});
-$(&#39;body&#39;).css({color: &#39;green&#39;, &#39;background-color&#39;: &#39;red&#39;});
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$('body').css('background-color');
+$('body').css('background-color', 'red');
+$('body').css('background-color', function(index, value){return value + '1'});
+$('body').css({color: 'green', 'background-color': 'red'});
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -598,9 +588,9 @@ $(&#39;body&#39;).css({color: &#39;green&#39;, &#39;background-color&#39;: &#39;
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(&#39;body&#39;).width();
-$(&#39;body&#39;).width(50);
-$(&#39;body&#39;).width(function(index, value){return value += 10});
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$('body').width();
+$('body').width(50);
+$('body').width(function(index, value){return value += 10});
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -642,20 +632,20 @@ $(&#39;body&#39;).width(function(index, value){return value += 10});
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;h2&gt;</span>Greetings<span style="color: #000080">&lt;/h2&gt;</span>
-<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"container"</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
 <span style="color: #000080">&lt;/div&gt;</span>
 
-$(&#39;.inner&#39;).append(&#39;<span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>&#39;);
+$('.inner').append('<span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>');
 
 <span style="color: #000080">&lt;h2&gt;</span>Greetings<span style="color: #000080">&lt;/h2&gt;</span>
-<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"container"</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>
     Hello
     <span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>
   <span style="color: #000080">&lt;/div&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>
     Goodbye
     <span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>
   <span style="color: #000080">&lt;/div&gt;</span>
@@ -669,11 +659,11 @@ $(&#39;.inner&#39;).append(&#39;<span style="color: #000080">&lt;p&gt;</span>Tes
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> $newdiv1 <span style="color: #000000; font-weight: bold">=</span> $(<span style="color: #dd1144">&#39;&lt;div id=&quot;object1&quot;/&gt;&#39;</span>),
-    newdiv2 <span style="color: #000000; font-weight: bold">=</span> <span style="color: #0086B3">document</span>.createElement(<span style="color: #dd1144">&#39;div&#39;</span>),
-    existingdiv1 <span style="color: #000000; font-weight: bold">=</span> <span style="color: #0086B3">document</span>.getElementById(<span style="color: #dd1144">&#39;foo&#39;</span>);
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> $newdiv1 <span style="color: #000000; font-weight: bold">=</span> $(<span style="color: #dd1144">'&lt;div id="object1"/&gt;'</span>),
+    newdiv2 <span style="color: #000000; font-weight: bold">=</span> <span style="color: #0086B3">document</span>.createElement(<span style="color: #dd1144">'div'</span>),
+    existingdiv1 <span style="color: #000000; font-weight: bold">=</span> <span style="color: #0086B3">document</span>.getElementById(<span style="color: #dd1144">'foo'</span>);
 
-$(<span style="color: #dd1144">&#39;body&#39;</span>).append($newdiv1, [newdiv2, existingdiv1]);
+$(<span style="color: #dd1144">'body'</span>).append($newdiv1, [newdiv2, existingdiv1]);
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -688,19 +678,19 @@ $(<span style="color: #dd1144">&#39;body&#39;</span>).append($newdiv1, [newdiv2,
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"container"</span><span style="color: #000080">&gt;</span>
   <span style="color: #000080">&lt;h2&gt;</span>Greetings<span style="color: #000080">&lt;/h2&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
 <span style="color: #000080">&lt;/div&gt;</span>
 
-$(&#39;.inner&#39;).after(&#39;<span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>&#39;);
+$('.inner').after('<span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>');
 
-<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"container"</span><span style="color: #000080">&gt;</span>
   <span style="color: #000080">&lt;h2&gt;</span>Greetings<span style="color: #000080">&lt;/h2&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
   <span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
   <span style="color: #000080">&lt;p&gt;</span>Test<span style="color: #000080">&lt;/p&gt;</span>
 <span style="color: #000080">&lt;/div&gt;</span>
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
@@ -717,41 +707,41 @@ $(&#39;.inner&#39;).after(&#39;<span style="color: #000080">&lt;p&gt;</span>Test
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"container"</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
 <span style="color: #000080">&lt;/div&gt;</span>
 
-$(&#39;.inner&#39;).wrap(&#39;<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span> <span style="color: #000080">/&gt;</span>&#39;);
+$('.inner').wrap('<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"new"</span> <span style="color: #000080">/&gt;</span>');
 
-<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span><span style="color: #000080">&gt;</span>
-    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"container"</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"new"</span><span style="color: #000080">&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
   <span style="color: #000080">&lt;/div&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span><span style="color: #000080">&gt;</span>
-    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
-  <span style="color: #000080">&lt;/div&gt;</span>
-<span style="color: #000080">&lt;/div&gt;</span>
-
-
-$(&#39;.inner&#39;).wrapAll(&#39;<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span> <span style="color: #000080">/&gt;</span>&#39;);
-
-<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span><span style="color: #000080">&gt;</span>
-    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
-    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"new"</span><span style="color: #000080">&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
   <span style="color: #000080">&lt;/div&gt;</span>
 <span style="color: #000080">&lt;/div&gt;</span>
 
 
-$(&#39;.inner&#39;).wrapInner(&#39;<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span> <span style="color: #000080">/&gt;</span>&#39;);
+$('.inner').wrapAll('<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"new"</span> <span style="color: #000080">/&gt;</span>');
 
-<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;container&quot;</span><span style="color: #000080">&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>
-    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"container"</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"new"</span><span style="color: #000080">&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
   <span style="color: #000080">&lt;/div&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;inner&quot;</span><span style="color: #000080">&gt;</span>
-    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">&quot;new&quot;</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
+<span style="color: #000080">&lt;/div&gt;</span>
+
+
+$('.inner').wrapInner('<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"new"</span> <span style="color: #000080">/&gt;</span>');
+
+<span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"container"</span><span style="color: #000080">&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"new"</span><span style="color: #000080">&gt;</span>Hello<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"inner"</span><span style="color: #000080">&gt;</span>
+    <span style="color: #000080">&lt;div</span> <span style="color: #008080">class=</span><span style="color: #dd1144">"new"</span><span style="color: #000080">&gt;</span>Goodbye<span style="color: #000080">&lt;/div&gt;</span>
   <span style="color: #000080">&lt;/div&gt;</span>
 <span style="color: #000080">&lt;/div&gt;</span>
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
@@ -801,14 +791,14 @@ $(&#39;.inner&#39;).wrapInner(&#39;<span style="color: #000080">&lt;div</span> <
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;:checkbox&#39;</span>).map(<span style="color: #000000; font-weight: bold">function</span>() {
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">':checkbox'</span>).map(<span style="color: #000000; font-weight: bold">function</span>() {
   <span style="color: #000000; font-weight: bold">return</span> <span style="color: #000000; font-weight: bold">this</span>.id;
-}).get().join(<span style="color: #dd1144">&#39;,&#39;</span>);
+}).get().join(<span style="color: #dd1144">','</span>);
 
 
-$(<span style="color: #dd1144">&#39;:checkbox&#39;</span>).map(<span style="color: #000000; font-weight: bold">function</span>(index, node) {
+$(<span style="color: #dd1144">':checkbox'</span>).map(<span style="color: #000000; font-weight: bold">function</span>(index, node) {
   <span style="color: #000000; font-weight: bold">return</span> node.id;
-}).get().join(<span style="color: #dd1144">&#39;,&#39;</span>);
+}).get().join(<span style="color: #dd1144">','</span>);
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -821,9 +811,9 @@ $(<span style="color: #dd1144">&#39;:checkbox&#39;</span>).map(<span style="colo
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;li&#39;</span>).slice(<span style="color: #009999">2</span>).css(<span style="color: #dd1144">&#39;background-color&#39;</span>, <span style="color: #dd1144">&#39;red&#39;</span>);
-$(<span style="color: #dd1144">&#39;li&#39;</span>).slice(<span style="color: #009999">2</span>, <span style="color: #009999">4</span>).css(<span style="color: #dd1144">&#39;background-color&#39;</span>, <span style="color: #dd1144">&#39;red&#39;</span>);
-$(<span style="color: #dd1144">&#39;li&#39;</span>).slice(<span style="color: #000000; font-weight: bold">-</span><span style="color: #009999">2</span>, <span style="color: #000000; font-weight: bold">-</span><span style="color: #009999">1</span>).css(<span style="color: #dd1144">&#39;background-color&#39;</span>, <span style="color: #dd1144">&#39;red&#39;</span>);
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'li'</span>).slice(<span style="color: #009999">2</span>).css(<span style="color: #dd1144">'background-color'</span>, <span style="color: #dd1144">'red'</span>);
+$(<span style="color: #dd1144">'li'</span>).slice(<span style="color: #009999">2</span>, <span style="color: #009999">4</span>).css(<span style="color: #dd1144">'background-color'</span>, <span style="color: #dd1144">'red'</span>);
+$(<span style="color: #dd1144">'li'</span>).slice(<span style="color: #000000; font-weight: bold">-</span><span style="color: #009999">2</span>, <span style="color: #000000; font-weight: bold">-</span><span style="color: #009999">1</span>).css(<span style="color: #dd1144">'background-color'</span>, <span style="color: #dd1144">'red'</span>);
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -840,7 +830,7 @@ $(<span style="color: #dd1144">&#39;li&#39;</span>).slice(<span style="color: #0
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$.each([<span style="color: #009999">52</span>, <span style="color: #009999">97</span>], <span style="color: #000000; font-weight: bold">function</span>(index, value) { 
-  alert(index <span style="color: #000000; font-weight: bold">+</span> <span style="color: #dd1144">&#39;: &#39;</span> <span style="color: #000000; font-weight: bold">+</span> value); 
+  alert(index <span style="color: #000000; font-weight: bold">+</span> <span style="color: #dd1144">': '</span> <span style="color: #000000; font-weight: bold">+</span> value); 
 });
 
 $.map( [<span style="color: #009999">0</span>,<span style="color: #009999">1</span>,<span style="color: #009999">2</span>], <span style="color: #000000; font-weight: bold">function</span>(index, n){
@@ -868,7 +858,7 @@ $.map( dimensions, <span style="color: #000000; font-weight: bold">function</spa
 $.map( dimensions, <span style="color: #000000; font-weight: bold">function</span>( value, key ) {
   <span style="color: #000000; font-weight: bold">return</span> key;
 });
-<span style="color: #999988">//[&quot;width&quot;, &quot;height&quot;, &quot;length&quot;]</span>
+<span style="color: #999988">//["width", "height", "length"]</span>
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -945,10 +935,10 @@ $.grep( [<span style="color: #009999">0</span>,<span style="color: #009999">1</s
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> xml <span style="color: #000000; font-weight: bold">=</span> <span style="color: #dd1144">&quot;&lt;rss version=&#39;2.0&#39;&gt;&lt;channel&gt;&lt;title&gt;RSS Title&lt;/title&gt;&lt;/channel&gt;&lt;/rss&gt;&quot;</span>,
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> xml <span style="color: #000000; font-weight: bold">=</span> <span style="color: #dd1144">"&lt;rss version='2.0'&gt;&lt;channel&gt;&lt;title&gt;RSS Title&lt;/title&gt;&lt;/channel&gt;&lt;/rss&gt;"</span>,
 xmlDoc <span style="color: #000000; font-weight: bold">=</span> $.parseXML( xml ),
 $xml <span style="color: #000000; font-weight: bold">=</span> $( xmlDoc ),
-$title <span style="color: #000000; font-weight: bold">=</span> $xml.find( <span style="color: #dd1144">&quot;title&quot;</span> );
+$title <span style="color: #000000; font-weight: bold">=</span> $xml.find( <span style="color: #dd1144">"title"</span> );
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -965,24 +955,24 @@ $title <span style="color: #000000; font-weight: bold">=</span> $xml.find( <span
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #a61717; background-color: #e3d2d2">#</span> If the object is <span style="color: #000000; font-weight: bold">undefined</span> or <span style="color: #000000; font-weight: bold">null</span>,
-<span style="color: #a61717; background-color: #e3d2d2">#</span>then <span style="color: #dd1144">&quot;undefined&quot;</span> or <span style="color: #dd1144">&quot;null&quot;</span> is returned accordingly.
+<span style="color: #a61717; background-color: #e3d2d2">#</span>then <span style="color: #dd1144">"undefined"</span> or <span style="color: #dd1144">"null"</span> is returned accordingly.
 
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">undefined</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;undefined&quot;</span>
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type() <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;undefined&quot;</span>
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #0086B3">window</span>.notDefined) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;undefined&quot;</span>
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">null</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;null&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">undefined</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"undefined"</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type() <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"undefined"</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #0086B3">window</span>.notDefined) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"undefined"</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">null</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"null"</span>
 
 <span style="color: #a61717; background-color: #e3d2d2">#</span> If the object has an internal [[Class]] equivalent to
-<span style="color: #a61717; background-color: #e3d2d2">#</span>one of the browser<span style="color: #a61717; background-color: #e3d2d2">&#39;</span>s built<span style="color: #000000; font-weight: bold">-in</span> objects, the associated name is returned.
+<span style="color: #a61717; background-color: #e3d2d2">#</span>one of the browser<span style="color: #a61717; background-color: #e3d2d2">'</span>s built<span style="color: #000000; font-weight: bold">-in</span> objects, the associated name is returned.
 <span style="color: #a61717; background-color: #e3d2d2">#</span>(More details about <span style="color: #000000; font-weight: bold">this</span> technique.)
 
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">true</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;boolean&quot;</span>
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #009999">3</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;number&quot;</span>
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #dd1144">&quot;test&quot;</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;string&quot;</span>
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">function</span>(){}) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;function&quot;</span>
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type([]) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;array&quot;</span>
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">new</span> <span style="color: #0086B3">Date</span>()) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;date&quot;</span>
-<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #009926">/test/</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">&quot;regexp&quot;</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">true</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"boolean"</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #009999">3</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"number"</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #dd1144">"test"</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"string"</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">function</span>(){}) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"function"</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type([]) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"array"</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #000000; font-weight: bold">new</span> <span style="color: #0086B3">Date</span>()) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"date"</span>
+<span style="color: #000000; font-weight: bold">*</span> jQuery.type(<span style="color: #009926">/test/</span>) <span style="color: #000000; font-weight: bold">===</span> <span style="color: #dd1144">"regexp"</span>
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -1035,7 +1025,7 @@ jQuery 中有一个函数专门用于处理上下文绑定，虽然我觉得把 
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> o <span style="color: #000000; font-weight: bold">=</span> {
-  x<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;123&#39;</span>,
+  x<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'123'</span>,
   f<span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #000000; font-weight: bold">this</span>.x)},
 }
 <span style="color: #000000; font-weight: bold">var</span> go <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">function</span>(f){f()}
@@ -1043,7 +1033,7 @@ jQuery 中有一个函数专门用于处理上下文绑定，虽然我觉得把 
 o.f() <span style="color: #999988">// 123</span>
 go(o.f) <span style="color: #999988">// undefined</span>
 go($.proxy(o.f, o)) <span style="color: #999988">//123</span>
-$.proxy(o, <span style="color: #dd1144">&#39;f&#39;</span>)() <span style="color: #999988">//123</span>
+$.proxy(o, <span style="color: #dd1144">'f'</span>)() <span style="color: #999988">//123</span>
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -1073,10 +1063,10 @@ jQuery 提供了一种机制，可以把节点作为数据存储的容器。
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$.data($(<span style="color: #dd1144">&#39;#data&#39;</span>).get(<span style="color: #009999">0</span>), <span style="color: #dd1144">&#39;test&#39;</span>, <span style="color: #dd1144">&#39;123&#39;</span>);
-$(<span style="color: #dd1144">&#39;#data&#39;</span>).data(<span style="color: #dd1144">&#39;test&#39;</span>, <span style="color: #dd1144">&#39;456&#39;</span>);
-console.log($.data($(<span style="color: #dd1144">&#39;#data&#39;</span>).get(<span style="color: #009999">0</span>), <span style="color: #dd1144">&#39;test&#39;</span>));
-console.log($(<span style="color: #dd1144">&#39;#data&#39;</span>).data(<span style="color: #dd1144">&#39;test&#39;</span>));
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$.data($(<span style="color: #dd1144">'#data'</span>).get(<span style="color: #009999">0</span>), <span style="color: #dd1144">'test'</span>, <span style="color: #dd1144">'123'</span>);
+$(<span style="color: #dd1144">'#data'</span>).data(<span style="color: #dd1144">'test'</span>, <span style="color: #dd1144">'456'</span>);
+console.log($.data($(<span style="color: #dd1144">'#data'</span>).get(<span style="color: #009999">0</span>), <span style="color: #dd1144">'test'</span>));
+console.log($(<span style="color: #dd1144">'#data'</span>).data(<span style="color: #dd1144">'test'</span>));
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -1120,9 +1110,9 @@ console.log($(<span style="color: #dd1144">&#39;#data&#39;</span>).data(<span st
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click&#39;</span>,
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'click'</span>,
   <span style="color: #000000; font-weight: bold">function</span>(eventObj){
-    console.log(<span style="color: #dd1144">&#39;haha&#39;</span>)<span style="color: #a61717; background-color: #e3d2d2">；</span>
+    console.log(<span style="color: #dd1144">'haha'</span>)<span style="color: #a61717; background-color: #e3d2d2">；</span>
   }
 );
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
@@ -1134,13 +1124,13 @@ console.log($(<span style="color: #dd1144">&#39;#data&#39;</span>).data(<span st
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;btn&quot;</span><span style="color: #000080">&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"btn"</span><span style="color: #000080">&gt;</span>
   <span style="color: #000080">&lt;div&gt;</span>哈哈<span style="color: #000080">&lt;/div&gt;</span>
-  <span style="color: #000080">&lt;div</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;btn2&quot;</span><span style="color: #000080">&gt;</span>哈哈<span style="color: #000080">&lt;/div&gt;</span>
+  <span style="color: #000080">&lt;div</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"btn2"</span><span style="color: #000080">&gt;</span>哈哈<span style="color: #000080">&lt;/div&gt;</span>
   <span style="color: #000080">&lt;div&gt;</span>哈哈<span style="color: #000080">&lt;/div&gt;</span>
 <span style="color: #000080">&lt;/div&gt;</span>
 
-$(&#39;#btn&#39;).on(&#39;click&#39;,
+$('#btn').on('click',
   function(eventObj){
     console.log(this);
   }
@@ -1157,7 +1147,7 @@ $(&#39;#btn&#39;).on(&#39;click&#39;,
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click&#39;</span>,
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'click'</span>,
   $.proxy(<span style="color: #000000; font-weight: bold">function</span>(eventObj){
     console.log(<span style="color: #000000; font-weight: bold">this</span>.a);
   }, {a<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">123</span>})
@@ -1182,14 +1172,14 @@ $(&#39;#btn&#39;).on(&#39;click&#39;,
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click.my&#39;</span>,
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'click.my'</span>,
   <span style="color: #000000; font-weight: bold">function</span>(eventObj){
-    console.log(<span style="color: #dd1144">&#39;123&#39;</span>);
+    console.log(<span style="color: #dd1144">'123'</span>);
   }
 );
 
 <span style="color: #000000; font-weight: bold">var</span> f <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">function</span>(){
-  $(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click.my&#39;</span>);
+  $(<span style="color: #dd1144">'#btn'</span>).off(<span style="color: #dd1144">'click.my'</span>);
 }
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -1197,14 +1187,14 @@ $(&#39;#btn&#39;).on(&#39;click&#39;,
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click.my.other&#39;</span>,
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'click.my.other'</span>,
   <span style="color: #000000; font-weight: bold">function</span>(eventObj){
-    console.log(<span style="color: #dd1144">&#39;123&#39;</span>);
+    console.log(<span style="color: #dd1144">'123'</span>);
   }
 );
 
 <span style="color: #000000; font-weight: bold">var</span> f <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">function</span>(){
-  $(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click.my&#39;</span>);
+  $(<span style="color: #dd1144">'#btn'</span>).off(<span style="color: #dd1144">'click.my'</span>);
 }
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -1215,14 +1205,14 @@ $(&#39;#btn&#39;).on(&#39;click&#39;,
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click.my click.other&#39;</span>,
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'click.my click.other'</span>,
   <span style="color: #000000; font-weight: bold">function</span>(eventObj){
-    console.log(<span style="color: #dd1144">&#39;123&#39;</span>);
+    console.log(<span style="color: #dd1144">'123'</span>);
   }
 );
 
 <span style="color: #000000; font-weight: bold">var</span> f <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">function</span>(){
-  $(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click.my&#39;</span>);
+  $(<span style="color: #dd1144">'#btn'</span>).off(<span style="color: #dd1144">'click.my'</span>);
 }
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -1236,7 +1226,7 @@ $(&#39;#btn&#39;).on(&#39;click&#39;,
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click&#39;</span>, {a<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">123</span>},
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'click'</span>, {a<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">123</span>},
   <span style="color: #000000; font-weight: bold">function</span>(eventObj){
     console.log(eventObj.data.a);
   }
@@ -1250,17 +1240,17 @@ $(&#39;#btn&#39;).on(&#39;click&#39;,
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;btn&quot;</span><span style="color: #000080">&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;div</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"btn"</span><span style="color: #000080">&gt;</span>
   <span style="color: #000080">&lt;span&gt;</span>哈哈<span style="color: #000080">&lt;/span&gt;</span>
 <span style="color: #000080">&lt;/div&gt;</span>
 
-$(&#39;#btn&#39;).on(&#39;click&#39;, &#39;p&#39;,
+$('#btn').on('click', 'p',
   function(eventObj){
-    console.log(&#39;here&#39;);
+    console.log('here');
   }
 );
 var f = function(){
-  $(&#39;#btn&#39;).append(&#39;<span style="color: #000080">&lt;p&gt;</span>新的<span style="color: #000080">&lt;/p&gt;</span>&#39;);
+  $('#btn').append('<span style="color: #000080">&lt;p&gt;</span>新的<span style="color: #000080">&lt;/p&gt;</span>');
 }
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -1271,10 +1261,10 @@ var f = function(){
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(
   {
-    <span style="color: #dd1144">&#39;click&#39;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(eventObj){console.log(<span style="color: #dd1144">&#39;click&#39;</span>)},
-    <span style="color: #dd1144">&#39;mousemove&#39;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(eventObj){console.log(<span style="color: #dd1144">&#39;move&#39;</span>)}
+    <span style="color: #dd1144">'click'</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(eventObj){console.log(<span style="color: #dd1144">'click'</span>)},
+    <span style="color: #dd1144">'mousemove'</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(eventObj){console.log(<span style="color: #dd1144">'move'</span>)}
   }
 );
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
@@ -1287,12 +1277,12 @@ var f = function(){
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> f <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">function</span>(eventObj){
-  console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+  console.log(<span style="color: #dd1144">'here'</span>);
 }
-$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click&#39;</span>, f);
-$(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click&#39;</span>);
-$(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click&#39;</span>, <span style="color: #dd1144">&#39;.cls&#39;</span>);
-$(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #dd1144">&#39;click&#39;</span>, f);
+$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'click'</span>, f);
+$(<span style="color: #dd1144">'#btn'</span>).off(<span style="color: #dd1144">'click'</span>);
+$(<span style="color: #dd1144">'#btn'</span>).off(<span style="color: #dd1144">'click'</span>, <span style="color: #dd1144">'.cls'</span>);
+$(<span style="color: #dd1144">'#btn'</span>).off(<span style="color: #dd1144">'click'</span>, f);
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -1308,16 +1298,16 @@ $(<span style="color: #dd1144">&#39;#btn&#39;</span>).off(<span style="color: #d
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;input</span> <span style="color: #008080">id=</span><span style="color: #dd1144">&quot;btn&quot;</span> <span style="color: #000080">/&gt;</span>
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000080">&lt;input</span> <span style="color: #008080">id=</span><span style="color: #dd1144">"btn"</span> <span style="color: #000080">/&gt;</span>
 
-$(&#39;#btn&#39;).on(&#39;click&#39;,
+$('#btn').on('click',
   function(eventObj){
-    console.log(&#39;here&#39;);
+    console.log('here');
   }
 );
 
-$(&#39;#btn&#39;).click();
-$(&#39;#btn&#39;).trigger(&#39;click&#39;);
+$('#btn').click();
+$('#btn').trigger('click');
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -1327,9 +1317,9 @@ $(&#39;#btn&#39;).trigger(&#39;click&#39;);
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;click&#39;</span>,
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'click'</span>,
   <span style="color: #000000; font-weight: bold">function</span>(eventObj){
-    console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+    console.log(<span style="color: #dd1144">'here'</span>);
     $(<span style="color: #000000; font-weight: bold">this</span>).trigger(eventObj);
   }
 );
@@ -1342,14 +1332,14 @@ $(&#39;#btn&#39;).trigger(&#39;click&#39;);
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;focus&#39;</span>,
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'focus'</span>,
   <span style="color: #000000; font-weight: bold">function</span>(eventObj){
-    console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+    console.log(<span style="color: #dd1144">'here'</span>);
   }
 );
 
-<span style="color: #999988">//$(&#39;#btn&#39;).trigger(&#39;focus&#39;);</span>
-$(<span style="color: #dd1144">&#39;#btn&#39;</span>).triggerHandler(<span style="color: #dd1144">&#39;focus&#39;</span>);
+<span style="color: #999988">//$('#btn').trigger('focus');</span>
+$(<span style="color: #dd1144">'#btn'</span>).triggerHandler(<span style="color: #dd1144">'focus'</span>);
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -1359,13 +1349,13 @@ $(<span style="color: #dd1144">&#39;#btn&#39;</span>).triggerHandler(<span style
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;my&#39;</span>,
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'my'</span>,
   <span style="color: #000000; font-weight: bold">function</span>(eventObj){
-    console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+    console.log(<span style="color: #dd1144">'here'</span>);
   }
 );
 
-$(<span style="color: #dd1144">&#39;#btn&#39;</span>).trigger(<span style="color: #dd1144">&#39;my&#39;</span>);
+$(<span style="color: #dd1144">'#btn'</span>).trigger(<span style="color: #dd1144">'my'</span>);
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -1375,13 +1365,13 @@ $(<span style="color: #dd1144">&#39;#btn&#39;</span>).trigger(<span style="color
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;#btn&#39;</span>).on(<span style="color: #dd1144">&#39;my&#39;</span>,
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'#btn'</span>).on(<span style="color: #dd1144">'my'</span>,
   <span style="color: #000000; font-weight: bold">function</span>(eventObj, obj){
     console.log(obj);
   }
 );
 
-$(<span style="color: #dd1144">&#39;#btn&#39;</span>).trigger(<span style="color: #dd1144">&#39;my&#39;</span>, {a<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">123</span>});
+$(<span style="color: #dd1144">'#btn'</span>).trigger(<span style="color: #dd1144">'my'</span>, {a<span style="color: #000000; font-weight: bold">:</span> <span style="color: #009999">123</span>});
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -1633,7 +1623,7 @@ jQuery 的 AJAX ，核心的请求处理函数只有一个，就是 <em style="c
 </p>
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&quot;#loading&quot;</span>).ajaxStart(<span style="color: #000000; font-weight: bold">function</span>(){
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">"#loading"</span>).ajaxStart(<span style="color: #000000; font-weight: bold">function</span>(){
    $(<span style="color: #000000; font-weight: bold">this</span>).show();
  });
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
@@ -1676,7 +1666,7 @@ jQuery 的 AJAX ，核心的请求处理函数只有一个，就是 <em style="c
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;form&#39;</span>).submit(<span style="color: #000000; font-weight: bold">function</span>() {
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'form'</span>).submit(<span style="color: #000000; font-weight: bold">function</span>() {
   alert($(<span style="color: #000000; font-weight: bold">this</span>).serialize());
   <span style="color: #000000; font-weight: bold">return</span> <span style="color: #000000; font-weight: bold">false</span>;
 });
@@ -1693,15 +1683,15 @@ jQuery 的 AJAX ，核心的请求处理函数只有一个，就是 <em style="c
 
 
 <div class="code" style="margin: 25px auto;">
-<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">&#39;form&#39;</span>).submit(<span style="color: #000000; font-weight: bold">function</span>() {
+<div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">$(<span style="color: #dd1144">'form'</span>).submit(<span style="color: #000000; font-weight: bold">function</span>() {
   console.log($(<span style="color: #000000; font-weight: bold">this</span>).serializeArray());
   <span style="color: #000000; font-weight: bold">return</span> <span style="color: #000000; font-weight: bold">false</span>;
 });
 
 <span style="color: #999988">//</span>
 [
-  {name<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;a&#39;</span>, value<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;1&#39;</span>},
-  {name<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;b&#39;</span>, value<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;2&#39;</span>}
+  {name<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'a'</span>, value<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'1'</span>},
+  {name<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'b'</span>, value<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'2'</span>}
 ]
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -1729,8 +1719,8 @@ jQuery 的 AJAX ，核心的请求处理函数只有一个，就是 <em style="c
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> obj <span style="color: #000000; font-weight: bold">=</span> $.Deferred(<span style="color: #000000; font-weight: bold">function</span>(a){});
-obj.done(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">&#39;1&#39;</span>)});
-obj.done(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">&#39;2&#39;</span>)});
+obj.done(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">'1'</span>)});
+obj.done(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">'2'</span>)});
 obj.resolve();
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -1792,8 +1782,8 @@ obj.resolve();
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> defer <span style="color: #000000; font-weight: bold">=</span> $.ajax({
-  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json.html&#39;</span>,
-  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>
+  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'/json.html'</span>,
+  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'json'</span>
 });
 
 defer.done(<span style="color: #000000; font-weight: bold">function</span>(data){console.log(data)});
@@ -1810,17 +1800,17 @@ defer.done(<span style="color: #000000; font-weight: bold">function</span>(data)
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> defer_1 <span style="color: #000000; font-weight: bold">=</span> $.ajax({
-  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json.html&#39;</span>,
-  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>
+  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'/json.html'</span>,
+  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'json'</span>
 });
 
 <span style="color: #000000; font-weight: bold">var</span> defer_2 <span style="color: #000000; font-weight: bold">=</span> $.ajax({
-  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/jsonp.html&#39;</span>,
-  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;jsonp&#39;</span>
+  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'/jsonp.html'</span>,
+  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'jsonp'</span>
 });
 
 <span style="color: #000000; font-weight: bold">var</span> new_defer <span style="color: #000000; font-weight: bold">=</span> $.when(defer_1, defer_2);
-new_defer.done(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">&#39;haha&#39;</span>)});
+new_defer.done(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">'haha'</span>)});
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
 </div>
@@ -1843,8 +1833,8 @@ new_defer.done(<span style="color: #000000; font-weight: bold">function</span>()
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> defer <span style="color: #000000; font-weight: bold">=</span> $.ajax({
-    url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json&#39;</span>,
-    dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>
+    url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'/json'</span>,
+    dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'json'</span>
 });
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -1857,14 +1847,14 @@ new_defer.done(<span style="color: #000000; font-weight: bold">function</span>()
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">defer.done(<span style="color: #000000; font-weight: bold">function</span>(){
   <span style="color: #000000; font-weight: bold">return</span> $.ajax({
-    url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json&#39;</span>,
-    dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>,
+    url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'/json'</span>,
+    dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'json'</span>,
     success<span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(){
-      console.log(<span style="color: #dd1144">&#39;inner&#39;</span>)
+      console.log(<span style="color: #dd1144">'inner'</span>)
     }
   });
 }).done(<span style="color: #000000; font-weight: bold">function</span>(){
-  console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+  console.log(<span style="color: #dd1144">'here'</span>);
 });
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -1891,14 +1881,14 @@ inner
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;">defer.then(<span style="color: #000000; font-weight: bold">function</span>(){
   <span style="color: #000000; font-weight: bold">return</span> $.ajax({
-    url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json&#39;</span>,
-    dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>,
+    url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'/json'</span>,
+    dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'json'</span>,
     success<span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">function</span>(){
-      console.log(<span style="color: #dd1144">&#39;inner&#39;</span>)
+      console.log(<span style="color: #dd1144">'inner'</span>)
     }
   });
 }).done(<span style="color: #000000; font-weight: bold">function</span>(){
-  console.log(<span style="color: #dd1144">&#39;here&#39;</span>);
+  console.log(<span style="color: #dd1144">'here'</span>);
 });
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -1932,8 +1922,8 @@ here
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> defer <span style="color: #000000; font-weight: bold">=</span> $.ajax({
-  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;/json&#39;</span>,
-  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">&#39;json&#39;</span>
+  url<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'/json'</span>,
+  dataType<span style="color: #000000; font-weight: bold">:</span> <span style="color: #dd1144">'json'</span>
 });
 
 defer.then(<span style="color: #000000; font-weight: bold">function</span>(res){
@@ -1970,8 +1960,8 @@ defer.then(<span style="color: #000000; font-weight: bold">function</span>(res){
 
 <div class="code" style="margin: 25px auto;">
 <div style="background: white"><div style="width: 30%; height: 20px; border-top: 1px dashed gray; border-left: 1px dashed gray;"></div><pre style="white-space: pre; font-size: 12px; line-height: 1.5em; margin-left: 15px; letter-spacing: 0;"><span style="color: #000000; font-weight: bold">var</span> obj <span style="color: #000000; font-weight: bold">=</span> $.Callbacks();
-obj.add(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">&#39;1&#39;</span>)});
-obj.add(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">&#39;2&#39;</span>)});
+obj.add(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">'1'</span>)});
+obj.add(<span style="color: #000000; font-weight: bold">function</span>(){console.log(<span style="color: #dd1144">'2'</span>)});
 obj.fire();
 </pre><div style="width: 30%; height: 20px; border-bottom: 1px dashed gray; border-left: 1px dashed gray;"></div></div>
 
@@ -2364,12 +2354,12 @@ dlErDIl62nhazU/SFYKufqrpt80/ZZXej2irzEYzl96vuM2r+p78pfOwJ7cB8vmQh+57zcTp87oU
 OHHf+Wn2Mb0J92Uppovc5qUyaARLl5rv9pUBclcIijUd8HVz+ZUypBN7/FTP3c+b66ODPUAhV7y5
 UEwEp3QK2vwK1N2TAMTQArkN7kpTc5IA9JwAr7mQK6bpDrxmbrDYLp8PmFxNbTIzbHGz2/y43I/v
 wn1V9h//qH4DVHwBC/FRZZQAAAAASUVORK5CYII=
-" title="本文二维码网址" /></div>
+" title="本文二维码网址"></div>
     
 
 <div style="font-size: 10px; text-align: right; margin-top: 50px; letter-spacing: 0;">
-&copy;2010-2016 zouyesheng.com All rights reserved. Powered by <a href="https://github.com/" target="_blank">GitHub</a> , <a href="http://txt2tags.org/" target="_blank">txt2tags</a> , <a href="https://www.mathjax.org/" target="_blank">MathJax</a>
+©2010-2016 zouyesheng.com All rights reserved. Powered by <a href="https://github.com/" target="_blank">GitHub</a> , <a href="http://txt2tags.org/" target="_blank">txt2tags</a> , <a href="https://www.mathjax.org/" target="_blank">MathJax</a>
 </div>
     
 <!-- xhtml code generated by txt2tags 2.6 (http://txt2tags.org) -->
-</div></body></html>
+</div>
