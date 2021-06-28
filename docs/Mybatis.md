@@ -61,9 +61,7 @@ maven仓库：
 
 # 2. 基本应用
 ## 2.1 入门配置
-![2021-05-26_220959](DD1F9182DB724E20BB7816909756EB27)
-
-![](https://note.youdao.com/yws/public/resource/911c24b7768e7c60857f18a453e6c8c2/DD1F9182DB724E20BB7816909756EB27)
+![mybatis-2.1入门配置](img/mybatis-2.1入门配置.png)
 
 ### 2.1.1 配置数据库
 ```mysql
@@ -256,14 +254,14 @@ public static SqlSession  getSqlSession(){
 
 
 - **错误code1**:`Error parsing SQL Mapper Configuration. Cause: org.apache.ibatis.builder.BuilderException: Error creating document instance. Cause: org.xml.sax.SAXParseException; lineNumber: 7; columnNumber: 9; 1 字节的 UTF-8 序列的字节 1 无效`
-![2021-05-26_155856](419A1BAD7DDD46C6856C2637775A0DCD)
+![mybatis-2.2中文乱码](img/mybatis-2.2中文乱码.png)
 解决：删除中文注解或者[注解中中文乱码错误详解](https://blog.csdn.net/hc_study/article/details/115221072)
 - **错误CODE2**：`org.apache.ibatis.binding.BindingException: Type interface com.ahang.Dao.UserDao is not known to the MapperRegistry`
 
 解决：在`mybatis-config.xml`配置文件中缺少`<mappers> <mapper resource="com/ahang/Dao/UserDaoImpl.xml"></mapper> </mappers>`注意路径通过`\`连接
 - **错误CODE3 数据库连接错误**：`Cause: com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Unknown database 'mybati'`
 解决：查看数据库书写是否正确
-- **错误CODE4**：`The error may exist in com/ahang/Dao/UserDaoImpl.xml; Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.io.IOException: Could not find resource com/ahang/Dao/UserDaoImpl.xml`缺少资源包，在定义`maven`的`pom.xml`中默认没有添加资源包下的配置文件，需要手动添加![2021-05-26_161512](84F777CC77B14BC8ADA6227929C1DB42)
+- **错误CODE4**：`The error may exist in com/ahang/Dao/UserDaoImpl.xml; Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.io.IOException: Could not find resource com/ahang/Dao/UserDaoImpl.xml`缺少资源包，在定义`maven`的`pom.xml`中默认没有添加资源包下的配置文件，需要手动添加![mybatis-2.2配置绑定](img/mybatis-2.2配置绑定.png)
 ```xml
     <build>
         <resources>
@@ -520,7 +518,7 @@ public class User {
         <mapper resource="com/ahang/Dao/UserDaoImpl.xml"></mapper>
     </mappers>
 ```
-方式二：通过指定UserDao类自动寻找对应的`UserDao.xml`，需要配置文件和类同名
+方式二：通过指定`UserDao`类自动寻找对应的`UserDao.xml`，需要配置文件和类同名
 ```xml
     <mappers>
         <mapper class="com.ahang.Dao.UserDao"></mapper>
@@ -558,7 +556,7 @@ User(id=10, uname=null)
 User(id=20, uname=null)
 ```
 
-在`mabatis.xml`中配置
+在`userDaoImpl.xml`中配置
 ```xml
     <select id="getUserList" resultType="users">
         select * from mybatis.user;
@@ -566,10 +564,10 @@ User(id=20, uname=null)
 ```
 
 ## 5.1 通过查询时设置别名
-设置`mybatis.xml`中查询语句，将原`name`返回结果设置为`uname`
+设置`userDaoImpl.xml`中查询语句，将原`name`返回结果设置为`uname`
 ```xml
     <select id="getUserList" resultType="users">
-          select id,name as uname from mybatis.user;;
+          select id,name as uname from mybatis.user;
     </select>
 ```
 
@@ -577,6 +575,7 @@ User(id=20, uname=null)
 设置resultMap来绑定属性名，`property`中属性为User类中， `column`中属性为数据库中值。
 
 ==注意点：以下配置会报错==：` org.apache.ibatis.type.TypeException: Could not resolve type alias 'UserMap'.  Cause: java.lang.ClassNotFoundException: Cannot find class: UserMap 	at org.apache.ibatis.builder.xml.XMLMapperBuilder.configurationElement`
+
 ```xml
     <resultMap id="UserMap" type="users">
         <result property="id" column="id"></result>
@@ -587,7 +586,7 @@ User(id=20, uname=null)
         select * from mybatis.user;
     </select>
 ```
-- 首先需要添加resultMap绑定对应关系
+- 首先需要添加`resultMap`绑定对应关系
 - ==然后需要修改select标签中的`resultType="users"` --> `resultMap="UserMap"`==
 - 正确配置如下：
 ```xml
@@ -632,7 +631,6 @@ User(id=20, uname=null)
     3. 在`resourses`资源包下添加`log4j.properties`配置
 ```properties
 #将等级为DEBUG的日志信息输出到console和file这两个目的地，console和file的定义在下面的代码
-
 log4j.rootLogger=DEBUG,console,file
 #控制台输出的相关设置
 log4j.appender.console = org.apache.log4j.ConsoleAppender
@@ -640,7 +638,6 @@ log4j.appender.console.Target = System.out
 log4j.appender.console.Threshold=DEBUG
 log4j.appender.console.layout = org.apache.log4j.PatternLayout
 log4j.appender.console.layout.ConversionPattern=[%c]-%m%n
-
 #文件输出的相关设置
 log4j.appender.file = org.apache.log4j.RollingFileAppender
 log4j.appender.file.File=./log/ahng.log
@@ -648,7 +645,6 @@ log4j.appender.file.MaxFileSize=10mb
 log4j.appender.file.Threshold=DEBUG
 log4j.appender.file.layout=org.apache.log4j.PatternLayout
 log4j.appender.file.layout.ConversionPattern=[%p][%d{yy-MM-dd}][%c]%m%n
-
 #日志输出级别
 log4j.logger.org.mybatis=DEBUG
 log4j.logger.java.sql=DEBUG
@@ -720,7 +716,7 @@ public interface UserDao {
 - 接口设计与非接口设计是针对复用技术而言的，与面向对象（过程）不是一个问题.更多的体现就是对系统整体的架构
 
 MyBatis详细执行流程
-![20200613180456303](08C6C6D01AB546799F52BF57AE233BD9)
+![mybatis-8.1注解执行流程](img/mybatis-8.1注解执行流程.png)
 
 ## 8.2 使用注解开发与参数详解
 `    @Select("select id, name as uname from user where id=#{id} and name=#{uname}")`对于该语句来说，`id`和`name`对应都是数据库里面的属性名，而`uname`是User类中属性名，一般两者相同
@@ -952,7 +948,7 @@ MyBatis系统中默认定义了两级缓存：一级缓存和二级缓存
 
 为了提高扩展性，`MyBatis`定义了缓存接口`Cache`。我们可以通过实现`Cache`接口来自定义二级缓存
 
-![20200613180011198](1965C57F5C8447FF8FF7C1C2379107A3)
+![mybatis-13.2缓存](img/mybatis-13.2缓存.png)
 
 ## 13.3 一级缓存
 一级缓存也叫本地缓存： `SqlSession`
@@ -972,8 +968,8 @@ MyBatis系统中默认定义了两级缓存：一级缓存和二级缓存
         for (Student student1 : student) {
             System.out.println(student1);
         }
-
-//        sqlSession.clearCache(); 手动清理缓存
+        
+		// sqlSession.clearCache(); 手动清理缓存
         List<Student> student1 = mapper.getStudent();
         for(Student e: student1){
             System.out.println(e);

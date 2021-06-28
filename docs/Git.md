@@ -371,7 +371,12 @@ $ git checkout branch2
 $ git pull origin branch2
 ```
 
+## 7.5在远程仓库和本地仓库都发生了变化后想要将本地修改提交到远程的流程：
 
+1. `git add . `，然后`git commit`提交本地仓库
+2. `git pull`拉取远程仓库，提示不能自动合并
+3. **手动解决矛盾**，修改文件后再次`git add. `，`git commit`
+4. `git push`成功
 
 
 
