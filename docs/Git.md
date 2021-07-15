@@ -255,7 +255,6 @@ HEAD is now at a47393f add GPL
 Ahang@Ahang MINGW64 ~/Documents/Git (master)
 $ git rm README
 rm 'README'
-
 # 查看状态，已删除
 Ahang@Ahang MINGW64 ~/Documents/Git (master)
 $ git status
@@ -263,7 +262,6 @@ On branch master
 Changes to be committed:
   (use "git restore --staged <file>..." to unstage)
         deleted:    README
-
 # 此时还没有提交，文件仍在在仓库里面，但是工作区没有了
 Ahang@Ahang MINGW64 ~/Documents/Git (master)
 $ git log --pretty=oneline
@@ -277,37 +275,36 @@ adde56105ebed13fe13dd735343dff32d6ddb8a9 add some word
 cbbddf8cf9394d2ed57523d87ca3a3546088bc5d add 6 files
 7602874655e60aed97b4b7f0c3e5eec1a5f97a1b add 3 files
 ae27363a081d748911a88b6bbf86054f2373baf3 wrote a README file
-
 # 工作区已被删除
 Ahang@Ahang MINGW64 ~/Documents/Git (master)
 $ ls
  a  'a[a-c]'   b   bb   cc   cc,dd   dd
-
 # 直接从暂存区无法恢复
 Ahang@Ahang MINGW64 ~/Documents/Git (master)
 $ git checkout -- README
 error: pathspec 'README' did not match any file(s) known to git
-
 # 从仓库里面恢复到暂存区
 Ahang@Ahang MINGW64 ~/Documents/Git (master)
 $ git restore --staged README
-
 # 再从暂存区恢复到工作区
 Ahang@Ahang MINGW64 ~/Documents/Git (master)
 $ git restore README
-
 Ahang@Ahang MINGW64 ~/Documents/Git (master)
 $ ls
  a  'a[a-c]'   b   bb   cc   cc,dd   dd   README
-
 ```
 
 **如果删除后提交了的话需要`git reset --hard commit_id`去回退操作**
 
+
+
+
+
 # 7. 连接github操作
+
 ## 7.1 首次将本地库同步到远程库中
 
-```
+```bash
 echo "# resume" >> README.md
 git init
 git add README.md
@@ -318,7 +315,7 @@ git push -u origin main
 ```
 
 
-```
+```bash
 git remote add origin git@github.com:ahang1598/resume.git
 git branch -M main
 git push -u origin main
@@ -340,26 +337,28 @@ git push -u origin main
 
 思路是将整个`git`上的代码都`clone`下来，然后手动把自己的文件拉进指定文件夹，再上传上去
 
-一.创建一个文件夹"text"来右击点`git bash`
-```
-1.git init  
+1. 创建一个文件夹"text"来右击点`git bash`
 
-2.git clone [https].git
+```bash
+git init  
+
+git clone [https].git
 ```
 
 假设clone下来的文件名叫A
 
-二.clone成功后我们打开A，将本地要上传的文件拖到指定文件夹内，然后git bash clone下来的文件A
-```
-1.git init   默认下载下来的文件中包含了初始化的文件，无需初始化
+2. clone成功后我们打开A，将本地要上传的文件拖到指定文件夹内，然后git bash clone下来的文件A
 
-2.git add .                注意add后面有一个空格和一个点
+```bash
+git init   #默认下载下来的文件中包含了初始化的文件，无需初始化
 
-3.git commit -m  "提交的注释"
+git add .  # 注意add后面有一个空格和一个点
 
-git branch -M main 如果本地还是master
+git commit -m  "提交的注释"
 
-4. git push origin main
+# git branch -M main 如果本地还是master
+
+git push origin main
 ```
 
 ## 7.4 获取远程仓库并更新到本地仓库
