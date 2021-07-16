@@ -6,6 +6,10 @@
 
 
 
+## 0.1 更新git软件版本
+
+`git update-git-for-windows`
+
 
 
 # 1. 创建版本库
@@ -376,6 +380,68 @@ $ git pull origin branch2
 2. `git pull`拉取远程仓库，提示不能自动合并
 3. **手动解决矛盾**，修改文件后再次`git add. `，`git commit`
 4. `git push`成功
+
+## 7.6 远程库已存在文件，首次将本地库同步到远程库中
+
+```bash
+git init
+git remote add origin git@github.com:ahang1598/JavaStudy.git
+git branch -M main
+git pull origin main
+git add .
+git commit -m "add Code include kuang and springboot"
+git push origin main
+```
+
+
+
+详解：
+
+```bash
+105@DESKTOP-V5RLSCF MINGW64 /d/BaiduNetdiskDownload/Java学习/kuang/Code
+# 先初始化本地新的库
+$ git init
+Initialized empty Git repository in D:/BaiduNetdiskDownload/Java学习/kuang/Code/.git/
+
+# 添加远端库
+105@DESKTOP-V5RLSCF MINGW64 /d/BaiduNetdiskDownload/Java学习/kuang/Code (master)
+$ git remote add origin git@github.com:ahang1598/JavaStudy.git
+
+# 注意这里默认是master，而GitHub已经将主分支修改为main了，所以需要修改主分支
+105@DESKTOP-V5RLSCF MINGW64 /d/BaiduNetdiskDownload/Java学习/kuang/Code (master)
+$ git branch -M main
+
+# 由于第一次使用远端已存在的库，所以为了内容同步，需要先pull拉去远程库所有内容
+105@DESKTOP-V5RLSCF MINGW64 /d/BaiduNetdiskDownload/Java学习/kuang/Code (main)
+$ git pull origin main
+Enter passphrase for key '/c/Users/105/.ssh/id_rsa':
+remote: Enumerating objects: 17, done.
+remote: Counting objects: 100% (17/17), done.
+remote: Compressing objects: 100% (12/12), done.
+remote: Total 17 (delta 2), reused 6 (delta 1), pack-reused 0
+Unpacking objects: 100% (17/17), 77.99 KiB | 108.00 KiB/s, done.
+From github.com:ahang1598/JavaStudy
+ * branch            main       -> FETCH_HEAD
+ * [new branch]      main       -> origin/main
+
+# 添加本地库中所有内容
+105@DESKTOP-V5RLSCF MINGW64 /d/BaiduNetdiskDownload/Java学习/kuang/Code (main)
+$ git add .
+
+# 必须要提交
+105@DESKTOP-V5RLSCF MINGW64 /d/BaiduNetdiskDownload/Java学习/kuang/Code (main)
+$ git commit -m "add Code include kuang and springboot"
+[main e583065] add Code include kuang and springboot
+ 6 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 Code/CODE-main.zip
+ create mode 100644 Code/SpringBoot-master.zip
+
+# 最后push上传
+105@DESKTOP-V5RLSCF MINGW64 /d/BaiduNetdiskDownload/Java学习/kuang/Code (main)
+$ git push origin main
+
+
+```
 
 
 
