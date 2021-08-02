@@ -56,7 +56,7 @@ private PmsBrandMapper brandMapper;
 
 修改`Swagger2Config`中`apis(RequestHandlerSelectors.basePackage("com.macro.mall.tiny.controller")`修改为自己controller的位置
 
-## 问题6
+## 问题7
 
 在spring节点下添加Redis的配置中`redis`是属于`spring`下的，不是直接定格放置的
 
