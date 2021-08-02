@@ -194,6 +194,8 @@ SpringBoot是简化Spring技术栈的快速开发脚手架
 
 ## 3.3 容器组件
 
+[SpringBoot注解详解](https://blog.csdn.net/weixin_40753536/article/details/81285046)
+
 ### **1、@Configuration注解**
 
 - 作用：声明一个类为**配置类**（等同于我们以前的配置文件）
@@ -682,7 +684,7 @@ public @interface AutoConfigurationPackage {}
 > 4、从META-INF/spring.factories位置来加载一个文件。
 >     默认扫描我们当前系统里面所有META-INF/spring.factories位置的文件
 >     spring-boot-autoconfigure-2.3.4.RELEASE.jar包里面也有META-INF/spring.factories
->     
+>    
 > spring-boot-autoconfigure-2.3.4.RELEASE.jar/META-INF/spring.factories文件里面写死了spring-boot一启动就要给容器中加载的所有配置类
 
 

@@ -527,6 +527,7 @@ HashMap<String, ArrayList<String>> hm = new HashMap<String, ArrayList<String>>()
 
 - 含义： 就是将类型由原来的具体的类型参数化，然后在使用/调用时传入具体的类型
 - 使用： 这种参数类型可以用在类、方法和接口中，分别被称为泛型类、泛型方法、泛型接口
+- 博客学习[泛型方法](<https://blog.csdn.net/q610376681/article/details/88542620>), [泛型类](<https://blog.csdn.net/21aspnet/article/details/110100684>)
 
 ```java
 // 1. 泛型类定义
