@@ -1,5 +1,6 @@
 <!-- docs/_sidebar.md -->
 
+- [算法](算法.md)
 - [JavaWeb](JavaWeb.md)
 - [java基础](java基础.md)
 - [Java基础_2](Java基础_2.md)

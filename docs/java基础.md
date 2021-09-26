@@ -17,6 +17,36 @@ public class Lei{
 }
 ```
 
+
+
+Java没有无符号（unsigned）形式long、int、short、byte类型
+
+默认浮点数8字节为double，后缀D、d
+
+4字节float后缀F、f
+
+​	
+
+数学函数`Math`类下函数`Math.PI, Math.E, Math.sqrt()`
+
+随机数：`Math.random()`
+
+
+
+低精度向高精度自动转型
+
+强制转型：`(int)a`
+
+
+
+大数值
+
+`BigInteger bi = BigInteger.valueOf(100);`
+
+`BigInteger`, `BigDecimal`
+
+运算通过`add()`,`multiply()`,`toString`
+
 ## 2. 运算符
 
 ### 2.1. 异或（XOR，^）：不同为1，相同为0。
@@ -66,6 +96,8 @@ public class Lei{
 
 3）无符号右移>>>：左边位用0补充，右边丢弃
 
+**计算机内的数值表示为补码二进制**
+
 -5换算成二进制： `1111 1111 1111 1111 1111 1111 1111 1011`
 
 -5右移3位后结果为-1，-1的二进制为：  `1111 1111 1111 1111 1111 1111 1111 1111`   // (用1进行补位)
@@ -87,8 +119,8 @@ public class Lei{
 | 8      | &                                                  | 从左向右 |
 | 9      | ^                                                  | 从左向右 |
 | 10     | \|                                                 | 从左向右 |
-| 11     | &&                                                 | 从左向右 |
-| 12     | \|\|                                               | 从左向右 |
+| 11     | &&  短路与，第一个为false则不再计算                | 从左向右 |
+| 12     | \|\|  短路或，第一个为true则不再计算               | 从左向右 |
 | 13     | ?:                                                 | 从右向左 |
 | 14     | =、+=、-=、*=、/=、&=、\|=、^=、~=、<<=、>>=、>>>= | 从右向左 |
 
@@ -139,7 +171,14 @@ String substr = str.substring(0,3);  // 从0到2的子串: hel
 - `toLowerCase()` 转化为小写
 - `toUpperCase()` 转化为大写
 - `trim()` 删除首尾空格
-- 
+
+
+
+**不要用`==`运算符检查两个字符串是否相同**，只是检查地址
+
+用`str1.equals(str2)`
+
+
 
 ### 3.4 通过StringBuilder构建
 
@@ -193,6 +232,14 @@ String substr = str.substring(0,3);  // 从0到2的子串: hel
     System.out.println("a==b: "+ (a==b));  // true
     System.out.println("a.equals(b): "+ a.equals(b));  // true
 ```
+
+
+
+格式化输出
+
+
+
+
 
 ## 4. ArrayList集合
 
@@ -274,7 +321,35 @@ List<Integer> integerList2 = Arrays.asList(1, 2, 3);  // 直接数值初始化�
 List<String> stringList = Arrays.asList("a", "b", "c");  // 直接字符初始化为list
 ```
 
+
+
+```java
+        System.out.println("------ArrayList 创建-------");
+        ArrayList<Integer> al = new ArrayList<>(Arrays.asList(1, 2, 3, 4));
+        System.out.println(al);
+
+        System.out.println("-----List创建------");
+        int[] ints =new int[]{1, 2, 3, 5};
+        int[] ints1 = {2,3,4,5};
+        System.out.println(ints);  // [I@2c9f9fb0
+        System.out.println(Arrays.toString(ints1)); //[2, 3, 4, 5]
+        System.out.println(Arrays.asList(ints));  // [[I@2c9f9fb0]
+
+        List<int[]> list = Arrays.asList(ints);
+        List<Integer> list1 = Arrays.asList(new Integer[]{5,3,2,1});
+        System.out.println(list);  // [[I@2c9f9fb0]
+        System.out.println(list1);  // [5, 3, 2, 1]
+
+        List<Integer> list3 = Arrays.asList(1, 2, 3);
+        List<String> list4 = Arrays.asList("a","bb","c");
+        System.out.println("list3" + list3);  // [1, 2, 3]
+        System.out.println("list4" +list4);  // [a, bb, c]
+```
+
+
+
 ### 4.4 Arrays排序
+
 通过方法`sort(T[] a, Comparator<? super T> c)`，设置比较器
 ```java
     String[] ss = {"a","ddd","bbbb","cc"};
@@ -313,6 +388,46 @@ Collection<String> c = new ArrayList<String>();
 | boolean isEmpty()          | 判断集合是否为空                   |
 | int size()                 | 集合的长度，也就是集合中元素的个数 |
 
+
+
+迭代查询：**注意不能直接对原数据删除**
+
+```java
+		Collection<String> col1 = new HashSet<String>();
+        col1.add("haha");
+        col1.add("gaga");
+        col1.add("wawa");
+
+        Iterator<String> it = col1.iterator();
+        while (it.hasNext()){
+            String e = it.next();
+            if(e.equals("wawa")){
+                it.remove(); // 该方法删除是上一次next()方法返回的元素，没有问题
+               // col1.remove(e);  用该方法直接对col1中数据删除会报错
+            }
+        }
+```
+
+
+
+使用条件删除`removeIf`,通过`lambda`表达式
+
+```java
+        Collection<String> cs = new ArrayList<String>();
+        cs.add("aaa");
+        cs.add("bbbbbb");
+        cs.add("cc");
+        cs.add("eeeeeeeeeee");
+        cs.removeIf(e->e.length() > 6);  // 删除元素长度大于6的
+        System.out.println(cs);
+```
+
+
+
+
+
+
+
 ### 5.1 列表List
 
 - List集合概述和特点
@@ -349,7 +464,7 @@ for(int i=0; i<list.size(); i++) {
     System.out.println(s.getName()+","+s.getAge());
 }
 
-//增强for：最方便的遍历方式
+//增强for：最方便的遍历方式, 但是只能查看，无法修改
 for(Student s : list) {
     System.out.println(s.getName()+","+s.getAge());
 }
@@ -364,6 +479,7 @@ for(Student s : list) {
 
 `ArrayList`类包含Collection类的所有方法，还有常用的方法
 表 1 ArrayList类的常用方法
+
 | 方法名称                                    | 说明                                                         |
 | ------------------------------------------- | ------------------------------------------------------------ |
 | E get(int index)                            | 获取此集合中指定索引位置的元素，E 为集合中元素的数据类型     |
@@ -397,11 +513,13 @@ for(Student s : list) {
     - 哈希值的特点
         - 同一个对象多次调用hashCode()方法返回的哈希值是相同的
         - 默认情况下，不同对象的哈希值是不同的。而重写hashCode()方法，可以实现让不同对象的哈希值相同
+        - 在需要重写`equals()`方法时，也同时需要重写`hashCode()`方法
 - HashSet集合的特点
     - 底层数据结构是哈希表
     - 对集合的迭代顺序不作任何保证，也就是说不保证存储和取出的元素顺序一致
     - 没有带索引的方法，所以不能使用普通for循环遍历
     - 由于是Set集合，所以是不包含重复元素的集合
+    - 不同步的，多线程访问需要设置同步
 - HashSet集合保证元素唯一性
 
 ![image](https://note.youdao.com/yws/public/resource/9a17bf7311b3424a6840aae93c5a8648/xmlnote/01190DAD843A4320950BE50559F86927/19474)
@@ -412,12 +530,32 @@ for(Student s : list) {
     - 哈希表和链表实现的Set接口，具有可预测的迭代次序
     - 由链表保证元素有序，也就是说元素的存储和取出顺序是一致的
     - 由哈希表保证元素唯一，也就是说没有重复的元素
+    
 - TreeSet集合概述
+
+    - 只能添加**同一类型对象**，如不能同时添加`String`和`Date`类型
     - 元素有序，可以按照一定的规则进行排序，具体排序方式取决于构造方法
         - TreeSet()：根据其元素的自然排序进行排序
         - TreeSet(Comparator comparator) ：根据指定的比较器进行排序
     - 没有带索引的方法，所以不能使用普通for循环遍历
     - 由于是Set集合，所以不包含重复元素的集合
+
+    ```java
+    	// TreeSet集合基本方法使用        
+    		TreeSet<Object> ts = new TreeSet<>();
+            ts.add(10);
+            ts.add(2);
+            ts.add(-9);
+            ts.add(5);
+            System.out.println(ts);  // [-9, 2, 5, 10]
+            System.out.println(ts.first()); //-9
+            System.out.println(ts.last());  // 10
+            System.out.println(ts.headSet(5));  // [-9, 2]
+            System.out.println(ts.tailSet(5));  // [5, 10]
+            System.out.println(ts.subSet(0,10));  // [2, 5]
+    ```
+
+    
 ```java
 // 方法一： 在定义学生类时实现Comparable类并重写compareTo方法实现按照比较器排序
 public class Student implements Comparable<Student> {
@@ -523,11 +661,60 @@ HashMap<String, ArrayList<String>> hm = new HashMap<String, ArrayList<String>>()
 | public static void reverse(List<?> list) | 反转指定列表中元素的顺序           |
 | public static void shuffle(List<?> list) | 使用默认的随机源随机排列指定的列表 |
 
+
+
+## 队列
+
+### PriorityQueue
+
+自动排序的队列，数字按从小到大排序，可以通过定制Comparetor定制排序
+
+| offer() | 添加元素，比add()更好                             |
+| ------- | ------------------------------------------------- |
+| poll()  | 删除队列头部元素，为空返回null，比remove更好      |
+| peek()  | 显示对头元素，不删除，为空返回null，比element更好 |
+|         |                                                   |
+
+
+
+```java
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        pq.offer(10);
+        pq.offer(3);
+        pq.offer(11);
+        System.out.println("pq : " + pq); // pq : [3, 10, 11]
+        System.out.println("pq.poll() : " + pq.poll());  // pq.poll() : 3
+        while(pq.poll() != null){  // 此处如果替换为pq.remove()则会出错
+            System.out.println(pq);  // [11]  // []
+        }
+```
+
+
+
+### ArrayDeque
+
+
+
+```java
+        ArrayDeque<Object> stack = new ArrayDeque<>();
+        stack.push(9);
+        stack.push("a");
+        stack.push(-1);
+        System.out.println(stack); // [-1, a, 9]
+        System.out.println(stack.pop()); // -1
+        System.out.println(stack.peek());  // a
+```
+
+
+
+
+
+
+
 ## 6. 泛型
 
 - 含义： 就是将类型由原来的具体的类型参数化，然后在使用/调用时传入具体的类型
 - 使用： 这种参数类型可以用在类、方法和接口中，分别被称为泛型类、泛型方法、泛型接口
-- 博客学习[泛型方法](<https://blog.csdn.net/q610376681/article/details/88542620>), [泛型类](<https://blog.csdn.net/21aspnet/article/details/110100684>)
 
 ```java
 // 1. 泛型类定义
