@@ -264,10 +264,14 @@ ra.nextInt(正数边界值)
 `String s = String.valueOf(10.2)`
 `String s = String.valueOf(true)`
 
-### 8. int,long,float,double,boolean,char,char[] --> String
+### 8. Integer,Long,Float,Double,Boolean,Char,Char[] --> String
 `Double d = 10.2;  String ds = d.toString();`
-`int i = 10;  String is = i.toString();`
+
+`Integer i = 10;  String is = i.toString();`
+
 `Boolean b = true;  String bs = b.toString();`
+
+需要注意的是：这里`int,double...`基本类型不可以使用，只有`Integer,Double`包装类才可以使用`toString()`方法
 
 ### 8.1 String --> int
 `int i = Integer.parseInt("10")`
@@ -309,7 +313,7 @@ Double static double parseDouble(String s)
 ```
 
 ## 9. 各个数据类型默认值
-==所有的包装类默认值都为`null`==
+所有的包装类`Integer,Double...`默认值都为`null`
 
 | 序号 | 数据类型       | 大小/位 | 封装类    | 默认值         | 可表示数据范围                           |
 | ---- | -------------- | ------- | --------- | -------------- | ---------------------------------------- |
@@ -321,3 +325,62 @@ Double static double parseDouble(String s)
 | 6    | double(双精度) | 64      | Double    | 0.0            | 4.9E-324~1.7976931348623157E308          |
 | 7    | char(字符)     | 16      | Character | '/uoooo'(null) | 0~65535                                  |
 | 8    | boolean        | 8       | Boolean   | flase          | true或false                              |
+
+### 9.2 int和Integer的区别
+
+1、`Integer`是`int`的包装类，`int`则是`java`的一种基本数据类型 
+2、`Integer`变量必须实例化后才能使用，而`int`变量不需要 
+3、`Integer`实际是对象的引用，当`new`一个`Integer`时，实际上是生成一个指针指向此对象；而int则是直接存储数据值 
+4、`Integer`的默认值是`null`，`int`的默认值是`0`
+
+**关于Integer和int的比较** [参考](https://www.cnblogs.com/guodongdidi/p/6953217.html)
+1、由于Integer变量实际上是对一个Integer对象的引用，所以两个通过new生成的Integer变量永远是不相等的（因为new生成的是两个对象，其内存地址不同）。
+
+```java
+Integer i = new Integer(100);
+Integer j = new Integer(100);
+System.out.print(i == j); //false
+```
+
+2、Integer变量和int变量比较时，只要两个变量的值是向等的，则结果为true（因为包装类Integer和基本数据类型int比较时，java会自动拆包装为int，然后进行比较，实际上就变为两个int变量的比较）
+
+```java
+Integer i = new Integer(100);
+int j = 100；
+System.out.print(i == j); //true
+```
+
+3、非new生成的Integer变量和new Integer()生成的变量比较时，结果为false。（因为 ①当变量值在-128~127之间时，非new生成的Integer变量指向的是java常量池中的对象，而new Integer()生成的变量指向堆中新建的对象，两者在内存中的地址不同；②当变量值在-128~127之间时，非new生成Integer变量时，java API中最终会按照new Integer(i)进行处理（参考下面第4条），最终两个Interger的地址同样是不相同的）
+
+```java
+Integer i = new Integer(100);
+Integer j = 100;
+System.out.print(i == j); //false
+```
+
+4、对于两个非new生成的Integer对象，进行比较时，如果两个变量的值在区间-128到127之间，则比较结果为true，如果两个变量的值不在此区间，则比较结果为false
+
+```java
+Integer i = 100;
+Integer j = 100;
+System.out.print(i == j); //true
+Integer i = 128;
+Integer j = 128;
+System.out.print(i == j); //false
+```
+
+对于第4条的原因： 
+java在编译Integer i = 100 ;时，会翻译成为Integer i = Integer.valueOf(100)；，而java API中对Integer类型的valueOf的定义如下：
+
+```java
+public static Integer valueOf(int i){
+    assert IntegerCache.high >= 127;
+    if (i >= IntegerCache.low && i <= IntegerCache.high){
+        return IntegerCache.cache[i + (-IntegerCache.low)];
+    }
+    return new Integer(i);
+}
+```
+
+java对于-128到127之间的数，会进行缓存，Integer i = 127时，会将127进行缓存，下次再写Integer j = 127时，就会直接从缓存中取，就不会new了
+
