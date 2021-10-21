@@ -254,8 +254,11 @@ ra.nextInt(正数边界值)
 
 或者直接通过Arrays.toString(arr)转换为字符串输出：`System.out.println(Arrays.toString(arr));` --》 `[0, 0, 0]`
 
-
 ## 8. 数据类型转换
+
+字符转化为整数`Integer.valueOf('0')`得出ASCII码：`48`而不是`0`
+
+
 
 
 
