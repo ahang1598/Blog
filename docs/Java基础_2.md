@@ -258,7 +258,7 @@ ra.nextInt(正数边界值)
 
 字符转化为整数`Integer.valueOf('0')`得出ASCII码：`48`而不是`0`
 
-
+字符`char`转化为`int`：`'9' - '0'`， `s.charAt(i) - '0'`
 
 
 
