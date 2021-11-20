@@ -6,6 +6,10 @@
 
 
 
+推荐学习网址
+
+[动画模拟学习](https://learngitbranching.js.org/?locale=zh_CN)
+
 ## 0.1 更新git软件版本
 
 `git update-git-for-windows`

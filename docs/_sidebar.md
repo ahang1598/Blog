@@ -19,3 +19,5 @@
 - [Git](Git.md)
 - [Docsify](Docsify.md)
 - [小应用](小应用.md)
+- [Linux](Linux.md)
+- [Redis](Redis.md)
