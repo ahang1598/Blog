@@ -5,6 +5,7 @@
 - [java基础](java基础.md)
 - [Java基础_2](Java基础_2.md)
 - [Java面向对象](Java面向对象.md)
+- [设计模式](设计模式.md)
 - [Mybatis](Mybatis.md)
 - [Spring](Spring.md)
 - [SpringMVC](SpringMVC.md)
