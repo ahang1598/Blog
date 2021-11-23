@@ -137,11 +137,11 @@
 | 链表经典题                                                   |      |      |      |
 | [206. 反转链表](https://leetcode-cn.com/problems/reverse-linked-list/) |      | ★    |      |
 | [234. 回文链表](https://leetcode-cn.com/problems/palindrome-linked-list/) |      | ☆    |      |
-| [203. 移除链表元素](https://leetcode-cn.com/problems/remove-linked-list-elements/) |      |      |      |
+| [203. 移除链表元素](https://leetcode-cn.com/problems/remove-linked-list-elements/) |      | ★    |      |
+| [21. 合并两个有序链表](https://leetcode-cn.com/problems/merge-two-sorted-lists/) |      | ★    |      |
+| [328. 奇偶链表](https://leetcode-cn.com/problems/odd-even-linked-list/) |      | ★    |      |
 |                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-| [237. 删除链表中的节点](https://leetcode-cn.com/problems/delete-node-in-a-linked-list/) |      |      |      |
+| [237. 删除链表中的节点](https://leetcode-cn.com/problems/delete-node-in-a-linked-list/) | ☆    |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |
@@ -154,25 +154,25 @@
 
 
 
-| 题目 | 一刷 | 二刷 | 三刷 |
-| ---- | ---- | ---- | ---- |
-|      |      | ☆★   |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
+| 题目                                                         | 一刷 | 二刷 | 三刷 |
+| ------------------------------------------------------------ | ---- | ---- | ---- |
+| [71. 简化路径](https://leetcode-cn.com/problems/simplify-path/) |      | ★    |      |
+| [20. 有效的括号](https://leetcode-cn.com/problems/valid-parentheses/) |      | ★    |      |
+| [150. 逆波兰表达式求值](https://leetcode-cn.com/problems/evaluate-reverse-polish-notation/) |      | ★    |      |
+| 单调栈                                                       |      |      |      |
+| [402. 移掉 K 位数字](https://leetcode-cn.com/problems/remove-k-digits/) |      | ☆    |      |
+| [316. 去除重复字母](https://leetcode-cn.com/problems/remove-duplicate-letters/) |      | ☆    |      |
+| [1081. 不同字符的最小子序列](https://leetcode-cn.com/problems/smallest-subsequence-of-distinct-characters/) |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
 
 
 
@@ -184,25 +184,25 @@
 
 
 
-| 题目 | 一刷 | 二刷 | 三刷 |
-| ---- | ---- | ---- | ---- |
-|      |      | ☆★   |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
+| 题目                                                         | 一刷 | 二刷 | 三刷 |
+| ------------------------------------------------------------ | ---- | ---- | ---- |
+|                                                              |      | ☆★   |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+| [559. N 叉树的最大深度](https://leetcode-cn.com/problems/maximum-depth-of-n-ary-tree/) |      |      |      |
 
 
 
