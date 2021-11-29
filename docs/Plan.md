@@ -162,17 +162,20 @@
 | 单调栈                                                       |      |      |      |
 | [402. 移掉 K 位数字](https://leetcode-cn.com/problems/remove-k-digits/) |      | ☆    |      |
 | [316. 去除重复字母](https://leetcode-cn.com/problems/remove-duplicate-letters/) |      | ☆    |      |
-| [1081. 不同字符的最小子序列](https://leetcode-cn.com/problems/smallest-subsequence-of-distinct-characters/) |      |      |      |
+| [1081. 不同字符的最小子序列](https://leetcode-cn.com/problems/smallest-subsequence-of-distinct-characters/) |      | ★    |      |
+| [496. 下一个更大元素 I](https://leetcode-cn.com/problems/next-greater-element-i/) |      | ★    |      |
+| [503. 下一个更大元素 II](https://leetcode-cn.com/problems/next-greater-element-ii/) |      | ★    |      |
+| [42. 接雨水](https://leetcode-cn.com/problems/trapping-rain-water/) |      | ☆    |      |
+| [739. 每日温度](https://leetcode-cn.com/problems/daily-temperatures/) |      | ★    |      |
+| [121. 买卖股票的最佳时机](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/) |      | ★    |      |
+| [84. 柱状图中最大的矩形](https://leetcode-cn.com/problems/largest-rectangle-in-histogram/) |      |      |      |
 |                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
+| 栈和队列                                                     |      |      |      |
+| [232. 用栈实现队列](https://leetcode-cn.com/problems/implement-queue-using-stacks/) |      | ★    |      |
+| [225. 用队列实现栈](https://leetcode-cn.com/problems/implement-stack-using-queues/) |      | ☆    |      |
+| [155. 最小栈](https://leetcode-cn.com/problems/min-stack/)   |      | ☆    |      |
+| [622. 设计循环队列](https://leetcode-cn.com/problems/design-circular-queue/) |      | ★    |      |
+| [23. 合并K个升序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/) |      |      |      |
 
 
 
