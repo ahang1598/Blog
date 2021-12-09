@@ -81,6 +81,9 @@
 |                                                              |      |      |      |
 | 计数排序                                                     |      |      |      |
 | [1122. 数组的相对排序](https://leetcode-cn.com/problems/relative-sort-array/) |      | ★    |      |
+|                                                              |      |      |      |
+| 排序相关                                                     |      |      |      |
+| [506. 相对名次](https://leetcode-cn.com/problems/relative-ranks/) | ☆    |      |      |
 
 
 
@@ -112,7 +115,7 @@
 | [11. 盛最多水的容器](https://leetcode-cn.com/problems/container-with-most-water/) |      | ☆    |      |
 | [167. 两数之和 II - 输入有序数组](https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/) |      |      |      |
 | [15. 三数之和](https://leetcode-cn.com/problems/3sum/)       |      |      |      |
-|                                                              |      |      |      |
+| [1446. 连续字符](https://leetcode-cn.com/problems/consecutive-characters/) | ★    |      |      |
 
 
 
@@ -189,10 +192,10 @@
 
 | 题目                                                         | 一刷 | 二刷 | 三刷 |
 | ------------------------------------------------------------ | ---- | ---- | ---- |
-|                                                              |      | ☆★   |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
+| [102. 二叉树的层序遍历](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/) |      | ☆★   |      |
+| [111. 二叉树的最小深度](https://leetcode-cn.com/problems/minimum-depth-of-binary-tree/) |      | ★    |      |
+| [543. 二叉树的直径](https://leetcode-cn.com/problems/diameter-of-binary-tree/) |      | ★    |      |
+| [100. 相同的树](https://leetcode-cn.com/problems/same-tree/) |      | ★    |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |
@@ -269,25 +272,25 @@
 
 
 
-| 题目 | 一刷 | 二刷 | 三刷 |
-| ---- | ---- | ---- | ---- |
-|      |      | ☆★   |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
+| 题目                                                         | 一刷 | 二刷 | 三刷 |
+| ------------------------------------------------------------ | ---- | ---- | ---- |
+|                                                              |      | ☆★   |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+| [1034. 边界着色](https://leetcode-cn.com/problems/coloring-a-border/) | ☆    |      |      |
 
 
 
@@ -329,6 +332,34 @@
 | 题目                                                         | 一刷 | 二刷 | 三刷 |
 | ------------------------------------------------------------ | ---- | ---- | ---- |
 | [2062. 统计字符串中的元音子字符串](https://leetcode-cn.com/problems/count-vowel-substrings-of-a-string/) | ☆    | ☆★   |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+|                                                              |      |      |      |
+
+
+
+
+
+数据库
+
+| 题目                                                         | 一轮 | 二轮 | 三轮 |
+| ------------------------------------------------------------ | ---- | ---- | ---- |
+| [SQL12获取每个部门中当前员工薪水最高的相关信息](https://www.nowcoder.com/practice/4a052e3e1df5435880d4353eb18a91c6?tpId=82&tags=&title=&difficulty=0&judgeStatus=0&rp=1) |      |      |      |
+| [sql21](https://www.nowcoder.com/practice/fc7344ece7294b9e98401826b94c6ea5?tpId=82&tags=&title=&difficulty=0&judgeStatus=0&rp=1) |      |      |      |
+|                                                              |      |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |

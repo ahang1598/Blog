@@ -64,20 +64,20 @@ java -Djava.rmi.server.hostname=xx.134.13x.xx -Dcom.sun.management.jmxremote -Dc
 
 ## 2.1 进程与进程
 
-### 进程
+**进程**
 
 - 程序由指令和数据组成，但是这些指令要运行，数据要读写，就必须将指令加载到cpu，数据加载至内存。在指令运行过程中还需要用到磁盘，网络等设备，进程就是用来加载指令管理内存管理IO的
 - 当一个指令被运行，从磁盘加载这个程序的代码到内存，这时候就开启了一个进程
 - 进程就可以视为程序的一个实例，大部分程序都可以运行多个实例进程（例如记事本，浏览器等），部分只可以运行一个实例进程（例如360安全卫士）
 
-### 线程
+**线程**
 
 - 一个进程之内可以分为一到多个线程。
 - 一个线程就是一个指令流，将指令流中的一条条指令以一定的顺序交给 CPU 执行
 - Java 中，线程作为最小调度单位，进程作为资源分配的最小单位。 在 windows 中进程是不活动的，只是作
   为线程的容器（这里感觉要学了计算机组成原理之后会更有感觉吧！）
 
-### 二者对比
+**二者对比**
 
 进程基本上相互独立的，而线程存在于进程内，是进程的一个子集
 进程拥有共享的资源，如内存空间等，供其内部的线程共享
@@ -91,7 +91,7 @@ java -Djava.rmi.server.hostname=xx.134.13x.xx -Dcom.sun.management.jmxremote -Dc
 
 ## 2.2 并行与并发
 
-### 并发
+**并发**
 
 在单核 cpu 下，线程实际还是串行执行的。操作系统中有一个组件叫做任务调度器，将 cpu 的时间片（windows
 下时间片最小约为 15 毫秒）分给不同的程序使用，只是由于 cpu 在线程间（时间片很短）的切换非常快，人类感
@@ -99,13 +99,13 @@ java -Djava.rmi.server.hostname=xx.134.13x.xx -Dcom.sun.management.jmxremote -Dc
 
 ![1583408729416](https://gitee.com/gu_chun_bo/picture/raw/master/image/20200305194534-433138.png)
 
-### 并行
+**并行**
 
 多核 cpu下，每个核（core） 都可以调度运行线程，这时候线程可以是并行的，不同的线程同时使用不同的cpu在执行。
 
 ![1583408812725](https://gitee.com/gu_chun_bo/picture/raw/master/image/20200305194655-483025.png)
 
-### 二者对比
+**二者对比**
 
 引用 Rob Pike 的一段描述：并发（concurrent）是同一时间应对（dealing with）多件事情的能力，并行（parallel）是同一时间动手做（doing）多件事情的能力
 
@@ -115,31 +115,41 @@ java -Djava.rmi.server.hostname=xx.134.13x.xx -Dcom.sun.management.jmxremote -Dc
   个人用锅时，另一个人就得等待）
 
 
-### 应用
+## 2.3应用
 
-#### 同步和异步的概念
+**同步和异步的概念**
 
 <span style ="color:red">以调用方的角度讲</span>，如果需要等待结果返回才能继续运行的话就是同步，如果不需要等待就是异步
 
-#### 1) 设计
+**1) 设计**
 
 多线程可以使方法的执行变成异步的，比如说读取磁盘文件时，假设读取操作花费了5秒，如果没有线程的调度机制，这么cpu只能等5秒，啥都不能做。
 
-#### 2) 结论
+**2) 结论**
 
 - 比如在项目中，视频文件需要转换格式等操作比较费时，这时开一个新线程处理视频转换，避免阻塞主线程
 - tomcat 的异步 servlet 也是类似的目的，让用户线程处理耗时较长的操作，避免阻塞 tomcat 的工作线程
 - ui 程序中，开线程进行其他操作，避免阻塞 ui 线程
 
+**效率提升**
+
+1. 单核  cpu   下，多线程不能实际提高程序运行效率，只是为了能够在不同的任务之间切换，不同线程轮流使用cpu ，不至于一个线程总占用 cpu，别的线程没法干活
+
+2. 多核  cpu  可以并行跑多个线程，但能否提高程序运行效率还是要分情况的
+
+   - 有些任务，经过精心设计，将任务拆分，并行执行，当然可以提高程序的运行效率。但不是所有计算任务都能拆分（参考后文的【阿姆达尔定律】)
+
+   - 也不是所有任务都需要拆分，任务的目的如果不同，谈拆分和效率没啥意义
+
+3. **IO 操作不占用 cpu**，只是我们一般拷贝文件使用的是【阻塞 IO】，这时相当于线程虽然不用 cpu，但需要一直等待 IO 结束，没能充分利用线程。所以才有后面的【非阻塞 IO】和【异步 IO】优化
 
 
 
-
-# java线程
+# 3. java线程
 
 ## 3.1 创建和运行线程
 
-#### 方法一，直接使用 Thread
+**方法一，直接使用 Thread**
 
 ```java
 // 构造方法的参数是给线程指定名字，，推荐给线程起个名字
@@ -155,7 +165,7 @@ t1.start();
 
 
 
-#### 方法二，使用 Runnable 配合 Thread
+**方法二，使用 Runnable 配合 Thread**
 
 把【线程】和【任务】（要执行的代码）分开，Thread 代表线程，Runnable 可运行的任务（线程要执行的代码）Test2.java
 
@@ -172,7 +182,7 @@ Thread t2 = new Thread(task2, "t2");
 t2.start();
 ```
 
-#### 小结
+**小结**
 
 方法1 是把线程和任务合并在了一起，方法2 是把线程和任务分开了，用 Runnable 更容易与线程池等高级 API 配合，用 Runnable 让任务类脱离了 Thread 继承体系，更灵活。通过查看源码可以发现，方法二其实到底还是通过方法一执行的！
 
@@ -193,7 +203,7 @@ t2.start();
 
 
 
-#### 方法三，FutureTask 配合 Thread
+**方法三，FutureTask 配合 Thread**
 
 FutureTask 能够接收 Callable 类型的参数，用来处理有返回结果的情况 Test3.java
 
@@ -245,11 +255,11 @@ public interface Future<V> {
 
 ## 3.2 线程运行原理
 
-### 虚拟机栈与栈帧
+**虚拟机栈与栈帧**
 
 拟机栈描述的是Java方法执行的内存模型：每个方法被执行的时候都会同时创建一个栈帧(stack frame)用于存储局部变量表、操作数栈、动态链接、方法出口等信息，是属于线程的私有的。当java中使用多线程时，每个线程都会维护它自己的栈帧！每个线程只能有一个活动栈帧，对应着当前正在执行的那个方法
 
-### 线程上下文切换（Thread Context Switch）
+**线程上下文切换（Thread Context Switch）**
 
 因为以下一些原因导致 cpu 不再执行当前的线程，转而执行另一个线程的代码
 
@@ -263,27 +273,27 @@ public interface Future<V> {
 
 ## 3.3 Thread的常见方法
 
-| **方法名**       | **static** | **功能说明**                                    | **注意**                                                     |
-| ---------------- | ---------- | ----------------------------------------------- | ------------------------------------------------------------ |
-| start()          |            | 启动一个新线程，在新的线程运行 run 方法中的代码 | start 方法只是让线程进入就绪，里面代码不一定立刻运行（CPU 的时间片还没分给它）。每个线程对象的  start方法只能调用一次，如果调用了多次会出现  IllegalThreadStateException |
-| run()            |            | 新线程启动后会调用的方法                        | 如果在构造 Thread 对象时传递了 Runnable 参数，则线程启动后会调用 Runnable 中的 run 方法，否则默认不执行任何操作。但可以创建 Thread 的子类对象，来覆盖默认行为 |
-| join()           |            | 等待线程运行结束                                |                                                              |
-| join(long n)     |            | 等待线程运行结束,最多等待 n毫秒                 |                                                              |
-| getId()          |            | 获取线程长整型的 id                             | id 唯一                                                      |
-| getName()        |            | 获取线程名                                      |                                                              |
-| setName(String)  |            | 修改线程名                                      |                                                              |
-| getPriority()    |            | 获取线程优先级                                  |                                                              |
-| setPriority(int) |            | 修改线程优先级                                  | java中规定线程优先级是1~10 的整数，较大的优先级能提高该线程被 CPU 调度的机率 |
-| getState()       |            | 获取线程状态                                    | Java 中线程状态是用 6 个 enum 表示，分别为： NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING,  TERMINATED |
-| isInterrupted()  |            | 判断是否被打断，                                | 不会清除 打断标记                                            |
-| isAlive()        |            | 线程是否存活  （还没有运行完毕）                |                                                              |
-| interrupt()      |            | 打断线程                                        | 如果被打断线程正在 sleep，wait，join 会导致被打断的线程抛出 InterruptedException，并清除  打断标  记 ；如果打断的正在运行的线程，则会设置  打断标记 ；park 的线程被打断，也会设置 打断标记 |
-| interrupted()    | static     | 判断当前线程是否被打断                          | 会清除 打断标记                                              |
-| currentThread()  | static     | 获取当前正在执行的线程                          |                                                              |
+| **方法名**       | **功能说明**                                    | **注意**                                                     |
+| ---------------- | ----------------------------------------------- | ------------------------------------------------------------ |
+| start()          | 启动一个新线程，在新的线程运行 run 方法中的代码 | start 方法只是让线程进入就绪，里面代码不一定立刻运行（CPU 的时间片还没分给它）。每个线程对象的  start方法只能调用一次，如果调用了多次会出现  IllegalThreadStateException |
+| run()            | 新线程启动后会调用的方法                        | 如果在构造 Thread 对象时传递了 Runnable 参数，则线程启动后会调用 Runnable 中的 run 方法，否则默认不执行任何操作。但可以创建 Thread 的子类对象，来覆盖默认行为 |
+| join()           | 等待线程运行结束                                |                                                              |
+| join(long n)     | 等待线程运行结束,最多等待 n毫秒                 |                                                              |
+| getId()          | 获取线程长整型的 id                             | id 唯一                                                      |
+| getName()        | 获取线程名                                      |                                                              |
+| setName(String)  | 修改线程名                                      |                                                              |
+| getPriority()    | 获取线程优先级                                  |                                                              |
+| setPriority(int) | 修改线程优先级                                  | java中规定线程优先级是1~10 的整数，较大的优先级能提高该线程被 CPU 调度的机率 |
+| getState()       | 获取线程状态                                    | Java 中线程状态是用 6 个 enum 表示，分别为： NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING,  TERMINATED |
+| isInterrupted()  | 判断是否被打断，                                | 不会清除 打断标记                                            |
+| isAlive()        | 线程是否存活（还没有运行完毕）                  |                                                              |
+| interrupt()      | 打断线程                                        | 如果被打断线程正在 sleep，wait，join 会导致被打断的线程抛出 InterruptedException，并清除  打断标  记 ；如果打断的正在运行的线程，则会设置  打断标记 ；park 的线程被打断，也会设置 打断标记 |
+| interrupted()    | 判断当前线程是否被打断                          | 会清除 打断标记                                              |
+| currentThread()  | 获取当前正在执行的线程                          |                                                              |
 
 ### 3.3.1 start 与 run
 
-#### 调用start
+**调用start异步**
 
 ```java
     public static void main(String[] args) {
@@ -300,7 +310,7 @@ public interface Future<V> {
     }
 ```
 
-输出：程序在 t1 线程运行， `run()`方法里面内容的调用是异步的 Test4.java
+输出：程序在 t1 线程运行， `run()`方法里面内容的调用是**异步的** Test4.java
 
 ```properties
 11:59:40.711 [main] DEBUG com.concurrent.test.Test4 - 主线程
@@ -309,9 +319,9 @@ public interface Future<V> {
 11:59:40.735 [新建线程] DEBUG com.concurrent.test.FileReader - read [test] end ... cost: 3 ms
 ```
 
-#### 调用run
+**调用run同步**
 
-将上面代码的`thread.start();`改为 `thread.run();`输出结果如下：程序仍在 main 线程运行， `run()`方法里面内容的调用还是同步的
+将上面代码的`thread.start();`改为 `thread.run();`输出结果如下：程序仍在 main 线程运行， `run()`方法里面内容的调用还是**同步**的
 
 ```properties
 12:03:46.711 [main] DEBUG com.concurrent.test.Test4 - 我是一个新建的线程正在运行中
@@ -320,28 +330,28 @@ public interface Future<V> {
 12:03:46.730 [main] DEBUG com.concurrent.test.Test4 - 主线程
 ```
 
-#### 小结
+**小结**
 
 直接调用 `run()` 是在主线程中执行了 `run()`，没有启动新的线程
 使用 `start()` 是启动新的线程，通过新的线程间接执行 `run()`方法 中的代码
 
 ### 3.3.2 sleep 与 yield
 
-#### sleep
+**sleep**
 
-1. 调用 sleep 会让当前线程从 Running 进入 Timed Waiting 状态（阻塞）
-2. 其它线程可以使用 interrupt 方法打断正在睡眠的线程，那么被打断的线程这时就会抛出 `InterruptedException`异常【注意：这里打断的是正在休眠的线程，而不是其它状态的线程】
+1. 调用 sleep 会让当前线程从 Running 进入 `Timed Waiting` 状态（阻塞）
+2. 其它线程可以使用 interrupt 方法**打断正在睡眠的线程**，那么被打断的线程这时就会抛出 `InterruptedException`异常【注意：这里打断的是正在休眠的线程，而不是其它状态的线程】
 3. 睡眠结束后的线程未必会立刻得到执行(需要分配到cpu时间片)
 4. 建议用 TimeUnit 的 `sleep()` 代替 Thread 的 `sleep()`来获得更好的可读性
 
 
 
-#### yield
+**yield**
 
-1. 调用 yield 会让当前线程从 Running 进入 Runnable 就绪状态，然后调度执行其它线程
+1. 调用 yield 会让当前线程从 Running 进入 `Runnable` 就绪状态，然后调度执行其它线程
 2. 具体的实现依赖于操作系统的任务调度器(就是可能没有其它的线程正在执行，虽然调用了yield方法，但是也没有用)
 
-#### 小结
+**小结**
 
 yield使cpu调用其它线程，但是cpu可能会再分配时间片给该线程；而sleep需要等过了休眠时间之后才有可能被分配cpu时间片
 
@@ -528,7 +538,7 @@ log.debug("r1: {} r2: {} cost: {}", r1, r2, end - start);
 
 #### 打断正常运行的线程
 
-打断正常运行的线程, 线程并不会暂停，只是调用方法`Thread.currentThread().isInterrupted();`的返回值为true，可以判断`Thread.currentThread().isInterrupted();`的值来手动停止线程
+打断正常运行的线程, **不会重置打断状态**，线程并不会暂停，只是调用方法`Thread.currentThread().isInterrupted();`的返回值为**true**，可以判断`Thread.currentThread().isInterrupted();`的值来手动停止线程
 
 ```java
     public static void main(String[] args) throws InterruptedException {
@@ -590,7 +600,8 @@ class TwoParseTermination{
                     Thread.sleep(500);
                     log.debug("正在执行监控的功能");
                 } catch (InterruptedException e) {
-                    // 这里非常重要，当出现异常时，默认会重置打断标记，这时需要我们再设置打断标志为true
+                    // 这里非常重要，当sleep时被打断会出异常，
+                    // 默认会重置打断标记，这时需要我们再设置打断标志为true
                     Thread.currentThread().interrupt();
                     e.printStackTrace();
                 }
@@ -670,7 +681,7 @@ class TwoParseTermination{
 
 
 
-# 线程问题
+# 4. 线程问题
 
 ## 4.1 线程出现问题的根本原因分析
 

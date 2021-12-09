@@ -113,11 +113,11 @@ COMMENT='用户表信息';
 - > CREATE TABLE example2(
   >
   >   		 stu_id INT,
-  >						
+  >									
   >   		 course_id INT,
-  >						
+  >									
   >   		 grade FLOAT,
-  >						
+  >									
   >   		 **PRIMARY KEY(stu_id,course_id)**
   >
   > );
@@ -305,6 +305,10 @@ mysql> alter table Student character set gbk;
 
 ## 4.2 查询
 
+练习方式：通过[牛客网](https://www.nowcoder.com/ta/sql)或[力扣](https://leetcode-cn.com/problemset/database/)来刷题
+
+
+
 > SELECT  [DISTINCT] 属性列表
 >
 > ​		FROM 表名和视图列表
@@ -316,6 +320,8 @@ mysql> alter table Student character set gbk;
 > ​		[ORDER BY 属性名2 [ASC | DESC] ]
 >
 > ​		[limit 前几行 [, 取几行] ]
+>
+> ​		[ OFFSET 偏移N行]
 
 - "属性列表"参数表示需要查询的字段名；
 
@@ -345,7 +351,10 @@ mysql> alter table Student character set gbk;
 - 如果有`GROUP BY`子句，就按照"属性名1"指定的字段进行分组；如果`GROUP BY`子句后带着HAVING关键字，那么只有满足"条件表达式2"中指定的条件的才能够输出。`GROUP BY`子句通常和`COUNT()`, `SUM()`等聚合函数一起使用。
 
 - 如果有`ORDER BY`子句，就按照"属性名2"指定的字段进行排序。排序方式由`ASC`和`DESC`两个参数指出，默认的情况下是`ASC`。
+
 - `limit 3 `表示取前三行， `limit 2,3`表示取第二行后的三行
+
+- 取第三行`limit 1 offset 2`
 
 ### 4.2.1 检索多列
 
@@ -448,6 +457,7 @@ Empty set (0.00 sec)
 ### 4.2.8 使用函数处理
 
 一、数学函数
+
 函数|含义
 --|--
 ABS(x) |  返回x的绝对值
@@ -459,11 +469,12 @@ LEAST(x1,x2,...,xn)          |  返回集合中最小的值
 MOD(x,y)                             |     返回x/y的模（余数）
 PI()|返回pi的值（圆周率）
 RAND()|返回０到１内的随机值,可以通过提供一个参数(种子)
-ROUND(x,y)|返回参数x的四舍五入的有y位小数的值
+ROUND(x,y)|返回参数x的四舍五入的有y位小数的值 [题目](https://www.nowcoder.com/practice/f41b94b4efce4b76b27dd36433abe398?tpId=82&tags=&title=&difficulty=0&judgeStatus=0&rp=1&gioEnter=menu)
 SIGN(x) |返回代表数字x的符号的值
 SQRT(x) |返回一个数的平方根
 
 二、聚合函数(常用于GROUP BY从句的SELECT查询中)
+
 函数|含义
 --|--
 AVG(col)|返回指定列的平均值
@@ -474,6 +485,7 @@ SUM(col)|返回指定列的所有值之和
 GROUP_CONCAT(col) |返回由属于一组的列值连接组合而成的结果
 
 三、字符串函数
+
 函数|含义
 --|--
 ASCII(char)|返回字符的ASCII码值
@@ -495,6 +507,7 @@ TRIM(str)|去除字符串首部和尾部的所有空格
 UPPER(str) |返回将字符串str中所有字符转变为大写后的结果
 
 四、日期和时间函数
+
 函数|含义
 --|--
 CURDATE()或CURRENT_DATE() |返回当前的日期
@@ -662,6 +675,64 @@ mysql> select vend_id, prod_id from products where prod_price < 5
     -> select vend_id, prod_id from products where vend_id in (1001, 1002);
 ```
 
+### 4.2.15 函数排名
+
+1、RANK()
+
+  在计算排序时，若存在相同位次，会跳过之后的位次。
+
+  例如，有3条排在第1位时，排序为：1，1，1，4······
+
+2、DENSE_RANK()
+
+  这就是题目中所用到的函数，在计算排序时，若存在相同位次，不会跳过之后的位次。
+
+  例如，有3条排在第1位时，排序为：1，1，1，2······
+
+3、ROW_NUMBER()
+
+  这个函数赋予唯一的连续位次。
+
+  例如，有3条排在第1位时，排序为：1，2，3，4······
+
+
+
+窗口函数用法：
+
+<窗口函数> OVER ( [PARTITION BY <列清单> ]
+
+​                ORDER BY <排序用列清单> ）
+
+例题[sql23](https://www.nowcoder.com/practice/b9068bfe5df74276bd015b9729eec4bf?tpId=82&tags=&title=&difficulty=0&judgeStatus=0&rp=1)
+
+```mysql
+select emp_no, salary,
+       dense_rank() over (order by salary desc) as rank
+from salaries
+where to_date='9999-01-01'
+order by rank asc,emp_no asc;
+```
+
+通过非函数方法排名
+
+```mysql
+-- rank排名：查询表中大于自己薪水的员工的数量（考虑并列：去重）
+SELECT 
+  s1.emp_no,
+  s1.salary,
+  (SELECT 
+    COUNT(DISTINCT s2.salary) 
+  FROM
+    salaries s2 
+  WHERE s2.to_date = '9999-01-01' 
+    AND s2.salary >= s1.salary) AS `rank`  -- 去重：计算并列排名
+FROM
+  salaries s1 
+WHERE s1.to_date = '9999-01-01' 
+ORDER BY s1.salary DESC,
+  s1.emp_no ;
+```
+
 
 
 
@@ -687,6 +758,152 @@ mysql> select vend_id, prod_id from products where prod_price < 5
 > 属性名n=取值n
 >
 > WHERE 条件表达式；
+
+
+
+# 5.SQL优化
+
+## 5.1执行计划
+
+MySQL 使用 `explain + sql 语句`查看 执行计划，该执行计划不一定完全正确但是可以参考。
+
+```
+EXPLAIN SELECT * FROM user WHERE nid = 3;
+```
+
+![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181218161456575-1277410542.png)
+
+| select_type  |      说明      |
+| :----------: | :------------: |
+|    SIMPLE    |    简单查询    |
+|   PRIMARY    |   最外层查询   |
+|   SUBQUERY   |  映射为子查询  |
+|   DERIVED    |     子查询     |
+|    UNION     |      联合      |
+| UNION RESULT | 使用联合的结果 |
+
+------
+
+**table** : 正在访问的表名
+
+------
+
+|                             type                             |                             说明                             |
+| :----------------------------------------------------------: | :----------------------------------------------------------: |
+|                             ALL                              |                         全数据表扫描                         |
+|                            index                             |                         全索引表扫描                         |
+|                            RANGE                             |                     对索引列进行范围查找                     |
+|                         INDEX_MERGE                          |                合并索引，使用多个单列索引搜索                |
+|                             REF                              |                   根据索引查找一个或多个值                   |
+|                            EQ_REF                            |             搜索时使用primary key 或 unique类型              |
+|                            CONST                             | 常量，表最多有一个匹配行,因为仅有一行,在这行的列值可被优化器剩余部分认为是常数,const表很快,因为它们只读取一次。 |
+|                            SYSTEM                            |   系统，表仅有一行(=系统表)。这是const联接类型的一个特例。   |
+| 性能：`all` < `index` < `range` < `index_merge` < `ref_or_null` < `ref` < `eq_ref` < `system/const` |                                                              |
+|             性能在 range 之下基本都可以进行调优              |                                                              |
+
+------
+
+**possible_keys** : 可能使用的索引
+
+------
+
+**key** : 真实使用的
+
+------
+
+**key_len** : MySQL中使用索引字节长度
+
+------
+
+**rows** : mysql 预估为了找到所需的行而要读取的行数
+
+------
+
+|                    extra                    |                             说明                             |
+| :-----------------------------------------: | :----------------------------------------------------------: |
+|                 Using index                 |         此值表示mysql将使用覆盖索引，以避免访问表。          |
+|                 Using where                 | mysql 将在存储引擎检索行后再进行过滤，许多where条件里涉及索引中的列，当(并且如果)它读取索引时，就能被存储引擎检验，因此不是所有带where子句的查询都会显示“Using where”。有时“Using where”的出现就是一个暗示：查询可受益于不同的索引。 |
+|               Using temporary               |             mysql 对查询结果排序时会使用临时表。             |
+|               Using filesort                | mysql会对结果使用一个外部索引排序，而不是按索引次序从表里读取行。mysql有两种文件排序算法，这两种排序方式都可以在内存或者磁盘上完成，explain不会告诉你mysql将使用哪一种文件排序，也不会告诉你排序会在内存里还是磁盘上完成。 |
+| Range checked for each record(index map: N) | 没有好用的索引，新的索引将在联接的每一行上重新估算，N是显示在possible_keys列中索引的位图，并且是冗余的 |
+
+**limit**
+
+limit 匹配后就不会继续进行扫描
+
+```
+mysql> SELECT * FROM user WHERE email = 'klvchen123@126.com' LIMIT 1;
++-----+------------+--------------------+-------+
+| nid | name       | email              | extra |
++-----+------------+--------------------+-------+
+| 123 | klvchen123 | klvchen123@126.com | 123   |
++-----+------------+--------------------+-------+
+1 row in set (0.01 sec)
+```
+
+
+
+详细参看[博客](https://www.cnblogs.com/ggjucheng/archive/2012/11/11/2765237.html)或[备份](pages/mysql_explain.html)
+
+
+
+## 5.2正确使用索引
+
+1. 使用 like 语句时，%在右边才会使用索引。
+   `没用使用索引`
+   ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219104551833-174899627.png)
+   `使用索引`
+   ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219114640747-1725821256.png)
+2. or 条件中有未建立索引的列才,索引失效
+   `没用使用索引`
+   ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219115507465-1096074692.png)
+   `使用索引`
+   ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219115236816-1647665968.png)
+3. 条件的类型不一致
+   `没用使用索引`
+   ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219134139518-222220297.png)
+   `使用索引`
+   ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219134204585-264948476.png)
+4. != 号
+   `没用使用索引`
+   ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219134317541-1609586249.png)
+   例外：如果是主键，则会走索引
+5. \> 号
+   `没用使用索引`
+   ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219134433905-1062967837.png)
+   例外：如果是主键或索引是整数类型，则会走索引
+6. order by
+   `没用使用索引`
+   ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219134722295-1809068294.png)
+   例外：如果 order by 是主键或索引是整数类型，则会走索引
+7. 组合索引
+   遵循最左前缀
+
+```
+# 若 name 和 email 组成组合索引
+create index ix_name_email on user(name,email);
+
+name and email -- 使用索引
+email and name -- 不使用索引
+name                  -- 使用索引
+email                  -- 不使用索引
+```
+
+`没用使用索引`
+![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219135548420-1350585399.png)
+![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219135612019-804744999.png)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
