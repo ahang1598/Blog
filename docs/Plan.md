@@ -274,18 +274,19 @@
 
 | 题目                                                         | 一刷 | 二刷 | 三刷 |
 | ------------------------------------------------------------ | ---- | ---- | ---- |
-|                                                              |      | ☆★   |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
-|                                                              |      |      |      |
+| 排列组合                                                     |      |      |      |
+| [46. 全排列](https://leetcode-cn.com/problems/permutations/) |      | ☆★   |      |
+| [47. 全排列 II](https://leetcode-cn.com/problems/permutations-ii/) |      | ★    |      |
+| [60. 排列序列](https://leetcode-cn.com/problems/permutation-sequence/) |      | ★    |      |
+| [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/) |      | ☆    |      |
+| [78. 子集](https://leetcode-cn.com/problems/subsets/)        |      | ★    |      |
+| [90. 子集 II](https://leetcode-cn.com/problems/subsets-ii/)  |      | ★    |      |
+| [77. 组合](https://leetcode-cn.com/problems/combinations/)   |      | ★    |      |
+| [216. 组合总和 III](https://leetcode-cn.com/problems/combination-sum-iii/) |      | ★    |      |
+| 字符串中回溯                                                 |      |      |      |
+| [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/) |      | ★    |      |
+| [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/) |      | ☆    |      |
+| [784. 字母大小写全排列](https://leetcode-cn.com/problems/letter-case-permutation/) |      |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |

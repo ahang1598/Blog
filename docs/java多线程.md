@@ -1605,15 +1605,15 @@ public static void method2() {
 2. 这时 Thread-1 加轻量级锁失败，进入锁膨胀流程
    1. 即为对象申请Monitor锁，让Object指向重量级锁地址，然后自己进入Monitor 的EntryList 变成BLOCKED状态
    2. ![1583757586447](https://gitee.com/gu_chun_bo/picture/raw/master/image/20200309203947-654193.png)
-3. 当Thread-0 推出synchronized同步块时，使用cas将Mark Word的值恢复给对象头，失败，那么会进入重量级锁的解锁过程，即按照Monitor的地址找到Monitor对象，将Owner设置为null，唤醒EntryList 中的Thread-1线程
+3. 当Thread-0 推出synchronized同步块时，使用cas将Mark Word的值恢复给对象头，失败，那么会进入重量级锁的解锁过程，即**按照Monitor的地址找到Monitor对象，将Owner设置为null，唤醒EntryList 中的Thread-1线程**
 
 #### 自旋优化
 
-重量级锁竞争的时候，还可以使用自旋来进行优化，如果当前线程自旋成功（即在自旋的时候持锁的线程释放了锁），那么当前线程就可以不用进行上下文切换就获得了锁
+重量级锁竞争的时候，还可以使用自旋来进行优化，如果当前线程自旋成功（即在自旋的时候持锁的线程释放了锁），那么**当前线程就可以不用进行上下文切换就获得了锁**
 
 1. 自旋重试成功的情况
    1. ![1583758113724](https://gitee.com/gu_chun_bo/picture/raw/master/image/20200309204835-425698.png)
-2. 自旋重试失败的情况，自旋了一定次数还是没有等到持锁的线程释放锁
+2. 自旋重试失败的情况，**自旋了一定次数还是没有等到持锁的线程释放锁**
    1. ![1583758136650](https://gitee.com/gu_chun_bo/picture/raw/master/image/20200309204915-424942.png)
 
 自旋会占用 CPU 时间，单核 CPU 自旋就是浪费，多核 CPU 自旋才能发挥优势。在 Java 6 之后自旋锁是自适应的，比如对象刚刚的一次自旋操作成功过，那么认为这次自旋成功的可能性会高，就多自旋几次；反之，就少自旋甚至不自旋，总之，比较智能。Java 7 之后不能控制是否开启自旋功能
@@ -1632,7 +1632,7 @@ public static void method2() {
 
 一个对象的创建过程
 
-1. 如果开启了偏向锁（默认是开启的），那么对象刚创建之后，Mark Word 最后三位的值101，并且这是它的Thread，epoch，age都是0，在加锁的时候进行设置这些的值.
+1. 如果开启了偏向锁（**默认是开启的**），那么对象刚创建之后，Mark Word 最后三位的值101，并且这是它的Thread，epoch，age都是0，在加锁的时候进行设置这些的值.
 
 2. 偏向锁默认是延迟的，不会在程序启动的时候立刻生效，如果想避免延迟，可以添加虚拟机参数来禁用延迟：-`XX:BiasedLockingStartupDelay=0`来禁用延迟
 
@@ -1738,7 +1738,11 @@ public static void method2() {
 
 ##### 批量重偏向
 
-如果对象被多个线程访问，但是没有竞争，这时候偏向了线程一的对象又有机会重新偏向线程二，即可以不用升级为轻量级锁，可这和我们之前做的实验矛盾了呀，其实要实现重新偏向是要有条件的：就是超过20对象对同一个线程如线程一撤销偏向时，那么第20个及以后的对象才可以将撤销对线程一的偏向这个动作变为将第20个及以后的对象偏向线程二。Test21.java
+1 批量重偏向锁：当对某个类的对象偏向锁批量撤销20次，则偏向锁认为，后面的锁需要重新偏向新的线程（批量重偏向）
+
+2 批量撤销：当某个类的对象的偏向锁累计被撤销到阈值40次（从40次开始），则偏向锁认为偏向锁撤销过于频繁，则后面的对象包括新生成的对象（标识为101和001）如果需要使用锁，则直接轻量级锁，不在使用偏向锁（即禁用了偏向锁）
+
+
 
 
 
@@ -2094,11 +2098,240 @@ ReentrantLock 的条件变量比 synchronized 强大之处在于，它是支持�
 
 1. 固定运行顺序，比如，必须先 2 后 1 打印
    1.  wait notify 版  Test35.java
-   2.  Park Unpark 版  Test36.java
+   
+   ```java
+   // 用来同步的对象
+   static Object obj = new Object();
+   // t2 运行标记， 代表 t2 是否执行过
+   static boolean t2runed = false;
+   public static void main(String[] args) { 
+       Thread t1 = new Thread(() -> {
+   	synchronized (obj) {
+       // 如果  t2 没有执行过
+           while (!t2runed) { 
+               try {
+               // t1 先等一会
+               obj.wait();
+               } catch (InterruptedException e) {
+                   e.printStackTrace();
+                }
+               }
+           }
+           System.out.println(1);
+       });
+   
+   Thread t2 = new Thread(() -> { 
+       System.out.println(2); 
+       synchronized (obj) {
+           // 修改运行标记
+           t2runed = true;
+           // 通知 obj 上等待的线程（可能有多个，因此需要用 notifyAll） 
+            obj.notifyAll();
+       }
+   });
+   
+   t1.start();
+   t2.start();
+   
+   ```
+   
+   
+   
+   1.  Park Unpark 版  Test36.java
+   
+   ```java
+   Thread t1 = new Thread(() -> {
+   	//   当没有『许可』时，当前线程暂停运行；有『许可』时，用掉这个『许可』，当前线程恢复运行
+   	LockSupport.park(); 
+       System.out.println("1");
+   });
+   
+   Thread t2 = new Thread(() -> { 
+       System.out.println("2");
+       // 给线程 t1 发放『许可』（多次连续调用 unpark 只会发放一个『许可』）
+       LockSupport.unpark(t1);
+   });
+   
+   t1.start();
+   t2.start();
+   
+   ```
+   
+   
+   
 2. 交替输出，线程 1 输出 a 5 次，线程 2 输出 b 5 次，线程 3 输出 c 5 次。现在要求输出 abcabcabcabcabc 怎么实现
    1. wait notify 版   Test37.java
-   2. Lock 条件变量版 Test38.java
-   3.  Park Unpark 版 Test39.java
+   
+   ```java
+   public class Hello {
+       public static void main(String[] args) {
+           WaitNotify wn = new WaitNotify(1, 5);
+           new Thread( ()->{
+               wn.print("a", 1, 2);
+           } ).start();
+   
+           new Thread( ()->{
+               wn.print("b", 2, 3);
+           } ).start();
+   
+           new Thread( ()-> {
+               wn.print("c", 3, 1);
+           }).start(); 
+   }
+   
+   
+   class WaitNotify{
+       private int flag;
+       private int loop;
+   
+       public WaitNotify(int flag, int loop){
+           this.flag = flag;
+           this.loop = loop;
+       }
+   
+       public void print(String str, int waitFlag, int nextFlag){
+           for(int i = 0; i < loop; i++){
+               synchronized(this){
+                   while(this.flag != waitFlag){
+                       try {
+                           this.wait();
+                       } catch (InterruptedException e) {
+                           // TODO Auto-generated catch block
+                           e.printStackTrace();
+                       }
+                   }
+                   System.out.print(str);
+                   flag = nextFlag;
+                   this.notifyAll();
+               }
+           }
+       }
+   }
+   ```
+   
+   
+   
+   1. Lock 条件变量版 Test38.java
+   
+   ```java
+   public class Hello {
+       public static void main(String[] args) {
+           AwaitNotify awn = new AwaitNotify(5);
+           Condition a = awn.newCondition();
+           Condition b = awn.newCondition();
+           Condition c = awn.newCondition();
+           new Thread( ()->{
+               awn.print("a", a, b);
+           } ).start();
+           new Thread( ()-> {
+               awn.print("b", b, c);
+           }).start();
+           new Thread( ()->{
+               awn.print("c", c, a);
+           }  ).start();
+           awn.start(a);
+       } 
+   }
+   
+   class AwaitNotify extends ReentrantLock {
+       private int loop;
+       public AwaitNotify(int loop){
+           this.loop = loop;
+       }
+   
+       public void start( Condition cond ){
+           this.lock();
+           try {
+               cond.signal();
+           }finally {
+               this.unlock();
+           }
+       }
+   
+       public void print (String str, Condition current, Condition next) {
+           for(int i = 0; i < loop; i++){
+               this.lock();
+   
+               try {
+                   current.await();
+                   System.out.print(str);
+                   next.signal();
+               } catch (InterruptedException e) {
+                   // TODO Auto-generated catch block
+                   e.printStackTrace();
+               }finally {
+                   this.unlock();
+               }
+           }
+       }
+   }
+   ```
+   
+   
+   
+   1. Park Unpark 版 Test39.java
+   
+   ```java
+   class SyncPark {
+   	private int loopNumber; 
+       private Thread[] threads;
+   
+   	public SyncPark(int loopNumber) { 
+           this.loopNumber = loopNumber;
+   	}
+   
+   	public void setThreads(Thread threads) { 
+           this.threads = threads;
+   	}
+   
+       public void print(String str) {
+       	for (int i = 0; i < loopNumber; i++) { 
+               LockSupport.park(); 
+               System.out.print(str); 
+               LockSupport.unpark(nextThread());
+      		 }
+       }
+   
+       private Thread nextThread() {
+       	Thread current = Thread.currentThread(); 
+           int index = 0;
+           for (int i = 0; i < threads.length; i++) { 
+               if(threads[i] == current) {
+               index = i; break;
+               }
+           }
+           if(index < threads.length - 1) { 
+               return threads[index+1];
+           } else {
+               return threads[0];
+           }
+       }
+   
+       public void start() {
+           for (Thread thread : threads) { 
+               thread.start();
+           }
+           LockSupport.unpark(threads[0]);
+        }
+   }
+   
+   
+   SyncPark syncPark = new SyncPark(5); 
+   Thread t1 = new Thread(() -> {
+       syncPark.print("a");
+   });
+   Thread t2 = new Thread(() -> { 
+       syncPark.print("b");
+   });
+   Thread t3 = new Thread(() -> { 
+       syncPark.print("c\n");
+   });
+   syncPark.setThreads(t1, t2, t3); 
+   syncPark.start();
+   
+   ```
+   
+   
 
 
 

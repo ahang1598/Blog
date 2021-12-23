@@ -55,7 +55,7 @@ maven仓库：
     <groupId>org.mybatis</groupId>
     <artifactId>mybatis</artifactId>
     <version>3.5.2</version>
-</dependency>
+</dependency>	
 ```
 - 中文文档：https://mybatis.org/mybatis-3/zh/index.html
 
@@ -258,7 +258,7 @@ public static SqlSession  getSqlSession(){
 解决：删除中文注解或者[注解中中文乱码错误详解](https://blog.csdn.net/hc_study/article/details/115221072)
 - **错误CODE2**：`org.apache.ibatis.binding.BindingException: Type interface com.ahang.Dao.UserDao is not known to the MapperRegistry`
 
-解决：在`mybatis-config.xml`配置文件中缺少`<mappers> <mapper resource="com/ahang/Dao/UserDaoImpl.xml"></mapper> </mappers>`注意路径通过`\`连接
+解决：在`mybatis-config.xml`配置文件中缺少`<mappers> <mapper resource="com/ahang/Dao/UserDaoImpl.xml"></mapper> </mappers>`注意路径通过`/`连接
 - **错误CODE3 数据库连接错误**：`Cause: com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Unknown database 'mybati'`
 解决：查看数据库书写是否正确
 - **错误CODE4**：`The error may exist in com/ahang/Dao/UserDaoImpl.xml; Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.io.IOException: Could not find resource com/ahang/Dao/UserDaoImpl.xml`缺少资源包，在定义`maven`的`pom.xml`中默认没有添加资源包下的配置文件，需要手动添加![mybatis-2.2配置绑定](img/mybatis-2.2配置绑定.png)
@@ -466,7 +466,7 @@ password=6666
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
                 <property name="url" value="jdbc:mysql://localhost:3306/MyBatis"/>
                 <property name="username" value="root"/>
-                <property name="password" value="1598"/>
+                <property name="password" value="root"/>
             </dataSource>
         </environment>
     </environments>
@@ -476,6 +476,7 @@ password=6666
 
 方式一：
 在`mybatis.xml`中配置类型别名
+
 ```xml
     <typeAliases>
         <typeAlias type="com.ahang.pojo.User" alias="Users"></typeAlias>
@@ -513,6 +514,7 @@ public class User {
 ## 4.4 映射绑定
 每一个`Mapper.xml`都需要在`mybatis.xml`配置中绑定注册
 方式一：手动指定位置
+
 ```xml
     <mappers>
         <mapper resource="com/ahang/Dao/UserDaoImpl.xml"></mapper>
@@ -574,7 +576,7 @@ User(id=20, uname=null)
 ## 5.2 设置resultMap
 设置resultMap来绑定属性名，`property`中属性为User类中， `column`中属性为数据库中值。
 
-==注意点：以下配置会报错==：` org.apache.ibatis.type.TypeException: Could not resolve type alias 'UserMap'.  Cause: java.lang.ClassNotFoundException: Cannot find class: UserMap 	at org.apache.ibatis.builder.xml.XMLMapperBuilder.configurationElement`
+**注意点：以下配置会报错**：` org.apache.ibatis.type.TypeException: Could not resolve type alias 'UserMap'.  Cause: java.lang.ClassNotFoundException: Cannot find class: UserMap 	at org.apache.ibatis.builder.xml.XMLMapperBuilder.configurationElement`
 
 ```xml
     <resultMap id="UserMap" type="users">
@@ -587,7 +589,7 @@ User(id=20, uname=null)
     </select>
 ```
 - 首先需要添加`resultMap`绑定对应关系
-- ==然后需要修改select标签中的`resultType="users"` --> `resultMap="UserMap"`==
+- 然后需要修改select标签中的`resultType="users"` --> `resultMap="UserMap"`
 - 正确配置如下：
 ```xml
     <resultMap id="UserMap" type="users">
@@ -1031,7 +1033,6 @@ MyBatis系统中默认定义了两级缓存：一级缓存和二级缓存
         sqlSession2.close();
 }        
 ```
-
 
 
 
