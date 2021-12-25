@@ -1194,3 +1194,1555 @@ Spring集成Junit步骤
 
 
 
+# 5.Spring的AOP
+
+源码下载 [地址](img/Spring/Spring-aop.zip)
+
+## 5.1 AOP 开发明确的事项
+
+**1)需要编写的内容**
+
+- 编写核心业务代码（目标类的目标方法）
+
+- 编写切面类，切面类中有通知(增强功能方法)
+
+- 在配置文件中，配置织入关系，即将哪些通知与哪些连接点进行结合
+
+**2）AOP 技术实现的内容**
+
+Spring 框架监控切入点方法的执行。一旦监控到切入点方法被运行，使用代理机制，动态创建目标对象的代理对象，根据通知类别，在代理对象的对应位置，将通知对应的功能织入，完成完整的代码逻辑运行。
+
+**3）AOP 底层使用哪种代理方式**
+
+在 spring 中，框架会根据目标类是否实现了接口来决定采用哪种动态代理的方式。
+
+**知识要点**
+
+- aop：面向切面编程
+
+- aop底层实现：基于JDK的动态代理 和 基于Cglib的动态代理
+
+- aop的重点概念：
+
+      Pointcut（切入点）：被增强的方法
+      
+      Advice（通知/ 增强）：封装增强业务逻辑的方法
+      
+      Aspect（切面）：切点+通知
+      
+      Weaving（织入）：将切点与通知结合的过程
+
+- 开发明确事项：
+
+      谁是切点（切点表达式配置）
+      
+      谁是通知（切面类中的增强方法）
+      
+      将切点和通知进行织入配置
+
+
+
+## 5.2 切面表达式
+
+
+
+`execution`表达式的使用`execution(访问修饰符（可省略） 返回值类型 包.包.类.方法名(参数) )`如
+
+`<aop:before method="printLog" pointcut="execution(public void com.huge.service.impl.AccountServiceImpl.save())"></aop:before>`
+
+| 符号 | 类型匹配模式                                                 |
+| ---- | ------------------------------------------------------------ |
+| *    | 匹配任何数量字符；比如模式 (*,String) 匹配了一个接受两个参数的方法，第一个可以是任意类型，第二个则必须是String类型 |
+| ..   | 匹配任何数量字符的重复，如在类型模式中匹配任何数量子包；而在方法参数模式中匹配任何数量参数，可以使零到多个。 |
+| +    | 匹配指定类型的子类型；仅能作为后缀放在类型模式后边。         |
+
+| 符号       | 参数匹配模式：                                               |
+| ---------- | ------------------------------------------------------------ |
+| ()         | 匹配了一个不接受任何参数的方法，                             |
+| (..)       | 匹配了一个接受任意数量参数的方法（零或者更多）。             |
+| (*)        | 匹配了一个接受一个任何类型的参数的方法。                     |
+| (*,String) | 匹配了一个接受两个参数的方法，第一个可以是任意类型， 第二个则必须是String类型。 |
+
+示例：
+
+```java
+// 省略访问修饰符
+void com.huge.service.impl.AccountServiceImpl.save()
+
+// 返回值使用通配符，表示可以返回任意值
+* com.huge.service.impl.AccountServiceImpl.save()
+
+// 包名可以使用通配符，表示任意包。但是有几级包，就需要写几个*.
+* *.*.*.*.AccountServiceImpl.save()
+
+// 包名可以使用..表示当前包及其子包
+* *..AccountServiceImpl.save()
+
+//定义在service 包里,及其子类的任意类的任意方法
+* com.huge.service.*.*()
+
+// 类名和方法名都可以使用*来实现通配
+* *..*.*()
+
+// 所有包下的service,及其子包
+* *.service..*()
+
+// IAccountService 若为接口，则为接口中的任意方法及其所有实现类中的任意,方法；若为类，则为该类及其子类中的任意方法
+* com.huge.service.IAccountService+.*()
+
+// 以s开头的任意方法
+* com.huge.service.*.s*()
+```
+
+```java
+// 基本类型直接写名称 int
+* com.huge.service.*.*(int)
+
+// 方法不带参数的
+* com.huge.service.*.*()
+
+// 可以使用..表示有无参数均可，有参数可以是任意类型
+* com.huge.service.*.*(..)
+
+// 两个参数,第一个是String,第二个任意,三个参数不行
+execution(* joke(String,*)))
+
+// 两个参数,第一个String,第二个个数和类型不限
+execution(* joke(String,..)))
+
+// 全通配写法：
+* *..*.*(..)
+```
+
+
+
+## 5.3 基于 XML 的 AOP 开发
+
+### 5.3.1 通知的类型
+
+通知的配置语法：
+
+```xml
+<aop:通知类型 method=“切面类中方法名” pointcut=“切点表达式"></aop:通知类型>
+                                           
+	<aop:config>
+        <aop:aspect ref="aspect 切面类的bean名称">
+            <aop:pointcut id="pointUserDao 定义一个切点并命名，供后面使用" 
+                 expression="execution( * com.ahang.Dao..* (..) )"/>
+            <aop:before method="before" pointcut="execution(* com.ahang.Dao.Impl.*.* (..) )"/>
+            <aop:after method="after" pointcut-ref="pointUserDao"/>
+            <aop:after-returning method="afterReturn" pointcut-ref="pointUserDao"/>
+            <aop:after-throwing method="afterThrow" pointcut-ref="pointUserDao"/>
+            <aop:around method="around" pointcut-ref="pointUserDao"/>
+        </aop:aspect>
+    </aop:config>
+```
+
+![](img\Spring\5.png)
+
+
+
+### 5.3.2 案例
+
+①导入 AOP 相关依赖
+
+②创建目标接口和目标类（内部有切点）
+
+③创建切面类（内部有增强方法）
+
+④将目标类和切面类的对象创建权交给 spring
+
+⑤在 applicationContext.xml 中配置织入关系
+
+⑥测试代码
+
+
+
+①导入 AOP 相关依赖
+
+```xml
+    <properties>
+        <spring.version>5.3.9</spring.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.7</version>
+        </dependency>
+        
+    <!--以下用于测试的依赖-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+```
+
+
+
+②创建目标接口和目标类（内部有切点）
+
+```java
+package com.ahang.Dao.Impl;
+
+public class UserDaoImpl implements UserDao {
+    public void run() {
+        System.out.println("running...");
+    }
+}
+```
+
+
+
+③创建切面类（内部有增强方法）
+
+```java
+package com.ahang.Dao.Impl;
+
+public class Aspect {
+
+    public void before(){
+        System.out.println("check before run");
+    }
+
+    public void after() {
+        System.out.println("check after run anyway");
+    }
+
+    public Object around(ProceedingJoinPoint pjp) throws Throwable {
+        System.out.println("around check before run");
+        Object proceed = pjp.proceed();
+        System.out.println("around check after run");
+        return proceed;
+    }
+
+    public void afterThrow() {
+        System.out.println("after exception check");
+    }
+
+    public void afterReturn() {
+        System.out.println("after return then check");
+    }
+}
+```
+
+
+
+④将目标类和切面类的对象创建权交给 spring
+
+在`applicationContext.xml`中添加aop的环境
+
+```xml
+xmlns:aop="http://www.springframework.org/schema/aop"
+
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop.xsd
+```
+
+导入切面类和目标类
+
+```xml
+    <bean id="userDao" class="com.ahang.Dao.Impl.UserDaoImpl"/>
+    <bean id="aspect" class="com.ahang.Dao.Impl.Aspect"/>
+```
+
+
+
+⑤在 `applicationContext.xml` 中配置织入关系
+
+```xml
+    <aop:config>
+        <aop:aspect ref="aspect">
+            <aop:pointcut id="pointUserDao" expression="execution( * com.ahang.Dao..* (..) )"/>
+            <aop:before method="before" pointcut="execution(* com.ahang.Dao.Impl.*.* (..) )"/>
+            <aop:after method="after" pointcut-ref="pointUserDao"/>
+            <aop:after-returning method="afterReturn" pointcut-ref="pointUserDao"/>
+            <aop:after-throwing method="afterThrow" pointcut-ref="pointUserDao"/>
+            <aop:around method="around" pointcut-ref="pointUserDao"/>
+        </aop:aspect>
+    </aop:config>
+```
+
+
+
+⑥测试代码
+
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:applicationContext.xml")
+public class XmlTest {
+    @Autowired
+    UserDao userDao;
+
+    @Test
+    public void test() {
+        userDao.run();
+        // 测试结果
+//        check before run
+//        around check before run
+//        running...
+//        around check after run
+//        after return then check
+//        check after run anyway
+    }
+
+}
+```
+
+
+
+## 5.4 基于注解的 AOP 开发
+
+### 5.4.1 通知类型及注解
+
+通知的配置语法：`@通知注解(“切点表达式")`
+
+![](img\Spring\6.png)
+
+开启切面注解
+
+```xml
+	<aop:aspectj-autoproxy/>
+```
+
+标识切面类 `@Aspect`
+
+```java
+@Component("aspect")
+@Aspect
+public class MyAspect {
+    @Before("execution( * com.ahang.Anno.*.* (..) )")
+    public void before() {
+        System.out.println("check before run");
+    }
+```
+
+
+
+
+
+### 5.4.2 案例
+
+基于注解的aop开发步骤：
+
+①在配置文件中开启组件扫描和 AOP 的自动代理
+
+②创建目标接口和目标类（内部有切点）
+
+③创建切面类（内部有增强方法）
+
+④在切面类中使用注解配置织入关系
+
+⑤测试
+
+
+
+①在配置文件`applicationContext-anno.xml`中开启组件扫描和 AOP 的自动代理
+
+```xml
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+
+        http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+```
+
+
+
+```xml
+	<aop:aspectj-autoproxy/>
+    <context:component-scan base-package="com.ahang.Anno"/>
+```
+
+
+
+②创建目标接口和目标类（内部有切点）
+
+```java
+@Component("target")
+public class Target {
+    public void run() {
+        System.out.println("running...");
+    }
+}
+```
+
+
+
+③创建切面类（内部有增强方法） ④在切面类中使用注解配置织入关系
+
+```java
+@Component("aspect")
+@Aspect
+public class MyAspect {
+    @Before("execution( * com.ahang.Anno.*.* (..) )")
+    public void before() {
+        System.out.println("check before run");
+    }
+	
+    // 定义切点
+    @Pointcut("execution( * com.ahang.Anno.Target.* (..) )")
+    public void myPoint() {}
+
+    @After("myPoint()")
+    public void after() {
+        System.out.println("check after run anyway");
+    }
+
+    @Around("myPoint()")
+    public Object around(ProceedingJoinPoint pjp) throws Throwable {
+        System.out.println("around check before run");
+        Object proceed = pjp.proceed();
+        System.out.println("around check after run");
+        return proceed;
+    }
+
+    @AfterThrowing("myPoint()")
+    public void afterThrow() {
+        System.out.println("after exception check");
+    }
+
+    @AfterReturning("myPoint()")
+    public void afterReturn() {
+        System.out.println("after return then check");
+    }
+
+}
+```
+
+
+
+⑤测试
+
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:applicationContext-anno.xml")
+public class AnnoTest {
+    @Autowired
+    Target target;
+
+    @Test
+    public void test(){
+        target.run();
+    }
+}
+```
+
+
+
+
+
+# 6. SpringMVC
+
+
+
+## 6.1入门案例
+
+源码下载 [地址](img/Spring/SpringMVC-start.zip)
+
+工具Tomcat 下载 [地址](https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.73/bin/apache-tomcat-8.5.73.zip), 官网 [地址](https://tomcat.apache.org/download-80.cgi)
+
+
+
+示意图
+
+![7](img/Spring/7.png)
+
+
+
+<img src="img/Spring/8.png" alt="7" style="zoom:67%;" />
+
+
+
+![7](img/Spring/9.png)
+
+**开发步骤**
+
+①导入SpringMVC相关坐标
+
+②配置SpringMVC核心控制器DispathcerServlet
+
+③创建Controller类和视图页面
+
+④使用注解配置Controller类中业务方法的映射地址
+
+⑤配置SpringMVC核心文件 spring-mvc.xml
+
+⑥客户端发起请求测试
+
+**代码实现**
+
+①导入Spring和SpringMVC的坐标、导入Servlet和Jsp的坐标
+
+```xml
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <spring.version>5.3.9</spring.version>
+  </properties>
+
+  <dependencies>
+      <!--Spring坐标-->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+       <!--SpringMVC坐标-->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+      <!--Jsp坐标-->
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.0</version>
+    </dependency>
+      <!--Servlet坐标-->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
+    </dependency>
+  </dependencies> 
+```
+
+②在web.xml配置SpringMVC的核心控制器
+
+ <font color="red">注意：头文件要一致，不然后面会出现设置的属性，接收不到</font>
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+<servlet>
+    <servlet-name>DispatcherServlet</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>  
+    <init-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring-mvc.xml</param-value>
+    </init-param>
+	<load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>   
+    <servlet-name>DispatcherServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+</servlet-mapping>
+    
+</web-app>    
+
+```
+
+③创建Controller和业务方法 并 ④配置注解
+
+```java
+@Controller("user")
+public class UserController {
+
+    @RequestMapping("user1")
+    public String user1() {
+        System.out.println("user1 running...");
+        return "/WEB-INF/jsp/success.jsp";
+    }
+}
+```
+
+③创建视图页面`jsp/success.jsp`
+
+```jsp
+<body>
+<h1>haha...</h1>
+
+</body>
+```
+
+
+
+⑤创建spring-mvc.xml
+
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:context="http://www.springframework.org/schema/context" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://www.springframework.org/schema/mvc   
+    http://www.springframework.org/schema/mvc/spring-mvc.xsd  
+    http://www.springframework.org/schema/context   
+    http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--配置注解扫描-->
+    <context:component-scan base-package="com.itheima"/>
+</beans>
+```
+
+⑥访问测试地址
+
+```xml
+http://localhost:8080/user1
+```
+
+
+
+## 6.2 SpringMVC原理
+
+
+
+![](img\Spring\Springmvc 原理.png)
+
+①用户发送请求至前端控制器DispatcherServlet。
+
+②DispatcherServlet收到请求调用HandlerMapping处理器映射器。
+
+③处理器映射器找到具体的处理器(可以根据xml配置、注解进行查找)，生成处理器对象及处理器拦截器(如果有则生成)一并返回给DispatcherServlet。
+
+④DispatcherServlet调用HandlerAdapter处理器适配器。
+
+⑤HandlerAdapter经过适配调用具体的处理器(Controller，也叫后端控制器)。
+
+⑥Controller执行完成返回ModelAndView。
+
+⑦HandlerAdapter将controller执行结果ModelAndView返回给DispatcherServlet。
+
+⑧DispatcherServlet将ModelAndView传给ViewReslover视图解析器。
+
+⑨ViewReslover解析后返回具体View。
+
+⑩DispatcherServlet根据View进行渲染视图（即将模型数据填充至视图中）。DispatcherServlet响应用户。
+
+### 6.2.1 SpringMVC组件解析
+
+1. **前端控制器：DispatcherServlet**
+
+​    用户请求到达前端控制器，它就相当于 MVC 模式中的 C，DispatcherServlet 是整个流程控制的中心，由
+
+它调用其它组件处理用户的请求，DispatcherServlet 的存在降低了组件之间的耦合性。
+
+2. **处理器映射器：HandlerMapping**
+
+​    HandlerMapping 负责根据用户请求找到 Handler 即处理器，SpringMVC 提供了不同的映射器实现不同的
+
+映射方式，例如：配置文件方式，实现接口方式，注解方式等。
+
+3. **处理器适配器：HandlerAdapter**
+
+​    通过 HandlerAdapter 对处理器进行执行，这是适配器模式的应用，通过扩展适配器可以对更多类型的处理
+
+器进行执行。
+
+4. **处理器：Handler**
+
+​    它就是我们开发中要编写的具体业务控制器。由 DispatcherServlet 把用户请求转发到 Handler。由
+
+Handler 对具体的用户请求进行处理。
+
+5. **视图解析器：View Resolver**
+
+​    View Resolver 负责将处理结果生成 View 视图，View Resolver 首先根据逻辑视图名解析成物理视图名，即具体的页面地址，再生成 View 视图对象，最后对 View 进行渲染将处理结果通过页面展示给用户。
+
+6. **视图：View**
+
+​    SpringMVC 框架提供了很多的 View 视图类型的支持，包括：jstlView、freemarkerView、pdfView等。最常用的视图就是 jsp。一般情况下需要通过页面标签或页面模版技术将模型数据通过页面展示给用户，需要由程序员根据业务需求开发具体的页面
+
+### 6.2.2 SpringMVC注解解析
+
+`@RequestMapping`
+
+**作用**：用于建立请求 URL 和处理请求方法之间的对应关系
+
+**位置**：
+
+- **类**上，请求URL 的第一级访问目录。此处不写的话，就相当于应用的根目录
+
+-  **方法**上，请求 URL 的第二级访问目录，与类上的使用@RequestMapping标注的一级目录一起组成访问虚拟路径
+
+```java
+// http://localhost:8080/User/user1
+
+@Controller("user")
+@RequestMapping("/User")  // 加在类上，一级访问 /User
+public class UserController {
+
+    @RequestMapping("user1") // 加在方法上，二级访问 /user1
+    public String user1() {
+        System.out.println("user1 running...");
+        return "/WEB-INF/jsp/success.jsp";
+    }
+}
+```
+
+
+
+**属性**：
+
+​      value：用于指定请求的URL。它和path属性的作用是一样的
+
+​      method：用于指定请求的方式，默认为`GET`，可以指定为`post`,`delete`,`update`
+
+​      params：用于指定限制请求参数的条件。它支持简单的表达式。要求请求参数的key和value必须和配置的一模一样
+
+**例如**：
+
+​      params = {"accountName"}，表示请求参数必须有accountName
+
+​      params = {"moeny!100"}，表示请求参数中money不能是100
+
+1. **mvc命名空间引入**
+
+```xml
+命名空间：xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:mvc="http://www.springframework.org/schema/mvc"
+约束地址：http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+```
+
+2. **组件扫描**
+
+SpringMVC基于Spring容器，所以在进行SpringMVC操作时，需要将Controller存储到Spring容器中，如果使用@Controller注解标注的话，
+
+就需要使用`<context:component-scan base-package=“com.ahang.controller"/>`进行组件扫描。
+
+
+
+ `@ResponseBody`  
+
+告知SpringMVC框架 不进行视图跳转 直接进行数据响应
+
+### 6.2.3 SpringMVC的XML配置解析
+
+ **Spring与Web环境集成**
+
+1. **ApplicationContext应用上下文获取方式**
+
+应用上下文对象是通过new ClasspathXmlApplicationContext(spring配置文件) 方式获取的，但是每次从容器中获得Bean时都要编写new ClasspathXmlApplicationContext(spring配置文件) ，这样的弊端是配置文件加载多次，应用上下文对象创建多次。
+
+在Web项目中，可以使用ServletContextListener监听Web应用的启动，我们可以在Web应用启动时，就加载Spring的配置文件，创建应用上下文对象ApplicationContext，在将其存储到最大的域servletContext域中，这样就可以在任意位置从域中获得应用上下文ApplicationContext对象了。
+
+2. **Spring提供获取应用上下文的工具**
+
+上面的分析不用手动实现，Spring提供了一个监听器ContextLoaderListener就是对上述功能的封装，该监听器内部加载Spring配置文件，创建应用上下文对象，并存储到ServletContext域中，提供了一个客户端工具WebApplicationContextUtils供使用者获得应用上下文对象。
+
+所以我们需要做的只有两件事：
+
+①在web.xml中配置ContextLoaderListener监听器（导入spring-web坐标）
+
+②使用WebApplicationContextUtils获得应用上下文对象ApplicationContext
+
+3. **配置视图解析器**
+
+SpringMVC有默认组件配置，默认组件都是`DispatcherServlet.properties`配置文件中配置的，该配置文件地址org/springframework/web/servlet/DispatcherServlet.properties，该文件中配置了默认的视图解析器，如下：
+
+```properties
+org.springframework.web.servlet.ViewResolver=org.springframework.web.servlet.view.InternalResourceViewResolver
+```
+
+翻看该解析器源码，可以看到该解析器的默认设置，如下：
+
+```properties
+REDIRECT_URL_PREFIX = "redirect:"  --重定向前缀
+FORWARD_URL_PREFIX = "forward:"    --转发前缀（默认值）
+prefix = "";     --视图名称前缀
+suffix = "";     --视图名称后缀
+```
+
+​	**视图解析器修改前缀后缀**
+
+我们可以通过属性注入的方式修改视图的的前后缀
+
+```xml
+<!--配置内部资源视图解析器-->
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+  <property name="prefix" value="/WEB-INF/views/"></property>
+  <property name="suffix" value=".jsp"></property>
+</bean>
+```
+
+```java
+    @RequestMapping("user1") // 加在方法上，二级访问 /user1
+    public String user1() {
+        System.out.println("user1 running...");
+   //     return "/WEB-INF/jsp/success.jsp"; 原先需要加前缀和后缀
+        return "success";  // 现在只需要文件名即可
+    }
+```
+
+
+
+## 6.3 SpringMVC数据响应
+
+源码下载 [地址](img/Spring/SpringMVC-controller.zip)
+
+### 6.3.1返回页面，并传递数据
+
+先建立返回页面`show.jsp`
+
+通过`${}`传递参数
+
+```jsp
+<body>
+<h1>${info}</h1>  
+<h1>haha show</h1><br>
+</body>
+```
+
+有四种方式返回页面并传递参数
+
+```java
+@Controller
+public class Show {
+
+    @RequestMapping("/show1")
+    public ModelAndView show1(){
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("info","hello");
+        modelAndView.setViewName("show");
+        System.out.println("show run..");
+        return modelAndView;
+    }
+
+    @RequestMapping("/show2")
+    public ModelAndView show2(ModelAndView modelAndView){
+        modelAndView.addObject("info", "hello");
+        modelAndView.setViewName("show");
+        return modelAndView;
+    }
+
+    @RequestMapping("/show3")
+    public String show3(Model model) {
+        model.addAttribute("info", "hello");
+        return "show";
+    }
+
+    @RequestMapping("/show4")
+    public String show4(HttpServletRequest request) {
+        request.setAttribute("info", "hello");
+        return "show";
+    }
+}
+```
+
+
+
+### 6.3.2 直接返回数据，不返页面
+
+使用`@ResponseBody` 或使用 `HttpServletResponse`
+
+```java
+    @RequestMapping("showData1")
+    @ResponseBody
+    public String showData1() {
+        return "hello";
+    }
+
+    @RequestMapping("showData2")
+    public void showData2(HttpServletResponse response) throws IOException {
+        response.getWriter().println("hello");
+    }
+```
+
+
+
+### 6.3.2 返回Json数据
+
+先添加依赖
+
+```xml
+  <properties>
+    <jackson.version>2.12.4</jackson.version>
+  </properties>
+	
+	<dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+  </dependencies>
+```
+
+然后在`spring-mvc.xml`配置文件中添加
+
+`<mvc:annotation-driven/>`
+
+在 SpringMVC 的各个组件中，处理器映射器、处理器适配器、视图解析器称为 SpringMVC 的三大组件。
+
+使用`<mvc:annotation-driven />`自动加载 RequestMappingHandlerMapping（处理映射器）和
+
+RequestMappingHandlerAdapter（ 处 理 适 配 器 ），可用在Spring-xml.xml配置文件中使用
+
+`<mvc:annotation-driven />`替代注解处理器和适配器的配置。
+
+同时使用`<mvc:annotation-driven />`
+
+默认底层就会集成jackson进行对象或集合的json格式字符串的转换
+
+
+
+最后设置Controller和User
+
+```java
+package com.ahang.Entity;
+public class User {
+    private String username;
+    private int age;
+    public User(String username, int age) {
+        this.username = username;
+        this.age = age;
+    }
+```
+
+
+
+```java
+    @RequestMapping("/showJson")
+    @ResponseBody
+    public User showJson() {
+        User user = new User("haha", 22);
+        return user;
+    }
+```
+
+
+
+测试访问`http://localhost:8080/showJson`
+
+得到`{"username":"haha","age":22}`
+
+
+
+## 6.4 SpringMVC数据请求
+
+源码下载 [地址](img/Spring/SpringMVC-controller.zip)
+
+### 6.4.1 不同类型参数请求
+
+基本类型参数
+
+POJO类型参数
+
+数组类型参数
+
+集合类型参数
+
+
+
+```java
+    // 基本类型参数 http://localhost:8080/send1?username=haha&age=10
+	@RequestMapping("/send1")
+    @ResponseBody
+    public void send1(String username, int age) {
+        System.out.println(username + " - " + age);
+    }
+	// POJO类型参数 http://localhost:8080/send2?username=haha&age=10
+    @RequestMapping("/send2")
+    @ResponseBody
+    public void send2(User user) {
+        System.out.println(user.getUsername() + " - " + user.getAge());
+    }
+	//数组类型参数  http://localhost:8080/send3?strs=haha&strs=gaga
+    @RequestMapping("/send3")
+    @ResponseBody
+    public void send3(String[] strs) {
+        System.out.println(Arrays.toString(strs));
+    }
+```
+
+
+
+ 集合类型参数
+
+先定义集合
+
+```java
+public class UserList {
+    private List<User> list;
+
+    public UserList(List<User> list) {
+        this.list = list;
+    }
+
+    public void show(){
+        for(User e: list){
+            System.out.println(e.getUsername() + "--" + e.getAge());
+        }
+    }
+}
+```
+
+http://localhost:8080/sendJsp
+
+```java
+// 当用户访问/sendJsp 跳转到send.jsp页面，然后填表单发送数据给/send4
+	@RequestMapping("/sendJsp")
+    public String sendJsp(){
+        return "send";
+    }
+	// 集合类型参数
+    @RequestMapping("/send4")
+    @ResponseBody
+    public void send4(UserList userList) {
+        userList.show();
+    }
+```
+
+还要写一个发送数据的页面
+
+```jsp
+<form action="${pageContext.request.contextPath}/send4" method="post">
+    username<input type="text" name="list[0].username"><br>
+    age<input type="text" name="list[0].age"><br>
+    username<input type="text" name="list[1].username"><br>
+    age<input type="text" name="list[1].age"><br>
+    <input type="submit">
+</form>
+```
+
+
+
+### 6.4.2请求参数和指定名称不一致
+
+通过`@RequestParam(value="name")`指定名称
+
+```java
+	@RequestMapping("/send5")
+    @ResponseBody
+    // 请求参数非username而是name, http://localhost:8080/send5?name=haha
+    public void send5(@RequestParam(value = "name", defaultValue = "null", required = true)
+                        String username) {
+        System.out.println(username);
+    }
+```
+
+
+
+### 6.4.3 RestFul风格请求
+
+Restful是一种软件架构风格、设计风格，而不是标准，只是提供了一组设计原则和约束条件。主要用于客户端和服务器交互类的软件，基于这个风格设计的软件可以更简洁，更有层次，更易于实现缓存机制等。
+
+思考：使用路径变量的好处？
+
+- 使路径变得更加简洁；
+
+- 获得参数更加方便，框架会自动进行类型转换。
+
+- 通过路径变量的类型可以约束访问参数，如果类型不一样，则访问不到对应的请求方法，如这里访问是的路径是/add/1/a，则路径与方法不匹配，而不会是参数转换失败。
+
+Restful风格的请求是使用“url+请求方式”表示一次请求目的的，HTTP 协议里面四个表示操作方式的动词如下：
+
+GET：用于获取资源
+
+POST：用于新建资源
+
+PUT：用于更新资源
+
+DELETE：用于删除资源  
+
+例如：
+
+/user/1    GET ：       得到 id = 1 的 user
+
+/user/1   DELETE：  删除 id = 1 的 user
+
+/user/1    PUT：       更新 id = 1 的 user
+
+/user       POST：      新增 user
+
+上述url地址/user/1中的1就是要获得的请求参数，在SpringMVC中可以使用占位符进行参数绑定。地址/user/1可以写成/user/{id}，占位符{id}对应的就是1的值。
+
+在业务方法中我们可以使用`@PathVariable`注解进行占位符的匹配获取工作。
+
+```java
+    @RequestMapping("/send6/{name}")
+    @ResponseBody
+    public void send6(@PathVariable(value = "name") String username) {
+        System.out.println(username);
+    }
+```
+
+### 6.4.4获取请求参数信息
+
+```java
+	// 获取Servlet信息
+    @RequestMapping("/send7")
+    @ResponseBody
+    public void send7(HttpServletRequest req, HttpServletResponse resp, HttpSession hs) {
+        System.out.println(req);
+        System.out.println(resp);
+        System.out.println(hs);
+    }
+	
+	// 获取请求头一些信息
+    @RequestMapping("/send8")
+    @ResponseBody
+    public void send8(@RequestHeader(value = "User-Agent", required = false) String agent) {
+        System.out.println(agent);
+    }
+
+	// 获取请求Cookies
+    @RequestMapping("/send9")
+    @ResponseBody
+    public void send9(@CookieValue(value = "JSESSIONID") String cookies) {
+        System.out.println(cookies);
+    }
+```
+
+
+
+## 6.5 Spring过滤器
+
+### 6.5.1 乱码问题
+
+当提交表单的时候为中文时，打印出来数据就会乱码
+
+在`web.xml`中添加过滤器，对所有数据过滤转换
+
+```xml
+<filter>
+   <filter-name>encoding</filter-name>
+   <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+   <init-param>
+       <param-name>encoding</param-name>
+       <param-value>utf-8</param-value>
+   </init-param>
+</filter>
+<filter-mapping>
+   <filter-name>encoding</filter-name>
+   <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+
+
+
+
+## 6.6 Spring拦截器
+
+
+
+
+
+## 6.7 文件上传
+
+源码下载 [地址](img/Spring/SpringMVC-file.zip)
+
+
+
+首先导入依赖
+
+```xml
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.4</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.11.0</version>
+    </dependency>
+```
+
+在spring-mvc.xml配置文件中添加文件上传的bean
+
+<font color=red>【**注意！！！这个bena的id必须为：multipartResolver ， 否则上传文件会报400的错误！在这里栽过坑,教训！**】</font>
+
+```xml
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="maxUploadSize" value="500000"/>
+     </bean>
+```
+
+
+
+添加控制文件的类
+
+```java
+   // 用来跳转到上传页面
+	@RequestMapping("/fileJsp")
+    public String fileJsp(){
+        return "upload";
+    }
+
+	// 上传单个文件，注意这里的文件名
+    @RequestMapping("/upload1")
+    @ResponseBody
+    public void upload1(String filename,@RequestParam("file") MultipartFile multipartFile) throws IOException {
+        System.out.println(filename);
+        String name = multipartFile.getOriginalFilename();
+        System.out.println(name);
+        multipartFile.transferTo(new java.io.File("C:\\java\\test\\"+name));
+    }
+
+    @RequestMapping("/upload2")
+    @ResponseBody
+    public void upload2(MultipartFile[] files) throws IOException {
+        for(MultipartFile file : files) {
+            String name = file.getOriginalFilename();
+            file.transferTo(new java.io.File("C:\\java\\test\\"+name));
+        }
+    }
+```
+
+<font color=red>注意：容易出错点</font>
+
+1. `@RequestParam("file") MultipartFile multipartFile`这里请求的文件名和`jsp`页面的文件名一致
+2. jsp页面中表单要有` enctype="multipart/form-data"`容易忽略
+
+设置jsp页面
+
+```jsp
+<form action="${pageContext.request.contextPath}/upload1" method="post"
+ enctype="multipart/form-data">
+    name<input type="text" name="filename"><br>
+    选择文件<input type="file" name="file"><br>
+    <input type="submit">
+</form>
+
+<form action="${pageContext.request.contextPath}/upload2" method="post"
+ enctype="multipart/form-data">
+    document1<input type="file" name="files"><br>
+    document2<input type="file" name="files"><br>
+    <input type="submit">
+</form>
+```
+
+
+
+## 6.8 异常处理
+
+源码下载 [地址](img/Spring/SpringMVC-exception.zip)
+
+
+
+系统中异常包括两类：
+
+预期异常：通过捕获异常从而获取异常信息
+
+运行时异常RuntimeException：主要通过规范代码开发、测试等手段减少运行时异常的发生。
+
+系统的Dao、Service、Controller出现都通过throws Exception向上抛出，最后由SpringMVC前端控制器交由异常处理器进行异常处理
+
+`异常处理两种方式`
+
+① 使用Spring MVC提供的简单异常处理器`SimpleMappingExceptionResolver`
+
+② 实现Spring的异常处理接口`HandlerExceptionResolver` 自定义自己的异常处理器
+
+### 6.8.1 简单异常处理器
+
+`SimpleMappingExceptionResolver`
+
+SpringMVC已经定义好了该类型转换器，在使用时可以根据项目情况进行相应异常与视图的映射配置
+
+① 添加不同异常对应不同页面的映射配置
+
+```xml
+<!--    异常处理-->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="defaultErrorView" value="errorDefault"/>
+        <property name="exceptionMappings">
+            <map>
+                <entry key="java.io.FileNotFoundException" value="errorClass"/>
+                <entry key="com.ahang.Service.MyException" value="errorMy"/>
+            </map>
+        </property>
+    </bean>
+```
+
+② 自定义一个异常，供后面使用
+
+```java
+package com.ahang.Service;
+
+public class MyException extends Exception {
+}
+```
+
+③ 故意设置多个不同异常
+
+```java
+package com.ahang.Service;
+
+public interface ExceptionDemo {
+    public void show1();
+    public void show2();
+    public void show3() throws FileNotFoundException;
+    public void show4();
+    public void show5() throws MyException;
+}
+```
+
+```java
+package com.ahang.Service;
+
+@Service("exceptionDemo")
+public class ExceptionDemoImpl implements ExceptionDemo {
+    @Override
+    public void show1() {
+        System.out.println("类型转换异常");
+        String str = "abc_";
+        int num = Integer.parseInt(str);
+    }
+
+    @Override
+    public void show2() {
+        System.out.println("除0异常");
+        int num = 1/0;
+    }
+
+    @Override
+    public void show3() throws FileNotFoundException {
+        System.out.println("文件读取异常");
+        InputStream is = new FileInputStream("c:\\xx");
+    }
+
+    @Override
+    public void show4() {
+        System.out.println("空指针异常");
+        String str = null;
+        System.out.println(str.length());
+    }
+
+    @Override
+    public void show5() throws MyException {
+        System.out.println("自定义异常");
+        throw new MyException();
+    }
+}
+
+```
+
+
+
+④ 添加控制页面
+
+```java
+package com.ahang.Controller;
+
+@Controller
+public class ExceptionController {
+
+    @Autowired
+    ExceptionDemo exceptionDemo;
+
+    @RequestMapping("/exception")
+    public String show() throws FileNotFoundException, MyException {
+//        exceptionDemo.show1();  默认default error
+//        exceptionDemo.show2();
+//        exceptionDemo.show3(); // 页面上class error
+//        exceptionDemo.show4();
+        exceptionDemo.show5(); // 页面上 my error
+        return "success";  
+    }
+}
+```
+
+
+
+⑤ 添加错误jsp页面
+
+`errorDefault.jsp`
+
+```jsp
+<body>
+<h1>Default error</h1>
+</body>
+```
+
+`errorClass.jsp`
+
+```jsp
+<body>
+<h1>Class error</h1>
+</body>
+```
+
+`errorMy.jsp`
+
+```jsp
+<body>
+<h1>My error</h1>
+</body>
+```
+
+
+
+⑥ 测试
+
+网页输入 http://localhost:8080/exception
+
+对`ExceptionController`进行不同注释来测试不同结果
+
+
+
+### 6.8.2 自定义异常处理步骤
+
+①创建异常处理器类实现HandlerExceptionResolver
+
+```java
+public class MyExceptionResolver implements HandlerExceptionResolver {
+@Override
+public ModelAndView resolveException(HttpServletRequest request, 
+    HttpServletResponse response, Object handler, Exception ex) {
+    //处理异常的代码实现
+    //创建ModelAndView对象
+    ModelAndView modelAndView = new ModelAndView(); 
+    modelAndView.setViewName("exceptionPage");
+    return modelAndView;
+    }
+}
+```
+
+②配置异常处理器
+
+```xml
+<bean id="exceptionResolver"        
+      class="com.ahang.exception.MyExceptionResolver"/>
+```
+
+③编写异常页面
+
+```html
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+	<title>Title</title>
+</head>
+<body>
+	这是一个最终异常的显示页面
+</body>
+</html>
+```
+
+④测试异常跳转
+
+```java
+@RequestMapping("/quick22")
+@ResponseBody
+public void quickMethod22() throws IOException, ParseException {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+    simpleDateFormat.parse("abcde");
+}
+```
+
+### 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

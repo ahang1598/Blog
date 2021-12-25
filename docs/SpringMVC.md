@@ -245,7 +245,7 @@ DispatcherServlet的作用是将请求分发到不同的处理器。从Spring 2.
 
 ### 2.3、SpringMVC执行原理
 
-![Springmvc原理](img/Springmvc 原理.png)
+![Springmvc原理](C:\java\markdown\docs\img\Spring\Springmvc 原理.png)
 
 图为SpringMVC的一个较完整的流程图，实线表示SpringMVC框架提供的技术，不需要开发者实现，虚线表示需要开发者实现。
 
@@ -2355,7 +2355,7 @@ jQuery.ajax(...)
           }
        </style>
        <script>
-
+    
            // 2.步骤二
            // 定义demo函数 (分析接口、数据)
            function demo(data){
@@ -2373,13 +2373,13 @@ jQuery.ajax(...)
                    Ul.innerHTML = html;
               }
           }
-
+    
            // 1.步骤一
            window.onload = function(){
                // 获取输入框和ul
                var Q = document.getElementById('q');
                var Ul = document.getElementById('ul');
-
+    
                // 事件鼠标抬起时候
                Q.onkeyup = function(){
                    // 如果输入框不等于空
@@ -2397,11 +2397,11 @@ jQuery.ajax(...)
           }
        </script>
     </head>
-
+    
     <body>
     <input type="text" id="q" />
     <ul id="ul">
-
+    
     </ul>
     </body>
     </html>
