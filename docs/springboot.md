@@ -203,7 +203,7 @@ SpringBoot是简化Spring技术栈的快速开发脚手架
   - `配置类本身也是组件`（会作为一个对象放到IOC容器中）
   - springboot2中多了一个`proxyBeanMethods`属性
     - `proxyBeanMethods`属性的默认值是true
-    - `proxyBeanMethods：代理bean的方法
+    - `proxyBeanMethods`：代理bean的方法
     - 如果 `proxyBeanMethods = true`，**Full模式**，调用IOC中配置类的方法，多次调用的得到的对象`是同一个（单例的）`
       - 为true，为`代理对象调用方法`。SpringBoot总会检查这个组件是否在IOC容器中有。有的话直接拿，没有创建，保持组件单实例
     - 如果` proxyBeanMethods = false`,**Lite模式** 调用IOC中配置类的方法，多次调用的得到的对象`不是同一个（多例的）`
@@ -884,7 +884,7 @@ public class HelloController {
 
 
 
-# 4. 配置文件
+# 4. yaml配置文件
 
 spring使用properties配置文件
 

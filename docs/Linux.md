@@ -865,5 +865,632 @@ lprm 389
 
 
 
+# 11. vim快捷键
+
+<img src="img/vim.jpg" alt="vim"  />
+
+
+
+
+
+
+
+# CentOs8配置yum国内源
+
+1. 移除原源
+
+   ```sh
+   [root@ahang ~]# cd /etc/yum.repos.d/
+   [root@ahang yum.repos.d]# mkdir repo_bak
+   [root@ahang yum.repos.d]# mv *.repo repo_bak/
+   ```
+
+2. ` wget http://mirrors.aliyun.com/repo/Centos-8.repo`
+
+3. 
+   ```sh
+   dnf -y install epel-release
+   dnf clean all
+   dnf makecache
+   dnf repolist
+   ```
+
+
+
+# Docker
+
+## 1.镜像基本使用
+
+**获取**
+
+`docker pull ubuntu:18.04`
+
+
+
+**查看**
+
+列出已经下载下来的镜像，可以使用 `docker image ls` 命令，并非是所有镜像实际硬盘消耗
+
+过滤查看： `docker image ls ubuntu`
+
+指定仓库名和标签过滤查看：`docker image ls ubuntu:18.04`
+
+`docker system df` 命令来便捷的查看镜像、容器、数据卷所占用的空间
+
+由于新旧镜像同名，旧镜像名称被取消，从而出现仓库名、标签均为 `<none>` 的镜像。这类无标签镜像也被称为 **虚悬镜像(dangling image)** ，可以用下面的命令专门显示这类镜像`docker image ls -f dangling=true`
+
+`docker image prune`删除虚悬镜像
+
+查看在正运行的容器：`docker container ls`
+
+查看运行容器的日志`docker container logs [container ID or NAMES]`比如`docker container logs 3780141060d8`
+
+
+
+**删除**
+
+`docker image rm ****`
+
+多种方式
+
+根据image id前几位数`docker image rm 501`
+
+根据镜像名：`docker image rm centos`
+
+更精确的是使用 `镜像摘要` ：`docker image ls --digests`
+
+
+
+删除所有仓库名为 `redis` 的镜像：`docker image rm $(docker image ls -q redis)`
+
+
+
+操作容器
+
+**启动**
+
+`docker run`
+
+使用容器ubuntu去运行单条命令`docker run ubuntu:18.04 /bin/echo 'Hello world'`
+
+
+
+交互模式运行`docker run -t -i ubuntu:18.04 /bin/bash`
+
+`-t` 选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， `-i` 则让容器的标准输入保持打开。
+
+
+
+后台运行加`-d`：`docker run -d ubuntu:18.04 /bin/sh -c "while true; do echo hello world; sleep 1; done"`
+
+
+
+**停止**
+
+只启动了一个终端的容器，用户通过 `exit` 命令或 `Ctrl+d` 来退出终端时，所创建的容器立刻终止。
+
+对后台运行的容器用stop停止：`docker container stop [container ID or NAMES]`
+
+例如：同时停多个`docker container stop dff e74`
+
+
+
+**重启**
+
+重启只针对运行后停止的容器，通过`docker container ls -a`，其中`STATUS`为`Exited `
+
+`docker container restart` 命令会将一个运行态的容器终止，然后再重新启动它。
+
+
+
+**后台运行后重新进入**
+
+当使用`-d`后进入后台`docker run -dit ubuntu`
+
+ `exit`会导致容器的停止：`docker attach [CONTAINER ID ]`
+
+​			比如ID的前几个字母即可`docker attach 243c`
+
+ `exit`不会导致容器的停止：`docker exec [CONTAINER ID ]`
+
+​			加上`-i`和`-t`添加伪终端	`docker exec -it 69d1 bash`
+
+
+
+**导入导出**
+
+导出：`docker export 7691a814370e > ubuntu.tar`
+
+本地导入：`cat ubuntu.tar | docker import - test/ubuntu:v1.0`
+
+url导入：`docker import http://example.com/exampleimage.tgz example/imagerepo`
+
+
+
+**删除**
+
+删除已终止状态容器：`docker container rm 48`
+
+删除正在运行的容器加`-f`：`docker container rm -f 48`
+
+清理掉所有处于终止状态的容器`docker container prune`
+
+
+
+**拉取镜像**
+
+查询镜像：`docker search centos`
+
+拉取：`docker pull centos`
+
+
+
+**更改镜像名称**
+
+使用 `docker tag` 将 `ubuntu:latest` 这个镜像标记为 `127.0.0.1:5000/ubuntu:latest`。
+
+格式为 `docker tag IMAGE[:TAG] [REGISTRY_HOST[:REGISTRY_PORT]/]REPOSITORY[:TAG]`。
+
+
+
+## 2. 数据管理
+
+**创建数据卷**
+
+`docker volume create my-vol`
+
+查看所有的 `数据卷`：`docker volume ls`
+
+指定卷查看：`docker volume inspect my-vol`
+
+
+
+**挂载卷**
+
+设置容器名称`--name=c2`
+
+挂载`-v 宿主机目录:容器目录`，没有该目录则创建，必须要绝对路径
+
+`docker run -it --name=c2 -v /root/data:/root/dataContainer ubuntu`
+
+   可以多个容器挂载同一个卷
+           `docker run -it --name=c1 -v /root/data:/root/data_container ubuntu`
+
+同时挂载多个卷
+
+`docker run -it --name=c4 -v /root/data1:/root/data1 -v /root/data:/root/data ubuntu`
+
+
+
+挂载已存在的目录`--mount source=宿主机卷,target=容器目录`
+
+`docker run -it --name=c3 --mount source=my-vol,target=/root/dataContainer ubuntu`
+
+默认创建后的卷路径为`/var/lib/docker/volumes/my-vol/_data`
+
+
+
+
+
+**挂载卷管理容器**
+
+1. 建立卷管理容器
+   `docker run -it --name=c3 -v /root/data:/root/data ubuntu`
+2. 新建的容器加载该容器0
+   `docker run -it --name=c1 --volumes-from c3 ubuntu`
+   `docker run -it --name=c2 --volumes-from c3 ubuntu`
+3. 此时`c1`和`c2`就存在和`c3`一样路径的卷了
+
+
+
+**删除卷**
+
+`docker volume rm my-vol`
+
+批量清除无主的卷：`docker volume prune`
+
+
+
+## 3.Dockerfile
+
+### 3.1镜像原理
+
+Linux文件系统由bootfs和rootfs两部分组成
+
+- bootfs：包含bootloader（引导加载程序）和 kernel（内核）
+
+- rootfs： root文件系统，包含的就是典型 Linux 系统中的/dev，/proc，/bin，/etc等标准目录和文件
+
+- 不同的linux发行版，bootfs基本一样，而rootfs不同，如ubuntu，centos等
+
+![dockerfile](img/dockerfile.png)
+
+- Docker镜像是由特殊的文件系统叠加而成
+
+- 最底端是 bootfs，并使用宿主机的bootfs 
+
+- 第二层是 root文件系统rootfs,称为base image
+
+- 然后再往上可以叠加其他的镜像文件
+
+- 统一文件系统（Union File System）技术能够将不同的层整合成一个文件系统，为这些层提供了一个统一的视角，这样就隐藏了多层的存在，在用户的角度看来，只存在一个文件系统。
+
+- 一个镜像可以放在另一个镜像的上面。位于下面的镜像称为父镜像，最底部的镜像成为基础镜像。
+
+- 当从一个镜像启动容器时，Docker会在最顶层加载一个读写文件系统作为容器
+
+
+
+**思考题**
+
+- Docker 镜像本质是什么？
+  		是一个分层文件系统
+
+- Docker 中一个centos镜像为什么只有200MB，而一个centos操作系统的iso文件要几个个G？
+
+  ​		Centos的iso镜像文件包含bootfs和rootfs，而docker的centos镜像复用操作系统的bootfs，只有rootfs和其他镜像层
+
+- Docker 中一个tomcat镜像为什么有500MB，而一个tomcat安装包只有70多MB？
+
+  ​		由于docker中镜像是分层的，tomcat虽然只有70多MB，但他需要依赖于父镜像和基础镜像，所有整个对外暴露的tomcat镜像大小500多MB
+
+
+
+### 3.2与传统虚拟机比较
+
+- 容器就是将软件打包成标准化单元，以用于开发、交付和部署。
+
+- 容器镜像是轻量的、可执行的独立软件包 ，包含软件运行所需的所有内容：代码、运行时环境、系统工具、系统库和设置。
+
+- 容器化软件在任何环境中都能够始终如一地运行。
+
+- 容器赋予了软件独立性，使其免受外在环境差异的影响，从而有助于减少团队间在相同基础设施上运行不同软件时的冲突。
+
+
+
+**比较**
+
+- 相同：
+
+  ​	容器和虚拟机具有相似的资源隔离和分配优势
+
+- 不同：
+
+  ​	容器虚拟化的是操作系统，虚拟机虚拟化的是硬件。
+
+  ​	传统虚拟机可以运行不同的操作系统，容器只能运行同一类型操作系统
+
+![vm](img/docker-vm1.png)
+
+![vm](img/docker-vm2.png)
+
+| 特性     | 容器               | 虚拟机 |
+| -------- | ------------------ | ------ |
+| 启动     | 秒级               | 分级   |
+| 硬盘使用 | MB                 | GB     |
+| 性能     | 接近原生           | 弱     |
+| 系统支持 | 单机支持上千个容器 | 几十   |
+
+
+
+### 3.3使用
+
+学习使用建议：例如在https://hub.docker.com/_/redis网页内点击`Supported tags and respective Dockerfile links`对应的版本即可看到`dockerfile`
+
+
+
+在一个空白目录中，建立一个文本文件，并命名为 `Dockerfile`：
+
+```bash
+mkdir mySpringBoot
+cd mySpringBoot
+touch Dockerfile
+```
+
+在该目录下添加springboot.jar的包，启动后访问可页面
+
+设置`Dockerfile`
+
+```dockerfile
+FROM openjdk:11
+MAINTAINER ahang<ahang@163.com>
+ADD springboot.jar app.jar
+CMD java -jar app.jar
+```
+
+使用`docker build -f ./dockerfile -t app .`
+
+开启：`docker run -id -p 8081:8080 app`
+
+访问`x.x.x.x:8081/hello`即可访问
+
+| 关键字      | 作用                     | 备注                                                         |
+| ----------- | ------------------------ | ------------------------------------------------------------ |
+| FROM        | 指定父镜像               | 指定dockerfile基于那个image构建                              |
+| MAINTAINER  | 作者信息                 | 用来标明这个dockerfile谁写的                                 |
+| LABEL       | 标签                     | 用来标明dockerfile的标签 可以使用Label代替Maintainer 最终都是在docker image基本信息中可以查看 |
+| RUN         | 执行命令                 | 执行一段命令 默认是/bin/sh 格式: RUN command 或者 RUN ["command" , "param1","param2"] |
+| CMD         | 容器启动命令             | 提供启动容器时候的默认命令 和ENTRYPOINT配合使用.格式 CMD command param1 param2 或者 CMD ["command" , "param1","param2"] |
+| ENTRYPOINT  | 入口                     | 一般在制作一些执行就关闭的容器中会使用                       |
+| COPY        | 复制文件                 | build的时候复制文件到image中                                 |
+| ADD         | 添加文件                 | build的时候添加文件到image中 不仅仅局限于当前build上下文 可以来源于远程服务 |
+| ENV         | 环境变量                 | 指定build时候的环境变量 可以在启动的容器的时候 通过-e覆盖 格式ENV name=value |
+| ARG         | 构建参数                 | 构建参数 只在构建的时候使用的参数 如果有ENV 那么ENV的相同名字的值始终覆盖arg的参数 |
+| VOLUME      | 定义外部可以挂载的数据卷 | 指定build的image那些目录可以启动的时候挂载到文件系统中 启动容器的时候使用 -v 绑定 格式 VOLUME ["目录"] |
+| EXPOSE      | 暴露端口                 | 定义容器运行的时候监听的端口 启动容器的使用-p来绑定暴露端口 格式: EXPOSE 8080 或者 EXPOSE 8080/udp |
+| WORKDIR     | 工作目录                 | 指定容器内部的工作目录 如果没有创建则自动创建 如果指定/ 使用的是绝对地址 如果不是/开头那么是在上一条workdir的路径的相对路径 |
+| USER        | 指定执行用户             | 指定build或者启动的时候 用户 在RUN CMD ENTRYPONT执行的时候的用户 |
+| HEALTHCHECK | 健康检查                 | 指定监测当前容器的健康监测的命令 基本上没用 因为很多时候 应用本身有健康监测机制 |
+| ONBUILD     | 触发器                   | 当存在ONBUILD关键字的镜像作为基础镜像的时候 当执行FROM完成之后 会执行 ONBUILD的命令 但是不影响当前镜像 用处也不怎么大 |
+| STOPSIGNAL  | 发送信号量到宿主机       | 该STOPSIGNAL指令设置将发送到容器的系统调用信号以退出。       |
+| SHELL       | 指定执行脚本的shell      | 指定RUN CMD ENTRYPOINT 执行命令的时候 使用的shell            |
+
+## 4. Docker 应用部署
+
+### 4.1 部署MySQL
+
+1. 搜索mysql镜像
+
+```shell
+docker search mysql
+```
+
+2. 拉取mysql镜像
+
+```shell
+docker pull mysql:5.6
+```
+
+3. 创建容器，设置端口映射、目录映射
+
+```shell
+# 在/root目录下创建mysql目录用于存储mysql数据信息
+mkdir ~/mysql
+cd ~/mysql
+```
+
+```shell
+docker run -id \
+-p 3307:3306 \
+--name=c_mysql \
+-v $PWD/conf:/etc/mysql/conf.d \
+-v $PWD/logs:/logs \
+-v $PWD/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=123456 \
+mysql:5.6
+```
+
+- 参数说明：
+  - **-p 3307:3306**：将容器的 3306 端口映射到宿主机的 3307 端口。
+  - **-v $PWD/conf:/etc/mysql/conf.d**：将主机当前目录下的 conf/my.cnf 挂载到容器的 /etc/mysql/my.cnf。配置目录
+  - **-v $PWD/logs:/logs**：将主机当前目录下的 logs 目录挂载到容器的 /logs。日志目录
+  - **-v $PWD/data:/var/lib/mysql** ：将主机当前目录下的data目录挂载到容器的 /var/lib/mysql 。数据目录
+  - **-e MYSQL_ROOT_PASSWORD=123456：**初始化 root 用户的密码。
+
+
+
+4. 进入容器，操作mysql
+
+```shell
+docker exec –it c_mysql /bin/bash
+```
+
+5. 使用外部机器连接容器中的mysql
+
+![1573636765632](C:\java\video\16-就业课(2.1)-应用容器-Docker\资料\imgs\1573636765632.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 4.2 部署Tomcat
+
+1. 搜索tomcat镜像
+
+```shell
+docker search tomcat
+```
+
+2. 拉取tomcat镜像
+
+```shell
+docker pull tomcat
+```
+
+3. 创建容器，设置端口映射、目录映射
+
+```shell
+# 在/root目录下创建tomcat目录用于存储tomcat数据信息
+mkdir ~/tomcat
+cd ~/tomcat
+```
+
+```shell
+docker run -id --name=c_tomcat \
+-p 8080:8080 \
+-v $PWD:/usr/local/tomcat/webapps \
+tomcat 
+```
+
+- 参数说明：
+
+  - **-p 8080:8080：**将容器的8080端口映射到主机的8080端口
+
+    **-v $PWD:/usr/local/tomcat/webapps：**将主机中当前目录挂载到容器的webapps
+
+
+
+4. 使用外部机器访问tomcat
+
+![1573649804623](C:\java\video\16-就业课(2.1)-应用容器-Docker\资料\imgs\1573649804623.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 4.3 部署Nginx
+
+1. 搜索nginx镜像
+
+```shell
+docker search nginx
+```
+
+2. 拉取nginx镜像
+
+```shell
+docker pull nginx
+```
+
+3. 创建容器，设置端口映射、目录映射
+
+
+```shell
+# 在/root目录下创建nginx目录用于存储nginx数据信息
+mkdir ~/nginx
+cd ~/nginx
+mkdir conf
+cd conf
+# 在~/nginx/conf/下创建nginx.conf文件,粘贴下面内容
+vim nginx.conf
+```
+
+```shell
+user  nginx;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+}
+
+
+```
+
+
+
+
+```shell
+docker run -id --name=c_nginx \
+-p 80:80 \
+-v $PWD/conf/nginx.conf:/etc/nginx/nginx.conf \
+-v $PWD/logs:/var/log/nginx \
+-v $PWD/html:/usr/share/nginx/html \
+nginx
+```
+
+- 参数说明：
+  - **-p 80:80**：将容器的 80端口映射到宿主机的 80 端口。
+  - **-v $PWD/conf/nginx.conf:/etc/nginx/nginx.conf**：将主机当前目录下的 /conf/nginx.conf 挂载到容器的 :/etc/nginx/nginx.conf。配置目录
+  - **-v $PWD/logs:/var/log/nginx**：将主机当前目录下的 logs 目录挂载到容器的/var/log/nginx。日志目录
+
+4. 使用外部机器访问nginx
+
+![1573652396669](C:\java\video\16-就业课(2.1)-应用容器-Docker\资料\imgs\1573652396669.png)
+
+
+
+
+
+
+
+
+
+
+
+### 4.4 部署Redis
+
+1. 搜索redis镜像
+
+```shell
+docker search redis
+```
+
+2. 拉取redis镜像
+
+```shell
+docker pull redis:5.0
+```
+
+3. 创建容器，设置端口映射
+
+```shell
+docker run -id --name=c_redis -p 6379:6379 redis:5.0
+```
+
+4. 使用外部机器连接redis
+
+```shell
+redis-cli.exe -h 192.168.149.135 -p 6379
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
