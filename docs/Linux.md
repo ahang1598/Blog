@@ -1277,20 +1277,6 @@ docker exec –it c_mysql /bin/bash
 
 5. 使用外部机器连接容器中的mysql
 
-![1573636765632](C:\java\video\16-就业课(2.1)-应用容器-Docker\资料\imgs\1573636765632.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1334,20 +1320,6 @@ tomcat
 
 
 4. 使用外部机器访问tomcat
-
-![1573649804623](C:\java\video\16-就业课(2.1)-应用容器-Docker\资料\imgs\1573649804623.png)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1433,16 +1405,6 @@ nginx
   - **-v $PWD/logs:/var/log/nginx**：将主机当前目录下的 logs 目录挂载到容器的/var/log/nginx。日志目录
 
 4. 使用外部机器访问nginx
-
-![1573652396669](C:\java\video\16-就业课(2.1)-应用容器-Docker\资料\imgs\1573652396669.png)
-
-
-
-
-
-
-
-
 
 
 
