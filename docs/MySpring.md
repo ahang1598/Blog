@@ -976,6 +976,13 @@ public class AnnoServiceImpl implements AnnoService {
 
 ## 3.3 Spring连接JDBC
 
+**小知识**
+
+- `com.mysql.jdbc.Driver`和`mysql-connector-java 5`一起用。
+- `com.mysql.cj.jdbc.Drive`r和`mysql-connector-java` `6以上` 一起用，多了一个时区
+
+
+
 ① 导入依赖如pom
 
 ```xml
@@ -2279,9 +2286,13 @@ DELETE：用于删除资源
 
 /user       POST：      新增 user
 
-上述url地址/user/1中的1就是要获得的请求参数，在SpringMVC中可以使用占位符进行参数绑定。地址/user/1可以写成/user/{id}，占位符{id}对应的就是1的值。
+上述url地址`/user/1`中的1就是要获得的请求参数，在SpringMVC中可以使用占位符进行参数绑定。地址`/user/1`可以写成`/user/{id}`，占位符`{id}`对应的就是1的值。
 
 在业务方法中我们可以使用`@PathVariable`注解进行占位符的匹配获取工作。
+
+`@PathVariable(name = "aa")`  等价于 `@PathVariable(value = "aa")`
+
+其中的`name`和`value`是互为别名
 
 ```java
     @RequestMapping("/send6/{name}")

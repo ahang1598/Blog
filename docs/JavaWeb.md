@@ -957,6 +957,8 @@ var f = parseFloat("10.5");
 
 ### 一、安装Maven
 
+[原文地址](https://www.cnblogs.com/desireyang/p/12787480.html#136736463)
+
 #### 1、下载Maven安装包
 
 <http://maven.apache.org/download.cgi>
@@ -1058,7 +1060,7 @@ Copy<mirror>
 
 ### 四、检验配置[#](https://www.cnblogs.com/desireyang/p/12787480.html#1377763290)
 
-#### 1) 在cmd窗口输入[#](https://www.cnblogs.com/desireyang/p/12787480.html#136736463)
+1) 在cmd窗口输入
 
 ```cmd
 Copymvn help:system
@@ -1066,11 +1068,61 @@ Copymvn help:system
 
 [![img](C:\java\markdown\docs\img\Maven\4.1.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427160601946-1310561395.png)
 
-#### 2) 可以看到，下载源就是刚刚配置的阿里云仓库[#](https://www.cnblogs.com/desireyang/p/12787480.html#2752737938)
+2) 可以看到，下载源就是刚刚配置的阿里云仓库
 
-#### 3) 打开我们自己的maven仓库可以看到刚才下载的一些jar文件[#](https://www.cnblogs.com/desireyang/p/12787480.html#2094716879)
+3) 打开我们自己的maven仓库可以看到刚才下载的一些jar文件
 
 [![img](C:\java\markdown\docs\img\Maven\4.3.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427160915041-827440779.png)
+
+
+
+### 五. 错误示例
+
+#### 1. No spring.config.import property has been defined
+
+```sh
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+No spring.config.import property has been defined
+
+Action:
+
+Add a spring.config.import=configserver: property to your configuration.
+	If configuration is not required add spring.config.import=optional:configserver: instead.
+	To disable this check, set spring.cloud.config.enabled=false or 
+	spring.cloud.config.import-check.enabled=false.
+```
+
+bootstrap.properties比application.properties的优先级要高；
+bootstrap.properties是系统级的资源配置文件，是用在程序引导执行时更加早期配置信息读取；
+application.properties是用户级的资源配置文件，是用来后续的一些配置所需要的公共参数。
+
+而在SpringCloud 2020.* 版本把bootstrap禁用了，导致在读取文件的时候读取不到而报错，所以我们只要把bootstrap从新导入进来就会生效了。
+————————————————
+
+```xml
+		<dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+```
+
+
+
+#### 2.版本报红
+
+当`spring-boot-starter-parent`下面的版本报红时并不是这个版本不存在，
+
+而是因为idea会默认缓存Maven本地仓库已存在的中的依赖项。
+
+只是我们引入的的父依赖版本 本地仓库中不存在，所以就报错了，解决方案就是我们清除一下缓存重新启动，使用 `Invalidate Caches/Restart`
+
+![](img/Maven/5.2.png)
 
 ## 5.3 Tomcat安装使用
 

@@ -233,9 +233,11 @@ String substr = str.substring(0,3);  // 从0到2的子串: hel
     System.out.println("a.equals(b): "+ a.equals(b));  // true
 ```
 
+### 3.6 字符串空判断
 
+`StringUtils.isEmpty()`同时判断了`String`是否为`null`和`""`，其中`null != ""`
 
-格式化输出
+所以一般判断传入的字符串是否有效时使用`StringUtils.isEmpty( String )`而不是`String != null`
 
 
 
