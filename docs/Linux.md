@@ -885,7 +885,14 @@ lprm 389
    [root@ahang yum.repos.d]# mv *.repo repo_bak/
    ```
 
-2. ` wget http://mirrors.aliyun.com/repo/Centos-8.repo`
+2. ` wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-vault-8.5.2111.repo`
+   没有wget使用
+
+   ```
+   curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-vault-8.5.2111.repo
+   ```
+
+   
 
 3. 
    ```sh
@@ -895,9 +902,47 @@ lprm 389
    dnf repolist
    ```
 
+如果你是非阿里云ECS用户，可能回会出现 Couldn't resolve host 'mirrors.cloud.aliyuncs.com' 的信息，不过不影响使用。你可以修改相关的配置：
+
+```
+sed -i -e '/mirrors.cloud.aliyuncs.com/d' -e '/mirrors.aliyuncs.com/d' /etc/yum.repos.d/CentOS-Base.repo
+```
+
 
 
 # Docker
+
+## 0. 脚本快捷安装
+
+```sh
+curl -fsSL get.docker.com -o get-docker.sh
+
+sudo sh get-docker.sh --mirror Aliyun
+```
+
+
+
+**CentOS8 额外设置**
+
+由于 CentOS8 防火墙使用了 `nftables`，但 Docker 尚未支持 `nftables`， 我们可以使用如下设置使用 `iptables`：
+
+更改 `/etc/firewalld/firewalld.conf`
+
+```bash
+# FirewallBackend=nftables
+FirewallBackend=iptables
+```
+
+
+
+**启动**
+
+```sh
+sudo systemctl enable docker
+sudo systemctl start docker
+```
+
+
 
 ## 1.镜像基本使用
 
@@ -1434,7 +1479,13 @@ docker run -id --name=c_redis -p 6379:6379 redis:5.0
 redis-cli.exe -h 192.168.149.135 -p 6379
 ```
 
+5. docker中使用redis
 
+   ```
+   root@517350f4f2bb:/data# redis-cli
+   ```
+
+   
 
 
 
