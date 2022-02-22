@@ -900,7 +900,19 @@ user:id:3506728370 → {"name":"春晚","fans":12210862,"blogs":83}
 
 可以实现购物车的功能，key 对应着每个用户，存储空间存储购物车的信息
 
+**当前设计是否加速了购物车的呈现?**
 
+当前仅仅是将数据存储到了redis中，并没有起到加速的作用，商品信息还需要二次查询数据库
+
+- 每条购物车中的商品记录保存成两条hash
+- hash1专用于保存购买数量
+  命名格式：商品id:nums
+  保存数据：数值
+- hash2专用于保存购物车中显示的信息，包含文字描述，图片地址，所属商家信息等
+  命名格式：商品id:info
+  保存数据：json
+
+<img src="img/redis/hash应用.png" style="zoom:60%;" />
 
 ***
 
@@ -1048,8 +1060,10 @@ list 类型：保存多个数据，底层使用**双向链表**存储结构实�
 
 企业运营过程中，系统将产生出大量的运营数据，如何保障多台服务器操作日志的统一顺序输出？
 
+![image-20220222112409951](img\redis\image-20220222112409951.png)
+
 * 依赖 list 的数据具有顺序的特征对信息进行管理，右进左查或者左近左查
-* 使用队列模型解决多路信息汇总合并的问题
+*  使用队列模型解决多路信息汇总合并的问题
 * 使用栈模型解决最新消息的问题
 
 微信文章订阅公众号：
@@ -1230,6 +1244,15 @@ set 类型：与 hash 存储结构哈希表完全相同，只是仅存储键不�
 
 4. 集合的交并补可以实现微博共同关注的查看，可以根据共同关注或者共同喜欢推荐相关内容
 
+5. 公司对旗下新的网站做推广，统计网站的PV（访问量）,UV（独立访客）,IP（独立IP）。
+   PV：网站被访问次数，可通过刷新页面提高访问量
+   UV：网站被不同用户访问的次数，可通过cookie统计访问量，相同用户切换IP地址，UV不变
+   IP：网站被不同IP地址访问的总次数，可通过IP地址统计访问量，相同IP不同用户访问，IP不变利用set集合的数据去重特征，记录各种访问数据
+
+   - 建立string类型数据，利用incr统计日访问量（PV）
+   - 建立set模型，记录不同cookie数量（UV）
+   - 建立set模型，记录不同IP数量（IP）
+
 
 
 ***
@@ -1357,8 +1380,33 @@ sorted_set类型：在 set 的存储结构基础上添加可排序字段，类�
 #### 应用
 
 * 排行榜
-* 对于基于时间线限定的任务处理，将处理时间记录为 score 值，利用排序功能区分处理的先后顺序
-* 当任务或者消息待处理，形成了任务队列或消息队列时，对于高优先级的任务要保障对其优先处理，采用 score 记录权重
+
+* 基础服务+增值服务类网站会设定各位会员的试用，让用户充分体验会员优势。例如观影试用VIP、游戏
+  VIP体验、云盘下载体验VIP、数据查看体验VIP。当VIP体验到期后，如果有效管理此类信息。即便对于正式
+  VIP用户也存在对应的管理方式。
+  网站会定期开启投票、讨论，限时进行，逾期作废。如何有效管理此类过期信息。 对于基于时间线限定的任务处理，将处理时间记录为score值，利用排序功能区分处理的先后顺序
+
+  - 记录下一个要处理的时间，当到期后处理对应任务，移除redis中的记录，并记录下一个要处理的时间
+  - 当新任务加入时，判定并更新当前下一个要处理的任务时间
+  - 为提升sorted_set的性能，通常将任务根据特征存储成若干个sorted_set。
+  - 例如1小时内，1天内，周内，
+    月内，季内，年度等，操作时逐级提升，将即将操作的若干个任务纳入到1小时内处理的队列中
+
+  redis 应用于定时任务执行顺序管理或任务过期管理
+
+* 当任务或者消息待处理，形成了任务队列或消息队列时，对于高优先级的任务要保障对其优先处理，采用 score 记录权重 
+
+  对于带有权重的任务，优先处理权重高的任务，采用score记录权重即可
+  多条件任务权重设定
+  如果权重条件过多时，需要对排序score值进行处理，保障score值能够兼容2条件或者多条件，例如外贸
+  订单优先于国内订单，总裁订单优先于员工订单，经理订单优先于员工订单
+
+  - 因score长度受限，需要对数据进行截断处理，尤其是时间设置为小时或分钟级即可（折算后）
+  - 先设定订单类别，后设定订单发起角色类别，整体score长度必须是统一的，不足位补0。第一排序规则首
+    位不得是0
+  - 例如`外贸101`，`国内102`，`经理004`，`员工008`。
+    - 员工下的外贸单score值为`101008`（优先）
+    - 经理下的国内单score值为`102004`
 
 
 
@@ -1542,6 +1590,53 @@ redis 应用于地理位置计算
 
 ***
 
+## 应用总结
+
+### 应用一
+
+针对非会员用户提供每分钟10次调用服务接口的服务
+
+![image-20220222153926066](img\redis\image-20220222153926066.png)
+
+
+
+### 应用二
+
+> 使用微信的过程中，当微信接收消息后，会默认将最近接收的消息置顶，当多个好友及关注的订阅号同时发
+> 送消息时，该排序会不停的进行交替。同时还可以将重要的会话设置为置顶。一旦用户离线后，再次打开微
+> 信时，消息该按照什么样的顺序显示？
+
+![image-20220222155022208](img\redis\image-20220222155022208.png)
+
+- 依赖list的数据具有顺序的特征对消息进行管理，将list结构作为栈使用
+- 对置顶与普通会话分别创建独立的list分别管理
+- 当某个list中接收到用户消息后，将消息发送方的id从list的一侧加入list（此处设定左侧）
+- 多个相同id发出的消息反复入栈会出现问题，在**入栈之前无论是否具有当前id对应的消息，先删除对应id**
+- 推送消息时**先推送置顶会话list**，再推送普通会话list，推送完成的list清除所有数据
+- **消息的数量**，也就是微信用户对话数量采用计数器的思想另行记录，伴随list操作同步更新
+
+
+
+### 总结
+
+- redis用于控制数据库表主键id，为数据库表主键提供生成策略，保障数据库表的主键唯一性
+- redis 控制数据的生命周期，通过数据是否失效控制业务行为，适用于所有具有时效性限定控制的操作
+- redis应用于各种结构型和非结构型高热度数据访问加速
+- redis 应用于购物车数据存储设计
+- redis 应用于抢购，限购类、限量发放优惠卷、激活码等业务的数据存储设计
+- redis 应用于具有操作先后顺序的数据控制
+- redis 应用于最新消息展示
+- redis 应用于随机推荐类信息检索，例如热点歌单推荐，热点新闻推荐，热卖旅游线路，应用APP推荐，大V推荐等
+- redis 应用于同类信息的关联搜索，二度关联搜索，深度关联搜索
+- redis 应用于同类型不重复数据的合并、取交集操作
+- redis 应用于同类型数据的快速去重
+- redis 应用于基于黑名单与白名单设定的服务控制
+- redis 应用于计数器组合排序功能对应的排名
+- redis 应用于定时任务执行顺序管理或任务过期管理
+- redis 应用于及时任务/消息队列执行管理
+- redis 应用于按次结算的服务控制
+- redis 应用于基于时间顺序的数据操作，而不关注具体时间
+
 
 
 ## Jedis
@@ -1662,9 +1757,296 @@ public JedisPool(GenericObjectPoolConfig poolConfig, String host, int port) {
 
 ****
 
+## SpringBoot整合
+
+### 基本使用
+
+1. 导入依赖
+
+   ```java
+           <dependency>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-starter-data-redis</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-starter-test</artifactId>
+           </dependency>
+   ```
+
+   
+
+2. 添加配置文件
+
+   ```java
+   spring:
+     redis:
+       host: x.x.x.x
+       port: 6379
+   ```
+
+3. 测试代码
+
+   ```java
+   @RunWith(SpringRunner.class)
+   @SpringBootTest
+   public class test {
+       @Autowired
+       private RedisTemplate redisTemplate;
+   
+       @Test
+       public void testRedis() {
+           redisTemplate.opsForValue().set("id", 11);
+           System.out.println(redisTemplate.opsForValue().get("id"));
+   
+           // boundValueOps绑定了一个key后操作，本质是重新封装了opsForValue
+           redisTemplate.boundValueOps("name").set("haha");
+           System.out.println(redisTemplate.boundValueOps("name").get());
+       }
+   }
+   ```
 
 
-### 可视化
+
+### 阅读源码
+
+~~~shell
+# Spring Boot 所有的配置类，都有一个自动配置类  RedisTemplate
+# 自动配置类都会绑定一个 properties 配置文件。  RedisProperties
+~~~
+
+![1588351399447](img\redis\YycBTJ.png)
+
+```java
+@Configuration
+@ConditionalOnClass({RedisOperations.class})
+@EnableConfigurationProperties({RedisProperties.class})
+@Import({LettuceConnectionConfiguration.class, JedisConnectionConfiguration.class})
+public class RedisAutoConfiguration {
+    public RedisAutoConfiguration() {
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(
+        name = {"redisTemplate"}
+    ) // 我们可以自己定义一个 RedisTemplate 来替换这个默认的。
+    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) throws UnknownHostException {
+        // 默认的 RedisTemplate 没有过多的设置， Redis 对象都是需要序列化的。
+        // 两个泛型都是 Object, Object 的类型，我们需要强制装换为 <String, Obejct>
+        RedisTemplate<Object, Object> template = new RedisTemplate();
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean // 由于 String 类型是 Redis 中最常用的，所以单独提出来一个 bean .
+    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) throws UnknownHostException {
+        StringRedisTemplate template = new StringRedisTemplate();
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
+}
+```
+
+
+
+看一下源码：RedisTemplate.class
+
+```java
+// 序列化配置
+@Nullable
+private RedisSerializer keySerializer = null;
+@Nullable
+private RedisSerializer valueSerializer = null;
+@Nullable
+private RedisSerializer hashKeySerializer = null;
+@Nullable
+private RedisSerializer hashValueSerializer = null;
+private RedisSerializer<String> stringSerializer = RedisSerializer.string();
+public void afterPropertiesSet() {
+    super.afterPropertiesSet();
+    boolean defaultUsed = false;
+    if (this.defaultSerializer == null) {
+        // 默认使用了 JDK 的序列化，会使得字符串转义
+        this.defaultSerializer = new JdkSerializationRedisSerializer(this.classLoader != null ? this.classLoader : this.getClass().getClassLoader());
+    }
+
+    // ...
+}
+```
+
+我们使用 Json 序列化，所以需要自定义配置类
+
+### 序列化
+
+编写一个实体类 User，测试序列化。
+
+```java
+package com.xiaopizhu.pojo;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
+
+@Component
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class User {
+    private String name;
+    private int age;
+}
+```
+
+测试序列化：
+
+```java
+ @Test
+public void test() throws JsonProcessingException {
+    User user = new User("xiaoming", 3);
+    redisTemplate.opsForValue().set("user", user);
+    System.out.println(redisTemplate.opsForValue().get("user"));
+}
+```
+
+抛出异常：
+
+```bash
+Caused by: java.lang.IllegalArgumentException: DefaultSerializer requires a Serializable payload but received an object of type [com.xiaopizhu.pojo.User]
+	at org.springframework.core.serializer.DefaultSerializer.serialize(DefaultSerializer.java:43)
+	at org.springframework.core.serializer.support.SerializingConverter.convert(SerializingConverter.java:63)
+	... 35 more
+```
+
+`DefaultSerializer requires a Serializable`默认的序列化需要实体类实现序列化接口。所以修改 User：
+
+```java
+public class User implements Serializable {
+    private String name;
+    private int age;
+}
+```
+
+结果：
+
+```java
+User(name=xiaoming, age=3)
+```
+
+结果显示正常，但是控制台还是转义的。
+
+```bash
+127.0.0.1:6379> keys *
+1) "\xac\xed\x00\x05t\x00\x04user"
+127.0.0.1:6379>
+```
+
+使用 jackson 的序列化：
+
+```java
+@Test
+public void test() throws JsonProcessingException {
+    // 一般开发中都会使用 json 来传递对象
+    User user = new User("xiaoming", 3);
+    String jsonUser = new ObjectMapper().writeValueAsString(user);
+    redisTemplate.opsForValue().set("user", jsonUser);
+    System.out.println(redisTemplate.opsForValue().get("user")); // {"name":"xiaoming","age":3}
+}
+```
+
+无论 User 是否实现了 Serializable 接口，控制台结果显示正常，但是客户端中查看还是被转义了。
+
+如果不想使用 JDK 的序列化，可以自己编写 RedisTemplate。
+
+
+
+### 自定义RedisTemplate
+
+```java
+package com.xiaopizhu.config;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+/**
+ * 编写的自己的 RedisTemplate
+ */
+@Configuration
+public class RedisConfig {
+
+    @Bean
+    @SuppressWarnings("all")
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        // 为了开发方便，一般使用 <String, Object>
+        RedisTemplate<String, Object> template = new RedisTemplate();
+        template.setConnectionFactory(redisConnectionFactory);
+
+        // 序列化配置
+        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        jackson2JsonRedisSerializer.setObjectMapper(om);
+
+        // String 的序列化
+        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+        // key 采用 String 的序列化方式
+        template.setKeySerializer(stringRedisSerializer);
+        // hash 的 key 也采用 String 的序列化方式
+        template.setHashKeySerializer(stringRedisSerializer);
+        // value 序列化方式采用 Jackson
+        template.setValueSerializer(jackson2JsonRedisSerializer);
+        // hash 的 value 序列化方式采用 Jackson
+        template.setHashKeySerializer(jackson2JsonRedisSerializer);
+        template.afterPropertiesSet();
+
+        return template;
+    }
+}
+```
+
+注入和测试：
+
+```java
+@Autowired
+@Qualifier("redisTemplate")
+private RedisTemplate redisTemplate;
+
+@Test
+public void test() throws JsonProcessingException {
+    // 一般开发中都会使用 json 来传递对象
+    User user = new User("xiaoming", 3);
+    String jsonUser = new ObjectMapper().writeValueAsString(user);
+    redisTemplate.opsForValue().set("user", jsonUser);
+    System.out.println(redisTemplate.opsForValue().get("user")); // {"name":"xiaoming","age":3}
+}
+```
+
+客户端中查看：
+
+```bash
+127.0.0.1:6379> keys *
+1) "user"
+127.0.0.1:6379>
+```
+
+这个时候的对象就没有被转义。
+
+或者直接使用 RedisTemplate<String,String> 或者 StringRedisTemplate 即可。
+
+---
+
+
+
+## 可视化
 
 Redis Desktop Manager
 
@@ -2243,6 +2625,86 @@ Redis 事务的三大特性：
   ```
 
 应用：基于状态控制的批量任务执行，防止其他线程对变量的修改
+
+悲观锁：很悲观，认为什么时候都会出问题，无论什么都会加锁。影响效率，实际情况一般会使用乐观锁。
+
+乐观锁：很乐观，认为什么时候都不会出现问题，所以不上锁。更新数据的时候会判断一下，在此期间是否修改过监视的数据。
+
+首先要了解redis事务中watch的作用，watch命令可以监控一个或多个key，一旦其中有一个key被修改（或删除），之后的事务就不会执行。监控一直持续到exec命令（事务中的命令是在exec之后才执行的，所以在multi命令后可以修改watch监控的键值）。假设我们通过watch命令在事务执行之前监控了多个Keys，倘若在watch之后有任何Key的值发生了变化，exec命令执行的事务都将被放弃，同时返回Null multi-bulk应答以通知调用者事务执行失败。
+
+所以，需要注意的是watch监控键之后，再去操作这些键，否则watch可能会起不到效果。
+
+> Redis 监视测试
+
+正常测试：
+
+```bash
+127.0.0.1:6379> set money 100		
+OK
+127.0.0.1:6379> set out 0
+OK
+127.0.0.1:6379> watch money		# 监视 money 对象
+OK
+127.0.0.1:6379> multi		# 事务正常结束，执行期间，money 没有变动，这个时候就能执行成功了
+OK
+127.0.0.1:6379> DECRBY money 20
+QUEUED
+127.0.0.1:6379> INCRBY out 20
+QUEUED
+127.0.0.1:6379> exec
+1) (integer) 80
+2) (integer) 20
+127.0.0.1:6379> 
+```
+
+测试多线程修改值，使用 watch 可以当做 Redis 的乐观锁操作。
+
+```bash
+127.0.0.1:6379> set money 100
+OK
+127.0.0.1:6379> set out 10
+OK
+127.0.0.1:6379> watch money	# 监视 money
+OK
+127.0.0.1:6379> multi
+OK
+127.0.0.1:6379> DECRBY money 10
+QUEUED
+127.0.0.1:6379> DECRBY out 10
+QUEUED
+127.0.0.1:6379> exec		# 执行之前，在另外一个线程 B 中修改 money 的值，下面就是执行失败。
+(nil)
+127.0.0.1:6379> 
+```
+
+B 线程：
+
+```bash
+[root@coder bin]# redis-cli -p 6379
+127.0.0.1:6379> set money 30
+OK
+```
+
+如果修改失败，获取最新的值就好。
+
+```bash
+127.0.0.1:6379> UNWATCH		# 事务执行失败，先解锁
+OK
+127.0.0.1:6379> WATCH money		# 获取最新的值，再次监视。相当于 MySQL 中的 select version
+OK
+127.0.0.1:6379> multi
+OK
+127.0.0.1:6379> DECRBY money 1
+QUEUED
+127.0.0.1:6379> INCRBY out 1
+QUEUED
+127.0.0.1:6379> exec		# 执行的时候会对比监视的值，如果发生变化会执行失败。
+1) (integer) 29
+2) (integer) 11
+127.0.0.1:6379> 
+```
+
+## 
 
 
 
@@ -3384,7 +3846,7 @@ sentinel 在通知阶段不断的去获取 master/slave 的信息，然后在各
 
 Cache Aside Pattern 中服务端需要同时维系 DB 和 cache，并且是以 DB 的结果为准
 
-* 写操作：先更新 DB，然后直接删除 cache
+* 写操作：<font color="red">先更新 DB，然后直接删除 cache</font>
 * 读操作：从 cache 中读取数据，读取到就直接返回；读取不到就从 DB 中读取数据返回，并放到 cache 
 
 时序导致的不一致问题：
@@ -3408,7 +3870,7 @@ Cache Aside Pattern 中服务端需要同时维系 DB 和 cache，并且是以 D
 
 读写穿透模式 Read/Write Through Pattern：服务端把 cache 视为主要数据存储，从中读取数据并将数据写入其中，cache 负责将此数据同步写入 DB，从而减轻了应用程序的职责
 
-* 写操作：先查 cache，cache 中不存在，直接更新 DB；cache 中存在则先更新 cache，然后 cache 服务更新 DB（同步更新 cache 和 DB）
+* 写操作：<font color="red">先查 cache，cache 中不存在，直接更新 DB；cache 中存在则先更新 cache，然后 cache 服务更新 DB（同步更新 cache 和 DB）</font>
 
 * 读操作：从 cache 中读取数据，读取到就直接返回 ；读取不到先从 DB 加载，写入到 cache 后返回响应
 
@@ -3424,7 +3886,7 @@ Read-Through Pattern 也存在首次不命中的问题，采用缓存预热解�
 
 #### 异步缓存
 
-异步缓存写入 Write Behind Pattern 由 cache 服务来负责 cache 和 DB 的读写，对比读写穿透不同的是 Write Behind Caching 是只更新缓存，不直接更新 DB，改为**异步批量**的方式来更新 DB，可以减小写的成本
+异步缓存写入 Write Behind Pattern 由 cache 服务来负责 cache 和 DB 的读写，对比读写穿透不同的是 Write Behind Caching 是<font color="red">只更新缓存，不直接更新 DB，改为**异步批量**的方式来更新 DB，可以减小写的成本</font>
 
 缺点：这种模式对数据一致性没有高要求，可能出现 cache 还没异步更新 DB，服务就挂掉了
 
@@ -3514,7 +3976,7 @@ Read-Through Pattern 也存在首次不命中的问题，采用缓存预热解�
 
 1. 加锁，慎用
 2. 设置热点数据永远不过期，如果缓存数据库是分布式部署，将热点数据均匀分布在不同搞得缓存数据库中
-3. 缓存数据的过期时间设置随机，防止同一时间大量数据过期现象发生
+3. 缓存数据的<font color="red">过期时间设置随机</font>，防止同一时间大量数据过期现象发生
 4. 构建**多级缓存**架构，Nginx 缓存 + Redis 缓存 + ehcache 缓存
 5. 灾难预警机制，监控 Redis 服务器性能指标，CPU 使用率、内存容量、平均响应时间、线程数
 6. 限流、降级：短时间范围内牺牲一些客户体验，限制一部分请求访问，降低应用服务器压力，待业务低速运转后再逐步放开访问
@@ -3538,7 +4000,7 @@ Read-Through Pattern 也存在首次不命中的问题，采用缓存预热解�
 
 2. 多个数据请求从服务器直接压到 Redis 后，均未命中
 
-3. Redis 在短时间内发起了大量对数据库中同一数据的访问
+3. Redis 在<font color="red">短时间内发起了大量对数据库中同一数据的访问</font>
 
 简而言之两点：单个 key 高热数据，key 过期
 
