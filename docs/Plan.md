@@ -145,7 +145,7 @@
 | [328. 奇偶链表](https://leetcode-cn.com/problems/odd-even-linked-list/) |      | ★    |      |
 |                                                              |      |      |      |
 | [237. 删除链表中的节点](https://leetcode-cn.com/problems/delete-node-in-a-linked-list/) | ☆    |      |      |
-|                                                              |      |      |      |
+| [剑指 Offer 35. 复杂链表的复制](https://leetcode-cn.com/problems/fu-za-lian-biao-de-fu-zhi-lcof/) | ☆    |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |
 
@@ -204,7 +204,7 @@
 |                                                              |      |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |
-|                                                              |      |      |      |
+| [剑指 Offer 36. 二叉搜索树与双向链表](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/) | ☆    |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |
 |                                                              |      |      |      |

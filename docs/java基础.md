@@ -283,6 +283,13 @@ String substr = str.substring(0,3);  // 从0到2的子串: hel
 - 法一：asList
 ```java
 ArrayList<T> obj = new ArrayList<T>(Arrays.asList(Object o1, Object o2, Object o3, ....so on));
+
+Integer[] nums = new Integer[]{3,2,5,1};
+ArrayList<Integer> al = new ArrayList<Integer>(Arrays.asList(nums));
+
+String data = "1,2,3,4";
+String[] strings = data.split(",");
+ArrayList<String> list = new ArrayList<String>(Arrays.asList(strings));
 ```
 - 法二：匿名内部类
 ```java
@@ -313,11 +320,16 @@ ArrayList<T> obj = new ArrayList<T>(Collections.nCopies(count,element));
 ```
 
 ### 4.3 List初始化
+
+注意：无法将`int[]`数组转化为`List<Integer>`，只支持引用类型，不支持int基本类型
+
+`Arrays.asList( new int[]{1,2,3} )`错误
+
 ```java
 int[] intArray = new int[]{1, 2, 3};
 Integer[] integerArray = new Integer[]{1, 2, 3};
  
-List<int[] > intArrayList = Arrays.asList(intArray);  // 直接将数组转化list
+List<int[]> intArrayList = Arrays.asList(intArray);  // 直接将数组转化list
 List<Integer> integerList = Arrays.asList(integerArray); 
 List<Integer> integerList2 = Arrays.asList(1, 2, 3);  // 直接数值初始化成list
 List<String> stringList = Arrays.asList("a", "b", "c");  // 直接字符初始化为list
@@ -373,7 +385,7 @@ List<String> stringList = Arrays.asList("a", "b", "c");  // 直接字符初始�
 ## 5. 集合
 
 集合类型分为`Collection`和`Map`两大类
-![image](http://c.biancheng.net/uploads/allimg/191205/5-1912051036333V.png)
+![image](img\5-1912051036333V.png)
 ![Map](http://c.biancheng.net/uploads/allimg/191205/5-191205103G5960.png)
 
 Collection集合的常用方法
@@ -618,12 +630,13 @@ public static void main(String[] args) {
 | boolean isEmpty()                   | 判断集合是否为空                     |
 | int size()                          | 集合的长度，也就是集合中键值对的个数 |
 
-| 获取的相关方法                 | 说明                     |
-| ------------------------------ | ------------------------ |
-| V get(Object key)              | 根据键获取值             |
-| Set keySet()                   | 获取所有键的集合         |
-| Collection values()            | 获取所有值的集合         |
-| Set<Map.Entry<K,V>> entrySet() | 获取所有键值对对象的集合 |
+| 获取的相关方法                             | 说明                                                         |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| V get(Object key)                          | 根据键获取值                                                 |
+| Set keySet()                               | 获取所有键的集合                                             |
+| Collection values()                        | 获取所有值的集合                                             |
+| Set<Map.Entry<K,V>> entrySet()             | 获取所有键值对对象的集合                                     |
+| `getOrDefault(Object key, V defaultValue)` | 返回值指定的键映射,或者  `defaultValue`如果这张Map不包含映射的关键。 |
 
 ```java
 // 常用的遍历Map集合方法：
@@ -1677,3 +1690,146 @@ public interface StudentBuilder {
 > 退出 quit。 
 >
 > 注销系统，再进入，使用用户名root和刚才设置的新密码123登录。
+
+
+
+# 18 源码解析
+
+## 18.1 解析Arrays.sort() 
+
+在对基本数据类型的数组排序时，Arrays.sort() 函数通过调用 DualPivotQuicksort.sort() 完成排序;
+
+1. 当数组长度 >= 286，并且不存在较多连续相等元素，并且「高度结构化」时，采用类似 TimSort 的算法进行排序; 
+   TimSort排序：先将数组划分多个子序有序数组，然后将数组归并排序，如
+
+   ```
+   [1,5,2,3] ==> [1,5] [2,3]
+   [3,4,5,2] ==> [3,4,5] [2]
+   [3,2,1,4,5] ==> [1,2,3] [4,5]  子序有序若逆序则翻转
+   ```
+
+2. 当数组长度 <= 47 时，采用插入排序或双插入排序;
+
+3. 否则采用双轴快排进行排序。
+
+
+
+# 19 比较器
+
+## Comparable与Comparator
+
+Comparable 简介
+Comparable 是排序接口。
+若一个类实现了Comparable接口，就意味着“该类支持排序”。此外，“实现Comparable接口的类的对象”可以用作“有序映射(如TreeMap)”中的键或“有序集合(TreeSet)”中的元素，而不需要指定比较器。
+接口中通过x.compareTo(y)来比较x和y的大小。若返回负数，意味着x比y小；返回零，意味着x等于y；返回正数，意味着x大于y。
+
+Comparator 简介
+Comparator 是比较器接口。我们若需要控制某个类的次序，而该类本身不支持排序(即没有实现Comparable接口)；那么，我们可以建立一个“该类的比较器”来进行排序。这个“比较器”只需要实现Comparator接口即可。也就是说，我们可以通过“实现Comparator类来新建一个比较器”，然后通过该比较器对类进行排序。
+
+int compare(T o1, T o2)和上面的x.compareTo(y)类似，定义排序规则后返回正数，零和负数分别代表大于，等于和小于。
+
+注意点：
+
+Comparator为功能接口可以使用lambda表达式
+
+但是其中的compare方法不接受基本类型如int，需要引用类型如Integer；
+
+comparingInt方法也只接受Integer类型，不接受int类型数组
+
+比如：
+
+```java
+    int[] nums = new int[]{4,5,1,6,7,3,2};
+	Arrays.sort(nums);  // 不能使用Comparator，因为只支持引用类型
+
+    Integer[] numsInteger = new Integer[]{3,2,5,1};
+    Arrays.sort(numsInteger, Comparator.comparingInt(o->o));
+
+	int[][] numsArray = new int[3][2];
+    Arrays.sort(numsArray, Comparator.comparing(a->a[0]-a[1]));
+```
+
+
+
+
+
+两者的联系
+Comparable相当于“内部比较器”，而Comparator相当于“外部比较器”。
+
+原文链接：https://blog.csdn.net/u010859650/article/details/85009595
+
+
+
+## Collection与Collections的区别
+
+**Collection**是[集合](https://so.csdn.net/so/search?q=集合&spm=1001.2101.3001.7020)类的上级**接口**，继承与他有关的接口主要有List和Set
+**Collections**是针对集合类的一个**帮助类**，他提供一系列静态方法实现对各种集合的搜索、排序、线程安全等操作
+
+
+
+# 泛型
+
+E - Element (在集合中使用，因为集合中存放的是元素)
+
+T - Type(Java 类型)
+
+K - Key(键)
+
+V - Value(值)
+
+N - Number(数值类型)
+
+？ -  表示不确定的java类型
+
+## `<T>`和`<?>`
+
+“<T>"和"<?>"，首先要区分开两种不同的场景：
+
+1. 类型参数“<T>”主要用于声明泛型类或泛型方法。
+
+   ```java
+   class People<T>{
+   public void show(T a) {
+       
+      }
+   }
+   ```
+
+2. 无界通配符“<?>”主要用于使用泛型类或泛型方法
+   `SuperClass<?> sup = new SuperClass<String>("lisi");`
+
+参考：https://www.cnblogs.com/jpfss/p/9929045.html
+
+https://www.zhihu.com/question/31429113
+
+
+
+## <? extends T>和<? super T>
+
+`ArrayList<? extends E> al = new ArrayList<? extends E>();`
+        泛型的限定：
+         ? extends E:接收E类型或者E的子类型。
+         ？super E:接收E类型或者E的父类型。
+
+参考：https://www.zhihu.com/question/20400700/answer/117464182
+
+`<? extends T>` 上界通配符，适用范围为Fruit的子类
+
+经常读取采用该方式
+
+![](img\cdec0a066693684036d4bcaab4fdc1e3_1440w.jpg)
+
+
+
+`<? super T>`下界通配符，适用于Fruit的父类、基类
+
+经常插入数据采用该方式
+
+![](img\0800ab14b2177e31ee3b9f6d477918fa_1440w.jpg)
+
+
+
+
+
+
+
