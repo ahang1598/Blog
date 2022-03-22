@@ -512,6 +512,38 @@ for(Student s : list) {
 | public E removeFirst()    | 从此列表中删除并返回第一个元素   |
 | public E removeLast()     | 从此列表中删除并返回最后一个元素 |
 
+#### 5.1.2 list下安全类CopyOnWriteArrayList
+
+CopyOnWriteArrayList
+**基本原理：**
+
+**add()方法**其实他会**加lock锁**，然后会**复制出一个新的数组**，往新的数组里边add真正的元素，最后把array的指向改变为新的数组
+
+**get()方法**又或是size()方法只是获取array所指向的数组的元素或者大小。**读不加锁**，写加锁
+
+
+
+**优缺点**：
+
+读操作性能很高，因为无需任何同步措施，比较适用于读多写少的并发场景
+
+读写分离，提高了读的效率
+
+
+
+每次执行写操作都要将原容器拷贝一份，内存占用大
+
+只能保证数据的最终一致性，**不能保证数据的实时一致性**。假设两个线程，线程A去读取CopyOnWriteArrayList的数据，还没读完，现在线程B把这个List给清空了，线程A此时还是可以把剩余的数据给读出来。
+
+#### 5.1.3 vector
+
+Vector是**底层结构是数组**，一般现在我们已经很少用了。
+
+相对于ArrayList，它是线程安全的，在扩容的时候它是直接**扩容两倍**的
+
+比如现在有10个元素，要扩容的时候，就会将数组的大小增长到20
+
+
 
 ### 5.2 Set集合
 
@@ -610,8 +642,11 @@ public static void main(String[] args) {
 
 ```
 
-
 ### 5.3 Map
+
+![](img/Java/008i3skNgy1gtv61zpemjj61h80mgqai02.jpg)
+
+
 
 - Map集合的特点
     - 键值对映射关系
@@ -660,7 +695,60 @@ for (Map.Entry<String, String> me : entrySet) {
 
 ```
 
+
+
+#### ConcurrentHashMap
+
+jdk1.8原理：对每个节点`Node<K,V> f`使用`synchronized (f)`加锁，使用的是CAS锁
+
+**（1）你知道 HashMap 的工作原理吗？你知道 HashMap 的 get() 方法的工作原理吗？**
+
+HashMap 是基于 hashing 的原理，我们使用 put(key, value) 存储对象到 HashMap 中，使用 get(key) 从 HashMap 中获取对象。当我们给 put() 方法传递键和值时，我们先对键调用 hashCode() 方法，返回的 hashCode 用于找到 bucket 位置来储存 Entry 对象。
+
+**（2）你知道 ConcurrentHashMap 的工作原理吗？你知道 ConcurrentHashMap 在 JAVA8 和 JAVA7 对比有哪些不同呢?**
+
+ConcurrentHashMap 为了提高本身的并发能力，在内部采用了一个叫做 Segment 的结构，一个 Segment 其实就是一个类 Hash Table 的结构，Segment 内部维护了一个链表数组，我们用下面这一幅图来看下 ConcurrentHashMap 的内部结构,从下面的结构我们可以了解到，ConcurrentHashMap 定位一个元素的过程需要进行两次Hash操作，第一次 Hash 定位到 Segment，第二次 Hash 定位到元素所在的链表的头部，因此，这一种结构的带来的副作用是 Hash 的过程要比普通的 HashMap 要长，但是带来的好处是写操作的时候可以只对元素所在的 Segment 进行操作即可，不会影响到其他的 Segment，这样，在最理想的情况下，ConcurrentHashMap 可以最高同时支持 Segment 数量大小的写操作（刚好这些写操作都非常平均地分布在所有的 Segment上），所以，通过这一种结构，ConcurrentHashMap 的并发能力可以大大的提高。
+
+JAVA7之前ConcurrentHashMap主要采用锁机制，在对某个Segment进行操作时，将该Segment锁定，不允许对其进行非查询操作，而在JAVA8之后采用CAS无锁算法，这种乐观操作在完成前进行判断，如果符合预期结果才给予执行，对并发操作提供良好的优化
+
+**（3）当两个对象的hashcode相同会发生什么？**
+
+因为hashcode相同，所以它们的bucket位置相同，‘碰撞’会发生。因为Map使用LinkedList存储对象，这个Entry（包含有键值对的Map.Entry对象）会存储在LinkedList中。（当向 Map 中添加 key-value 对，由其 key 的 hashCode() 返回值决定该 key-value 对（就是 Entry 对象）的存储位置。当两个 Entry 对象的 key 的 hashCode() 返回值相同时，将由 key 通过 eqauls() 比较值决定是采用覆盖行为（返回 true），还是产生 Entry 链（返回 false）），此时若你能讲解JDK1.8红黑树引入，面试官或许会刮目相看。
+
+**（4）如果两个键的 hashcode 相同，你如何获取值对象？**
+
+当我们调用get()方法，HashMap 会使用键对象的 hashcode 找到 bucket 位置，然后获取值对象。如果有两个值对象储存在同一个 bucket，将会遍历 LinkedList 直到找到值对象。找到 bucket 位置之后，会调用 keys.equals() 方法去找到 LinkedList 中正确的节点，最终找到要找的值对象。（当程序通过 key 取出对应 value 时，系统只要先计算出该 key 的 hashCode() 返回值，在根据该 hashCode 返回值找出该 key 在 table 数组中的索引，然后取出该索引处的 Entry，最后返回该 key 对应的 value 即可）。
+
+**（5）如果HashMap的大小超过了负载因子（load factor）定义的容量，怎么办？**
+
+当一个map填满了75%的bucket时候，和其它集合类（如ArrayList等）一样，将会创建原来HashMap大小的两倍的bucket数组，来重新调整map的大小，并将原来的对象放入新的bucket数组中。这个过程叫作rehashing，因为它调用hash方法找到新的bucket位置。
+
+**（6）你了解重新调整HashMap大小存在什么问题吗？**
+
+当重新调整HashMap大小的时候，确实存在条件竞争，因为如果两个线程都发现HashMap需要重新调整大小了，它们会同时试着调整大小。在调整大小的过程中，存储在LinkedList中的元素的次序会反过来，因为移动到新的bucket位置的时候，HashMap并不会将元素放在LinkedList的尾部，而是放在头部，这是为了避免尾部遍历(tail traversing)。如果条件竞争发生了，那么就死循环了。这个时候，你可以质问面试官，为什么这么奇怪，要在多线程的环境下使用HashMap呢？
+
+
+
+**1. ConcurrentHashMap中变量使用final和volatile修饰有什么用呢？**
+Final域使得确保初始化安全性（initialization safety）成为可能，初始化安全性让不可变形对象不需要同步就能自由地被访问和共享。
+使用volatile来保证某个变量内存的改变对其他线程即时可见，在配合CAS可以实现不加锁对并发操作的支持。get操作可以无锁是由于Node的元素val和指针next是用volatile修饰的，在多线程环境下线程A修改结点的val或者新增节点的时候是对线程B可见的。
+
+**2.我们可以使用CocurrentHashMap来代替Hashtable吗？**
+我们知道Hashtable是synchronized的，但是ConcurrentHashMap同步性能更好，因为它仅仅根据同步级别对map的一部分进行上锁。ConcurrentHashMap当然可以代替HashTable，但是HashTable提供更强的线程安全性。它们都可以用于多线程的环境，但是当Hashtable的大小增加到一定的时候，性能会急剧下降，因为迭代时需要被锁定很长的时间。因为ConcurrentHashMap引入了分割(segmentation)，不论它变得多么大，仅仅需要锁定map的某个部分，而其它的线程不需要等到迭代完成才能访问map。简而言之，在迭代的过程中，ConcurrentHashMap仅仅锁定map的某个部分，而Hashtable则会锁定整个map。
+
+**3. ConcurrentHashMap有什么缺陷吗？**
+ConcurrentHashMap 是设计为非阻塞的。在更新时会局部锁住某部分数据，但不会把整个表都锁住。同步读取操作则是完全非阻塞的。好处是在保证合理的同步前提下，效率很高。**坏处是严格来说读取操作不能保证反映最近的更新**。例如线程A调用putAll写入大量数据，期间线程B调用get，则只能get到目前为止已经顺利插入的部分数据。
+
+**4. ConcurrentHashMap在JDK 7和8之间的区别**
+
+- JDK1.8的实现降低锁的粒度，JDK1.7版本锁的粒度是基于Segment的，包含多个HashEntry，而JDK1.8锁的粒度就是HashEntry（首节点）
+- JDK1.8版本的数据结构变得更加简单，使得操作也更加清晰流畅，因为已经使用synchronized来进行同步，所以不需要分段锁的概念，也就不需要Segment这种数据结构了，由于粒度的降低，实现的复杂度也增加了
+- JDK1.8使用红黑树来优化链表，基于长度很长的链表的遍历是一个很漫长的过程，而红黑树的遍历效率是很快的，代替一定阈值的链表，这样形成一个最佳拍档
+
+
+
 ### 5.4 集合嵌套
+
 ```java
 // ArrayList中嵌套HashMap
 ArrayList< HashMap<String, String> > array = new ArrayList< HashMap<String, String> >();
@@ -1667,30 +1755,6 @@ public interface StudentBuilder {
     }
 ```
 
-> l 在忘记root密码的时候，可以这样 
->
-> 以windows为例： 
->
-> 关闭正在运行的MySQL服务。 
->
-> 打开DOS窗口，转到mysql\bin目录。 
->
-> 输入mysqld --skip-grant-tables 回车。--skip-grant-tables 的意思是启动MySQL服务的时候跳过权限表认证。 
->
-> 再开一个DOS窗口（因为刚才那个DOS窗口已经不能动了），转到mysql\bin目录。 
->
-> 输入mysql回车，如果成功，将出现MySQL提示符 >。 
->
-> 连接权限数据库： use mysql; 。 
->
-> 改密码：update user set password=password("123") where user="root";（别忘了最后加分号） 。 
->
-> 刷新权限（必须步骤）：flush privileges;　。 
->
-> 退出 quit。 
->
-> 注销系统，再进入，使用用户名root和刚才设置的新密码123登录。
-
 
 
 # 18 源码解析
@@ -1831,5 +1895,34 @@ https://www.zhihu.com/question/31429113
 
 
 
+作者：Sheldon Zhao
+链接：https://zhuanlan.zhihu.com/p/110152973
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
+
+
+# 反射
+
+## 什么是反射？
+
+反射是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为 Java 语言的反射机制。
+
+
+
+## 反射的优点
+
+- 反射机制极大的提高了程序的灵活性和扩展性，降低模块的耦合性，提高自身的适应能力。
+- 通过反射机制可以让程序创建和控制任何类的对象，无需提前硬编码目标类。
+- 反射机制是构建框架技术的基础所在，使用反射可以避免将代码写死在框架中。
+
+正是反射有以上的特征，所以它能动态编译和创建对象，极大的激发了编程语言的灵活性，强化了多态的特性，进一步提升了面向对象编程的抽象能力。
+
+
+
+## 反射的缺点
+
+- 性能问题。Java反射机制中包含了一些动态类型，所以Java虚拟机不能够对这些动态代码进行优化。因此，反射操作的效率要比正常操作效率低很多。我们应该避免在对性能要求很高的程序或经常被执行的代码中使用反射。而且，如何使用反射决定了性能的高低。如果它作为程序中较少运行的部分，性能将不会成为一个问题。
+- 安全限制。使用反射通常需要程序的运行没有安全方面的限制。如果一个程序对安全性提出要求，则最好不要使用反射。
+- 程序健壮性。反射允许代码执行一些通常不被允许的操作，所以使用反射有可能会导致意想不到的后果。反射代码破坏了Java程序结构的抽象性，所以当程序运行的平台发生变化的时候，由于抽象的逻辑结构不能被识别，代码产生的效果与之前会产生差异。
 

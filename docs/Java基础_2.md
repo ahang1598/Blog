@@ -147,7 +147,7 @@ ra.nextInt(正数边界值)
 - 数组拷贝
 ```java
         int[] arr = new int[3]
-        int[] arrcopy = Arrays.copyOf(arr, 2*arr.length); // 复制数组，而非引用
+        int[] arrcopy = Arrays.copyOf(arr, 2*arr.length); // 复制数组，而非引用，一维数值数组类似拷贝，二维数组则是浅拷贝，拷贝的引用地址
         int[] arrcopy1 = Arrays.copyofRange(arr, 1, arr.length-1) // 复制数组的一部分
         
         for(int i = 0; i< arrcopy.length; i++) arrcopy[i]+= 1; // 修改复制后数组
