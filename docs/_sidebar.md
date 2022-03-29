@@ -26,4 +26,6 @@
 - [jQuery](jQuery.html)
 - [Thymeleaf](Thymeleaf.md)
 - [复盘面经](复盘面经.md)
+- [计算机基础](计算机基础.md)
+- [面试准备](面试准备.md)
 

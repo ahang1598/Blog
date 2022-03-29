@@ -1926,3 +1926,101 @@ https://www.zhihu.com/question/31429113
 - 安全限制。使用反射通常需要程序的运行没有安全方面的限制。如果一个程序对安全性提出要求，则最好不要使用反射。
 - 程序健壮性。反射允许代码执行一些通常不被允许的操作，所以使用反射有可能会导致意想不到的后果。反射代码破坏了Java程序结构的抽象性，所以当程序运行的平台发生变化的时候，由于抽象的逻辑结构不能被识别，代码产生的效果与之前会产生差异。
 
+
+
+# 静态变量和静态代码块的执行顺序 
+
+执行顺序：
+
+- 静态变量是全局变量
+- 静态变量及代码块在类加载时被执行，只会被执行一次
+- 静态变量和静态代码块按照声明的顺序依次执行
+- 静态方法调用时才执行
+
+1、类内容（静态变量、静态初始化块） => 实例内容（变量、初始化块、构造器）
+
+2、父类的（静态变量、静态初始化块）=> 子类的（静态变量、静态初始化块）=> 父类的（变量、初始化块、构造器）=> 子类的（变量、初始化块、构造器）
+
+```java
+public class test {                         //1.第一步，准备加载类
+
+    public static void main(String[] args) {
+        new test();                         //4.第四步，new一个类，但在new之前要处理匿名代码块        
+    }
+
+    static int num = 4;                    //2.第二步，静态变量和静态代码块的加载顺序由编写先后决定 
+
+    {
+        num += 3;
+        System.out.println("b");           //5.第五步，按照顺序加载匿名代码块，代码块中有打印
+    }
+
+    int a = 5;                             //6.第六步，按照顺序加载变量
+
+    { // 成员变量第三个
+        System.out.println("c");           //7.第七步，按照顺序打印c
+    }
+
+    test() { // 类的构造函数，第四个加载
+        System.out.println("d");           //8.第八步，最后加载构造函数，完成对象的建立
+    }
+
+    static {                              // 3.第三步，静态块，然后执行静态代码块，因为有输出，故打印a
+        System.out.println("a");
+    }
+
+    static void run()                    // 静态方法，调用的时候才加载// 注意看，e没有加载
+    {
+        System.out.println("e");
+    }
+}
+```
+
+
+
+静态变量及代码块在类加载时被执行，只会被执行一次
+
+```java
+public class StaticDemo5 {
+    static int i=1;
+    static{                            
+        System.out.println("a");        //第1步。a。且只执行一次
+        i++;                            //i=i+1，结果2
+    }    
+    public StaticDemo5(){
+        System.out.println("c");        //第2步。
+        i++;                            //i=i+1，结果3
+    }
+    
+    public static void main(String[] args) {
+        StaticDemo5 t1=new StaticDemo5();
+        System.out.println(t1.i);        //第3步。3
+        
+        StaticDemo5 t2=new StaticDemo5();    //第4步。c。第二次创建实例。static静态代码块不执行。
+        System.out.println(t2.i);        //第5步。又执行了一次StaticDemo5()构造函数。4
+    }
+}
+
+输出：
+a
+c
+3
+c
+4
+
+创建第二个对象StaticDemo5 t2=new StaticDemo5()时，其实i已经先于对象存在于静态区域
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
