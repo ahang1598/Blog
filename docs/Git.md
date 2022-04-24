@@ -451,5 +451,20 @@ $ git push origin main
 
 
 
+# 8.分支同步master
+
+```bash
+git clone [项目地址]		//克隆远程代码库到本地
+cd [刚刚克隆的项目文件夹]		//进入本地仓库
+git checkout -b dev		 //	创建分支dev（或者 git branch dev）
+git branch -a		//查看所有分支
+
+
+git checkout master		//切换到master
+git  pull		//拉取master最新的内容
+git checkout dev		//切换到分支dev
+git merge master		//同步master的内容 (或者　git rebase master)
+```
+
 
 

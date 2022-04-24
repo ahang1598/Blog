@@ -944,6 +944,30 @@ sudo systemctl start docker
 
 
 
+## 原理
+
+https://blog.csdn.net/qq_37362891/article/details/112718303
+
+容器则是操作系统级别的虚拟化，利用的是内核的 Cgroup 和 Namespace 特性，此功能完全通过软件实现。
+
+
+
+**Namespace 资源隔离**
+
+[命名空间](https://so.csdn.net/so/search?q=命名空间&spm=1001.2101.3001.7020)是全局资源的一种抽象，将资源放到不同的命名空间中，各个命名空间中的资源是相互隔离的。 通俗来讲，就是docker在启动一个容器的时候，会调用Linux Kernel Namespace的接口，来创建一块虚拟空间
+
+**Control Groups（简称 CGroups）**
+
+就是能够隔离宿主机器上的物理资源，例如 CPU、内存、磁盘 I/O 和网络带宽。每一个 CGroup 都是一组被相同的标准和参数限制的进程。而我们需要做的，其实就是把容器这个进程加入到指定的Cgroup中。
+
+**联合文件系统**
+
+Docker 镜像是由一系列的层组成的
+
+
+
+
+
 ## 1.镜像基本使用
 
 **获取**

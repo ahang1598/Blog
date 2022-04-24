@@ -113,11 +113,11 @@ COMMENT='用户表信息';
 - > CREATE TABLE example2(
   >
   >   		 stu_id INT,
-  >									
+  >															
   >   		 course_id INT,
-  >									
+  >															
   >   		 grade FLOAT,
-  >									
+  >															
   >   		 **PRIMARY KEY(stu_id,course_id)**
   >
   > );
@@ -896,6 +896,314 @@ email                  -- 不使用索引
 
 
 
+
+# 6. 
+
+
+
+![](img\MySQL\167f4c.awebp)
+
+
+
+**客户端连接服务端**
+
+通过`TCP/IP`加`端口`连接 `mysql -h127.0.0.1 -uroot -P3306 -p`
+
+ 也可以通过命名管道或共享内存 、 Unix域套接字
+
+
+
+**查询缓存**
+
+如果**两个查询请求在任何字符上的不同**（例如：空格、注释、大小写），都会导致**缓存不会命中**。
+
+另外，如果查询请求中包含某些系统函数、用户自定义变量和函数、一些系统表，如mysql 、information_schema、 performance_schema 数据库中的表，那这个**请求就不会被缓存**。
+
+以某些系统函数举例，可能同样的函数的两次调用会产生不一样的结果，比如函数 NOW ，每次调用都会产生最新的当前时间，如果在一个查询请求中调用了这个函数，那即使查询请求的文本信息都一样，那不同时间的两次查询也应该得到不同的结果，如果在第一次查询时就缓存了，那第二次查询的时候直接使用第一次查询的结果就是错误的！
+不过既然是缓存，那就有它缓存失效的时候。MySQL的缓存系统会监测涉及到的每张表，**只要该表的结构或者数据被修改，如对该表使用了 INSERT** 、 UPDATE 、 DELETE 、 TRUNCATE TABLE 、 ALTER TABLE 、 DROP TABLE 或
+DROP DATABASE 语句，那使用**该表的所有高速缓存查询都将变为无效并从高速缓存中删除**！
+
+虽然查询缓存有时可以提升系统性能，但也不得不因维护这块缓存而造成一些开销，比如每次都要去查
+询缓存中检索，查询请求处理完需要更新查询缓存，维护该查询缓存对应的内存区域。
+
+**从MySQL 5.7.20开始，不推荐使用查询缓存，并在MySQL 8.0中删除**。
+
+
+
+# 7. 修改字符集
+
+修改**服务器**默认字符集为`utf8`
+
+进入`C:\ProgramData\MySQL\MySQL Server 5.7`修改`my.ini`
+
+`character-set-server=utf8`
+
+重启服务器后查看
+
+`show VARIABLES like 'CHARACTER_set_server';`
+
+比较规则`show VARIABLES like 'COLLATION_server';`
+
+
+
+修改**数据库**默认字符集utf8
+
+进入某数据库后
+
+`ALTER DATABASE CHARACTER SET utf8;`
+
+查看` SHOW VARIABLES LIKE 'character_set_database';`
+
+CREATE DATABASE 数据库名
+[[DEFAULT] CHARACTER SET 字符集名称]
+[[DEFAULT] COLLATE 比较规则名称];
+
+ALTER DATABASE 数据库名
+[[DEFAULT] CHARACTER SET 字符集名称]
+[[DEFAULT] COLLATE 比较规则名称];
+
+
+
+表级别
+
+修改`ALTER table tb_user CHARACTER SET 'utf8'; `
+
+查看`show CREATE table tb_user`
+
+CREATE TABLE 表名 (列的信息)
+[[DEFAULT] CHARACTER SET 字符集名称]
+[COLLATE 比较规则名称]]
+ALTER TABLE 表名
+[[DEFAULT] CHARACTER SET 字符集名称]
+[COLLATE 比较规则名称]
+
+
+
+![](C:\Users\Ahang\AppData\Roaming\Typora\typora-user-images\image-20220422171939024.png)
+
+服务器认为客户端发送过来的请求是用 character_set_client 编码的。
+假设你的**客户端采用的字符集和 character_set_client 不一样的话，这就会出现意想不到的**情况。比如我的客户端使用的是 utf8 字符集，如果把系统变量 character_set_client 的值设置为 ascii 的话，服务器可能无法理解我们发送的请求，更别谈处理这个请求了。
+
+服务器将把得到的结果集使用 character_set_results 编码后发送给客户端。
+假设你的**客户端采用的字符集和 character_set_results 不一样的话，这就可能会出现客户端无法解码**结果集的情况，结果就是在你的屏幕上出现乱码。比如我的客户端使用的是 utf8 字符集，如果把系统变character_set_results 的值设置为 ascii 的话，可能会产生乱码。
+
+**character_set_connection** 只是服务器在将请求的字节串从 character_set_client 转换为character_set_connection 时使用，它是什么其实没多重要，但是一定要注意，**该字符集包含的字符范围一定涵盖请求中的字符，要不然会导致有的字符无法使用 character_set_connection 代表的字符集进行编码**。比如你把 character_set_client 设置为 utf8 ，把 character_set_connection 设置成 ascii ，那么此时你如果从客户端发送一个汉字到服务器，那么服务器无法使用 ascii 字符集来编码这个汉字，就会向用户发出一个警告。
+
+
+
+我们通常都把 character_set_client 、character_set_connection、character_set_results 这三个系统变量设置成和客户端使用的字符集一致的情况，
+`SET NAMES 字符集名;`
+
+如`SET NAMES utf8;`
+
+这一条语句产生的效果和我们执行这3条的效果是一样的：
+SET character_set_client = 字符集名;
+SET character_set_connection = 字符集名;
+SET character_set_results = 字符集名;
+
+
+
+**修改比较规则**
+
+比较规则 是针对某个字符集中的字符比较大小的一种规则
+
+默认比较规则不比较大小写，可以将`utf8_general_ci`修改为`utf_bin`
+
+```mysql
+ show VARIABLES LIKE 'COLLATION_database';
+ 
+ CREATE table t ( col VARCHAR(20) );
+ 
+ INSERT INTO t(col) VALUES ('a'), ('b'), ('B'), ('A'), ('我');
+ 
+ select * from t order by col asc;
+ 
+ ALTER TABLE t MODIFY col VARCHAR(20) COLLATE utf8_bin;
+```
+
+
+
+
+
+# 8.InnoDB
+
+
+
+**页**
+
+将数据划分为若干个页，**以页作为磁盘和内存之间交互的基本单位**，**InnoDB中页的大小一般为 16 KB**。也就是在一般情况下，一次最少从磁盘中读取16KB的内容到内存中，一次最少把内存中的16KB内容刷新到磁盘中。
+
+**行格式**
+
+记录在磁盘上的存放方式也被称为 行格式 或者 记录格式 
+
+Compact 、 Redundant 、Dynamic 和 Compressed 行格式
+
+**指定行格式的语法**
+
+CREATE TABLE 表名 (列的信息) ROW_FORMAT=行格式名称
+ALTER TABLE 表名 ROW_FORMAT=行格式名称
+
+
+
+## Compact格式
+
+![](img\MySQL\image-20220423093408148.png)
+
+**变长字段长度列表**
+
+把所有变长字段的真实数据占用的**字节长度**都存放在记录的开头部位，各变长字段数据占用的字节数按照列的顺序逆序存放
+
+变长字段长度列表中**只存储值为 非NULL 的列内容占用的长度**，值为 NULL 的列的长度是不储存的 
+
+**NULL值列表**
+
+按照列位置若为NULL则置二进制bit位为1，否则置0，倒序排序，比如`00000101`则表示第一列和第三列数值为NULL
+
+**记录头**
+
+![image-20220423095056045](img\MySQL\image-20220423095056045.png)
+
+名称 |大小（单位：bit） |描述
+--|--|--
+预留位1| 1| 没有使用
+预留位2| 1| 没有使用
+delete_mask |1| 标记该记录是否被删除
+min_rec_mask  |1 | B+树的每层非叶子节点中的最小记录都会添加该标记
+n_owned  |4 | 表示当前记录拥有的记录数
+heap_no  |13  |表示当前记录在记录堆的位置信息
+record_type  |3  |表示当前记录的类型， 0 表示普通记录， 1 表示B+树非叶子节点记录， 2 表示最小记录， 3表示最大记录
+next_record  |16  |表示下一条记录的相对位置
+
+
+
+**隐藏列 记录的真实数据**
+
+![image-20220423095504859](img\MySQL\image-20220423095504859.png)
+
+
+
+一条完整的记录
+
+![](img\MySQL\image-20220423095004659.png)
+
+
+
+## **行溢出数据**
+
+### VARCHAR(M)最多能存储的数据
+
+ VARCHAR(M) 类型的列最多可以占用 65535 个字节
+
+1.  ascii 字符集的话，一个字符就代表一个字节，
+   如果该 VARCHAR 类型的列没有 NOT NULL 属性，那最多只能存储 65532 个字节的数据，因为真实数据的长度可能占用2个字节， NULL 值标识需要占用1个字节
+
+   如果 VARCHAR 类型的列有 NOT NULL 属性，那最多只能存储 65533 个字节的数据，因为真实数据的长度可能占用2个字节，不需要 NULL 值标识
+
+2.  gbk 字符集表示一个字符最多需要 2 个字节，那在该字符集下， M 的最大取值就是 32766 （也就是：65532/2），也就是说最多能存储 32766 个字符；
+
+3. utf8 字符集表示一个字符最多需要 3 个字节，那在该字符集下， M 的最大取值就是 21844 ，就是说最多能存
+   储 21844 （也就是：65532/3）个字符
+
+### 行溢出分页
+
+一个页的大小一般是 16KB ，也就是 16384 字节，而一个 VARCHAR(M) 类型的列就最多可以存储 65532 个字节，这样就可能造成一个页存放不了一条记录的尴尬情况
+
+在 **Compact 和 Reduntant** 行格式中，在 记录的真实数据 处只会存储该列的一部分数据，把剩余的数据分散存储在几个其他的页中，然后 **记录的真实数据 处用20个字节存储指向这些页的地址**
+
+在本记录的真实数据处只会存储该列的前 768 个字节的数据和一个指向其他页的地址，然后把剩下的数据存放到其他页中，这个过程也叫做 **行溢出** ，存储超出 768 字节的那些页面也被称为 **溢出页** 
+
+
+
+不只是 **VARCHAR(M)** 类型的列，其他的 **TEXT、BLOB** 类型的列在存储数据非常多的时候也会发生 **行溢出** 。
+
+
+
+MySQL 中规定一个页中至少存放两行记录
+
+
+
+## Dynamic和Compressed行格式
+
+两格式和Compact基本一样，只是在处理溢出页不同
+
+对于会出现溢出时，会将**所有的数据全都放一个单独的页面**，然后指向该页面
+
+ Compressed 行格式会采用压缩算法对页面进行压缩，以节省空间。
+
+
+
+## 数据页结构
+
+一个 InnoDB 数据页的存储空间
+
+![image-20220423105349509](img\MySQL\image-20220423105349509.png)
+
+
+
+### 记录
+
+一个**页**内有多个**记录**
+
+**记录**按照主键从小到大的顺序形成了一个**单链表**，单链表主要通过next_record中偏移位来计算
+
+当某一记录被删后会将该记录中`delete_mask`置`1`，等后面插入记录时会替换，或者统一回收处理，而不会立刻删除
+
+默认一页存在两个默认记录，最小和最大记录
+
+对于最小记录所在的分组只能有 1 条记录，最大记录所在的分组拥有的记录条数只能在 1~8 条之间，剩下的分组中记录的条数范围只能在是 4~8 条之间
+
+![image-20220423194920689](img\MySQL\image-20220423194920689.png)
+
+
+
+### Page Directory页目录
+
+同一页内部分组
+
+记录分组是为了方便查找，分组后将每组的**最大节点**位置放入**页目录**中，然后通过**二分法查找**
+
+![image-20220423200100074](img\MySQL\image-20220423200100074.png)
+
+
+
+### File Header
+
+包含 校验和
+
+上下页号：每页之间形成双向链表
+
+![image-20220423202159445](img\MySQL\image-20220423202159445.png)
+
+
+
+### File Trailer
+
+校验和：这个部分是和 **File Header** 中的校验和相对应的
+
+每当一个页面在内存中修改了，在同步之前就要把它的校验和算出来，因为 File Header 在页面的前边，所以校验和会被首先同步到磁盘，当完全写完时，校验和也会被写到页的尾部，如果完全同步成功，则页的首部和尾部的校验和应该是一致的。如果写了一半儿断电了，那么在 File Header 中的校验和就代表着已经修改过的页，而在 File Trialer 中的校验和代表着原先的页，二者不同则意味着同步中间出了错。
+
+
+
+## 索引
+
+
+
+### 没有索引时查找
+
+`select * from user where id = 10;`
+
+同一页中查找：
+
+如果id为主键时，直接根据页目录二分定位记录所在组，然后遍历该组中记录
+
+如果id不是主键时，只能从第一组开始顺序查找
+
+
+
+多数据页查找：
+
+顺序查找每页，然后在每页内查找。
 
 
 
