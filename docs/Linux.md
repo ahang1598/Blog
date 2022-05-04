@@ -1,4 +1,4 @@
-# 0.查询手册
+P# 0.查询手册
 
 | 分类                            | 命令名                                            | 功能注解                                          |                                                    |
 | ------------------------------- | ------------------------------------------------- | ------------------------------------------------- | -------------------------------------------------- |
@@ -867,7 +867,7 @@ lprm 389
 
 # 11. vim快捷键
 
-<img src="img/vim.jpg" alt="vim"  />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/vim.jpg)
 
 
 
@@ -1172,7 +1172,7 @@ Linux文件系统由bootfs和rootfs两部分组成
 
 - 不同的linux发行版，bootfs基本一样，而rootfs不同，如ubuntu，centos等
 
-![dockerfile](img/dockerfile.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/dockerfile.png)
 
 - Docker镜像是由特殊的文件系统叠加而成
 
@@ -1229,9 +1229,9 @@ Linux文件系统由bootfs和rootfs两部分组成
 
   ​	传统虚拟机可以运行不同的操作系统，容器只能运行同一类型操作系统
 
-![vm](img/docker-vm1.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/docker-vm1.png)
 
-![vm](img/docker-vm2.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/docker-vm2.png)
 
 | 特性     | 容器               | 虚拟机 |
 | -------- | ------------------ | ------ |

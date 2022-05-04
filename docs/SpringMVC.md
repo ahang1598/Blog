@@ -1,4 +1,4 @@
-# SpringMVC
+P# SpringMVC
 
 ## 1、回顾MVC
 
@@ -17,14 +17,14 @@
 
 **Controller（控制器）：**接收用户请求，委托给模型进行处理（状态改变），处理完毕后把返回的模型数据返回给视图，由视图负责展示。也就是说控制器做了个调度员的工作。
 
-**最典型的MVC就是JSP + servlet + javabean的模式。**![640](img/640.png)
+**最典型的MVC就是JSP + servlet + javabean的模式。**![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/640.png)
 
 ### 1.2、Model1时代
 
 - 在web早期的开发中，通常采用的都是Model1。
 - Model1中，主要分为两层，视图层和模型层。
 
-![](img/641.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/641.png)
 
 Model1优点：架构简单，比较适合小型项目开发；
 
@@ -34,7 +34,7 @@ Model1缺点：JSP职责不单一，职责过重，不便于维护；
 
 Model2把一个项目分成三部分，包括**视图、控制、模型。**
 
-![](img/642.webp)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/642.webp)
 
 1. 用户发请求
 2. Servlet接收请求数据，并调用对应的业务逻辑方法
@@ -196,7 +196,7 @@ Model2这样不仅提高的代码的复用率与项目的扩展性，且大大�
 
 ### 2.1、概述
 
-![1594598769272](img/1594598769272.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1594598769272.png)
 
 <font color=red>Spring MVC是Spring Framework的一部分，是基于Java实现MVC的轻量级Web框架。</font>
 
@@ -225,7 +225,7 @@ DispatcherServlet的作用是将请求分发到不同的处理器。从Spring 2.
 
 - Spring的web框架围绕DispatcherServlet设计。DispatcherServlet的作用是将请求分发到不同的处理器。从Spring 2.5开始，使用Java 5或者以上版本的用户可以采用基于注解的controller声明方式。
 
-  ![1594600307868](img/1594600307868.png)
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1594600307868.png)
 
   Spring MVC框架像许多其他MVC框架一样, **以请求为驱动** , **围绕一个中心Servlet分派请求及提供其他功能**，**DispatcherServlet是一个实际的Servlet (它继承自HttpServlet 基类)**。
 
@@ -237,15 +237,15 @@ DispatcherServlet的作用是将请求分发到不同的处理器。从Spring 2.
 
   <font color=red>原图</font>
 
-  ![](img/mvc.png)
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/mvc.png)
 
 <font color=red>中文图</font>
 
-![1594603929224](img/1594603929224.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1594603929224.png)
 
 ### 2.3、SpringMVC执行原理
 
-![Springmvc原理](img/Spring/Springmvc 原理.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/Springmvc 原理.png)
 
 图为SpringMVC的一个较完整的流程图，实线表示SpringMVC框架提供的技术，不需要开发者实现，虚线表示需要开发者实现。
 
@@ -417,7 +417,7 @@ DispatcherServlet的作用是将请求分发到不同的处理器。从Spring 2.
 
 11. 配置Tomcat 启动测试！
 
-![1595124994780](img/1595124994780.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595124994780.png)
 
 **可能遇到的问题：访问出现404，排查步骤：**
 
@@ -604,7 +604,7 @@ DispatcherServlet的作用是将请求分发到不同的处理器。从Spring 2.
 
    配置Tomcat ，  开启服务器 ， 访问 对应的请求路径！
 
-   ![1594622304382](img/1594622304382.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1594622304382.png)
 
    **OK，运行成功！**
 
@@ -705,7 +705,7 @@ public interface Controller {
 
    
 
-   ![1595128496794](img/1595128496794.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595128496794.png)
 
 **说明：**
 
@@ -746,7 +746,7 @@ public interface Controller {
 
 - 运行tomcat测试
 
-  ![1595128649687](img/1595128649687.png)
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595128649687.png)
 
   
 
@@ -758,7 +758,7 @@ public interface Controller {
 
 ### RequestMapping
 
-![RequestMapping原理](img/ssm2.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/ssm2.png)
 
 **@RequestMapping**
 
@@ -863,7 +863,7 @@ Restful就是一个资源定位及资源操作的风格。不是标准也不是�
 
 3. 我们来测试请求查看下
 
-   ![1595129216809](img/1595129216809.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595129216809.png)
 
 4. 思考：使用路径变量的好处？
 
@@ -873,7 +873,7 @@ Restful就是一个资源定位及资源操作的风格。不是标准也不是�
 
    - 通过路径变量的类型可以约束访问参数，如果类型不一样，则访问不到对应的请求方法，如这里访问是的路径是/add/1/a，则路径与方法不匹配，而不会是参数转换失败。
 
-     ![1595129271494](img/1595129271494.png)
+     ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595129271494.png)
 
 6. 我们来修改下对应的参数类型，再次测试
 
@@ -891,7 +891,7 @@ Restful就是一个资源定位及资源操作的风格。不是标准也不是�
    }
    ```
 
-   ![1595129577077](img/1595129577077.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595129577077.png)
 
 **使用method属性指定请求类型**
 
@@ -912,7 +912,7 @@ Restful就是一个资源定位及资源操作的风格。不是标准也不是�
 
 - 我们使用浏览器地址栏进行访问默认是Get请求，会报错405：
 
-  ![1595129829057](img/1595129829057.png)
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595129829057.png)
 
 - 如果将POST修改为GET则正常了；
 
@@ -925,7 +925,7 @@ Restful就是一个资源定位及资源操作的风格。不是标准也不是�
   }
   ```
 
-  ![1595129889298](img/1595129889298.png)
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595129889298.png)
 
 **小结：**
 
@@ -1258,7 +1258,7 @@ ModelAndView 可以在储存数据的同时，可以进行设置返回的逻辑�
 
 3. 输入中文测试，发现乱码
 
-   ![1595131750549](img/1595131750549.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595131750549.png)
 
 不得不说，乱码问题是在我们开发中十分常见的问题，也是让我们程序猿比较头大的问题！
 
@@ -1639,7 +1639,7 @@ var json = JSON.stringify({a: 'Hello', b: 'World'});
   
   - 配置Tomcat ， 启动测试一下！http://localhost:8080/json1
   
-    ![1595133634951](img/1595133634951.png)
+    ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595133634951.png)
 
 <font color=red>【注意：使用json记得处理乱码问题】</font>
 
@@ -1742,7 +1742,7 @@ public String json2() throws JsonProcessingException {
 
 运行结果 : 十分完美，没有任何问题！
 
-![1595133587875](img/1595133587875.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595133587875.png)
 
 ### 8.6、输出时间对象
 
@@ -1764,7 +1764,7 @@ public String json2() throws JsonProcessingException {
 
 - 运行结果 :
 
-    ![1595134256420](img/1595134256420.png)
+    ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595134256420.png)
 
 - 默认日期格式会变成一个数字，是1970年1月1日到当前日期的毫秒数！
 - Jackson 默认是会把时间转成timestamps形式
@@ -1793,7 +1793,7 @@ public String json4() throws JsonProcessingException {
 
 运行结果 : 成功的输出了时间！
 
-![1595134398126](img/1595134398126.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595134398126.png)
 
 **<font color=red>抽取为工具类</font>**
 
@@ -2314,7 +2314,7 @@ jQuery.ajax(...)
 
 4. 测试一下效果，动态请求响应，局部刷新，就是如此！
 
-   ![1595137816208](img/1595137816208.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595137816208.png)
 
 ### 9.6、获取baidu接口Demo
 
@@ -2409,7 +2409,7 @@ jQuery.ajax(...)
 
 2. 测试
 
-   ![1595138107341](img/1595138107341.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595138107341.png)
    
    
    
@@ -2660,7 +2660,7 @@ jQuery.ajax(...)
 
 **OK，测试登录拦截功能无误.**
 
-![1595139309383](img/1595139309383.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/1595139309383.png)
 
 ## 11、文件上传和下载
 

@@ -97,7 +97,7 @@ Linux下忘记密码修改：
 					：一个表中不能包含其他相关表中非关键字段的信息,即数据表不能有冗余字段
 					
 
-![image-20220428091348985](img/MySQL/image-20220428091348985.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220428091348985.png)
 
 ## 2.2 反范式
 
@@ -105,7 +105,7 @@ Linux下忘记密码修改：
 
 将多个分隔的符合第三范式的表通过主键连接一张表，减少后面操作时对表的连接成本，而且可以建立更多符合搜索条件的索引。但是增加了空间。
 
-![image-20220428091357390](img/MySQL/image-20220428091357390.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220428091357390.png)
 
 ## 2.3 设置范围`global,session`
 
@@ -125,6 +125,8 @@ Linux下忘记密码修改：
 - 只对当前会话中下一个即将开启的事务有效。
 - 下一个事务执行完后，后续事务将恢复到之前的隔离级别。
 - 该语句不能在已经开启的事务中间执行，会报错的。
+
+
 
 
 
@@ -668,7 +670,7 @@ from customers order by cust_name;
 
 ### 4.2.11 内联结
 
-![](img/MySQL/sql-join.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/sql-join.png)
 
 可以联结两个表
 
@@ -1241,7 +1243,7 @@ MySQ使用 `explain + sq语句`查看 执行计划，该执行计划不一定完
 EXPLAIN SELECT * FROM user WHERE nid = 3;
 ```
 
-![img](img/MySQL/1334255-20181218161456575-1277410542.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/1334255-20181218161456575-1277410542.png)
 
 列名 |描述
 --|--
@@ -1281,7 +1283,7 @@ Extra |一些额外的信息
 
 `EXPLAIN SELECT * FROM s1 UNION SELECT * FROM s2`
 
-![image-20220427103042364](img/MySQL/image-20220427103042364.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220427103042364.png)
 
 ### selct_type
 
@@ -1559,7 +1561,7 @@ ls /usr/local/mysql/data/slow.log
 
 `set globa long_query_time=1; `//大于1秒钟的数据记录到慢日志中，如果设置为默认0，则会有大量的信息存储在磁盘中，磁盘很容易满掉
 
-![](img/MySQL/image-20220428151304982.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220428151304982.png)
 
 慢查询格式
 
@@ -1595,9 +1597,9 @@ ls /usr/local/mysql/data/slow.log
 
 `explain select max(payment_date) from payment;`
 
-![img](img/MySQL/wpsAF45.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wpsAF45.tmp.jpg) 
 
-![](img/MySQL/wpsAF46.tmp.jpg ) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wpsAF46.tmp.jpg ) 
 
  
 
@@ -1605,11 +1607,11 @@ ls /usr/local/mysql/data/slow.log
 
 **优化**：创建索引`create index inx_paydate on payment(payment_date);`
 
-![](img/MySQL/wpsAF47.tmp.jpg )
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wpsAF47.tmp.jpg )
 
  
 
-![](img/MySQL/wpsAF48.tmp.jpg )
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wpsAF48.tmp.jpg )
 
  
 
@@ -1623,19 +1625,19 @@ ls /usr/local/mysql/data/slow.log
 
 错误的方式：`select count(release_year='2006' or release_year='2007') from film;`
 
-![img](img/MySQL/wpsAF49.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wpsAF49.tmp.jpg) 
 
 2006和2007年分别是多少，判断不出来
 
 ` select count(*) from film where release_year='2006' or release_year='2007'; `
 
-![img](img/MySQL/wpsAF4A.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wpsAF4A.tmp.jpg) 
 
 正确的编写方式：
 
 `select count(release_year='2006' or null) as '06films',count(release_year='2007' or null) as '07films' from film;`
 
-![img](img/MySQL/wpsAF4B.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wpsAF4B.tmp.jpg) 
 
 
 
@@ -1706,7 +1708,7 @@ mysql> show warnings;
 
 查看`count(*)`时，等同于查看`count(0)`
 
-![img](img/MySQL/d4e8294b3a544c3586b576199989b6eftplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/d4e8294b3a544c3586b576199989b6eftplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
 
 查询判断时会选择成本低的索引或者直接全表扫描来找到符合条件的值，然后每符合就`+1`
 
@@ -1743,7 +1745,7 @@ mysql> show warnings;
 
 `explain select actor.first_name,actor.last_name,count(*)from sakila.film_actorinner join sakila.actor using(actor_id) group by film_actor.actor_id;`
 
-![img](img/MySQL/wps99F2.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps99F2.tmp.jpg) 
 
  
 
@@ -1751,9 +1753,9 @@ mysql> show warnings;
 
 `explain select actor.first_name,actor.last_name,c.cntfrom sakila.actor inner join (select actor_id,count(*) as cnt from sakila.film_actor group by actor_id)as c using(actor_id);`
 
-![](img/MySQL/wps99F3.tmp.jpg)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps99F3.tmp.jpg)
 
-![](img/MySQL/wps99F4.tmp.jpg)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps99F4.tmp.jpg)
 
 说明：从上面的执行计划来看，这种**优化后的方式没有使用临时文件和文件排序**的方式了，取而代之的是使用了索引。查询效率老高了。
 
@@ -1870,11 +1872,11 @@ Limit常用于分页处理，时长会伴随order by从句使用，因此大多�
 
 执行的结果：
 
-![img](img/MySQL/wps99F5.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps99F5.tmp.jpg) 
 
 在查看一下它的执行计划：
 
-![img](img/MySQL/wps99F6.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps99F6.tmp.jpg) 
 
 对于这种操作，我们该用什么样的优化方式了？
 
@@ -1886,21 +1888,21 @@ Limit常用于分页处理，时长会伴随order by从句使用，因此大多�
 
 `select film_id,description from sakila.film order by film_id limit 50,5;`
 
-![img](img/MySQL/wps99F7.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps99F7.tmp.jpg) 
 
 查看一下执行计划
 
-![img](img/MySQL/wps99F8.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps99F8.tmp.jpg) 
 
 那如果我们获取从500行开始的5条记录，执行计划又是什么样的了？
 
 `explain select film_id,description from sakila.film order by film_id limit 500,5\G`
 
-![img](img/MySQL/wps9A08.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps9A08.tmp.jpg) 
 
  
 
-![img](img/MySQL/wps9A09.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps9A09.tmp.jpg) 
 
 随着我们翻页越往后，IO操作会越来越大的，如果一个表有几千万行数据，翻页越后面，会越来越慢，因此我们要进一步的来优化。
 
@@ -1916,11 +1918,11 @@ Limit常用于分页处理，时长会伴随order by从句使用，因此大多�
 
 查看执行计划：
 
-![img](img/MySQL/wps9A0A.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps9A0A.tmp.jpg) 
 
-![img](img/MySQL/wps9A0B.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps9A0B.tmp.jpg) 
 
-![img](img/MySQL/wps9A0C.tmp.jpg) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/wps9A0C.tmp.jpg) 
 
 结论：**扫描行数不变，执行计划是很固定，效率也是很固定的**
 
@@ -1999,19 +2001,19 @@ possible_keys: NULL
 
 可以看出没有使用索引去删除
 
-![img](img/MySQL/42febbf243d24c62afc9e4e1c8ce2cabtplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/42febbf243d24c62afc9e4e1c8ce2cabtplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
 
 解决方案：
 
 默认`select in`子查询会优化为`semi in` 子查询
 
-![img](img/MySQL/62bc02bfc04b4ba5af07c1ad9f3c40c4tplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/62bc02bfc04b4ba5af07c1ad9f3c40c4tplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
 
 
 
 既然没有自动优化，那就手动修改为`join查询`
 
-![img](img/MySQL/2f4c8365a4e64dfb82a7b3152e5a392dtplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/2f4c8365a4e64dfb82a7b3152e5a392dtplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
 
 对于update或者delete子查询的语句，**MySQL官网**也是推荐join的方式优化
 
@@ -2117,7 +2119,7 @@ mysql> explain select * from t1 where name = '123';
 
 
 
-![](img/MySQL/167f4c.awebp)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/167f4c.awebp)
 
 **1) 第一层负责连接处理，授权认证，安全等等**
 
@@ -2332,7 +2334,7 @@ Compact 、 Redundant 、Dynamic 和 Compressed 行格式
 
 ## 8.1 Compact格式
 
-![](img/MySQL/image-20220423093408148.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220423093408148.png)
 
 **变长字段长度列表**
 
@@ -2346,7 +2348,7 @@ Compact 、 Redundant 、Dynamic 和 Compressed 行格式
 
 **记录头**
 
-![image-20220423095056045](img/MySQL/image-20220423095056045.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220423095056045.png)
 
 名称 |大小（单位：bit） |描述
 --|--|--
@@ -2363,13 +2365,13 @@ next_record  |16  |表示下一条记录的相对位置
 
 **隐藏列 记录的真实数据**
 
-![image-20220423095504859](img/MySQL/image-20220423095504859.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220423095504859.png)
 
 
 
 一条完整的记录
 
-![](img/MySQL/image-20220423095004659.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220423095004659.png)
 
 
 
@@ -2421,7 +2423,7 @@ MySQ中规定一个页中至少存放两行记录
 
 一个 InnoDB 数据页的存储空间
 
-![image-20220423105349509](img/MySQL/image-20220423105349509.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220423105349509.png)
 
 
 
@@ -2437,7 +2439,7 @@ MySQ中规定一个页中至少存放两行记录
 
 对于最小记录所在的分组只能有 1 条记录，最大记录所在的分组拥有的记录条数只能在 1~8 条之间，剩下的分组中记录的条数范围只能在是 4~8 条之间
 
-![image-20220423194920689](img/MySQL/image-20220423194920689.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220423194920689.png)
 
 
 
@@ -2447,7 +2449,7 @@ MySQ中规定一个页中至少存放两行记录
 
 记录分组是为了方便查找，分组后将每组的**最大节点**位置放入**页目录**中，然后通过**二分法查找**
 
-![image-20220423200100074](img/MySQL/image-20220423200100074.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220423200100074.png)
 
 
 
@@ -2457,7 +2459,7 @@ MySQ中规定一个页中至少存放两行记录
 
 上下页号：每页之间形成双向链表
 
-![image-20220423202159445](img/MySQL/image-20220423202159445.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220423202159445.png)
 
 
 
@@ -2767,7 +2769,7 @@ cond1 OR cond2 ：只要 cond1 或者 cond2 中有一个为 TRUE 整个表达式
 
 # 12. Join连接
 
-![](img/MySQL/sql-join.png" style="zoom: 67%;" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/sql-join.png)
 
 ## 12.1 本质
 
@@ -2787,12 +2789,12 @@ cond1 OR cond2 ：只要 cond1 或者 cond2 中有一个为 TRUE 整个表达式
 1. 首先确定第一个需要查询的表，这个表称之为 驱动表
    对驱动表查询`t1.m1 > 1`得到一个结果集A
 
-   ![image-20220426084328961](img/MySQL/image-20220426084328961.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220426084328961.png)
 
 2. 根据 t1 表中的记录去找 t2 表中的记录，所以 t2 表也可以被称之为 被驱动表 
 
    接着查询第二个条件` t1.m1 = t2.m2`
-   ![image-20220426084751346](img/MySQL/image-20220426084751346.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220426084751346.png)
 
 
 
@@ -3191,7 +3193,7 @@ ALL大于小于或等于所有的值才为`TRUE`
 
 脏写（ Dirty Write ）：如果一个事务**修改**了另一个**未提交事务修改过**的数据
 
-![image-20220427160328029](img/MySQL/image-20220427160328029.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220427160328029.png)
 
 如上图，`Session A`和`Session B`各开启了一个事务，`Session B`中的事务先将`number`列为`1`的记录的`name`列更新为`'关羽'`，然后`Session A`中的事务接着又把这条`number`列为`1`的记录的`name`列更新为`张飞`。如果之后`Session B`中的事务进行了回滚，那么`Session A`中的更新也将不复存在，这种现象就称之为`脏写`。这时`Session A`中的事务就很懵逼，我明明把数据更新了，最后也提交事务了，怎么到最后说自己啥也没干呢？
 
@@ -3199,7 +3201,7 @@ ALL大于小于或等于所有的值才为`TRUE`
 
 脏读（ Dirty Read ）如果一个事务**读到**了另一个**未提交事务修改过**的数据
 
-![image-20220427160352240](img/MySQL/image-20220427160352240.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220427160352240.png)
 
 如上图，`Session A`和`Session B`各开启了一个事务，`Session B`中的事务先将`number`列为`1`的记录的`name`列更新为`'关羽'`，然后`Session A`中的事务再去查询这条`number`为`1`的记录，如果读到列`name`的值为`'关羽'`，而`Session B`中的事务稍后进行了回滚，那么`Session A`中的事务相当于读到了一个不存在的数据，这种现象就称之为`脏读`。
 
@@ -3210,7 +3212,7 @@ ALL大于小于或等于所有的值才为`TRUE`
 
 
 
-![image-20220427160412601](img/MySQL/image-20220427160412601.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220427160412601.png)
 
 如上图，我们在`Session B`中提交了几个隐式事务（注意是隐式事务，意味着语句结束事务就提交了），这些事务都修改了`number`列为`1`的记录的列`name`的值，每次事务提交之后，如果`Session A`中的事务都可以查看到最新的值，这种现象也被称之为`不可重复读`。
 
@@ -3219,7 +3221,7 @@ ALL大于小于或等于所有的值才为`TRUE`
 幻读（Phantom）
 如果一个事务先根据某些条件查询出一些记录，之后另一个事务又向表中插入了符合这些条件的记录，原先的事务再次按照该条件查询时，能把另一个事务插入的记录也读出来
 
-![image-20220427160437481](img/MySQL/image-20220427160437481.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220427160437481.png)
 
 如上图，`Session A`中的事务先根据条件`number > 0`这个条件查询表`hero`，得到了`name`列值为`'刘备'`的记录；之后`Session B`中提交了一个隐式事务，该事务向表`hero`中插入了一条新记录；之后`Session A`中的事务再根据相同的条件`number > 0`查询表`hero`，得到的结果集中包含`Session B`中的事务新插入的那条记录，这种现象也被称之为`幻读`。
 
@@ -3310,7 +3312,7 @@ REPEATABLE READ
 
 通过记录里面隐藏列`trx_id`和`roll_pointer`来记录每个事务的id和回滚链表的头指针，回滚列表通过undo日志组成版本链。
 
-![image-20220427153148656](img/MySQL/image-20220427153148656.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220427153148656.png)
 
 版本链的头节点就是当前记录最新的值
 
@@ -3546,7 +3548,7 @@ REPEATABLE READ
 
 # 16. 服务器优化
 
-![](img/MySQL/1749651-20190809104145082-1793612311.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/1749651-20190809104145082-1793612311.png)
 
 
 
@@ -3782,7 +3784,7 @@ wait_timeout = 28800
 
 # 17. mysql主从复制
 
-![img](img/MySQL/16c4d9dd1b8235c3tplv-t2oaga2asx-zoom-in-crop-mark1304000.webp)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/16c4d9dd1b8235c3tplv-t2oaga2asx-zoom-in-crop-mark1304000.webp)
 
 步骤一：主库的更新事件(update、insert、delete)被写到binlog
 
@@ -3849,7 +3851,8 @@ binlog 日志有三种格式，分别是`statement，row和mixed`。
 
 # 18. 加锁机制
 
-![](img/MySQL/16c52a7ec7a9591atplv-t2oaga2asx-zoom-in-crop-mark1304000.webp)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/16c52a7ec7a9591atplv-t2oaga2asx-zoom-in-crop-mark1304000.webp)
+
 
 乐观锁与悲观锁是两种**并发控制**的思想，可用于解决丢失更新问题。
 
@@ -3896,7 +3899,7 @@ binlog 日志有三种格式，分别是`statement，row和mixed`。
 
 # 19. 日志
 
-![](img/MySQL/image-20220502164241956.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220502164241956.png)
 
 ##  19.1 redo log（重做日志）
 
@@ -3904,7 +3907,7 @@ binlog 日志有三种格式，分别是`statement，row和mixed`。
 
  InnoDB 的 redo log 是固定大小的，比如可以配置为一组 4 个文件，每个文件的大小是1GB ，总共就可以记录 4GB 的操作。从头开始写，写到末尾就又回到开头循环写。
 
-![](img/MySQL/image-20220502162541705.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220502162541705.png)
 
 write pos 是当前记录的位置，一边写一边后移，写到第 3 号文件末尾后就回到 0 号文件开头。checkpoint 是当前要擦除的位置，也是往后推移并且循环的，擦除记录前要把记录更新到数据文件。
 
@@ -3950,7 +3953,7 @@ write pos 和 checkpoint 之间的是 “ 粉板 ” 上还空着的部分，可
 
 5. 执行器调用引擎的提交事务接口，引擎把刚刚写入的 redo log 改成提交（ commit ）状态，更新完成。这里我给出这个 update 语句的执行流程图，图中浅色框表示是在 InnoDB 内部执行的，深色框表示是在执行器中执行的。
 
-![](img/MySQL/image-20220502162600445.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220502162600445.png)
 
 你可能注意到了，最后三步看上去有点 “ 绕 ” ，将 redo log 的写入拆成了两个步骤： prepare 和commit ，这就是 " 两阶段提交 " 。
 

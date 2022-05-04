@@ -317,13 +317,13 @@ public class ProductController {
 模版代码：
 
 ```html
-<img th:src="@{/images/gtvglogo.png}"  />
+![]( @{/images/gtvglogo.png}"  />
 ```
 
 结果页面：
 
 ```html
-<img src="/sbe/images/gtvglogo.png">
+![]( /sbe/images/gtvglogo.png )
 ```
 
 模版代码：
@@ -579,7 +579,7 @@ public String thattr(Model model){
 结果页面：
 
 ```html
-<img src="/sbe/images/gtvglogo.png">
+![]( /sbe/images/gtvglogo.png )
 ```
 
 ### th:value
@@ -762,13 +762,13 @@ public String thsrc(Model model){
 模版页面：
 
 ```html
-<img  title="GTVG logo" th:src="@{/images/gtvglogo.png}" />
+![]( @{/images/gtvglogo.png}" />
 ```
 
 结果页面：
 
 ```html
-<img title="GTVG logo" src="/sbe/images/gtvglogo.png">
+![]( /sbe/images/gtvglogo.png )
 ```
 
 ### th:style

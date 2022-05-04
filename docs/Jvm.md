@@ -47,7 +47,7 @@
 -Xms8m
 -Xmx64m`
 
-![image-20220411214804063](img/jvm/image-20220411214804063.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/jvm/image-20220411214804063.png)
 
 
 
@@ -61,7 +61,7 @@
 -Xms8m
 -Xmx64m`
 
-![image-20220411215134598](img/jvm/image-20220411215134598.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/jvm/image-20220411215134598.png)
 
 
 
@@ -81,7 +81,7 @@
 
 
 
-![image-20220411204701018](img/jvm/image-20220411204701018.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/jvm/image-20220411204701018.png)
 
 
 
@@ -100,7 +100,7 @@
 -XX:+ParallelRefProcEnabled
 -XX:+ReduceInitialCardMarks`
 
-![image-20220411205022900](img/jvm/image-20220411205022900.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/jvm/image-20220411205022900.png)
 
 
 
@@ -115,7 +115,7 @@
 -XX:+ParallelRefProcEnabled
 -XX:+ReduceInitialCardMarks`
 
-![image-20220411205558827](img/jvm/image-20220411205558827.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/jvm/image-20220411205558827.png)
 
 
 
@@ -132,7 +132,7 @@
 -Xmx64m
 -XX:ConcGCThreads=4`
 
-![image-20220411210128926](img/jvm/image-20220411210128926.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/jvm/image-20220411210128926.png)
 
 
 
@@ -146,7 +146,7 @@
 -XX:+UnlockExperimentalVMOptions
 -XX:G1MaxNewSizePercent=70
 
-![image-20220411200331194](img/jvm/image-20220411200331194.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/jvm/image-20220411200331194.png)
 
 
 
@@ -166,7 +166,7 @@
 
 将新生代内存提高
 
-![image-20220411204022693](img/jvm/image-20220411204022693.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/jvm/image-20220411204022693.png)
 
 
 

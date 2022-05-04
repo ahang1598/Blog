@@ -15,9 +15,9 @@
 
 ## 1.2 项目结构图
 
-![ssmStructural.png](img/ssmStructural.png)
+![ssmStructural.png](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/ssmStructural.png)
 
-![ssm](img/SSM.png)
+![ssm](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/SSM.png)
 
   # 2. 数据库环境
 

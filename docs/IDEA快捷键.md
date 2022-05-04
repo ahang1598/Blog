@@ -56,11 +56,11 @@
 
 在idea添加注释的时候写入创建的作者和日期以便回溯，设置后通过在注释中写入`date`然后按`tab`键即可生成所需`create by ahang on 2021-08-01 10:14`
 
-![idea_temp1](img/idea_temp1.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/idea_temp1.png)
 
-![idea_temp1](img/idea_temp2.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/idea_temp2.png)
 
-![idea_temp1](img/idea_temp3.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/idea_temp3.png)
 
 
 
@@ -68,7 +68,7 @@
 
 设置IDEA新建类时自动在头部添加作者、日期等注释信息
 
-![idea_header](img/idea_header.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/idea_header.png)
 
 
 

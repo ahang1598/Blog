@@ -28,15 +28,15 @@ MQ全称为Message Queue，消息队列是应用程序和应用程序之间的�
 
   如订单系统，在下单的时候就会往数据库写数据。但是数据库只能支撑每秒1000左右的并发写入，并发量再高就容易宕机。低峰期的时候并发也就100多个，但是在高峰期时候，并发量会突然激增到5000以上，这个时候数据库肯定卡死了。
 
-  ![](img/Rabbit/01.jpg)
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/01.jpg)
 
   消息被MQ保存起来了，然后系统就可以按照自己的消费能力来消费，比如每秒1000个数据，这样慢慢写入数据库，这样就不会卡死数据库了。
 
-  ![](img/Rabbit/02.jpg)
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/02.jpg)
 
   但是使用了MQ之后，限制消费消息的速度为1000，但是这样一来，高峰期产生的数据势必会被积压在MQ中，高峰就被“削”掉了。但是因为消息积压，在高峰期过后的一段时间内，消费消息的速度还是会维持在1000QPS，直到消费完积压的消息,这就叫做“填谷”
 
-  ![](img/Rabbit/03.jpg)
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/03.jpg)
 
 
 
@@ -90,7 +90,7 @@ RabbitMQ提供了6种模式：简单模式，work模式，Publish/Subscribe发�
 
 
 
-![1555988678324](img/Rabbit/1555988678324.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1555988678324.png)
 
 
 
@@ -126,7 +126,7 @@ RabbitMQ提供了6种模式：简单模式，work模式，Publish/Subscribe发�
 
 ## 3.1. 搭建示例工程
 
-代码下载 [地址](img/Rabbit/rabbitmq.zip)
+代码下载 [地址](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/rabbitmq.zip)
 
 ### 3.1.1. 创建工程
 
@@ -212,11 +212,11 @@ public class Producer {
 
 在执行上述的消息发送之后；可以登录rabbitMQ的管理控制台，可以发现队列和其消息：
 
-![1556006638979](img/Rabbit/1556006638979.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556006638979.png)
 
 
 
-![1556006647177](img/Rabbit/1556006647177.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556006647177.png)
 
 ## 3.3. 编写消费者
 
@@ -323,7 +323,7 @@ public class Consumer {
 
 上述的入门案例中中其实使用的是如下的简单模式：
 
-![1555991074575](img/Rabbit/1555991074575.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1555991074575.png)
 
 在上图的模型中，有以下概念：
 
@@ -374,7 +374,7 @@ RabbitMQ是AMQP协议的Erlang的实现。
   6. 关闭信道；
   7. 关闭连接；
 
-![1565105223969](img/Rabbit/1565105223969.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1565105223969.png)
 
 
 
@@ -384,7 +384,7 @@ RabbitMQ是AMQP协议的Erlang的实现。
 2. 客户端调用connection.createChannel方法。此方法开启信道，其包装的channel.open命令发送给Broker,等待channel.basicPublish方法，对应的AMQP命令为Basic.Publish,这个命令包含了content Header 和content Body()。content Header 包含了消息体的属性，例如:投递模式，优先级等，content Body 包含了消息体本身。
 3. 客户端发送完消息需要关闭资源时，涉及到Channel.Close和Channl.Close-Ok 与Connetion.Close和Connection.Close-Ok的命令交互。
 
-![生产者流转过程图](img/Rabbit/生产者流转过程图.bmp)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/生产者流转过程图.bmp)
 
 ## 4.4. 消费者流转过程说明
 
@@ -395,7 +395,7 @@ RabbitMQ是AMQP协议的Erlang的实现。
 5. 消费者接收到消息并正确消费之后，向Broker 发送确认，即Basic.Ack 命令。
 6. 客户端发送完消息需要关闭资源时，涉及到Channel.Close和Channl.Close-Ok 与Connetion.Close和Connection.Close-Ok的命令交互。
 
-![消费者流转过程图](img/Rabbit/消费者流转过程图.bmp)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/消费者流转过程图.bmp)
 
 
 
@@ -405,7 +405,7 @@ RabbitMQ是AMQP协议的Erlang的实现。
 
 ### 4.1.1. 模式说明
 
-![1556009144848](img/Rabbit/1556009144848.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556009144848.png)
 
 `Work Queues`与入门程序的`简单模式`相比，多了一个或一些消费端，多个消费端共同消费同一个队列中的消息。多个消费者平摊任务。
 
@@ -615,11 +615,11 @@ public class Consumer2 {
 
 启动两个消费者，然后再启动生产者发送消息；到IDEA的两个消费者对应的控制台查看是否竞争性的接收到消息。
 
-![1556014310859](img/Rabbit/1556014310859.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556014310859.png)
 
 
 
-![1556014318106](img/Rabbit/1556014318106.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556014318106.png)
 
 ### 4.1.4. 小结
 
@@ -631,7 +631,7 @@ public class Consumer2 {
 
 订阅模式示例图：
 
-![1556014499573](img/Rabbit/1556014499573.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556014499573.png)
 
 前面2个案例中，只有3个角色：
 
@@ -659,7 +659,7 @@ public class Consumer2 {
 
 ### 4.3.1. 模式说明
 
-![1556010329032](img/Rabbit/1556010329032.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556010329032.png)
 
 发布订阅模式：
 1、每个消费者监听自己的队列。
@@ -882,7 +882,7 @@ public class Consumer2 {
 
 在执行完测试代码后，其实到RabbitMQ的管理后台找到`Exchanges`选项卡，点击 `fanout_exchange` 的交换机，可以查看到如下的绑定：
 
-![1556015006220](img/Rabbit/1556015006220.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556015006220.png)
 
 ### 4.3.4. 小结
 
@@ -908,7 +908,7 @@ public class Consumer2 {
 - 消息的发送方在 向 Exchange发送消息时，也必须指定消息的 `RoutingKey`。
 - Exchange不再把消息交给每一个绑定的队列，而是根据消息的`Routing Key`进行判断，只有队列的`Routingkey`与消息的 `Routing key`完全一致，才会接收到消息
 
-![1556029284397](img/Rabbit/1556029284397.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556029284397.png)
 
 图解：
 
@@ -1144,7 +1144,7 @@ public class Consumer2 {
 
 在执行完测试代码后，其实到RabbitMQ的管理后台找到`Exchanges`选项卡，点击 `direct_exchange` 的交换机，可以查看到如下的绑定：
 
-![1556031175744](img/Rabbit/1556031175744.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556031175744.png)
 
 ### 4.4.4. 小结
 
@@ -1174,11 +1174,11 @@ Routing模式要求队列在绑定交换机时要指定routing key，消息会�
 
 `item.*`：只能匹配`item.insert`
 
-![1556031362048](img/Rabbit/1556031362048.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556031362048.png)
 
 
 
-![1556031519931](img/Rabbit/1556031519931.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556031519931.png)
 
 图解：
 
@@ -1395,7 +1395,7 @@ public class Consumer2 {
 
 在执行完测试代码后，其实到RabbitMQ的管理后台找到`Exchanges`选项卡，点击 `topic_exchange` 的交换机，可以查看到如下的绑定：
 
-![1556032433333](img/Rabbit/1556032433333.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556032433333.png)
 
 ### 4.5.4. 小结
 
@@ -1850,7 +1850,7 @@ public class TopicListenerWell2 implements MessageListener {
 
 # 6. Spring Boot整合RabbitMQ
 
-代码下载 [地址](img/Rabbit/rabbitmq6.zip)
+代码下载 [地址](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/rabbitmq6.zip)
 
 ## 6.1. 简介
 
@@ -2133,7 +2133,7 @@ public class RabbitMQTest {
 
 另外；也可以在RabbitMQ的管理控制台中查看到交换机与队列的绑定：
 
-![1556074827222](img/Rabbit/1556074827222.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/1556074827222.png)
 
 
 
@@ -2141,7 +2141,7 @@ public class RabbitMQTest {
 
 # 7. RabbitMQ高级特性
 
-代码下载 [地址](img/Rabbit/rabbitmq7.zip)
+代码下载 [地址](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/rabbitmq7.zip)
 
 
 
@@ -2249,7 +2249,7 @@ RabbitMQ可以对消息设置过期时间，也可以对整个队列（Queue）�
 
 ## 7.5 死信队列
 
-![](img/Rabbit/rabbitmq1.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/rabbitmq1.png)
 
 死信队列，英文缩写：DLX 。Dead Letter Exchange（死信交换机），当消息成为Dead message后，可以被重新发送到另一个交换机，这个交换机就是DLX。
 
@@ -2271,7 +2271,7 @@ RabbitMQ可以对消息设置过期时间，也可以对整个队列（Queue）�
 
 ## 7.6 延迟队列
 
-![](img/Rabbit/rabbitmq2.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/rabbitmq2.png)
 
 延迟队列，即消息进入队列后不会立即被消费，只有到达指定时间后，才会被消费。
 
@@ -2331,7 +2331,7 @@ rabbitmq_tracing和Firehose在实现上如出一辙，只不过rabbitmq_tracing�
 
 - 消息补偿机制
 
-![](img/Rabbit/rabbitmq3.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/rabbitmq3.png)
 
 
 
@@ -2339,7 +2339,7 @@ rabbitmq_tracing和Firehose在实现上如出一辙，只不过rabbitmq_tracing�
 
 - 乐观锁解决方案
 
-![](img/Rabbit/rabbitmq4.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Rabbit/rabbitmq4.png)
 
 
 

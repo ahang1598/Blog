@@ -2,5 +2,6 @@
   "legacyEditor": false,
   "useMarkdownLinks": true,
   "foldHeading": false,
-  "autoPairMarkdown": false
+  "autoPairMarkdown": false,
+  "livePreview": false
 }

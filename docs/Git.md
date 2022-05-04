@@ -1,8 +1,8 @@
 # 0. 命令速查
 
-![Git](img/Git.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Git.png)
 
-![git-cheat-sheet-large01-cn](img/git-cheat-sheet-large01-cn.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git-cheat-sheet-large01-cn.png)
 
 
 

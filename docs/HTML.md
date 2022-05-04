@@ -2,7 +2,7 @@
 
 ## 1.1 思维导图
 
-![html-css思维导图](media/html-css.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/html-css.png)
 
 ## 1.2 标签
 

@@ -385,7 +385,7 @@ List<String> stringList = Arrays.asList("a", "b", "c");  // 直接字符初始�
 ## 5. 集合
 
 集合类型分为`Collection`和`Map`两大类
-![image](img/5-1912051036333V.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/5-1912051036333V.png)
 ![Map](http://c.biancheng.net/uploads/allimg/191205/5-191205103G5960.png)
 
 Collection集合的常用方法
@@ -644,7 +644,7 @@ public static void main(String[] args) {
 
 ### 5.3 Map
 
-![](img/Java/008i3skNgy1gtv61zpemjj61h80mgqai02.jpg)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Java/008i3skNgy1gtv61zpemjj61h80mgqai02.jpg)
 
 
 
@@ -1881,7 +1881,7 @@ https://www.zhihu.com/question/31429113
 
 经常读取采用该方式
 
-![](img/cdec0a066693684036d4bcaab4fdc1e3_1440w.jpg)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/cdec0a066693684036d4bcaab4fdc1e3_1440w.jpg)
 
 
 
@@ -1889,7 +1889,7 @@ https://www.zhihu.com/question/31429113
 
 经常插入数据采用该方式
 
-![](img/0800ab14b2177e31ee3b9f6d477918fa_1440w.jpg)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/0800ab14b2177e31ee3b9f6d477918fa_1440w.jpg)
 
 
 

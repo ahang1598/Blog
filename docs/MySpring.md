@@ -1,16 +1,16 @@
 # 1.入门案例
 
-Demo源文件下载 [地址](img/Spring/MySpring.zip)
+Demo源文件下载 [地址]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/MySpring.zip)
 
 ## 1.1新建项目
 
 使用工具IDEA，`File --> new --> Project  `，使用jdk 11
 
-![spring_1](img/Spring/1.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/1.png)
 
 
 
-最终配置图![Spring_2](img/Spring/2.png)
+最终配置图![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/2.png)
 
 ## 1.2 开发步骤
 
@@ -309,13 +309,13 @@ public class DynamicFactory {
 
 ### 2.1.4 Bean的依赖注入
 
-源码地址 [下载](img/Spring/Spring-ioc.zip)
+源码地址 [下载]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/Spring-ioc.zip)
 
 Spring接管注入前手工注入两种方式：构造函数注入，set方法注入
 
 创建Dao层和Service层
 
-![Spring_3](img/Spring/3.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/3.png)
 
 ```java
 package com.ahang.Dao;
@@ -687,7 +687,7 @@ ApplicationContext applicationContext = new
 
 # 3. Spring注解开发
 
-源码示例下载 [地址](img/Spring/Spring-anno.zip)
+源码示例下载 [地址]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/Spring-anno.zip)
 
 ## 3.1 Spring原始注解
 
@@ -736,7 +736,7 @@ Spring原始注解主要是替代`<Bean>`的配置
 <context:component-scan base-package="com.ahang"></context:component-scan>
 ```
 
-<img src="img/Spring/4.png" alt="4" style="zoom:67%;" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/4.png)
 
 ② 新建Dao层的AnnoDao和AnnoDaoImpl
 
@@ -1059,7 +1059,7 @@ public class JdbcConfig {
 
 # 4. Spring整合Junit
 
-示例代码下载 [地址](img/Spring/Spring-test.zip)
+示例代码下载 [地址]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/Spring-test.zip)
 
 ## 4.1 原始Junit测试Spring的问题
 
@@ -1203,7 +1203,7 @@ Spring集成Junit步骤
 
 # 5.Spring的AOP
 
-源码下载 [地址](img/Spring/Spring-aop.zip)
+源码下载 [地址]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/Spring-aop.zip)
 
 ## 5.1 AOP 开发明确的事项
 
@@ -1345,7 +1345,7 @@ execution(* joke(String,..)))
     </aop:config>
 ```
 
-![](img/Spring/5.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/5.png)
 
 
 
@@ -1518,7 +1518,7 @@ public class XmlTest {
 
 通知的配置语法：`@通知注解(“切点表达式")`
 
-![](img/Spring/6.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/6.png)
 
 开启切面注解
 
@@ -1661,7 +1661,7 @@ public class AnnoTest {
 
 ## 6.1入门案例
 
-源码下载 [地址](img/Spring/SpringMVC-start.zip)
+源码下载 [地址]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/SpringMVC-start.zip)
 
 工具Tomcat 下载 [地址](https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.73/bin/apache-tomcat-8.5.73.zip), 官网 [地址](https://tomcat.apache.org/download-80.cgi)
 
@@ -1669,15 +1669,15 @@ public class AnnoTest {
 
 示意图
 
-![7](img/Spring/7.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/7.png)
 
 
 
-<img src="img/Spring/8.png" alt="7" style="zoom:67%;" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/8.png )
 
 
 
-![7](img/Spring/9.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/9.png)
 
 **开发步骤**
 
@@ -1816,7 +1816,7 @@ http://localhost:8080/user1
 
 
 
-![](img/Spring/Springmvc 原理.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/Springmvc 原理.png)
 
 ①用户发送请求至前端控制器DispatcherServlet。
 
@@ -2000,7 +2000,7 @@ suffix = "";     --视图名称后缀
 
 ## 6.3 SpringMVC数据响应
 
-源码下载 [地址](img/Spring/SpringMVC-controller.zip)
+源码下载 [地址]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/SpringMVC-controller.zip)
 
 ### 6.3.1返回页面，并传递数据
 
@@ -2151,7 +2151,7 @@ public class User {
 
 ## 6.4 SpringMVC数据请求
 
-源码下载 [地址](img/Spring/SpringMVC-controller.zip)
+源码下载 [地址]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/SpringMVC-controller.zip)
 
 ### 6.4.1 不同类型参数请求
 
@@ -2366,7 +2366,7 @@ DELETE：用于删除资源
 
 ## 6.7 文件上传
 
-源码下载 [地址](img/Spring/SpringMVC-file.zip)
+源码下载 [地址]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/SpringMVC-file.zip)
 
 
 
@@ -2454,7 +2454,7 @@ DELETE：用于删除资源
 
 ## 6.8 异常处理
 
-源码下载 [地址](img/Spring/SpringMVC-exception.zip)
+源码下载 [地址]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/Spring/SpringMVC-exception.zip)
 
 
 

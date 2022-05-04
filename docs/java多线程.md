@@ -94,8 +94,7 @@ java -Djava.rmi.server.hostname=xx.134.13x.xx -Dcom.sun.management.jmxremote -Dc
 **并发**
 
 在单核 cpu 下，线程实际还是串行执行的。操作系统中有一个组件叫做任务调度器，将 cpu 的时间片（windows
-下时间片最小约为 15 毫秒）分给不同的程序使用，只是由于 cpu 在线程间（时间片很短）的切换非常快，人类感
-觉是同时运行的 。一般会将这种线程轮流使用 CPU 的做法称为并发（concurrent）
+下时间片最小约为 15 毫秒）分给不同的程序使用，只是由于 cpu 在线程间（时间片很短）的切换非常快，人类感觉是同时运行的 。一般会将这种线程轮流使用 CPU 的做法称为并发（concurrent）
 
 ![1583408729416](https://gitee.com/gu_chun_bo/picture/raw/master/image/20200305194534-433138.png)
 

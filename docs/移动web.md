@@ -91,7 +91,7 @@ Bootstrap 是基于HTML、CSS 和 JAVASCRIPT 的，它简洁灵活，使得 Web 
 
 移动web主要是为了兼容在不同的尺寸界面下内容的不断变化，默认设计每个页面划分为12个等距网格
 
-![grid system](media/grid system.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/grid system.png)
 
 案例解析：
 
@@ -161,7 +161,7 @@ Bootstrap 是基于HTML、CSS 和 JAVASCRIPT 的，它简洁灵活，使得 Web 
 
 比如：
 
-![bootstrap forms](media/bootstrap forms.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/bootstrap forms.png)
 
 ```html
 <form class="form-inline">
@@ -428,11 +428,11 @@ a === '5'; // false，类型和值都要比较，类型不同直接false
 2. 类型不同：先进行类型转换，再比较
 * `===`：全等于。在比较之前，先判断类型，如果类型不一样，则直接返回false
 
-![js运算符思维导图](media/js运算符思维导图.gif)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/js运算符思维导图.gif)
 
 ## 3.3 流程控制语句
 
-![js流程思维导图](media/js流程思维导图.gif)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/js流程思维导图.gif)
 
 
 
@@ -552,7 +552,7 @@ window.carName = '奔驰';
 var c = myFunction();  // c 为'奔驰'
 ```
 
-![js函数思维导图](media/js函数思维导图.gif)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/js函数思维导图.gif)
 
 ## 3.6对象
 
@@ -746,7 +746,7 @@ person["age"] = 28;
 document.write(person["age"]); // 28
 ```
 
-![js数组思维导图](media/js数组思维导图.gif)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/js数组思维导图.gif)
 
 ## 3.8 String 对象方法
 
@@ -785,17 +785,17 @@ var b = str.toUpperCase(); // 吧字符串转为大写
 var c = "   Hello world ".trim() //去掉字符串两边的空白
 ```
 
-![js字符串思维导图](media/js字符串思维导图.gif)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/js字符串思维导图.gif)
 
 ## 3.9正则表达式
 
-![js正则思维导图](media/js正则思维导图.gif)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/js正则思维导图.gif)
 
 ## 3.10 Window 对象
 
 `Window `对象表示浏览器中打开的窗口。
 
-![jsWindow对象思维导图](media/jsWindow对象思维导图.gif)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/jsWindow对象思维导图.gif)
 
 
 
@@ -1032,7 +1032,7 @@ element.style.color = green;
 </script>
 ```
 
-![jsDOM思维导图](media/jsDOM思维导图.gif)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/jsDOM思维导图.gif)
 
 
 

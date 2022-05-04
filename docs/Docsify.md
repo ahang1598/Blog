@@ -83,7 +83,7 @@ docsify serve docs
 2. 添加`_coverpage.md`文档设置封面信息
 
 ```markdown
-<img width="180px" style="border-radius: 50%" bor src="img/gitlogo.png">
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/gitlogo.png)
 
 # 一位研一自学Java的独白
 

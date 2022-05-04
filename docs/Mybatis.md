@@ -1,4 +1,4 @@
-[TOC]
+P[TOC]
 # 0. 框架的基本概念
 - 三层架构
     - 界面层： 和用户打交道的， 接收用户的请求参数， 显示处理结果的。（jsp ，html ，servlet）
@@ -61,7 +61,7 @@ maven仓库：
 
 # 2. 基本应用
 ## 2.1 入门配置
-![mybatis-2.1入门配置](img/mybatis-2.1入门配置.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/mybatis-2.1入门配置.png)
 
 ### 2.1.1 配置数据库
 ```mysql
@@ -254,14 +254,14 @@ public static SqlSession  getSqlSession(){
 
 
 - **错误code1**:`Error parsing SQL Mapper Configuration. Cause: org.apache.ibatis.builder.BuilderException: Error creating document instance. Cause: org.xml.sax.SAXParseException; lineNumber: 7; columnNumber: 9; 1 字节的 UTF-8 序列的字节 1 无效`
-![mybatis-2.2中文乱码](img/mybatis-2.2中文乱码.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/mybatis-2.2中文乱码.png)
 解决：删除中文注解或者[注解中中文乱码错误详解](https://blog.csdn.net/hc_study/article/details/115221072)
 - **错误CODE2**：`org.apache.ibatis.binding.BindingException: Type interface com.ahang.Dao.UserDao is not known to the MapperRegistry`
 
 解决：在`mybatis-config.xml`配置文件中缺少`<mappers> <mapper resource="com/ahang/Dao/UserDaoImpl.xml"></mapper> </mappers>`注意路径通过`/`连接
 - **错误CODE3 数据库连接错误**：`Cause: com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Unknown database 'mybati'`
 解决：查看数据库书写是否正确
-- **错误CODE4**：`The error may exist in com/ahang/Dao/UserDaoImpl.xml; Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.io.IOException: Could not find resource com/ahang/Dao/UserDaoImpl.xml`缺少资源包，在定义`maven`的`pom.xml`中默认没有添加资源包下的配置文件，需要手动添加![mybatis-2.2配置绑定](img/mybatis-2.2配置绑定.png)
+- **错误CODE4**：`The error may exist in com/ahang/Dao/UserDaoImpl.xml; Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.io.IOException: Could not find resource com/ahang/Dao/UserDaoImpl.xml`缺少资源包，在定义`maven`的`pom.xml`中默认没有添加资源包下的配置文件，需要手动添加![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/mybatis-2.2配置绑定.png)
 ```xml
     <build>
         <resources>
@@ -718,7 +718,7 @@ public interface UserDao {
 - 接口设计与非接口设计是针对复用技术而言的，与面向对象（过程）不是一个问题.更多的体现就是对系统整体的架构
 
 MyBatis详细执行流程
-![mybatis-8.1注解执行流程](img/mybatis-8.1注解执行流程.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/mybatis-8.1注解执行流程.png)
 
 ## 8.2 使用注解开发与参数详解
 `    @Select("select id, name as uname from user where id=#{id} and name=#{uname}")`对于该语句来说，`id`和`name`对应都是数据库里面的属性名，而`uname`是User类中属性名，一般两者相同
@@ -950,7 +950,7 @@ MyBatis系统中默认定义了两级缓存：一级缓存和二级缓存
 
 为了提高扩展性，`MyBatis`定义了缓存接口`Cache`。我们可以通过实现`Cache`接口来自定义二级缓存
 
-![mybatis-13.2缓存](img/mybatis-13.2缓存.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/mybatis-13.2缓存.png)
 
 ## 13.3 一级缓存
 一级缓存也叫本地缓存： `SqlSession`

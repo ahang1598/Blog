@@ -11,9 +11,8 @@
 > 9. 熟练掌握CSS浮动
 > 10.熟练掌握CSS定位
 > 11.熟练掌握CSS高级技巧强化CSS
-typora-copy-images-to: media
 
-![css思维导图](media/css.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/css.png)
 
 # CSS初识
 
@@ -27,7 +26,7 @@ CSS以HTML为基础，提供了丰富的功能，如字体、颜色、背景的�
 
 使用HTML时，需要遵从一定的规范。CSS亦如此，要想熟练地使用CSS对网页进行修饰，首先需要了解CSS样式规则，具体格式如下：                                          
 
-<img src="media/gz.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/gz.png )
 
 > 在上面的样式规则中:
 >
@@ -44,7 +43,7 @@ CSS以HTML为基础，提供了丰富的功能，如字体、颜色、背景的�
 
 font-size属性用于设置字号，该属性的值可以使用相对长度单位，也可以使用绝对长度单位。其中，相对长度单位比较常用，推荐使用像素单位px，绝对长度单位使用较少。具体如下：
 
-<img src="media/dd.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/dd.png )
 
 ## font-family:字体
 
@@ -54,7 +53,7 @@ p{ font-family:"微软雅黑";}
 
 可以同时指定多个字体，中间以逗号隔开，表示如果浏览器不支持第一个字体，则会尝试下一个，直到找到合适的字体。
 
-> <img src="media/good.png" />常用技巧：
+> ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/good.png )常用技巧：
 
 > 1. 现在网页中普遍使用14px+。
 > 2. 尽量使用偶数的数字字号。ie6等老式浏览器支持奇数会有bug。
@@ -74,7 +73,7 @@ p{ font-family:"微软雅黑";}
 方案二： 在 CSS 直接使用 Unicode 编码来写字体名称可以避免这些错误。使用 Unicode 写中文字体名称，浏览器是可以正确的解析的。
 font-family: "\5FAE\8F6F\96C5\9ED1"，表示设置字体为“微软雅黑”。
 
-<img src="media/shs.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/shs.png )
 
 可以通过escape()  来测试属于什么字体。
 
@@ -103,7 +102,7 @@ font-weight属性用于定义字体的粗细，其可用属性值：normal、bol
 
 
 
-<img src="media/good.png" />小技巧： 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/good.png )小技巧： 
 
  ~~~css
 数字 400 等价于 normal，而 700 等价于 bold。  但是我们更喜欢用数字来表示。  
@@ -123,7 +122,7 @@ italic：浏览器会显示斜体的字体样式。
 
 oblique：浏览器会显示倾斜的字体样式。
 
-<img src="media/good.png" />小技巧： 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/good.png )小技巧： 
 
  ~~~
 平时我们很少给文字加斜体，反而喜欢给斜体标签（em，i）改为普通模式。
@@ -158,9 +157,9 @@ font属性用于对字体样式进行综合设置，其基本语法格式如下�
 
 菜单：   右击网页空白出---查看 
 
-<img src="media/chrome.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/chrome.png )
 
-<img src="media/good.png" />小技巧：
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/good.png )小技巧：
 
 1. ctrl+滚轮 可以 放大开发者工具代码大小。
 2. 左边是HTML元素结构   右边是CSS样式。
@@ -170,7 +169,7 @@ font属性用于对字体样式进行综合设置，其基本语法格式如下�
 
 要想将CSS样式应用于特定的HTML元素，首先需要找到该目标元素。在CSS中，执行这一任务的样式规则部分被称为选择器（选择符）。
 
-<img src="media/ax.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/ax.png )
 
 如上图所以，要把里面的小黄人分为2组，最快的方法怎办？  
 
@@ -207,7 +206,7 @@ font属性用于对字体样式进行综合设置，其基本语法格式如下�
 
 类选择器最大的优势是可以为元素对象定义单独或相同的样式。
 
-<img src="media/good.png" />小技巧：
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/good.png )小技巧：
 
 ~~~
 1.长名称或词组可以使用中横线来为选择器命名。
@@ -224,7 +223,7 @@ font属性用于对字体样式进行综合设置，其基本语法格式如下�
 
 猜谜底游戏：
 
-<img src="media/midi.png" width="450" />   你猜？
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/midi.png )   你猜？
 
 
 
@@ -234,7 +233,7 @@ font属性用于对字体样式进行综合设置，其基本语法格式如下�
 
 课堂案例：
 
- <img src="media/go.png" />
+ ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/go.png )
 
 
 
@@ -275,7 +274,7 @@ font属性用于对字体样式进行综合设置，其基本语法格式如下�
 
 我们可以给标签指定多个类名，从而达到更多的选择目的。
 
-<img src="media/lei.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/lei.png )
 
 注意：
 
@@ -317,7 +316,7 @@ id选择器     好比人的身份证号码，  全中国是唯一的， 不得�
 
 ***id选择器和类选择器最大的不同在于 使用次数上。***
 
-<img src="media/zfb.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/zfb.jpg )
 
 ## 通配符选择器
 
@@ -489,11 +488,11 @@ word-spacing和letter-spacing均可对英文进行设置。不同的是letter-sp
 text-shadow:水平位置 垂直位置 模糊距离 阴影颜色;
 ~~~
 
-![1498467502625](media/1498467502625.png) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498467502625.png) 
 
 1. 前两项是必须写的。  后两项可以选写。
 
-![1498467519665](media/1498467519665.png)    
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498467519665.png)    
 
 # sublime/IDEA/VScode快捷方式
 
@@ -549,7 +548,7 @@ type="text/CSS"  在html5中可以省略， 写上也比较符合规范， 所�
 
 ```html
 <head>
-  <link href="CSS文件的路径" type="text/CSS" rel="stylesheet" />
+  <link href="CSS文件的路径" type="text/CSS" rel="stylesheet )
 </head>
 ```
 
@@ -573,13 +572,13 @@ rel：定义当前文档与被链接文档之间的关系，在这里需要指�
 
 # 标签显示模式（display）
 
-<img src="media/people.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/people.png )
 
 非洲黑人：  皮肤内黑色素含量高，以吸收阳光中的紫外线，保护皮肤内部结构免遭损害，头发象羊毛一样卷曲，使每根卷发周围都有许多空隙，空隙充满空气，卷发有隔热作用。
 
 欧洲白人： 生活寒带或着是说常年温度较低的地缘,加上年日照时间少，身体的黑色素沉淀比较少``所以出现皮肤、发色、瞳晕都呈现浅色
 
-传智黄人：  我中间的。。。  <img src="media/h.jpg" alt="" />
+传智黄人：  我中间的。。。  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/h.jpg" alt=" )
 
 最重要的总结：  是为了更好的适应环境而完成的自然选择。 
 
@@ -597,7 +596,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 常见的块元素有<h1>~<h6>、<p>、<div>、<ul>、<ol>、<li>等，其中<div>标签是最典型的块元素。
 ```
 
-  <img src="media/xtf.jpg" />
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/xtf.jpg )
 
 块级元素的特点：
 
@@ -617,7 +616,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 常见的行内元素有<a>、<strong>、<b>、<em>、<i>、<del>、<s>、<ins>、<u>、<span>等，其中<span>标签最典型的行内元素。
 ```
 
-  <img src="media/wf.jpg" />  我一样重要
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/wf.jpg )  我一样重要
 
 行内元素的特点：
 
@@ -629,7 +628,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 （4）行内元素只能容纳文本或则其他行内元素。（a特殊）
 
-  <img src="media/w.jpg" />    注意：
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/w.jpg )    注意：
 
 1. 只有 文字才 能组成段落  因此 p  里面不能放块级元素，同理还有这些标签h1,h2,h3,h4,h5,h6,dt，他们都是文字类块级标签，里面不能放其他块级元素。
 2. 链接里面不能再放链接。
@@ -665,7 +664,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 （3）高度，行高、外边距以及内边距都可以控制。
 ```
 
-<img src="media/lyc.jpg" width="400" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/lyc.jpg" width="400 )
 
 ## 标签显示模式转换 display
 
@@ -685,7 +684,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 交集选择器由两个选择器构成，其中第一个为标签选择器，第二个为class选择器，两个选择器之间不能有空格，如h3.special。
 
-<img src="media/jiao.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/jiao.png )
 
 **记忆技巧：**
 
@@ -701,17 +700,17 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 并集选择器（CSS选择器分组）是各个选择器通过<strong style="color:#f00">逗号</strong>连接而成的，任何形式的选择器（包括标签选择器、class类选择器id选择器等），都可以作为并集选择器的一部分。如果某些选择器定义的样式完全相同，或部分相同，就可以利用并集选择器为它们定义相同的CSS样式。
 
-<img src="media/bing.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/bing.png )
 
 记忆技巧：
 
 并集选择器  和 的意思，  就是说，只要逗号隔开的，所有选择器都会执行后面样式。
 
-~~~
+```
 比如  .one, p , #test {color: #F00;}  表示   .one 和 p  和 #test 这三个选择器都会执行颜色为红色。  通常用于集体声明。
-~~~
+```
 
-<img src="media/hu.gif" />  他和他，在一起， 在一起    一起的意思
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/hu.gif )  他和他，在一起， 在一起    一起的意思
 
 
 
@@ -719,11 +718,11 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 后代选择器又称为包含选择器，用来选择元素或元素组的后代，其写法就是把外层标签写在前面，内层标签写在后面，中间用空格分隔。当标签发生嵌套时，内层标签就成为外层标签的后代。
 
-<img src="media/hou.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/hou.png )
 
 子孙后代都可以这么选择。 或者说，它能选择任何包含在内 的标签。 
 
-<img src="media/li.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/li.png )
 
 
 
@@ -731,7 +730,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 子元素选择器只能选择作为某元素子元素的元素。其写法就是把父级标签写在前面，子级标签写在后面，中间跟一个 &gt; 进行连接，注意，符号左右两侧各保留一个空格。
 
-<img src="media/zi1.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/zi1.png )
 
 白话：  这里的子 指的是 亲儿子  不包含孙子 重孙子之类。
 
@@ -739,7 +738,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
  比如：  .demo > h3 {color: red;}   说明  h3 一定是demo 亲儿子。  demo 元素包含着h3。
 ~~~
 
-<img src="media/san.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/san.jpg )
 
 
 
@@ -993,11 +992,11 @@ repeat-x : 　背景图像在横向上平铺
 
 repeat-y : 　背景图像在纵向平铺 
 
-<img src="media/y.png" width="600"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/y.png )
 
 设置背景图片时，默认把图片在水平和垂直方向平铺以铺满整个元素。
 
-<img src="media/q.png" width="600"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/q.png )
 
 ## 背景位置(position)
 
@@ -1139,7 +1138,7 @@ background:url(test1.jpg) no-repeat scroll 10px 20px/50px 60px  ,
     </body>
 ~~~
 
-![1498467533412](media/1498467533412.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498467533412.png)
 
 
 
@@ -1212,7 +1211,7 @@ text-decoration   通常我们用于给链接修改装饰效果
 CSS最后的执行口诀：  长江后浪推前浪，前浪死在沙滩上。
 ~~~
 
-<img src="media/hai.gif"  width="600" height="400" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/hai.gif"  width="600" height="400 )
 
 ##  CSS继承性
 
@@ -1224,7 +1223,7 @@ CSS最后的执行口诀：  长江后浪推前浪，前浪死在沙滩上。
 CSS最后的执行口诀：  龙生龙，凤生凤，老鼠生的孩子会打洞。
 ~~~
 
-<img src="media/shu.gif" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/shu.gif )
 
 注意：
 
@@ -1286,7 +1285,7 @@ a:hover      -----—>      0,0,1,1
 
 ​      
 
- <img src="media/w.jpg" /> 注意： 
+ ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/w.jpg ) 注意： 
 
 1.数位之间没有进制 比如说： 0,0,0,5 + 0,0,0,5 =0,0,0,10 而不是 0,0, 1, 0， 所以不会存在10个div能赶上一个类选择器的情况。
 
@@ -1316,13 +1315,13 @@ a:hover      -----—>      0,0,1,1
 
 网页布局中，我们是如何把里面的文字，图片，按照美工给我们的效果图排列的整齐有序呢？
 
-<img src="media/t.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/t.png )
 
 
 
 牛奶是怎样运输，让消费者购买的呢？
 
-<img src="media/m.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/m.jpg )
 
 
 
@@ -1332,27 +1331,27 @@ a:hover      -----—>      0,0,1,1
 
 
 
-<img src="media/t1.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/t1.png )
 
 
 
 CSS 其实没有太多逻辑可言 ， 类似我们小时候玩的积木,我们可以自由的，随意的摆放出我们想要的效果。
 
-<img src="media/j.jpg" width="300" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/j.jpg" width="300 )
 
 ## 盒子模型（Box Model）
 
 这里略过 老旧的ie盒子模型（IE6以下），对不起，我都没见过IE5的浏览器。 
 
-<img src="media/d.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/d.jpg )
 
 。首先，我们来看一张图，来体会下什么是盒子模型。
 
-<img src="media/box.png"  width="700" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/box.png )
 
 所有的文档元素（标签）都会生成一个矩形框，我们成为元素框（element box），它描述了一个文档元素再网页布局汇总所占的位置大小。因此，<strong style="color: #f00;">每个盒子除了有自己大小和位置外，还影响着其他盒子的大小和位置。</strong>
 
-<img src="media/boxs.png"  width="700" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/boxs.png )
 
 ## 盒子边框（border）
 
@@ -1468,7 +1467,7 @@ padding-bottom:下内边距
 
 padding-left:左内边距
 
- <img src="media/w.jpg"/>注意：  后面跟几个数值表示的意思是不一样的。
+ ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/w.jpg )注意：  后面跟几个数值表示的意思是不一样的。
 
 | 值的个数 | 表达意思                                     |
 | ---- | ---------------------------------------- |
@@ -1479,7 +1478,7 @@ padding-left:左内边距
 
 课堂案例：  新浪导航
 
-<img src="media/al.gif" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/al.gif )
 
 ## 外边距（margin）
 
@@ -1569,7 +1568,7 @@ aside {
 
 当上下相邻的两个块元素相遇时，如果上面的元素有下外边距margin-bottom，下面的元素有上外边距margin-top，则他们之间的垂直间距不是margin-bottom与margin-top之和，而是两者中的较大者。这种现象被称为相邻块元素垂直外边距的合并（也称外边距塌陷）。
 
-<img src="media/www.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/www.png )
 
 解决方案：  避免就好了。
 
@@ -1577,7 +1576,7 @@ aside {
 
 对于两个嵌套关系的块元素，如果父元素没有上内边距及边框，则父元素的上外边距会与子元素的上外边距发生合并，合并后的外边距为两者中的较大者，即使父元素的上外边距为0，也会发生合并。
 
-<img src="media/n.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/n.png )
 
 解决方案：
 
@@ -1678,7 +1677,7 @@ div:first-child {
 box-shadow:水平阴影 垂直阴影 模糊距离 阴影尺寸 阴影颜色  内/外阴影；
 ~~~
 
-![1498467567011](media/1498467567011.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498467567011.png)
 
 1. 前两个属性是必须写的。其余的可以省略。
 2. 外阴影 (outset) 但是不能写    默认      想要内阴影  inset 
@@ -1707,17 +1706,17 @@ CSS的定位机制有3种：普通流（标准流）、浮动和定位。
 
 html语言当中另外一个相当重要的概念----------标准流！或者普通流。普通流实际上就是一个网页内标签元素正常从上到下，从左到右排列顺序的意思，比如块级元素会独占一行，行内元素会按顺序依次前后排列；按照这种大前提的布局排列之下绝对不会出现例外的情况叫做普通流布局。
 
-<img src="media/t.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/t.jpg )
 
 ## 浮动(float)
 
 浮动最早是用来控制图片，以便达到其他元素（特别是文字）实现“环绕”图片的效果。
 
-<img src="media/l.png" style="width: 600px; border: 2px solid #000;"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/l.png )
 
 后来，我们发现浮动有个很有意思的事情：就是让任何盒子可以一行排列,因此我们就慢慢的偏离主题，用浮动的特性来布局了。（CSS3已经我们真正意义上的网页布局，具体CSS3我们会详细解释）
 
-<img src="media/d.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/d.png )
 
 ## 什么是浮动？
 
@@ -1744,7 +1743,7 @@ html语言当中另外一个相当重要的概念----------标准流！或者普
 ```
 
 
-   <img src="media/one.jpg" width="500" /> 
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/one.jpg" width="500 ) 
 
 
 ```
@@ -1752,7 +1751,7 @@ html语言当中另外一个相当重要的概念----------标准流！或者普
 ```
 
 
-  <img src="media/two.jpg" width="400" />
+  ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/two.jpg" width="400 )
 
 
 ```
@@ -1793,19 +1792,19 @@ float      浮 漏 特
 
 ## 一列固定宽度且居中
 
-<img src="media/yl.jpg" width="400" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/yl.jpg" width="400 )
 
 最普通的，最为常用的结构
 
 ## 两列左窄右宽型
 
-<img src="media/ll.jpg" width="400" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/ll.jpg" width="400 )
 
 比如小米    <a href="http://www.mi.com" target="_blank"> 小米官网 </a>
 
 ## 通栏平均分布型
 
-<img src="media/tl.jpg" width="600" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/tl.jpg" width="600 )
 
 比如锤子    <a href="http://www.smartisan.com/" target="_blank"> 锤子官网 </a>
 
@@ -1831,7 +1830,7 @@ float      浮 漏 特
 
 ## 为什么要清除浮动
 
-我们前面说过，浮动本质是用来做一些文字混排效果的，但是被我们拿来做布局用，则会有很多的问题出现， 但是，你不能说浮动不好 <img src="media/wq.jpg" height="100" />。  
+我们前面说过，浮动本质是用来做一些文字混排效果的，但是被我们拿来做布局用，则会有很多的问题出现， 但是，你不能说浮动不好 ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/wq.jpg" height="100 )。  
 
 由于浮动元素不再占用原文档流的位置，所以它会对后面的元素排版产生影响，为了解决这些问题，此时就需要在该元素中清除浮动。
 
@@ -1845,11 +1844,11 @@ float      浮 漏 特
 
 清除浮动主要为了解决父级元素因为子级浮动引起内部高度为0 的问题。
 
-<img src="media/n.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/n.jpg )
 
-<img src="media/no.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/no.jpg )
 
-<img src="media/kc.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/kc.jpg )
 
 ## 清除浮动的方法
 
@@ -1906,7 +1905,7 @@ float      浮 漏 特
 
 代表网站： 百度、淘宝网、网易等
 
-<img src="media/163.png" style="border: 1px dashed #3c3c3c;"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/163.png )
 
 
 
@@ -1942,7 +1941,7 @@ float      浮 漏 特
 
 # Photoshop图像处理专家
 
-![1498465020015](media/1498465020015.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498465020015.png)
 
 PS 工具是我们使用频率比较高的软件之一， 我们学习PS目的不是为了设计海报做电商和UI的，而是要求：
 
@@ -1962,7 +1961,7 @@ PS 工具是我们使用频率比较高的软件之一， 我们学习PS目的�
 
 调整浮动面板
 
-<img src="media/jiemian.png"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/jiemian.png )
 
 ## 基本操作
 
@@ -1973,7 +1972,7 @@ PS 工具是我们使用频率比较高的软件之一， 我们学习PS目的�
 
 屏幕显示： 单位  像素      72像素/英寸    RGB颜色模式
 
-<img src="media/huabu.png"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/huabu.png )
 
 2、关闭文档     CTRL+W 
 
@@ -1981,7 +1980,7 @@ PS 工具是我们使用频率比较高的软件之一， 我们学习PS目的�
 
 4、存储为  CTRL+SHIFT+S    另存一份文件
 
-<img src="media/baocun.png"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/baocun.png )
 
 5、格式：
 ​      .psd     PS源文件格式   图层、文字、样式等，可再次编辑
@@ -2006,7 +2005,7 @@ PS 工具是我们使用频率比较高的软件之一， 我们学习PS目的�
 
 ctrl + T 可以改变图像的大小
 
-<img src="media/bianhuan.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/bianhuan.png )
 
 按下enter 回车确认操作。
 
@@ -2014,7 +2013,7 @@ ctrl + T 可以改变图像的大小
 
  图层面板快捷键   F7  其实图层就是一张张透明的纸  可以实现叠加问题。
 
-<img src="media/tuceng.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/tuceng.png )
 
  图层选择： 使用移动工具V 
 
@@ -2038,7 +2037,7 @@ ctrl + T 可以改变图像的大小
 
 案例： 摆放一个自行车
 
-<img src="media/bike.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/bike.jpg )
 
 ## 图层编组
 
@@ -2052,7 +2051,7 @@ ctrl + T 可以改变图像的大小
 
   移动工具V选择组或图层时，需设置选项栏
 
-![1498465862231](media/1498465862231.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498465862231.png)
 
 ## 图层上下位置移动
 
@@ -2078,7 +2077,7 @@ ctrl+alt+z  撤销多步
 
 ctrl+e 可以合并图层
 
-<img src="media/hebing.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/hebing.png )
 
 ## 图层透明度
 
@@ -2088,7 +2087,7 @@ ctrl+e 可以合并图层
 
 填充：与不透明度效果类似
 
-![1498465905203](media/1498465905203.png))
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498465905203.png))
 
 键盘数字键，可快速设置透明度数值     
 
@@ -2096,7 +2095,7 @@ ctrl+e 可以合并图层
 
 用来选择某部分区域  我们成为选区工具 
 
-<img src="media/gongjuxiang.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/gongjuxiang.png )
 
 
 
@@ -2106,13 +2105,13 @@ ctrl+e 可以合并图层
 
 ## 颜色填充
 
-<img src="media/yanse1.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/yanse1.png )
 
-<img src="media/yanse2.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/yanse2.png )
 
 
 
-<img src="media/miqi.jpg"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/miqi.jpg )
 
 ## 套索工具 L
 
@@ -2124,19 +2123,19 @@ ctrl+e 可以合并图层
 
 ​                  DELETE删除当前点
 
-<img src="media/shiboguan.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/shiboguan.jpg )
 
 ## 磁性套索 L  
 
 L   在颜色交界的位置单击后拖动。单击起始点后，生成选区。      
 
-<img src="media/cixing.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/cixing.jpg )
 
 ## 魔棒工具   W
 
 以单击位置为选择色，选择相似颜色生成选区。
 
-![1498465928343](media/1498465928343.png) 
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498465928343.png) 
 
 容差：选择颜色的范围     容差小，颜色选择精确。    0-255
 
@@ -2152,7 +2151,7 @@ L   在颜色交界的位置单击后拖动。单击起始点后，生成选区�
 
 ## 选区布尔运算
 
-![1498465944087](media/1498465944087.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498465944087.png)
 
 选区面积大小的变化。
 
@@ -2166,7 +2165,7 @@ L   在颜色交界的位置单击后拖动。单击起始点后，生成选区�
 
 梦幻星球
 
-<img src="media/chengshi.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/chengshi.jpg )
 
 ## 钢笔工具：   P
 
@@ -2182,7 +2181,7 @@ L   在颜色交界的位置单击后拖动。单击起始点后，生成选区�
 
 曲线型路径：第一点单击，第二点拖动鼠标。
 
-<img src="media/jiu.png"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/jiu.png )
 
 
 
@@ -2200,7 +2199,7 @@ PS切图 可以 分为 手动 利用切片切图 以及 利用PS的插件快速�
 
 
 
-![1498466173246](media/1498466173246.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498466173246.png)
 
 
 
@@ -2216,7 +2215,7 @@ PS切图 可以 分为 手动 利用切片切图 以及 利用PS的插件快速�
 
    
 
-   ![1498466734205](media/1498466734205.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498466734205.png)
 
 4. 先选个一个整个的切片，  切片选择工具-- 属性面板中有 “划分”   --可以等分数平分切图
 
@@ -2235,7 +2234,7 @@ Cutterman是一款运行在photoshop中的插件，能够自动将你需要的�
 
 注意： cutterman插件要求你的ps 必须是完整版，不能是绿色版，所以大家需要从新安装完整版本。
 
-<img src="media/sample1.gif" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/sample1.gif )
 
 # 项目案例： 学成网
 
@@ -2262,15 +2261,15 @@ PS: 定位是我们CSS算是数一数二难点的了，但是，你务必要学�
 
 第一幅图， 小黄色块可以再图片上移动：
 
-<img src="media/1.gif" style="border: 1px dashed #3c3c3c;"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1.gif)
 
 第二幅图， 左右箭头压住图片：
 
-<img src="media/2.gif" style="border: 1px dashed #3c3c3c;"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/2.gif )
 
 第三幅图,  hot 再盒子外面多出一块，更加突出：
 
-<img src="media/it.png" style="border: 1px dashed #3c3c3c;"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/it.png )
 
 以上三个小地方，如果用标准流或者浮动，实现会比较复杂或者难以实现，此时我们用定位来做，just soso！
 
@@ -2321,13 +2320,13 @@ PS： 静态定位其实没啥可说的。
 刚刚看到一个超级超级帅的帅哥，看得我都忍不住想和他搞基了。世间怎会有如此之完美的男人。我和他就这样一动不动的对视着，就仿佛一见钟情。时间也在这一瞬间停止了。直到我的手麻了。才恋恋不舍的放下镜子。。。。
 ~~~
 
-<img src="media/smail.gif" width="100"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/smail.gif" width="100 )
 
 相对定位是将元素相对于它在标准流中的位置进行定位，当position属性的取值为relative时，可以将元素定位于相对位置。
 
 对元素设置相对定位后，可以通过边偏移属性改变元素的位置，但是它在文档流中的位置仍然保留。如下图所示，即是一个相对定位的效果展示：
 
-<img src="media/r.png"  />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/r.png )
 
 注意：   
 
@@ -2350,7 +2349,7 @@ PS： 静态定位其实没啥可说的。
 儿子接着说：“以后全靠你让我拼爹了！”
 ~~~
 
-<img src="media/smail.gif" width="100"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/smail.gif" width="100 )
 
 　[注意] 如果文档可滚动，绝对定位元素会随着它滚动，因为元素最终会相对于正常流的某一部分定位。
 
@@ -2362,13 +2361,13 @@ PS： 静态定位其实没啥可说的。
 
 若所有父元素都没有定位，以浏览器为准对齐(document文档)。
 
-<img src="media/ab.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/ab.png )
 
 ### 父级有定位
 
 绝对定位是将元素依据最近的已经定位（绝对、固定或相对定位）的父元素（祖先）进行定位。 
 
-<img src="media/ab1.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/ab1.png )
 
 
 
@@ -2384,7 +2383,7 @@ PS： 静态定位其实没啥可说的。
 
 但是，在我们网页布局的时候， 最常说的 子绝父相是怎么来的呢？ 请看如下图：
 
-<img src="media/zi.png"  style="border: 1px dashed #3c3c3c;"/>
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/zi.png )
 
 
 
@@ -2423,7 +2422,7 @@ PS： 静态定位其实没啥可说的。
 
 记忆法：  就类似于孙猴子， 无父无母，好不容易找到一个可靠的师傅（浏览器），就听的师傅的，别的都不听。
 
-<img src="media/sun.jpg" width="100">
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/sun.jpg" width="100">
 
 ie6等低版本浏览器不支持固定定位。
 
@@ -2431,7 +2430,7 @@ ie6等低版本浏览器不支持固定定位。
 
 当对多个元素同时设置定位时，定位元素之间有可能会发生重叠。
 
-<img src="media/zzz.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/zzz.png )
 
 在CSS中，要想调整重叠定位元素的堆叠顺序，可以对定位元素应用z-index层叠等级属性，其取值可为正整数、负整数和0。
 
@@ -2540,7 +2539,7 @@ cursor :  default  小白 | pointer  小手  | move  移动  |  text  文本
 最直接的写法是 ：  outline: 0;   或者  outline: none;
 
 ```html
- <input  type="text"  style="outline: 0;"/>
+ <input  type="text"  style="outline: 0; )
 ```
 
 ### 防止拖拽文本域resize
@@ -2567,7 +2566,7 @@ resize：none    这个单词可以防止 火狐 谷歌等浏览器随意的拖�
 
 vertical-align 垂直对齐， 这个看上去很美好的一个属性， 实际有着不可捉摸的脾气，否则我们也不会这么晚来讲解。
 
-<img src="media/xian.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/xian.jpg )
 
 ~~~css
 vertical-align : baseline |top |middle |bottom 
@@ -2577,7 +2576,7 @@ vertical-align : baseline |top |middle |bottom
 
 vertical-align 不影响块级元素中的内容对齐，它只针对于 行内元素或者行内块元素，特别是行内块元素， **通常用来控制图片/表单与文字的对齐**。
 
-![1498467742995](media/1498467742995.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498467742995.png)
 
 
 
@@ -2589,14 +2588,14 @@ vertical-align 不影响块级元素中的内容对齐，它只针对于 行内�
 
 有个很重要特性你要记住： 图片或者表单等行内块元素，他的底线会和父级盒子的基线对齐。这样会造成一个问题，就是图片底侧会有一个空白缝隙。
 
-<img src="media/3.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/3.jpg )
 
 解决的方法就是：  
 
-1. 给img vertical-align:middle | top等等。  让图片不要和基线对齐。<img src="media/1633.png"  width="500"  style="border: 1px dashed #ccc;" />
+1. 给img vertical-align:middle | top等等。  让图片不要和基线对齐。![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1633.png )
 
 
-1. 给img 添加 display：block; 转换为块级元素就不会存在问题了。<img src="media/sina1.png" width="500" style="border: 1px dashed #ccc;"/>
+1. 给img 添加 display：block; 转换为块级元素就不会存在问题了。![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/sina1.png )
 
 # 溢出的文字隐藏
 
@@ -2635,7 +2634,7 @@ ellipsis : 　当对象内文本溢出时显示省略标记（...）
 
 ### 精灵技术产生的背景
 
-<img src="media/sss.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/sss.png )
 
 图所示为网页的请求原理图，当用户访问一个网站时，需要向服务器发送请求，网页上的每张图像都要经过一次请求才能展现给用户。
 
@@ -2645,7 +2644,7 @@ ellipsis : 　当对象内文本溢出时显示省略标记（...）
 
 简单地说，CSS精灵是一种处理网页背景图像的方式。它将一个页面涉及到的所有零星背景图像都集中到一张大图中去，然后将大图应用于网页，这样，当用户访问该页面时，只需向服务发送一次请求，网页中的背景图像即可全部展示出来。通常情况下，这个由很多小的背景图像合成的大图被称为精灵图（雪碧图），如下图所示为京东网站中的一个精灵图。
 
-<img src="media/jds.png"  style="border: 1px dashed #ccc;" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/jds.png )
 
 ### 精灵技术的使用
 
@@ -2684,13 +2683,13 @@ CSS 精灵其实是将网页中的一些背景图像整合到一张大图中（�
 
 总体来说，字体图标按照如下流程：
 
-<img src="media/fontt.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/fontt.png )
 
 #### 设计字体图标
 
 假如图标是我们公司单独设计，那就需要第一步了，这个属于UI设计人员的工作， 他们在 illustrator 或 Sketch 这类矢量图形软件里创建 icon图标， 比如下图：
 
-<img src="media/03.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/03.jpg )
 
   之后保存为svg格式，然后给我们前端人员就好了。 
 
@@ -2746,9 +2745,9 @@ http://www.iconfont.cn/
 
 
 
-<img src="media/fontt1.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/fontt1.png )
 
-<img src="media/fontt2.png" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/fontt2.png )
 
 #### 字体引入到HTML
 
@@ -2756,7 +2755,7 @@ http://www.iconfont.cn/
 
 1. 首先把 以下4个文件放入到 fonts文件夹里面。 通俗的做法
 
-   ![1498032122244](media/1498032122244.png)
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498032122244.png)
 
    ##### 第一步：在样式里面声明字体： 告诉别人我们自己定义的字体
 
@@ -2797,19 +2796,19 @@ http://www.iconfont.cn/
 
    把压缩包里面的selection.json 从新上传，然后，选中自己想要新的图标，从新下载压缩包，替换原来文件即可。
 
-   <img src="media/fontt5.png" />
+   ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/fontt5.png )
 
 ## 滑动门
 
 先来体会下现实中的滑动门,或者你可以叫做推拉门：
 
-<img src="media/h.gif" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/h.gif )
 
 ### 滑动门出现的背景
 
 制作网页时，为了美观，常常需要为网页元素设置特殊形状的背景，比如微信导航栏，有凸起和凹下去的感觉，最大的问题是里面的字数不一样多，咋办？
 
-<img src="media/wxx.jpg" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/wxx.jpg )
 
 为了使各种特殊形状的背景能够自适应元素中文本内容的多少，出现了CSS滑动门技术。它从新的角度构建页面，使各种特殊形状的背景能够自由拉伸滑动，以适应元素内部的文本内容，可用性更强。 最常见于各种导航栏的滑动门。
 
@@ -2856,11 +2855,11 @@ http://www.iconfont.cn/
 
 帧动画：通过一帧一帧的画面按照固定顺序和速度播放。如电影胶片
 
-![1498445034712](media/1498445034712.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498445034712.png)
 
 
 
-<img src="media/zhen.gif" />
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/zhen.gif )
 
 在CSS3里使用transition可以实现补间动画（过渡效果），并且当前元素只要有“属性”发生变化时即存在两种状态(我们用A和B代指），就可以实现平滑的过渡，为了方便演示采用hover切换两种状态，但是并不仅仅局限于hover状态来实现过渡。
 
@@ -2889,7 +2888,7 @@ transition-duration  花费时间  单位是  秒     s    比如 0.5s    这个
 
 运动曲线示意图：
 
-![1498445454760](media/1498445454760.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498445454760.png)
 
 ~~~css
 div {
@@ -2921,7 +2920,7 @@ transform是CSS3中具有颠覆性的特征之一，可以实现元素的位移�
 
 translate 移动平移的意思
 
-![1498443715586](media/1498443715586.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498443715586.png)
 
 ```css
 translate(50px,50px);
@@ -2953,7 +2952,7 @@ translate(50px,50px);
 
 ### 缩放 scale(x, y) 
 
-![1498444645795](media/1498444645795.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498444645795.png)
 
 ```css
 transform:scale(0.8,1);
@@ -2973,7 +2972,7 @@ scaleY(y)元素仅垂直方向缩放（Y轴缩放）
 
 可以对元素进行旋转，正值为顺时针，负值为逆时针；
 
-![1498443651293](media/1498443651293.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498443651293.png)
 
 ~~~css
 transform:rotate(45deg);
@@ -2983,7 +2982,7 @@ transform:rotate(45deg);
 
 ### transform-origin可以调整元素转换变形的原点
 
-![1498443912530](media/1498443912530.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498443912530.png)
 
 ```css
  div{transform-origin: left top;transform: rotate(45deg); }  /* 改变元素原点到左上角，然后进行顺时旋转45度 */    
@@ -3040,7 +3039,7 @@ div {
 
 ### 倾斜 skew(deg, deg) 
 
-![1498443827389](media/1498443827389.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498443827389.png)
 
 ```css
 transform:skew(30deg,0deg);
@@ -3062,13 +3061,13 @@ transform:skew(30deg,0deg);
 
 伸出左手，让拇指和食指成“L”形，大拇指向右，食指向上，中指指向前方。这样我们就建立了一个左手坐标系，拇指、食指和中指分别代表X、Y、Z轴的正方向。如下图
 
-![1498445587576](media/1498445587576.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498445587576.png)
 
 
 
 CSS3中的3D坐标系与上述的3D坐标系是有一定区别的，相当于其绕着X轴旋转了180度，如下图
 
-![1498459001951](media/1498459001951.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498459001951.png)
 
 简单记住他们的坐标：
 
@@ -3082,7 +3081,7 @@ z 里面是负的， 外面是正的
 
  就是沿着 x 立体旋转.
 
-![1498445756802](media/1498445756802.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498445756802.png)
 
 ~~~css
 img {
@@ -3098,7 +3097,7 @@ img:hove {
 
 沿着y轴进行旋转
 
-![1498446043198](media/1498446043198.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498446043198.png)
 
 ~~~css
 img {
@@ -3142,13 +3141,13 @@ perspective 一般作为一个属性，设置给父元素，作用于所有3D转
 
 理解透视距离原理：
 
-![1498446715314](media/1498446715314.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498446715314.png)
 
 ### translateX(x)
 
 仅水平方向移动**（X轴移动）
 
-![1498459697576](media/1498459697576.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498459697576.png)
 
 主要目的实现移动效果
 
@@ -3156,7 +3155,7 @@ perspective 一般作为一个属性，设置给父元素，作用于所有3D转
 
 仅垂直方向移动（Y轴移动）
 
-![1498459770252](media/1498459770252.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498459770252.png)
 
 ### translateZ(z)
 
@@ -3276,7 +3275,7 @@ div {
 animation:动画名称 动画时间 运动曲线  何时开始  播放次数  是否反方向;
 ~~~
 
-![1498461096243](media/1498461096243.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498461096243.png)
 
 关于几个值，除了名字，动画时间，延时有严格顺序要求其它随意r
 
@@ -3336,7 +3335,7 @@ CSS3在布局方面做了非常大的改进，使得我们对块级元素的布�
 
 主轴和侧轴并不是固定不变的，通过flex-direction可以互换。
 
-![1498441839910](media/1498441839910.png)
+![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/web/1498441839910.png)
 
 
 
