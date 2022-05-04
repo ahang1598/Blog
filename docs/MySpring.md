@@ -1345,7 +1345,7 @@ execution(* joke(String,..)))
     </aop:config>
 ```
 
-![](img\Spring\5.png)
+![](img/Spring/5.png)
 
 
 
@@ -1518,7 +1518,7 @@ public class XmlTest {
 
 通知的配置语法：`@通知注解(“切点表达式")`
 
-![](img\Spring\6.png)
+![](img/Spring/6.png)
 
 开启切面注解
 
@@ -1816,7 +1816,7 @@ http://localhost:8080/user1
 
 
 
-![](img\Spring\Springmvc 原理.png)
+![](img/Spring/Springmvc 原理.png)
 
 ①用户发送请求至前端控制器DispatcherServlet。
 

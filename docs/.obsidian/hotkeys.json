@@ -1,0 +1,19 @@
+{
+  "table-editor-obsidian:insert-row": [
+    {
+      "modifiers": [
+        "Shift"
+      ],
+      "key": "Enter"
+    }
+  ],
+  "table-editor-obsidian:insert-column": [
+    {
+      "modifiers": [
+        "Alt",
+        "Shift"
+      ],
+      "key": "Enter"
+    }
+  ]
+}

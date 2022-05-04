@@ -953,7 +953,7 @@ var f = parseFloat("10.5");
 
 新建项目后--新建模块---为了后面的`JavaWeb`，使用现成的`webapp`去建立
 
-![0](C:\java\markdown\docs\img\Maven\use.png)
+![0](img/Maven/use.png)
 
 ### 一、安装Maven
 
@@ -963,11 +963,11 @@ var f = parseFloat("10.5");
 
 <http://maven.apache.org/download.cgi>
 
-[![img](C:\java\markdown\docs\img\Maven\download.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427142702682-1294075216.png)
+[![img](img/Maven/download.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427142702682-1294075216.png)
 
 #### 2、解压[#](https://www.cnblogs.com/desireyang/p/12787480.html#3096097145)
 
-[![img](C:\java\markdown\docs\img\Maven\release.png)](http
+[![img](img/Maven/release.png)](http
 
 #### 3、配置系统环境变量[#](https://www.cnblogs.com/desireyang/p/12787480.html#1281539771)
 
@@ -979,9 +979,9 @@ var f = parseFloat("10.5");
 
 **在Path中添加**：%MAVEN_HOME%\bin
 
-[![img](C:\java\markdown\docs\img\Maven\set1.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427143207015-948451973.png)
+[![img](img/Maven/set1.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427143207015-948451973.png)
 
-[![img](C:\java\markdown\docs\img\Maven\set2.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427152021530-107632775.png)
+[![img](img/Maven/set2.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427152021530-107632775.png)
 
 ##### 2) 第二种，直接在path中添加环境变量
 
@@ -993,19 +993,19 @@ var f = parseFloat("10.5");
 Copymvn -v
 ```
 
-[![img](C:\java\markdown\docs\img\Maven\set3.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427143559503-99393480.png)
+[![img](img/Maven/set3.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427143559503-99393480.png)
 
 ### 二、配置本地仓库[#](https://www.cnblogs.com/desireyang/p/12787480.html#348641188)
 
 #### 1、创建一个文件夹 maven-repository（存放位置自定义）[#](https://www.cnblogs.com/desireyang/p/12787480.html#3004414520)
 
-[![img](C:\java\markdown\docs\img\Maven\2.1.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427144804052-153411865.png)
+[![img](img/Maven/2.1.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427144804052-153411865.png)
 
 #### 2、修改maven配置文件，配置本地仓库[#](https://www.cnblogs.com/desireyang/p/12787480.html#3237174165)
 
 ##### 1）用编辑器打开setting.xml
 
-[![img](C:\java\markdown\docs\img\Maven\2.2.1.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427144105697-899746940.png)
+[![img](img/Maven/2.2.1.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427144105697-899746940.png)
 
 ##### 2）找到<localRepository>标签
 
@@ -1015,7 +1015,7 @@ localRepository用于配置本地仓库，本地仓库其实起到了一个缓�
 
 aven中获取jar包的时候，maven首先会在本地仓库中查找，如果本地仓库有则返回；如果没有则从远程仓库中获取包，并在本地库中保存。
 
-[![img](C:\java\markdown\docs\img\Maven\2.2.2.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427145231310-43498643.png)
+[![img](img/Maven/2.2.2.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427145231310-43498643.png)
 
 ##### 3）修改为配置的本地仓库地址
 
@@ -1025,7 +1025,7 @@ Copy/path/to/local/repo
 D:\Program Files\maven-repository
 ```
 
-[![img](C:\java\markdown\docs\img\Maven\2.2.3.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427144952823-985659228.png)
+[![img](img/Maven/2.2.3.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427144952823-985659228.png)
 
 ### 三、配置国内仓库[#](https://www.cnblogs.com/desireyang/p/12787480.html#4042946063)
 
@@ -1033,7 +1033,7 @@ D:\Program Files\maven-repository
 
 #### 2、找到<misrrors>标签[#](https://www.cnblogs.com/desireyang/p/12787480.html#3893383766)
 
-[![img](C:\java\markdown\docs\img\Maven\3.2.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427145606617-1139492814.png)
+[![img](img/Maven/3.2.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427145606617-1139492814.png)
 
 #### 3、在<misrrors>标签内添加<misrrors>[#](https://www.cnblogs.com/desireyang/p/12787480.html#2562130207)
 
@@ -1046,7 +1046,7 @@ Copy<mirror>
 </mirror>
 ```
 
-[![img](C:\java\markdown\docs\img\Maven\3.3.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427162450230-1117285470.png)
+[![img](img/Maven/3.3.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427162450230-1117285470.png)
 
 ### 4.错误解决
 
@@ -1066,13 +1066,13 @@ Copy<mirror>
 Copymvn help:system
 ```
 
-[![img](C:\java\markdown\docs\img\Maven\4.1.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427160601946-1310561395.png)
+[![img](img/Maven/4.1.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427160601946-1310561395.png)
 
 2) 可以看到，下载源就是刚刚配置的阿里云仓库
 
 3) 打开我们自己的maven仓库可以看到刚才下载的一些jar文件
 
-[![img](C:\java\markdown\docs\img\Maven\4.3.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427160915041-827440779.png)
+[![img](img/Maven/4.3.png)](https://img2020.cnblogs.com/blog/1895590/202004/1895590-20200427160915041-827440779.png)
 
 
 

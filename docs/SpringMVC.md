@@ -245,7 +245,7 @@ DispatcherServlet的作用是将请求分发到不同的处理器。从Spring 2.
 
 ### 2.3、SpringMVC执行原理
 
-![Springmvc原理](C:\java\markdown\docs\img\Spring\Springmvc 原理.png)
+![Springmvc原理](img/Spring/Springmvc 原理.png)
 
 图为SpringMVC的一个较完整的流程图，实线表示SpringMVC框架提供的技术，不需要开发者实现，虚线表示需要开发者实现。
 

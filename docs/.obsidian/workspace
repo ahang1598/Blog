@@ -1,0 +1,130 @@
+{
+  "main": {
+    "id": "d4232769a58af498",
+    "type": "split",
+    "children": [
+      {
+        "id": "f9c692b01cb21f62",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "MySQL.md",
+            "mode": "source",
+            "source": false
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "c7acb52bf5b9fab6",
+    "type": "split",
+    "children": [
+      {
+        "id": "6f6a44409dcfd6e7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b7403b8e429c41a8",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "84fe764efdbdcbf1",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": true,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 280,
+    "collapsed": true
+  },
+  "right": {
+    "id": "7fa91884506cf4c7",
+    "type": "split",
+    "children": [
+      {
+        "id": "5dc58866f8a4cbbc",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9d35d9bd4b21c68f",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "MySQL.md",
+                "collapseAll": true,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": true,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "a7ae10304e56a9be",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "MySQL.md"
+              }
+            }
+          },
+          {
+            "id": "7020da6c74dc2e0d",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {}
+            }
+          },
+          {
+            "id": "83bf1c0e5d413bd1",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {}
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "horizontal",
+    "width": 260
+  },
+  "active": "f9c692b01cb21f62",
+  "lastOpenFiles": [
+    "MySQL.md",
+    "2022-05-04.md",
+    "SpringMVC.md",
+    "java多线程.md",
+    "Git.md",
+    "CSS.md",
+    "Redis.md",
+    "MySpring.md",
+    "JavaWeb.md",
+    "java基础.md"
+  ]
+}

@@ -21,7 +21,7 @@ MySQL 支持 ACID 特性，保证可靠性和持久性，读取性能不高，�
 
 常见的 Nosql：Redis、memcache、HBase、MongoDB
 
-![](img\redis\电商场景解决方案.png)
+![](img/redis/电商场景解决方案.png)
 
 
 
@@ -340,7 +340,7 @@ Redis 并没有直接使用数据结构来实现键值对数据库，而是基�
 
 Redis 自身是一个 Map，其中所有的数据都是采用 key : value 的形式存储，**键对象都是字符串对象**，而值对象有五种基本类型和三种高级类型对象
 
-![](img\redis\Redis-对象模型.png)
+![](img/redis/Redis-对象模型.png)
 
 
 
@@ -391,9 +391,9 @@ io-threads-do-reads yesCopy to clipboardErrorCopied
 io-threads 4 #官网建议4核的机器建议设置为2或3个线程，8核的建议设置为6个线程
 ```
 
-<img src="img\redis\Redis-多线程.png" style="zoom:80%;" />
+<img src="img/redis/Redis-多线程.png" style="zoom:80%;" />
 
-
+![](img/redis/Redis-多线程.png)
 
 参考文章：https://mp.weixin.qq.com/s/dqmiR0ECf4lB6Y2OyK-dyA
 
@@ -552,7 +552,7 @@ Redis 发布订阅（pub/sub）是一种消息通信模式：发送者（pub）�
 
 Redis 客户端可以订阅任意数量的频道
 
-![](img\redis\Redis-发布订阅.png)
+![](img/redis/Redis-发布订阅.png)
 
 操作命令：
 
@@ -560,7 +560,7 @@ Redis 客户端可以订阅任意数量的频道
 2. 打开另一个客户端，给 channel1发布消息 hello：`publish channel1 hello`
 3. 第一个客户端可以看到发送的消息
 
-<img src="img\redis\Redis-发布订阅指令操作.png" style="zoom:67%;" />
+<img src="img/redis/Redis-发布订阅指令操作.png" style="zoom:67%;" />
 
 注意：发布的消息没有持久化，所以订阅的客户端只能收到订阅后发布的消息
 
@@ -574,7 +574,7 @@ Redis 客户端可以订阅任意数量的频道
 
 Redis ACL 是 Access Control List（访问控制列表）的缩写，该功能允许根据可以执行的命令和可以访问的键来限制某些连接
 
-![](img\redis\Redis-ACL指令.png)
+![](img/redis/Redis-ACL指令.png)
 
 * acl cat：查看添加权限指令类别
 * acl whoami：查看当前用户
@@ -601,7 +601,7 @@ Redis ACL 是 Access Control List（访问控制列表）的缩写，该功能�
 
 存储内容：通常使用字符串，如果字符串以整数的形式展示，可以作为数字操作使用
 
-<img src="img\redis\Redis-string结构图.png" style="zoom:50%;" />
+<img src="img/redis/Redis-string结构图.png" style="zoom:50%;" />
 
 Redis 所有操作都是**原子性**的，采用**单线程**机制，命令是单个顺序执行，无需考虑并发带来影响，原子性就是有一个失败则都失败
 
@@ -710,7 +710,7 @@ OK
 * 单数据执行 3 条指令的过程：3 次发送 + 3 次处理 + 3次返回
 * 多数据执行 1 条指令的过程：1 次发送 + 3 次处理 + 1次返回（发送和返回的事件略高于单数据）
 
-<img src="img\redis\string单数据与多数据操作.png" style="zoom: 33%;" />
+<img src="img/redis/string单数据与多数据操作.png" style="zoom: 33%;" />
 
 
 
@@ -768,7 +768,7 @@ struct sdshdr{
 }
 ```
 
-![](img\redis\Redis-string数据结构.png)
+![](img/redis/Redis-string数据结构.png)
 
 内部为当前字符串实际分配的空间 capacity 一般要高于实际字符串长度 len，当字符串长度小于 1M 时，扩容都是双倍现有的空间，如果超过 1M，扩容时一次只会多扩 1M 的空间，需要注意的是字符串最大长度为 512M
 
@@ -792,7 +792,7 @@ struct sdshdr{
 
 hash 类型：底层使用**哈希表**结构实现数据存储
 
-<img src="img\redis\hash结构图.png" style="zoom: 33%;" />
+<img src="img/redis/hash结构图.png" style="zoom: 33%;" />
 
 Redis 中的 hash 类似于 Java 中的  `Map<String, Map<Object,object>>`，左边是 key，右边是值，中间叫 field 字段，本质上 **hash 存了一个 key-value 的存储空间**
 
@@ -896,7 +896,7 @@ user:id:3506728370 → {"name":"春晚","fans":12210862,"blogs":83}
 
 假如现在粉丝数量发生了变化，要把整个值都改变，但是用单条存就不存在这个问题，只需要改其中一个就可以
 
-<img src="img\redis\hash应用场景结构图.png" style="zoom: 33%;" />
+<img src="img/redis/hash应用场景结构图.png" style="zoom: 33%;" />
 
 可以实现购物车的功能，key 对应着每个用户，存储空间存储购物车的信息
 
@@ -941,7 +941,7 @@ ziplist 使用更加紧凑的结构实现多个元素的连续存储，所以在
 
 压缩列表（ziplist）是列表和哈希的底层实现之一，压缩列表用来紧凑数据存储，节省内存，有序：
 
-<img src="img\redis\Redis-压缩列表数据结构.png" style="zoom:67%;" />
+<img src="img/redis/Redis-压缩列表数据结构.png" style="zoom:67%;" />
 
 压缩列表是由一系列特殊编码的连续内存块组成的顺序型（sequential）数据结枃，一个压缩列表可以包含任意多个节点（entry），每个节点可以保存一个字节数组或者一个整数值
 
@@ -974,7 +974,7 @@ Redis 字典使用散列表为底层实现，一个散列表里面有多个散�
 
 list 类型：保存多个数据，底层使用**双向链表**存储结构实现，类似于 LinkedList
 
-<img src="img\redis\list结构图.png" style="zoom:33%;" />
+<img src="img/redis/list结构图.png" style="zoom:33%;" />
 
 如果两端都能存取数据的话，这就是双端队列，如果只能从一端进一端出，这个模型叫栈
 
@@ -1060,7 +1060,7 @@ list 类型：保存多个数据，底层使用**双向链表**存储结构实�
 
 企业运营过程中，系统将产生出大量的运营数据，如何保障多台服务器操作日志的统一顺序输出？
 
-![image-20220222112409951](img\redis\image-20220222112409951.png)
+![image-20220222112409951](img/redis/image-20220222112409951.png)
 
 * 依赖 list 的数据具有顺序的特征对信息进行管理，右进左查或者左近左查
 *  使用队列模型解决多路信息汇总合并的问题
@@ -1107,7 +1107,7 @@ typedef struct listNode{
 } listNode;
 ```
 
-![](img\redis\Redis-链表数据结构.png)
+![](img/redis/Redis-链表数据结构.png)
 
 - 双向：链表节点带有前驱、后继指针，获取某个节点的前驱、后继节点的时间复杂度为 O(1)
 - 无环：链表为非循环链表，表头节点的前驱指针和表尾节点的后继指针都指向 NULL，对链表的访问以 NULL 为终点
@@ -1122,7 +1122,7 @@ typedef struct listNode{
 
 quicklist 实际上是 ziplist 和 linkedlist 的混合体，将 linkedlist 按段切分，每一段使用 ziplist 来紧凑存储，多个 ziplist 之间使用双向指针串接起来，既满足了快速的插入删除性能，又不会出现太大的空间冗余
 
-<img src="img\redis\Redis-快速列表数据结构.png" style="zoom: 50%;" />
+<img src="img/redis/Redis-快速列表数据结构.png" style="zoom: 50%;" />
 
 
 
@@ -1140,7 +1140,7 @@ quicklist 实际上是 ziplist 和 linkedlist 的混合体，将 linkedlist 按�
 
 set 类型：与 hash 存储结构哈希表完全相同，只是仅存储键不存储值（nil），所以添加，删除，查找的复杂度都是 O(1)，并且**值是不允许重复且无序的**
 
-<img src="img\redis\set结构图.png" style="zoom: 33%;" />
+<img src="img/redis/set结构图.png" style="zoom: 33%;" />
 
 
 
@@ -1287,7 +1287,7 @@ set 类型：与 hash 存储结构哈希表完全相同，只是仅存储键不�
 
 sorted_set类型：在 set 的存储结构基础上添加可排序字段，类似于 TreeSet
 
-<img src="img\redis\Redis-sorted_set结构图.png" style="zoom: 67%;" />
+<img src="img/redis/Redis-sorted_set结构图.png" style="zoom: 67%;" />
 
 
 
@@ -1596,7 +1596,7 @@ redis 应用于地理位置计算
 
 针对非会员用户提供每分钟10次调用服务接口的服务
 
-![image-20220222153926066](img\redis\image-20220222153926066.png)
+![image-20220222153926066](img/redis/image-20220222153926066.png)
 
 
 
@@ -1606,7 +1606,7 @@ redis 应用于地理位置计算
 > 送消息时，该排序会不停的进行交替。同时还可以将重要的会话设置为置顶。一旦用户离线后，再次打开微
 > 信时，消息该按照什么样的顺序显示？
 
-![image-20220222155022208](img\redis\image-20220222155022208.png)
+![image-20220222155022208](img/redis/image-20220222155022208.png)
 
 - 依赖list的数据具有顺序的特征对消息进行管理，将list结构作为栈使用
 - 对置顶与普通会话分别创建独立的list分别管理
@@ -1815,7 +1815,7 @@ public JedisPool(GenericObjectPoolConfig poolConfig, String host, int port) {
 # 自动配置类都会绑定一个 properties 配置文件。  RedisProperties
 ~~~
 
-![1588351399447](img\redis\YycBTJ.png)
+![1588351399447](img/redis/YycBTJ.png)
 
 ```java
 @Configuration
@@ -2050,7 +2050,7 @@ public void test() throws JsonProcessingException {
 
 Redis Desktop Manager
 
-<img src="img\redis\Redis-可视化工具.png" style="zoom:80%;" />
+<img src="img/redis/Redis-可视化工具.png" style="zoom:80%;" />
 
 
 
@@ -2069,7 +2069,7 @@ Redis Desktop Manager
 作用：持久化用于防止数据的意外丢失，确保数据安全性，因为 Redis 是内存级，所以需要持久化到磁盘
 
 计算机中的数据全部都是二进制，保存一组数据有两种方式
-<img src="img\redis\Redis-持久化的两种方式.png" style="zoom: 33%;" />
+<img src="img/redis/Redis-持久化的两种方式.png" style="zoom: 33%;" />
 
 第一种：将当前数据状态进行保存，快照形式，存储数据结果，存储格式简单
 
@@ -2230,7 +2230,7 @@ AOF（append only file）持久化：以独立日志的方式记录每次写命�
 AOF 主要作用是解决了数据持久化的实时性，目前已经是 Redis 持久化的主流方式
 
 AOF 写数据过程：
-![](img\redis\Redis-AOF工作原理.png)
+![](img/redis/Redis-AOF工作原理.png)
 
 
 
@@ -2325,7 +2325,7 @@ AOF 重写规则：
 
   原理分析：
 
-  ![](img\redis\Redis-AOF手动重写原理.png)
+  ![](img/redis/Redis-AOF手动重写原理.png)
 
 * 自动重写
 
@@ -2360,11 +2360,11 @@ AOF 重写规则：
 
 持久化流程：
 
-![](img\redis\Redis-AOF重写流程1.png)
+![](img/redis/Redis-AOF重写流程1.png)
 
 重写流程：
 
-![](img\redis\Redis-AOF重写流程2.png)
+![](img/redis/Redis-AOF重写流程2.png)
 
 使用**新的 AOF 文件覆盖旧的 AOF 文件**，完成 AOF 重写
 
@@ -2488,7 +2488,7 @@ count: 1
 #include <unistd.h>  #include <stdio.h>  int main(void)  {     int i = 0;     // ppid 指当前进程的父进程pid     // pid 指当前进程的pid,     // fpid 指fork返回给当前进程的值，在这可以表示子进程   for(i = 0; i < 2; i++){         pid_t fpid = fork();         if(fpid == 0)             printf("%d child  %4d %4d %4d/n",i, getppid(), getpid(), fpid);         else             printf("%d parent %4d %4d %4d/n",i, getppid(), getpid(),fpid);     }     return 0;  } /*输出内容：	i        父id  id  子id	0 parent 2043 3224 3225    0 child  3224 3225    0    1 parent 2043 3224 3226    1 parent 3224 3225 3227    1 child     1 3227    0    1 child     1 3226    0 */
 ```
 
-<img src="img\redis\Redis-fork函数使用演示.png" style="zoom: 80%;" />
+<img src="img/redis/Redis-fork函数使用演示.png" style="zoom: 80%;" />
 
 在 p3224 和 p3225 执行完第二个循环后，main 函数退出，进程死亡。所以 p3226，p3227 就没有父进程了，成为孤儿进程，所以 p3226 和 p3227 的父进程就被置为 ID 为 1的 init 进程（笔记 Tool → Linux → 进程管理详解）
 
@@ -2508,7 +2508,7 @@ fork() 调用之后父子进程的内存关系
 
 * 父子进程的代码段是相同的，所以代码段是没必要复制的，只需内核将代码段标记为只读，父子进程就共享此代码段。fork() 之后在进程创建代码段时，子进程的进程级页表项都指向和父进程相同的物理页帧
 
-  <img src="img\redis\Redis-fork以后内存关系1.png" style="zoom: 67%;" />
+  <img src="img/redis/Redis-fork以后内存关系1.png" style="zoom: 67%;" />
 
 * 对于父进程的数据段，堆段，栈段中的各页，由于父子进程要相互独立，采用**写时复制**的技术，来提高内存以及内核的利用率
 
@@ -2516,7 +2516,7 @@ fork() 调用之后父子进程的内存关系
 
   fork 之后内核会将子进程放在队列的前面，让子进程先执行，以免父进程执行导致写时复制，而后子进程再执行，因无意义的复制而造成效率的下降
 
-  <img src="img\redis\Redis-fork以后内存关系2.png" style="zoom:67%;" />
+  <img src="img/redis/Redis-fork以后内存关系2.png" style="zoom:67%;" />
 
 补充知识：
 
@@ -2578,17 +2578,17 @@ Redis 事务的三大特性：
 
 事务机制整体工作流程：
 
-![](img\redis\Redis-事务的工作流程.png)
+![](img/redis/Redis-事务的工作流程.png)
 
 几种常见错误：
 
 * 定义事务的过程中，命令格式输入错误，出现语法错误造成，**整体事务中所有命令均不会执行**，包括那些语法正确的命令
 
-  <img src="img\redis\Redis-事务中出现语法错误.png" style="zoom:80%;" />
+  <img src="img/redis/Redis-事务中出现语法错误.png" style="zoom:80%;" />
 
 * 定义事务的过程中，命令执行出现错误，例如对字符串进行 incr 操作，能够正确运行的命令会执行，运行错误的命令不会被执行
 
-  <img src="img\redis\Redis-事务中出现执行错误.png" style="zoom:80%;" />
+  <img src="img/redis/Redis-事务中出现执行错误.png" style="zoom:80%;" />
 
 * 已经执行完毕的命令对应的数据不会自动回滚，需要程序员在代码中实现回滚，应该尽可能避免：
 
@@ -2800,7 +2800,7 @@ TTL 返回的值有三种情况：正数，-1，-2
 
 过期数据是一块独立的存储空间，Hash 结构，field 是内存地址，value 是过期时间，保存了所有 key 的过期描述，在最终进行过期处理的时候，对该空间的数据进行检测， 当时间到期之后通过 field 找到内存该地址处的数据，然后进行相关操作
 
-<img src="img\redis\Redis-时效性数据的存储结构.png" style="zoom:67%;" />
+<img src="img/redis/Redis-时效性数据的存储结构.png" style="zoom:67%;" />
 
 
 
@@ -2887,7 +2887,7 @@ TTL 返回的值有三种情况：正数，-1，-2
 * 参数 current_db 用于记录 activeExpireCycle() 进入哪个expires[*] 执行
 * 如果 activeExpireCycle() 执行时间到期，下次从 current_db 继续向下执行
 
-<img src="img\redis\Redis-定期删除.png" style="zoom: 67%;" />
+<img src="img/redis/Redis-定期删除.png" style="zoom: 67%;" />
 
 定期删除特点：
 
@@ -3055,7 +3055,7 @@ Redis 如果不设置最大内存大小或者设置最大内存大小为 0，在
 
 * 解决方案：为了避免单点 Redis 服务器故障，准备多台服务器，互相连通。将数据复制多个副本保存在不同的服务器上连接在一起，并保证数据是同步的。即使有其中一台服务器宕机，其他服务器依然可以继续提供服务，实现 Redis 高可用，同时实现数据冗余备份
 
-  <img src="img\redis\Redis-主从复制多台服务器连接方案.png" style="zoom: 80%;" />
+  <img src="img/redis/Redis-主从复制多台服务器连接方案.png" style="zoom: 80%;" />
 
 
 
@@ -3071,7 +3071,7 @@ Redis 如果不设置最大内存大小或者设置最大内存大小为 0，在
 * 数据同步阶段
 * 命令传播阶段
 
-![](img\redis\Redis-主从复制工作流程.png)
+![](img/redis/Redis-主从复制工作流程.png)
 
 
 
@@ -3102,7 +3102,7 @@ Redis 如果不设置最大内存大小或者设置最大内存大小为 0，在
 
 * 主从之间创建了连接的 socket
 
-<img src="img\redis\Redis-主从复制建立连接.png" style="zoom: 80%;" />
+<img src="img/redis/Redis-主从复制建立连接.png" style="zoom: 80%;" />
 
 
 
@@ -3222,7 +3222,7 @@ Redis 如果不设置最大内存大小或者设置最大内存大小为 0，在
 
 * 主从之间完成了数据克隆
 
-<img src="img\redis\Redis-主从复制数据同步.png" style="zoom:80%;" />
+<img src="img/redis/Redis-主从复制数据同步.png" style="zoom:80%;" />
 
 
 
@@ -3316,7 +3316,7 @@ Redis 如果不设置最大内存大小或者设置最大内存大小为 0，在
 - master 记录已发送的信息对应的 offset
 - slave 记录已接收的信息对应的 offset
 
-<img src="img\redis\Redis-主从复制复制缓冲区原理.png" style="zoom:67%;" />
+<img src="img/redis/Redis-主从复制复制缓冲区原理.png" style="zoom:67%;" />
 
 
 
@@ -3328,7 +3328,7 @@ Redis 如果不设置最大内存大小或者设置最大内存大小为 0，在
 
 全量复制/部分复制
 
-![](img\redis\Redis-主从复制流程更新.png)
+![](img/redis/Redis-主从复制流程更新.png)
 
 
 
@@ -3477,7 +3477,7 @@ slave 与 master 连接断开
 
 哨兵（sentinel）是一个分布式系统，用于对主从结构中的每台服务器进行**监控**，当出现故障时通过**投票机制选择**新的 master 并将所有 slave 连接到新的 master
 
-<img src="img\redis\Redis-哨兵模式.png" style="zoom:67%;" />
+<img src="img/redis/Redis-哨兵模式.png" style="zoom:67%;" />
 
 哨兵的作用：
 
@@ -3581,7 +3581,7 @@ sentinel 1 首先连接 master，建立 cmd 通道，根据主节点访问从节
 
 sentinel 2 首先连接 master，然后通过 master 中的 sentinels 发现其他哨兵，然后寻找哨兵建立连接，哨兵之间同步数据
 
-<img src="img\redis\Redis-哨兵模式监控工作原理.png" style="zoom:67%;" />
+<img src="img/redis/Redis-哨兵模式监控工作原理.png" style="zoom:67%;" />
 
 
 
@@ -3593,7 +3593,7 @@ sentinel 2 首先连接 master，然后通过 master 中的 sentinels 发现其�
 
 sentinel 在通知阶段不断的去获取 master/slave 的信息，然后在各个 sentinel 之间进行共享，流程如下：
 
-![](img\redis\Redis-哨兵模式通知工作流程.png)
+![](img/redis/Redis-哨兵模式通知工作流程.png)
 
 
 
@@ -3609,13 +3609,13 @@ sentinel 在通知阶段不断的去获取 master/slave 的信息，然后在各
 
   sentinel1 检测到 master 下线后会做 flag:SRI_S_DOWN 标志，此时 master 的状态是主观下线，并通知其他哨兵，其他哨兵也会尝试与 master 连接，如果大于 (n/2) + 1 个sentinel 检测到 master 下线，就达成共识更改 flag，此时 master 的状态是客观下线
 
-  ![](img\redis\Redis-哨兵模式故障转移工作流程1.png)
+  ![](img/redis/Redis-哨兵模式故障转移工作流程1.png)
 
 * 当 sentinel 认定 master 下线之后，此时需要决定更换 master，选举某个 sentinel 处理事故
 
   在选举的时候每一个 sentinel 都有一票，于是每个 sentinel 都会发出一个指令，在内网广播要做主持人；比如 sentinel1 和 sentinel4 发出这个选举指令了，那么 sentinel2 既能接到 sentinel1 的也能接到 sentinel4 的，sentinel2 会把一票投给其中一方，投给指令最先到达的 sentinel。选举最终得票多的，就成为了处理事故的哨兵，需要注意在这个过程中有可能会存在失败的现象，就是一轮选举完没有选取，那就会接着进行第二轮第三轮直到完成选举。
 
-  ![](img\redis\Redis-哨兵模式故障转移工作流程2.png)
+  ![](img/redis/Redis-哨兵模式故障转移工作流程2.png)
 
 选择新的 master，在服务器列表中挑选备选 master 的原则：
 
@@ -3645,7 +3645,7 @@ sentinel 在通知阶段不断的去获取 master/slave 的信息，然后在各
 
 集群就是使用网络将若干台计算机联通起来，并提供统一的管理方式，使其对外呈现单机的服务效果
 
-![](img\redis\Redis-集群图示.png)
+![](img/redis/Redis-集群图示.png)
 
 **集群作用：**
 
@@ -3675,7 +3675,7 @@ sentinel 在通知阶段不断的去获取 master/slave 的信息，然后在各
 
 3. 将 key 按照计算出的结果放到对应的存储空间
 
-   <img src="img\redis\Redis-集群存储空间.png" style="zoom: 67%;" />
+   <img src="img/redis/Redis-集群存储空间.png" style="zoom: 67%;" />
 
 查找数据：
 
@@ -3685,7 +3685,7 @@ sentinel 在通知阶段不断的去获取 master/slave 的信息，然后在各
 
 设置数据：系统默认存储到某一个
 
-<img src="img\redis\Redis-集群查找数据.png" style="zoom:67%;" />
+<img src="img/redis/Redis-集群查找数据.png" style="zoom:67%;" />
 
 
 
@@ -4204,7 +4204,7 @@ Redis 中的监控指标如下：
   redis-benchmark -c 100 -n 5000
   ```
 
-  ![](img\redis\Redis-redis-benchmark指令.png)
+  ![](img/redis/Redis-redis-benchmark指令.png)
 
 * redis-cli
 

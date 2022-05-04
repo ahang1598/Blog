@@ -95,8 +95,9 @@ Linux下忘记密码修改：
 
 第三范式：在2NF基础上，任何非主属性不依赖于其它非主属性（在2NF基础上消除传递依赖）
 					：一个表中不能包含其他相关表中非关键字段的信息,即数据表不能有冗余字段
+					
 
-![image-20220428091348985](img\MySQL\image-20220428091348985.png)
+![image-20220428091348985](img/MySQL/image-20220428091348985.png)
 
 ## 2.2 反范式
 
@@ -104,7 +105,28 @@ Linux下忘记密码修改：
 
 将多个分隔的符合第三范式的表通过主键连接一张表，减少后面操作时对表的连接成本，而且可以建立更多符合搜索条件的索引。但是增加了空间。
 
-![image-20220428091357390](img\MySQL\image-20220428091357390.png)
+![image-20220428091357390](img/MySQL/image-20220428091357390.png)
+
+## 2.3 设置范围`global,session`
+
+ `GLOBAL` 关键字（在全局范围影响，已存会话无效）
+
+- 只对执行完该语句之后产生的会话起作用。
+- 当前已经存在的会话无效
+
+ `SESSION` 关键字（当前会话范围影响）
+
+- 对当前会话的所有后续的事务有效
+- 该语句可以在已经开启的事务中间执行，但不会影响当前正在执行的事务。
+- 如果在事务之间执行，则对后续的事务有效。
+
+默认不写时：（下一个用完即恢复）
+
+- 只对当前会话中下一个即将开启的事务有效。
+- 下一个事务执行完后，后续事务将恢复到之前的隔离级别。
+- 该语句不能在已经开启的事务中间执行，会报错的。
+
+
 
 
 
@@ -646,7 +668,7 @@ from customers order by cust_name;
 
 ### 4.2.11 内联结
 
-![](img\MySQL\sql-join.png)
+![](img/MySQL/sql-join.png)
 
 可以联结两个表
 
@@ -791,6 +813,7 @@ ORDER BY s1.salary DESC,
 ### 4.2.16 @与@@
 
 `@自定义变量`定义一个本地变量
+通过`DECLARE @Counter INT`声明一个变量及类型
 
 ```mysql
 mysql> set @a = 1;
@@ -848,6 +871,89 @@ mysql> select @@character_set_database;
 +--------------------------+
 ```
 
+### 4.2.17 NULL查询
+任何和`NULL`值做比较的表达式的值都为`NULL`，就是这样：
+    
+```mysql
+    mysql> SELECT 1 = NULL;
+    +----------+
+    | 1 = NULL |
+    +----------+
+    |     NULL |
+    +----------+
+    1 row in set (0.00 sec)
+    
+    mysql> SELECT 1 != NULL;
+    +-----------+
+    | 1 != NULL |
+    +-----------+
+    |      NULL |
+    +-----------+
+    1 row in set (0.00 sec)
+    
+    mysql> SELECT NULL = NULL;
+    +-------------+
+    | NULL = NULL |
+    +-------------+
+    |        NULL |
+    +-------------+
+    1 row in set (0.00 sec)
+    
+    mysql> SELECT NULL != NULL;
+    +--------------+
+    | NULL != NULL |
+    +--------------+
+    |         NULL |
+    +--------------+
+    1 row in set (0.00 sec)
+```
+
+
+现有一张表
+```mysql
+mysql> select * from t;
++------+------+
+| id   | c    |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    3 |
+| NULL | NULL |
++------+------+
+```
+
+删除表中为`NULL`的行，对`NULL`判断必须要用`is`和`is not`
+
+如果用`id = NULL`来判断得到不是`true or false`，而是`null` 
+
+```mysql
+mysql> delete from t where id = null;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from t;
++------+------+
+| id   | c    |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    3 |
+| NULL | NULL |
++------+------+
+4 rows in set (0.00 sec)
+
+mysql> delete from t where id is null;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from t;
++------+------+
+| id   | c    |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    3 |
++------+------+
+
+```
 
 
 
@@ -940,7 +1046,7 @@ CREATE TABLE 表名(属性名 数据类型 [完整性约束条件]，
 
 **创建普通索引**
 
-创建一个普通索索时，不需要加任何UNIQUE、 FULLTEXT或者SPATIRL参数。
+创建一个普通索引时，不需要加任何UNIQUE、 FULLTEXT或者SPATIRL参数。
 
 创建一个表名为index1的表，在表中的id字段上建立索引。
 
@@ -976,7 +1082,7 @@ mysql> CREATE TABLE index2(
 全文索引只能创建在CHAR、VARCHAR或TEXT类型的字段上，而且**只有MyISAM存储引擎支持**全文索引
 
 //创建一个表名为index3的表，在表中的info字段上建立名为index3_info的全文索引
-
+```mysql
 mysql> CREATE TABLE index3(
 
   -> id INT,
@@ -986,6 +1092,7 @@ mysql> CREATE TABLE index3(
   -> FULLTEXT INDEX index3_info(info)
 
   -> )ENGINE=MyISAM;
+```
 
 **创建单列索引**
 
@@ -1094,6 +1201,28 @@ DROP INDEX 索引名 ON 表名
 
 
 
+## 4.7 视图
+
+ 视图是从一个或多个实际表中获得的，这些表的数据存放在数据库中。那些用于产生视图的表叫做该视图的基表。视图也可以从视图中获取，但是嵌套获取效率低。
+
+视图不能索引，也不能有关联的触发器或默认值。
+
+视图可以和表一起使用。例如，编写一条联结表和视图的 SELECT语句。
+
+视图是可更新的（即，可以对它们使用 INSERT 、 UPDATE 和DELETE ）。更新一个视图将更新其基表（可以回忆一下，视图本身没有数据）。如果你对视图增加或删除行，实际上是对其基表增加或删除行。
+
+但是，并非所有视图都是可更新的。基本上可以说，如果MySQL不能正确地确定被更新的基数据，则不允许更新（包括插入和删除）。这实际上意味着，如果视图定义中有以下操作，则不能进行视图的更新：
+
+- 分组（使用 GROUP BY 和 HAVING ）；
+- 联结；
+- 子查询；
+- 并；
+- 聚集函数（ Min() 、 Count() 、 Sum() 等）；
+- DISTINCT
+- 导出（计算）列
+
+
+
 
 
 # 5.SQL优化
@@ -1112,7 +1241,7 @@ MySQ使用 `explain + sq语句`查看 执行计划，该执行计划不一定完
 EXPLAIN SELECT * FROM user WHERE nid = 3;
 ```
 
-![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181218161456575-1277410542.png)
+![img](img/MySQL/1334255-20181218161456575-1277410542.png)
 
 列名 |描述
 --|--
@@ -1148,11 +1277,11 @@ Extra |一些额外的信息
 
  
 
-UNION 子句的查询语句来说，每个 SELECT 关键字对应一个 id 值，同时有一个id = NULL的临时表，但是对于 UNION AL就不需要为最终的结果集进行去重，也就没有该NULL的临时表
+`UNION 子句`的查询语句来说，每个 SELECT 关键字对应一个 id 值，同时有一个id = NULL的临时表，但是对于 `UNION ALL`就不需要为最终的结果集进行去重，也就没有该NULL的临时表
 
 `EXPLAIN SELECT * FROM s1 UNION SELECT * FROM s2`
 
-![image-20220427103042364](img\MySQL\image-20220427103042364.png)
+![image-20220427103042364](img/MySQL/image-20220427103042364.png)
 
 ### selct_type
 
@@ -1303,29 +1432,38 @@ mysql> SELECT * FROM user WHERE emai= 'klvchen123@126.com' LIMIT 1;
    ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219104551833-174899627.png)
    `使用索引`
    ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219114640747-1725821256.png)
+
 2. or 条件中有未建立索引的列才,索引失效
    `没用使用索引`
    ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219115507465-1096074692.png)
    `使用索引`
    ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219115236816-1647665968.png)
-3. 条件的类型不一致
+
+3. 条件的类型不一致（隐式转换失效）
    `没用使用索引`
    ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219134139518-222220297.png)
    `使用索引`
    ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219134204585-264948476.png)
+
 4. != 号
    `没用使用索引`
    ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219134317541-1609586249.png)
    例外：如果是主键，则会走索引
+
+   如果使用二级索引，且查找的值在二级索引中包含：索引列和主键id列，那么会走索引
+
+   如果使用二级索引，但是需要回表，那么优化器会认为成本比全表扫描高，而放弃索引。
+
 5. \> 号
    `没用使用索引`
    ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219134433905-1062967837.png)
    例外：如果是主键或索引是整数类型，则会走索引
-6. order by
-   `没用使用索引`
-   ![img](https://img2018.cnblogs.com/blog/1334255/201812/1334255-20181219134722295-1809068294.png)
-   例外：如果 order by 是主键或索引是整数类型，则会走索引
-7. 组合索引
+
+   如果使用二级索引，且查找的值在二级索引中包含：索引列和主键id列，那么会走索引
+
+   如果使用二级索引，但是需要回表，那么优化器会认为成本比全表扫描高，而放弃索引。
+
+6. 组合索引
    遵循最左前缀
 
 ```
@@ -1333,7 +1471,7 @@ mysql> SELECT * FROM user WHERE emai= 'klvchen123@126.com' LIMIT 1;
 create index ix_name_emaion user(name,email);
 
 name and emai-- 使用索引
-emaiand name -- 不使用索引
+emai and name -- 不使用索引
 name                  -- 使用索引
 emai                 -- 不使用索引
 ```
@@ -1346,15 +1484,82 @@ emai                 -- 不使用索引
 
 ## 5.4 慢查询分析
 
-`show variables like 'slow_query_log'  `//查看是否开启慢查询日志
+**一、介绍**
 
-`set globaslow_query_log_file=' /usr/share/mysql/sql_log/mysql-slow.log' `//慢查询日志的位置
+开启慢查询日志，可以让MySQL记录下查询超过指定时间的语句，通过定位分析性能的瓶颈，才能更好的优化数据库系统的性能。
 
-`set globalog_queries_not_using_indexes=on;`//开启慢查询日志
+**二、参数说明**
 
-`set globalong_query_time=1; `//大于1秒钟的数据记录到慢日志中，如果设置为默认0，则会有大量的信息存储在磁盘中，磁盘很容易满掉
+`slow_query_log `慢查询开启状态
 
-![](C:\java\markdown\docs\img\MySQL\image-20220428151304982.png)
+`slow_query_log_file`慢查询日志存放的位置(这个目录需要MySQL的运行帐号的可写权限，一般设置为MySQL的数据存放目录)
+
+`long_query_time`查询超过多少秒才记录
+
+**三、设置步骤**
+
+1.查看慢查询相关参数
+
+`select @@slow_query_log`
+
+`select @@slow_query_log_file`
+
+`select @@long_query_time`
+
+2.设置方法
+
+方法一：全局变量设置
+
+注意：使用了`global`参数后是对全局设置，但是当前会话无效，需要退出MySQL当前会话重新进入
+
+如果使用`session`则只会对当前会话产生作用。
+
+将 slow_query_log 全局变量设置为“ON”状态
+
+mysql> `set global slow_query_log='ON';`
+
+设置慢查询日志存放的位置
+
+mysql> `set global slow_query_log_file='/usr/local/mysql/data/slow.log';`
+
+查询超过1秒就记录
+
+mysql> `set global long_query_time=1;`
+
+
+
+方法二：配置文件设置
+
+修改配置文件`my.cnf`，在[mysqld]下的下方加入
+
+```mysql
+[mysqld]
+slow_query_log = ON
+slow_query_log_file = /usr/local/mysql/data/slow.log
+long_query_time = 1
+```
+
+3.重启MySQL服务
+
+`service mysqld restart`
+
+
+
+四、测试
+
+1.执行一条慢查询SQL语句
+
+mysql> select sleep(2);
+
+2.查看是否生成慢查询日志
+
+ls /usr/local/mysql/data/slow.log
+
+如果日志存在，MySQL开启慢查询设置成功！
+
+`set globa long_query_time=1; `//大于1秒钟的数据记录到慢日志中，如果设置为默认0，则会有大量的信息存储在磁盘中，磁盘很容易满掉
+
+![](img/MySQL/image-20220428151304982.png)
 
 慢查询格式
 
@@ -1390,9 +1595,9 @@ emai                 -- 不使用索引
 
 `explain select max(payment_date) from payment;`
 
-![img](C:\java\markdown\docs\img\MySQL\wpsAF45.tmp.jpg) 
+![img](img/MySQL/wpsAF45.tmp.jpg) 
 
-<img src="C:\java\markdown\docs\img\MySQL\wpsAF46.tmp.jpg" alt="img" style="zoom:67%;" /> 
+![](img/MySQL/wpsAF46.tmp.jpg ) 
 
  
 
@@ -1400,11 +1605,11 @@ emai                 -- 不使用索引
 
 **优化**：创建索引`create index inx_paydate on payment(payment_date);`
 
-<img src="C:\java\markdown\docs\img\MySQL\wpsAF47.tmp.jpg" alt="img" style="zoom:67%;" /> 
+![](img/MySQL/wpsAF47.tmp.jpg )
 
  
 
-<img src="C:\java\markdown\docs\img\MySQL\wpsAF48.tmp.jpg" alt="img" style="zoom:67%;" /> 
+![](img/MySQL/wpsAF48.tmp.jpg )
 
  
 
@@ -1418,19 +1623,19 @@ emai                 -- 不使用索引
 
 错误的方式：`select count(release_year='2006' or release_year='2007') from film;`
 
-![img](C:\java\markdown\docs\img\MySQL\wpsAF49.tmp.jpg) 
+![img](img/MySQL/wpsAF49.tmp.jpg) 
 
 2006和2007年分别是多少，判断不出来
 
 ` select count(*) from film where release_year='2006' or release_year='2007'; `
 
-![img](C:\java\markdown\docs\img\MySQL\wpsAF4A.tmp.jpg) 
+![img](img/MySQL/wpsAF4A.tmp.jpg) 
 
 正确的编写方式：
 
 `select count(release_year='2006' or null) as '06films',count(release_year='2007' or null) as '07films' from film;`
 
-![img](C:\java\markdown\docs\img\MySQL\wpsAF4B.tmp.jpg) 
+![img](img/MySQL/wpsAF4B.tmp.jpg) 
 
 
 
@@ -1501,7 +1706,7 @@ mysql> show warnings;
 
 查看`count(*)`时，等同于查看`count(0)`
 
-![img](C:\java\markdown\docs\img\MySQL\d4e8294b3a544c3586b576199989b6eftplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
+![img](img/MySQL/d4e8294b3a544c3586b576199989b6eftplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
 
 查询判断时会选择成本低的索引或者直接全表扫描来找到符合条件的值，然后每符合就`+1`
 
@@ -1536,9 +1741,9 @@ mysql> show warnings;
 
 需求：每个演员所参演影片的数量-（影片表和演员表） 
 
-`explain select actor.first_name,actor.last_name,count(*)from sakila.film_actorinner join sakila.actor using(actor_id)group by film_actor.actor_id;`
+`explain select actor.first_name,actor.last_name,count(*)from sakila.film_actorinner join sakila.actor using(actor_id) group by film_actor.actor_id;`
 
-![img](C:\java\markdown\docs\img\MySQL\wps99F2.tmp.jpg) 
+![img](img/MySQL/wps99F2.tmp.jpg) 
 
  
 
@@ -1546,9 +1751,9 @@ mysql> show warnings;
 
 `explain select actor.first_name,actor.last_name,c.cntfrom sakila.actor inner join (select actor_id,count(*) as cnt from sakila.film_actor group by actor_id)as c using(actor_id);`
 
-![img](C:\java\markdown\docs\img\MySQL\wps99F3.tmp.jpg) 
+![](img/MySQL/wps99F3.tmp.jpg)
 
-<img src="C:\java\markdown\docs\img\MySQL\wps99F4.tmp.jpg" alt="img" style="zoom:67%;" /> 
+![](img/MySQL/wps99F4.tmp.jpg)
 
 说明：从上面的执行计划来看，这种**优化后的方式没有使用临时文件和文件排序**的方式了，取而代之的是使用了索引。查询效率老高了。
 
@@ -1615,9 +1820,9 @@ sort_buffer可以放更多数据，但是需要再回到原表去取数据，比
 
 **调整参数优化**
 
-我们还可以通过调整参数，去优化order by的执行。比如可以调整sort_buffer_size的值。因为sort_buffer值太小，数据量大的话，会借助磁盘临时文件排序。如果MySQL服务器配置高的话，可以使用稍微调整大点。
+我们还可以通过调整参数，去优化order by的执行。比如可以`调整sort_buffer_size的值`。因为sort_buffer值太小，数据量大的话，会借助磁盘临时文件排序。如果MySQL服务器配置高的话，可以使用稍微调整大点。
 
-我们还可以调整max_length_for_sort_data的值，这个值太小的话，order by会走rowid排序，会回表，降低查询性能。所以max_length_for_sort_data可以适当大一点。
+我们还可以`调整max_length_for_sort_data的值`，这个值太小的话，order by会走rowid排序，会回表，降低查询性能。所以max_length_for_sort_data可以适当大一点。
 
 
 
@@ -1665,11 +1870,11 @@ Limit常用于分页处理，时长会伴随order by从句使用，因此大多�
 
 执行的结果：
 
-![img](C:\java\markdown\docs\img\MySQL\wps99F5.tmp.jpg) 
+![img](img/MySQL/wps99F5.tmp.jpg) 
 
 在查看一下它的执行计划：
 
-![img](C:\java\markdown\docs\img\MySQL\wps99F6.tmp.jpg) 
+![img](img/MySQL/wps99F6.tmp.jpg) 
 
 对于这种操作，我们该用什么样的优化方式了？
 
@@ -1681,21 +1886,21 @@ Limit常用于分页处理，时长会伴随order by从句使用，因此大多�
 
 `select film_id,description from sakila.film order by film_id limit 50,5;`
 
-![img](C:\java\markdown\docs\img\MySQL\wps99F7.tmp.jpg) 
+![img](img/MySQL/wps99F7.tmp.jpg) 
 
 查看一下执行计划
 
-![img](C:\java\markdown\docs\img\MySQL\wps99F8.tmp.jpg) 
+![img](img/MySQL/wps99F8.tmp.jpg) 
 
 那如果我们获取从500行开始的5条记录，执行计划又是什么样的了？
 
 `explain select film_id,description from sakila.film order by film_id limit 500,5\G`
 
-![img](C:\java\markdown\docs\img\MySQL\wps9A08.tmp.jpg) 
+![img](img/MySQL/wps9A08.tmp.jpg) 
 
  
 
-![img](C:\java\markdown\docs\img\MySQL\wps9A09.tmp.jpg) 
+![img](img/MySQL/wps9A09.tmp.jpg) 
 
 随着我们翻页越往后，IO操作会越来越大的，如果一个表有几千万行数据，翻页越后面，会越来越慢，因此我们要进一步的来优化。
 
@@ -1711,11 +1916,11 @@ Limit常用于分页处理，时长会伴随order by从句使用，因此大多�
 
 查看执行计划：
 
-![img](C:\java\markdown\docs\img\MySQL\wps9A0A.tmp.jpg) 
+![img](img/MySQL/wps9A0A.tmp.jpg) 
 
-![img](C:\java\markdown\docs\img\MySQL\wps9A0B.tmp.jpg) 
+![img](img/MySQL/wps9A0B.tmp.jpg) 
 
-![img](C:\java\markdown\docs\img\MySQL\wps9A0C.tmp.jpg) 
+![img](img/MySQL/wps9A0C.tmp.jpg) 
 
 结论：**扫描行数不变，执行计划是很固定，效率也是很固定的**
 
@@ -1727,11 +1932,11 @@ Limit常用于分页处理，时长会伴随order by从句使用，因此大多�
 
 但是有时候分页id并不是连续的
 
-#### **优化3**
+#### 优化3
 
 `film_info`有二级索引`idx1(film_id)`，
 
-先子查询通过二级索引定位需要找到位置的`film_id`，然后通过等值查询去聚集索引回表10次查询。
+先子查询通过二级索引定位需要找到位置的`film_id`建立一张表，然后通过等值查询去聚集索引回表10次查询。
 
 这样避免了直接二级索引回表500多次。
 
@@ -1794,19 +1999,19 @@ possible_keys: NULL
 
 可以看出没有使用索引去删除
 
-![img](C:\java\markdown\docs\img\MySQL\42febbf243d24c62afc9e4e1c8ce2cabtplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
+![img](img/MySQL/42febbf243d24c62afc9e4e1c8ce2cabtplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
 
 解决方案：
 
 默认`select in`子查询会优化为`semi in` 子查询
 
-![img](C:\java\markdown\docs\img\MySQL\62bc02bfc04b4ba5af07c1ad9f3c40c4tplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
+![img](img/MySQL/62bc02bfc04b4ba5af07c1ad9f3c40c4tplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
 
 
 
 既然没有自动优化，那就手动修改为`join查询`
 
-![img](C:\java\markdown\docs\img\MySQL\2f4c8365a4e64dfb82a7b3152e5a392dtplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
+![img](img/MySQL/2f4c8365a4e64dfb82a7b3152e5a392dtplv-k3u1fbpfcp-zoom-in-crop-mark1304000.webp)
 
 对于update或者delete子查询的语句，**MySQL官网**也是推荐join的方式优化
 
@@ -1912,7 +2117,7 @@ mysql> explain select * from t1 where name = '123';
 
 
 
-![](img\MySQL\167f4c.awebp)
+![](img/MySQL/167f4c.awebp)
 
 **1) 第一层负责连接处理，授权认证，安全等等**
 
@@ -2119,14 +2324,15 @@ Compact 、 Redundant 、Dynamic 和 Compressed 行格式
 
 **指定行格式的语法**
 
-CREATE TABLE 表名 (列的信息) ROW_FORMAT=行格式名称
-ALTER TABLE 表名 ROW_FORMAT=行格式名称
+`CREATE TABLE 表名 (列的信息) ROW_FORMAT=行格式名称`
+
+`ALTER TABLE 表名 ROW_FORMAT=行格式名称`
 
 
 
-## Compact格式
+## 8.1 Compact格式
 
-![](img\MySQL\image-20220423093408148.png)
+![](img/MySQL/image-20220423093408148.png)
 
 **变长字段长度列表**
 
@@ -2140,7 +2346,7 @@ ALTER TABLE 表名 ROW_FORMAT=行格式名称
 
 **记录头**
 
-![image-20220423095056045](img\MySQL\image-20220423095056045.png)
+![image-20220423095056045](img/MySQL/image-20220423095056045.png)
 
 名称 |大小（单位：bit） |描述
 --|--|--
@@ -2157,17 +2363,17 @@ next_record  |16  |表示下一条记录的相对位置
 
 **隐藏列 记录的真实数据**
 
-![image-20220423095504859](img\MySQL\image-20220423095504859.png)
+![image-20220423095504859](img/MySQL/image-20220423095504859.png)
 
 
 
 一条完整的记录
 
-![](img\MySQL\image-20220423095004659.png)
+![](img/MySQL/image-20220423095004659.png)
 
 
 
-## **行溢出数据**
+## 8.2 行溢出数据
 
 ### VARCHAR(M)最多能存储的数据
 
@@ -2201,7 +2407,7 @@ MySQ中规定一个页中至少存放两行记录
 
 
 
-## Dynamic和Compressed行格式
+## 8.3 Dynamic和Compressed行格式
 
 两格式和Compact基本一样，只是在处理溢出页不同
 
@@ -2211,11 +2417,11 @@ MySQ中规定一个页中至少存放两行记录
 
 
 
-## 数据页结构
+## 8.4 数据页结构
 
 一个 InnoDB 数据页的存储空间
 
-![image-20220423105349509](img\MySQL\image-20220423105349509.png)
+![image-20220423105349509](img/MySQL/image-20220423105349509.png)
 
 
 
@@ -2231,7 +2437,7 @@ MySQ中规定一个页中至少存放两行记录
 
 对于最小记录所在的分组只能有 1 条记录，最大记录所在的分组拥有的记录条数只能在 1~8 条之间，剩下的分组中记录的条数范围只能在是 4~8 条之间
 
-![image-20220423194920689](img\MySQL\image-20220423194920689.png)
+![image-20220423194920689](img/MySQL/image-20220423194920689.png)
 
 
 
@@ -2241,7 +2447,7 @@ MySQ中规定一个页中至少存放两行记录
 
 记录分组是为了方便查找，分组后将每组的**最大节点**位置放入**页目录**中，然后通过**二分法查找**
 
-![image-20220423200100074](img\MySQL\image-20220423200100074.png)
+![image-20220423200100074](img/MySQL/image-20220423200100074.png)
 
 
 
@@ -2251,7 +2457,7 @@ MySQ中规定一个页中至少存放两行记录
 
 上下页号：每页之间形成双向链表
 
-![image-20220423202159445](img\MySQL\image-20220423202159445.png)
+![image-20220423202159445](img/MySQL/image-20220423202159445.png)
 
 
 
@@ -2263,7 +2469,7 @@ MySQ中规定一个页中至少存放两行记录
 
 
 
-## 索引
+## 8.5 索引
 
 
 
@@ -2291,7 +2497,7 @@ MySQ中规定一个页中至少存放两行记录
 
 
 
-# 数据目录
+# 9. 数据目录
 
 
 
@@ -2325,9 +2531,9 @@ MyISAM数据目录
 
 
 
-# B+索引
+# 10. B+索引
 
-## 适用条件
+## 10.1 适用条件
 
 ​						建立索引为`（a,b,c）`
 
@@ -2344,13 +2550,13 @@ MyISAM数据目录
 
 **用于排序**：`order by a,b,c`与索引顺序一致且不存在ASC，DESC混用时可以使用索引，`where a = 10 order by b,c`匹配`a=10`后`b,c`与索引顺序匹配且有序
 
-但是`order by a, b DESC`混用不行，`order by a, e`出现了非索引列`e`不行，`order by upper(a)`使用函数修饰不行
+但是`order by a, b DESC`混用不行（8.0后可以建立asc,desc混用索引），`order by a, e`出现了非索引列`e`不行，`order by upper(a)`使用函数修饰不行
 
 **用于分组**：`select count(*) from table1 group by a,b`分组与索引顺序一致就可以
 
 
 
-## 回表
+## 10.2 回表
 
 使用二级索引时，如果搜索结果需要列二级索引中没有，则需要根据二级索引检索出来的主键逐一去聚簇索引中寻找。
 
@@ -2370,7 +2576,7 @@ MyISAM数据目录
 
 
 
-## 添加索引注意
+## 10.3 添加索引注意
 
 只为**用于搜索、排序或分组的列**创建索引
 为列的**基数大**的列创建索引`（不一样的多）`
@@ -2383,17 +2589,17 @@ MyISAM数据目录
 
 
 
-# 单表访问方法
+# 11. 单表访问方法
 
  MySQ执行查询语句的方式称之为 访问方法，同一个语句可以有多个方法执行，但是性能不同
 
-## const
+## 11.1 const
 
 只能在**主键**列或者**唯一二级索引**列和**一个常数(不包含NULL)**进行**等值**比较
 
 `select * from user where id = 1`
 
-## ref
+## 11.2 ref
 
 普通的二级索引来说，通过索引列进行**等值比较**后可能匹配到**多条连续**的记录
 
@@ -2411,7 +2617,7 @@ MyISAM数据目录
 
 `select * from user where a = 10 and b > 20`
 
-## ref_or_null
+## 11.3 ref_or_null
 
 同时包含二级索引的等值比较 和 NULL比较
 
@@ -2419,7 +2625,7 @@ MyISAM数据目录
 
 
 
-## eq_ref
+## 11.4 eq_ref
 
 **连接查询**时，如果**被驱动表**是通过**主键**或者**唯一二级索引列等值匹配**的方式进行访问的（如果该主键或者
 唯一二级索引是**联合索引**的话，**所有的索引列**都必须进行**等值比较**）
@@ -2428,7 +2634,7 @@ MyISAM数据目录
 
 `SELECT * FROM s1 INNER JOIN s2 ON s1.id = s2.id`
 
-## range
+## 11.5 range
 
 无论时**二级**索引还是**聚簇**索引采用了 **范围比较**
 
@@ -2436,7 +2642,7 @@ MyISAM数据目录
 
 
 
-## index
+## 11.6 index
 
 遍历二级索引记录的执行方式
 
@@ -2446,13 +2652,13 @@ MyISAM数据目录
 
 使用了二级索引搜索列和索引列相同（**覆盖索引**），但是不符合最左匹配原则，此时**遍历整个二级索引**，而不是遍历聚簇索引，因为二级索引包含的数据量少，没有隐藏列和其他列。
 
-## all
+## 11.7 all
 
 直接全表扫描聚簇索引
 
 
 
-## index merge
+## 11.8 index merge
 
 使用`and`连接多个条件时，将多个条件的集合**取交集**
 
@@ -2509,14 +2715,14 @@ MyISAM数据目录
 
 
 
-## range区间
+## 11.9 range区间
 
 cond1 AND cond2 ：只有当 cond1 和 cond2 都为 TRUE 时整个表达式才为 TRUE 。
 cond1 OR cond2 ：只要 cond1 或者 cond2 中有一个为 TRUE 整个表达式就为 TRUE 。
 
 
 
-## Union合并
+## 11.10Union合并
 
 使用`OR`连接多个条件时，取多个集合并集
 
@@ -2559,17 +2765,17 @@ cond1 OR cond2 ：只要 cond1 或者 cond2 中有一个为 TRUE 整个表达式
 
 
 
-# Join连接
+# 12. Join连接
 
-<img src="img\MySQL\sql-join.png" style="zoom: 67%;" />
+![](img/MySQL/sql-join.png" style="zoom: 67%;" />
 
-## 本质
+## 12.1 本质
 
 连接 的本质就是把各个连接表中的记录都取出来**依次匹配**的组合**加入结果集**并返回给用户
 
 
 
-## 过程
+## 12.2 过程
 
 `SELECT * FROM t1, t2 WHERE t1.m1 > 1 AND t1.m1 = t2.m2 AND t2.n2 < 'd'`
 
@@ -2581,18 +2787,18 @@ cond1 OR cond2 ：只要 cond1 或者 cond2 中有一个为 TRUE 整个表达式
 1. 首先确定第一个需要查询的表，这个表称之为 驱动表
    对驱动表查询`t1.m1 > 1`得到一个结果集A
 
-   ![image-20220426084328961](img\MySQL\image-20220426084328961.png)
+   ![image-20220426084328961](img/MySQL/image-20220426084328961.png)
 
 2. 根据 t1 表中的记录去找 t2 表中的记录，所以 t2 表也可以被称之为 被驱动表 
 
    接着查询第二个条件` t1.m1 = t2.m2`
-   ![image-20220426084751346](img\MySQL\image-20220426084751346.png)
+   ![image-20220426084751346](img/MySQL/image-20220426084751346.png)
 
 
 
-### 嵌套循环连接
+### 12.2.1 嵌套循环连接
 
-```java
+```c++
 for each row in t1 { 
     #此处表示遍历满足对t1单表查询结果集中的每一条记录
 	for each row in t2 { 
@@ -2608,11 +2814,98 @@ for each row in t1 {
 这个过程就像是一个嵌套的循环，所以这种**驱动表只访问一次，但被驱动表却可能被多次访问**，访问次数取决于
 对驱动表执行单表查询后的结果集中的记录条数的连接执行方式称之为 **嵌套循环连接 （ Nested-Loop Join ）**
 
+Using join buffer (Block Nested Loop)
+
+msyql的表连接算法
+
+#### Nested Loop Join(NLJ)算法
+
+ NLJ 算法:将驱动表/外部表的结果集作为循环基础数据，然后循环从该结果集每次一条获取数据作为下一个表的过滤条件查询数据，然后合并结果。如果有多表join，则将前面的表的结果集作为循环数据，取到每行再到联接的下一个表中循环匹配，获取结果集返回给客户端。
+
+Nested-Loop 的伪算法如下:
+
+```c
+for each row in t1 matching range {
+  for each row in t2 matching reference key {
+    for each row in t3 {
+      if row satisfies join conditions,
+      send to client
+    }
+  }
+}
+```
+
+Because the NLJ algorithm passes rows one at a time from outer loops to inner loops, tables processed in the inner loops typically are read many times
+
+因为普通Nested-Loop一次只将一行传入内层循环, 所以外层循环(的结果集)有多少行, 内存循环便要执行多少次.在内部表的连接上有索引的情况下，其扫描成本为O(Rn),若没有索引,则扫描成本为O(Rn*Sn)。如果内部表S有很多记录，则SimpleNested-Loops Join会扫描内部表很多次，执行效率非常差。
+
+
+
+#### Block Nested-Loop Join(BNL)算法
+
+**BNL 算法**：
+
+<font color="red">将外层循环的行/结果集存入join buffer, 内层循环的每一行与整个buffer中的记录做比较，从而减少内层循环的次数。</font>
+
+举例来说，外层循环的结果集是100行，使用NLJ 算法需要扫描内部表100次，如果使用BNL算法，先把对Outer Loop表(外部表)每次读取的10行记录放到join buffer,然后在InnerLoop表(内部表)中直接匹配这10行数据，内存循环就可以一次与这10行进行比较, 这样只需要比较10次，对内部表的扫描减少了9/10。所以BNL算法就能够显著减少内层循环表扫描的次数。
+
+前面描述的query, 如果使用join buffer, 那么实际join示意如下:
+
+```c++
+for each row in t1 matching range {
+  for each row in t2 matching reference key {
+    store used columns from t1, t2 in join buffer
+    if buffer is full {
+      for each row in t3 {
+        for each t1, t2 combination in join buffer {
+          if row satisfies join conditions,
+          send to client
+        }
+      }
+      empty buffer
+    }
+  }
+}
+
+if buffer is not empty {
+  for each row in t3 {
+    for each t1, t2 combination in join buffer {
+      if row satisfies join conditions,
+      send to client
+    }
+  }
+}
+```
+
+如果t1, t2参与join的列长度只和为s, c为二者组合数, 那么t3表被扫描的次数为 
+
+> (S * C)/join_buffer_size + 1
+
+扫描t3的次数随着join_buffer_size的增大而减少, 直到join buffer能够容纳所有的t1, t2组合,  再增大join buffer size, query 的速度就不会再变快了。
+
+MySQL使用Join Buffer有以下要点:
+
+>  \1. join_buffer_size变量决定buffer大小。
+>
+>  \2. 只有在join类型为all, index, range的时候才可以使用join buffer。
+>
+>  \3. 能够被buffer的每一个join都会分配一个buffer, 也就是说一个query最终可能会使用多个join buffer。
+>
+>  \4. 第一个nonconst table不会分配join buffer, 即便其扫描类型是all或者index。
+>
+>  \5. 在join之前就会分配join buffer, 在query执行完毕即释放。
+>
+>  \6. join buffer中只会保存参与join的列, 并非整个数据行。
+
+如何使用 
+
+5.6版本及以后，优化器管理参数optimizer_switch中中的block_nested_loop参数控制着BNL是否被用于优化器。默认条件下是开启，若果设置为off，优化器在选择 join方式的时候会选择NLJ算法。
 
 
 
 
-## 连接查询成本
+
+## 12.3 连接查询成本
 
 **连接查询总成本 = 单次访问驱动表的成本 + 驱动表扇出数 x 单次访问被驱动表的成本**
 
@@ -2636,9 +2929,9 @@ for each row in t1 {
 
 
 
-# 优化器
+# 13. 优化器
 
-## 条件优化
+## 13.1 条件优化
 
 1. 移除不必要的括号
    `((a = 5 AND b = c) OR ((a > c) AND (c < 5)))` -> `(a = 5 and b = c) OR (a > c AND c < 5)`
@@ -2680,7 +2973,7 @@ for each row in t1 {
 
 
 
-## 外连接消除
+## 13.2 外连接消除
 
 凡是不符合WHERE子句中条件的记录都不会参与连接。只要我们在搜索条件中指定关于**被驱动表相关列的值不为 NULL** ，那么外连接中在被驱动表中找不到符合 ON 子句条件的驱动表记录也就被排除出最后的结果集了，也就是说：在这种情况下：**外连接和内连接也就没有什么区别了**
 
@@ -2697,7 +2990,7 @@ for each row in t1 {
 
 
 
-## 子查询优化
+## 13.3 子查询优化
 
 
 
@@ -2749,7 +3042,7 @@ for each row in t1 {
 
 ###  IN/  ANY/SOME    /ALL子查询
 
-对于 [NOT] IN/ANY/SOME/AL子查询来说，**子查询中不允许有 LIMIT 语句**
+对于 [NOT] IN/ANY/SOME/ALL子查询来说，**子查询中不允许有 LIMIT 语句**
 
 查询某值在不在IN / NOT IN
 
@@ -2767,7 +3060,7 @@ ANY/SOME同义，大于小于等于 任何一个或某一个
 
 
 
-AL大于小于或等于所有的值才为`TRUE`
+ALL大于小于或等于所有的值才为`TRUE`
 
 `SELECT * FROM t1 WHERE m1 > ALL(SELECT m2 FROM t2);`
 
@@ -2826,7 +3119,7 @@ AL大于小于或等于所有的值才为`TRUE`
 
 
 
-# InnoDB的Buffer Pool
+# 14. InnoDB的Buffer Pool
 
 提高查询速度，为了缓存磁盘中的页，在 MySQ服务器启动的时候就向操作系统申请了一片连续的内存
 
@@ -2842,9 +3135,9 @@ AL大于小于或等于所有的值才为`TRUE`
 
 
 
-# 事务
+# 15. 事务
 
-## 使用
+## 15.1 使用
 
 目前只有 `InnoDB` 和 `NDB` 存储引擎支持事务
 
@@ -2894,31 +3187,41 @@ AL大于小于或等于所有的值才为`TRUE`
 
 
 
-## 隔离级别
+## 15.2 隔离级别
 
 脏写（ Dirty Write ）：如果一个事务**修改**了另一个**未提交事务修改过**的数据
 
-![image-20220427160328029](img\MySQL\image-20220427160328029.png)
+![image-20220427160328029](img/MySQL/image-20220427160328029.png)
+
+如上图，`Session A`和`Session B`各开启了一个事务，`Session B`中的事务先将`number`列为`1`的记录的`name`列更新为`'关羽'`，然后`Session A`中的事务接着又把这条`number`列为`1`的记录的`name`列更新为`张飞`。如果之后`Session B`中的事务进行了回滚，那么`Session A`中的更新也将不复存在，这种现象就称之为`脏写`。这时`Session A`中的事务就很懵逼，我明明把数据更新了，最后也提交事务了，怎么到最后说自己啥也没干呢？
 
 
 
 脏读（ Dirty Read ）如果一个事务**读到**了另一个**未提交事务修改过**的数据
 
-![image-20220427160352240](img\MySQL\image-20220427160352240.png)
+![image-20220427160352240](img/MySQL/image-20220427160352240.png)
+
+如上图，`Session A`和`Session B`各开启了一个事务，`Session B`中的事务先将`number`列为`1`的记录的`name`列更新为`'关羽'`，然后`Session A`中的事务再去查询这条`number`为`1`的记录，如果读到列`name`的值为`'关羽'`，而`Session B`中的事务稍后进行了回滚，那么`Session A`中的事务相当于读到了一个不存在的数据，这种现象就称之为`脏读`。
 
 
 
 不可重复读（Non-Repeatable Read）
 如果一个事务只能读到另一个已经提交的事务修改过的数据，并且**其他事务每对该数据进行一次修改并提交后**，**该事务都能查询得到最新值**
 
-![image-20220427160412601](img\MySQL\image-20220427160412601.png)
+
+
+![image-20220427160412601](img/MySQL/image-20220427160412601.png)
+
+如上图，我们在`Session B`中提交了几个隐式事务（注意是隐式事务，意味着语句结束事务就提交了），这些事务都修改了`number`列为`1`的记录的列`name`的值，每次事务提交之后，如果`Session A`中的事务都可以查看到最新的值，这种现象也被称之为`不可重复读`。
 
 
 
 幻读（Phantom）
 如果一个事务先根据某些条件查询出一些记录，之后另一个事务又向表中插入了符合这些条件的记录，原先的事务再次按照该条件查询时，能把另一个事务插入的记录也读出来
 
-![image-20220427160437481](img\MySQL\image-20220427160437481.png)
+![image-20220427160437481](img/MySQL/image-20220427160437481.png)
+
+如上图，`Session A`中的事务先根据条件`number > 0`这个条件查询表`hero`，得到了`name`列值为`'刘备'`的记录；之后`Session B`中提交了一个隐式事务，该事务向表`hero`中插入了一条新记录；之后`Session A`中的事务再根据相同的条件`number > 0`查询表`hero`，得到的结果集中包含`Session B`中的事务新插入的那条记录，这种现象也被称之为`幻读`。
 
 
 
@@ -2926,12 +3229,36 @@ AL大于小于或等于所有的值才为`TRUE`
 
 因为脏写太严重了，所以所有的隔离级别都会解决脏写问题。
 
+
+
+> **读未提交**是指，一个事务还没提交时，它做的变更就能被别的事务看到。
+>
+> **读提交**是指，一个事务提交之后，它做的变更才会被其他事务看到。
+>
+> **可重复读**是指，一个事务执行过程中看到的数据，总是跟这个事务在启动时看到的数据是一致的。当然在可重复读隔离级别下，未提交变更对其他事务也是不可见的。
+>
+> **串行化**，顾名思义是对于同一行记录， “ 写 ” 会加 “ 写锁 ” ， “ 读 ” 会加 “ 读锁 ” 。当出现读写锁冲突的时候，后访问的事务必须等前一个事务执行完成，才能继续执行。
+
 隔离级别 |脏读| 不可重复读 |幻读
 --|--|--|--
 READ UNCOMMITTED | × | ×  | × 
 READ COMMITTED| √ |  × | × 
 REPEATABLE READ | √ | √ | × 
 SERIALIZABLE |  √| √ | √
+
+
+[15 3 MVCC原理](MySQL.md#15%203%20MVCC原理)
+> 在实现上，数据库里面会创建一个视图，访问的时候以视图的逻辑结果为准。
+>
+> 在 “ 可重复读 ” 隔离级别下，这个视图是在事务启动时创建的，**整个事务存在期间都用这个视图**。
+>
+> 在 “ 读提交 ” 隔离级别下，这个视图是在**每个 SQL 语句开始执行的时候创建**的。
+>
+>  “ 读未提交 ” 隔离级别下直接返回记录上的最新值，没有视图概念；
+>
+>  “ 串行化 ” 隔离级别下直接用加锁的方式来避免并行访问。
+
+
 
 
 
@@ -2979,11 +3306,11 @@ REPEATABLE READ
 
 
 
-## MVCC原理
+## 15.3 MVCC原理
 
 通过记录里面隐藏列`trx_id`和`roll_pointer`来记录每个事务的id和回滚链表的头指针，回滚列表通过undo日志组成版本链。
 
-![image-20220427153148656](img\MySQL\image-20220427153148656.png)
+![image-20220427153148656](img/MySQL/image-20220427153148656.png)
 
 版本链的头节点就是当前记录最新的值
 
@@ -3017,7 +3344,21 @@ REPEATABLE READ
 
 
 
-## 解决脏读和不可重复度原理
+通俗来说：一个数据版本，对于一个事务视图来说，除了自己的更新总是可见以外，有三种情况：
+
+1.  版本未提交，不可见；
+2.  版本已提交，但是是在视图创建后提交的，不可见；
+3.  版本已提交，而且是在视图创建前提交的，可见。
+
+
+
+
+
+
+
+
+
+## 15.4 解决脏读和不可重复度原理
 
 `READ COMMITTED`隔离级别的事务在**每次查询开始时**都会**生成一个独立的ReadView**，每次提交后再去读时，`ReadView`的`m_ids`列表就去除提交的版本号，那么获取到的数据不会是正在进行的事务，而是已提交的事务，就不会出现脏读。
 
@@ -3028,9 +3369,184 @@ REPEATABLE READ
 
 
 
-# 服务器优化
+`可重复读隔离`，只需要在事务开始的时候创建一致性视图，之后事务里的其他查询都共用这个一致性视图；
 
-![](C:\java\markdown\docs\img\MySQL\1749651-20190809104145082-1793612311.png)
+`读提交隔离`，每一个语句执行前都会重新算出一个新的视图。
+
+
+
+## 15.5 解决长事务
+
+这个问题，我们可以从应用开发端和数据库端来看。
+首先，从应用开发端来看：
+1. 确认是否使用了 set autocommit=0 。这个确认工作可以在测试环境中开展，把 MySQL 的general_log 开起来，然后随便跑一个业务逻辑，通过 general_log 的日志来确认。一般框架如果会设置这个值，也就会提供参数来控制行为，你的目标就是把它改成 1 。
+  
+2. 确认是否有不必要的只读事务。有些框架会习惯不管什么语句先用 begin/commit 框起来。我见过有些是业务并没有这个需要，但是也把好几个 select 语句放到了事务中。这种只读事务可以去掉。
+
+3. 业务连接数据库的时候，根据业务本身的预估，通过 SET MAX_EXECUTION_TIME 命令，
+  来控制每个语句执行的最长时间，避免单个语句意外执行太长时间。（为什么会意外？在后
+  续的文章中会提到这类案例）
+
+其次，从数据库端来看：
+
+1. 监控 information_schema.Innodb_trx 表，设置长事务阈值，超过就报警 / 或者 kill ；
+
+2. Percona 的 pt-kill 这个工具不错，推荐使用；
+
+3. 在业务功能测试阶段要求输出所有的 general_log ，分析日志行为提前发现问题；
+
+4. 如果使用的是 MySQL 5.6 或者更新版本，把 innodb_undo_tablespaces 设置成 2 （或更大的值）。如果真的出现大事务导致回滚段过大，这样设置后清理起来更方便。
+
+
+## 15.6 例题剖析
+场景：
+先创建表：`mysql> create table t (id int , c int) engine = innodb;`
+添加数据：`mysql> insert into  t values(1,1), (2,2), (3,3);`
+```mysql
++------+------+
+| id   | c    |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    3 |
++------+------+
+```
+
+
+操作一：
+| SESSION A                          | SESSION B             |
+| ---------------------------------- | --------------------- |
+| BEGIN;                             |                       |
+| ① select * from t;                 |                       |
+|                                    | update t set c = c+1; |
+|                                    | ② select * from t;    |
+| ③ select * from t;                 |                       |
+| update t set c = 0 where c = id    |                       |
+| ④ select * from t;                 |                       |
+|                                    |                       |
+| update t set c = 0 where c = id-1; |                       |
+| ⑤ select * from t;                 |                       |
+| COMMIT；                                   |                       |
+
+第①次查询结果
+```mysql
++------+------+
+| id   | c    |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    3 |
++------+------+
+```
+
+事务B更新表后，`c`产生了新的版本
+第②次查询结果，此时事务B执行完并提交了，那么`c`值已经发生了改变
+```mysql
++------+------+
+| id   | c    |
++------+------+
+|    1 |    2 |
+|    2 |    3 |
+|    3 |    4 |
++------+------+
+```
+
+第③次查询结果，由于事务B创建于A事务之后，因为隔离级别为可重复读，所以事务A可以读取到的值是事务A创建时读取的值。
+```mysql
++------+------+
+| id   | c    |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    3 |
+```
+
+然后事务A更新操作时，**更新数据都是先读后写的，而这个读，只能读当前的值，称为 “ “当前读  ” （ current read ）。**
+不能在历史版本上更改，只能在最新版本上更改，不然就会导致新版本数据修改失效。
+那么更新数据时，读取到的应该是：
+```mysql
++------+------+
+| id   | c    |
++------+------+
+|    1 |    2 |
+|    2 |    3 |
+|    3 |    4 |
++------+------+
+```
+此时使用`update t set c = 0 where id = c;`就没有命中任何条目
+
+第④次读取结果和第二次读取的一致，由于上一条更新语句没有命中，那么事务A中ReadView的版本仍然是最初始的版本，没有变化。那么读取值也就和一开始的一致了。
+```mysql
++------+------+
+| id   | c    |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    3 |
+```
+
+为了证明更新操作时读取的是最新版本的值
+更新`update t set c = 0 where c = id-1;`，如果成功了，说明读取的是最新的值，否则就初始值
+第⑤次读取结果为
+```mysql
++------+------+
+| id   | c    |
++------+------+
+|    1 |    0 |
+|    2 |    0 |
+|    3 |    0 |
++------+------+
+```
+
+
+操作二：
+| SESSION A                        | SESSION B             |
+| -------------------------------- | --------------------- |
+|                                  | BEGIN;                |
+|                                  | ① select * from t;    |
+| BEGIN;                           |                       |
+| ① select * from t;               |                       |
+|                                  | update t set c = c+1; |
+|                                  | ② select * from t;                      |
+|                                  | COMMIT;               |
+| ③ select * from t;               |                       |
+| update t set c = 0 where id = c; |                       |
+| ④ select * from t;               |                       |
+| COMMIT;                          |                       |
+
+首先①③④查询结果都是相同的
+
+```mysql
++------+------+
+| id   | c    |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    3 |
+```
+
+首先事务B更新产生新版本，然后②查询结果为
+```mysql
++------+------+
+| id   | c    |
++------+------+
+|    1 |    2 |
+|    2 |    3 |
+|    3 |    4 |
++------+------+
+```
+
+但是事务A创建时事务B的未提交，属于“版本未提交，不可见”，所以得到了③的查询结果。
+当事务A更新操作时，更新时读取最新版本，所以更新失败了。没有产生新的版本号，那么④也就读取的还是初始时版本号的值。
+
+
+
+
+
+
+# 16. 服务器优化
+
+![](img/MySQL/1749651-20190809104145082-1793612311.png)
 
 
 
@@ -3264,9 +3780,9 @@ wait_timeout = 28800
 
 
 
-# mysql主从复制
+# 17. mysql主从复制
 
-![img](C:\java\markdown\docs\img\MySQL\16c4d9dd1b8235c3tplv-t2oaga2asx-zoom-in-crop-mark1304000.webp)
+![img](img/MySQL/16c4d9dd1b8235c3tplv-t2oaga2asx-zoom-in-crop-mark1304000.webp)
 
 步骤一：主库的更新事件(update、insert、delete)被写到binlog
 
@@ -3280,7 +3796,7 @@ wait_timeout = 28800
 
 
 
-## 主从一致的
+## 17.1 主从一致的
 
 我们学习数据库的**主从复制原理**后，了解到**从库**拿到并执行主库的binlog日志，就可以保持数据与主库一致了。这是为什么呢？哪些情况会导致不一致呢？
 
@@ -3294,9 +3810,9 @@ binlog 日志有三种格式，分别是`statement，row和mixed`。
 
 如果是`statement`格式，binlog记录的是**SQL的原文**，如果主库和从库选的索引不一致，可能会导致主库不一致。我们来分析一下。假设主库执行删除这个SQL（其中`a和create_time`都有索引）如下：
 
-```mysql
-delete from t where a > '666' and create_time<'2022-03-01' limit 1;
-```
+
+`delete from t where a > '666' and create_time<'2022-03-01' limit 1;`
+
 
 我们知道，数据选择了`a`索引和选择`create_time`索引，最后`limit 1`出来的数据一般是不一样的。所以就会存在这种情况：在binlog = `statement`格式时，主库在执行这条SQL时，使用的是索引a，而从库在执行这条SQL时，使用了索引`create_time`。最后主从数据不一致了。
 
@@ -3306,7 +3822,7 @@ delete from t where a > '666' and create_time<'2022-03-01' limit 1;
 
 但是如果SQL删除10万行数据，使用row格式就会很占空间的，10万条数据都在binlog里面，写binlog的时候也很耗IO。但是`statement`格式的binlog可能会导致数据不一致，因此设计MySQL的大叔想了一个折中的方案，`mixed`格式的binlog。所谓的mixed格式其实就是`row`和`statement`格式混合使用，当MySQL判断可能数据不一致时，就用`row`格式，否则使用就用`statement`格式。
 
-## 主从延迟的原因与解决
+## 17.2 主从延迟的原因与解决
 
 **主从延迟**是怎么定义的呢？ 与主从数据同步相关的时间点有三个
 
@@ -3331,19 +3847,19 @@ delete from t where a > '666' and create_time<'2022-03-01' limit 1;
 
 
 
-# 加锁机制
+# 18. 加锁机制
 
-![](C:\java\markdown\docs\img\MySQL\16c52a7ec7a9591atplv-t2oaga2asx-zoom-in-crop-mark1304000.webp)
+![](img/MySQL/16c52a7ec7a9591atplv-t2oaga2asx-zoom-in-crop-mark1304000.webp)
 
 乐观锁与悲观锁是两种**并发控制**的思想，可用于解决丢失更新问题。
 
-## **乐观锁**
+## 乐观锁
 
 - 每次去取数据，都很乐观，觉得不会出现并发问题。
 - 因此，访问、处理数据每次都不上锁。
 - 但是在更新的时候，再根据版本号或时间戳判断是否有冲突，有则处理，无则提交事务。
 
-## **悲观锁**
+## 悲观锁
 
 - 每次去取数据，很悲观，都觉得会被别人修改，会有并发问题。
 - 因此，访问、处理数据前就加**排他锁**。
@@ -3378,7 +3894,95 @@ delete from t where a > '666' and create_time<'2022-03-01' limit 1;
 
 
 
-# 问题
+# 19. 日志
+
+![](img/MySQL/image-20220502164241956.png)
+
+##  19.1 redo log（重做日志）
+
+当有一条记录需要更新的时候， InnoDB 引擎就会先把记录写到 redo log （粉板）里面，并更新内存，这个时候更新就算完成了。同时， InnoDB 引擎会在适当的时候，将这个操作记录更新到磁盘里面，而这个更新往往是在系统比较空闲的时候做。
+
+ InnoDB 的 redo log 是固定大小的，比如可以配置为一组 4 个文件，每个文件的大小是1GB ，总共就可以记录 4GB 的操作。从头开始写，写到末尾就又回到开头循环写。
+
+![](img/MySQL/image-20220502162541705.png)
+
+write pos 是当前记录的位置，一边写一边后移，写到第 3 号文件末尾后就回到 0 号文件开头。checkpoint 是当前要擦除的位置，也是往后推移并且循环的，擦除记录前要把记录更新到数据文件。
+
+write pos 和 checkpoint 之间的是 “ 粉板 ” 上还空着的部分，可以用来记录新的操作。如果 write pos追上checkpoint ，表示 “ 粉板 ” 满了，这时候不能再执行新的更新，得停下来先擦掉一些记录，把checkpoint 推进一下。
+
+有了 redo log ， InnoDB 就可以保证即使数据库发生异常重启，之前提交的记录都不会丢失，这个能力称为 crash-safe 
+
+
+
+## 19.2 binlog（归档日志）
+
+ MySQL 整体来看，其实就有两块：一块是 Server 层，它主要做的是 MySQL 功能层面的事情；还有一块是引擎层，负责存储相关的具体事宜。上面我们聊到的粉板 redo log 是InnoDB 引擎特有的日志，而 Server 层也有自己的日志，称为 binlog （归档日志）。
+
+我想你肯定会问，为什么会有两份日志呢？
+
+因为最开始 MySQL 里并没有 InnoDB 引擎。 MySQL 自带的引擎是 MyISAM ，但是 MyISAM 没有crash-safe 的能力， binlog 日志只能用于归档。而 InnoDB 是另一个公司以插件形式引入 MySQL的，既然只依靠 binlog 是没有 crash-safe 能力的，所以 InnoDB 使用另外一套日志系统 —— 也就是redo log 来实现 crash-safe 能力。
+
+这两种日志有以下三点不同。
+
+1. `redo log` 是 InnoDB 引擎特有的； 
+
+   `binlog` 是 MySQL 的 Server 层实现的，所有引擎都可以使用。
+
+2. `redo log` 是物理日志，记录的是 “ 在某个数据页上做了什么修改 ” ；
+
+   `binlog` 是逻辑日志，记录的是这个语句的原始逻辑，比如 “ 给 ID=2 这一行的 c 字段加 1 ” 。
+
+3. `redo log` 是循环写的，空间固定会用完； 
+
+   `binlog` 是可以追加写入的。 “ 追加写 ” 是指 binlog 文件写到一定大小后会切换到下一个，并不会覆盖以前的日志。
+
+   
+
+有了对这两个日志的概念性理解，我们再来看执行器和InnoDB 引擎在执行这个简单的 update 语句时的内部流程。
+
+1. **执行器先找引擎取 ID=2 这一行**。 ID 是主键，引擎直接用树搜索找到这一行。如果 ID=2 这一行所在的数据页本来就在内存中，就直接返回给执行器；否则，需要先从磁盘读入内存，然后再返回。
+
+2. 执行器拿到引擎给的行数据，把这个值加上 1 ，比如原来是 N ，现在就是 N+1 ，得到新的一行数据，再调用引擎接口写入这行新数据。
+
+3. 引擎将这行新数据**更新到内存中**，同时将这个**更新操作记录到 redo log 里面**，此时 redo log 处于 prepare 状态。然后告知执行器执行完成了，随时可以提交事务。
+
+4. 执行器**生成这个操作的 binlog ，并把 binlog 写入磁盘。**
+
+5. 执行器调用引擎的提交事务接口，引擎把刚刚写入的 redo log 改成提交（ commit ）状态，更新完成。这里我给出这个 update 语句的执行流程图，图中浅色框表示是在 InnoDB 内部执行的，深色框表示是在执行器中执行的。
+
+![](img/MySQL/image-20220502162600445.png)
+
+你可能注意到了，最后三步看上去有点 “ 绕 ” ，将 redo log 的写入拆成了两个步骤： prepare 和commit ，这就是 " 两阶段提交 " 。
+
+由于 redo log 和 binlog 是两个独立的逻辑，如果不用两阶段提交，要么就是先写完 redo log 再写
+binlog ，或者采用反过来的顺序。我们看看这两种方式会有什么问题。
+仍然用前面的 update 语句来做例子。假设当前 ID=2 的行，字段 c 的值是 0 ，再假设执行 update 语
+句过程中在写完第一个日志后，第二个日志还没有写完期间发生了 crash ，会出现什么情况呢？
+1. 先写 redo log 后写 binlog 。假设在 redo log 写完， binlog 还没有写完的时候， MySQL 进程异常重启。由于我们前面说过的， redo log 写完之后，系统即使崩溃，仍然能够把数据恢复回 来，所以恢复后这一行 c 的值是 1 。
+  但是由于 binlog 没写完就 crash 了，这时候 binlog 里面就没有记录这个语句。因此，之后备份日志的时候，存起来的 binlog 里面就没有这条语句。
+  然后你会发现，如果需要用这个 binlog 来恢复临时库的话，由于这个语句的 binlog 丢失，这
+  个临时库就会少了这一次更新，恢复出来的这一行 c 的值就是 0 ，与原库的值不同。
+
+2. 先写 binlog 后写 redo log 。如果在 binlog 写完之后 crash ，由于 redo log 还没写，崩溃恢复以后这个事务无效，所以这一行 c 的值是 0 。但是 binlog 里面已经记录了 “ 把 c 从 0 改成 1” 这个日志。所以，在之后用 binlog 来恢复的时候就多了一个事务出来，恢复出来的这一行 c 的值就是1 ，与原库的值不同。
+
+可以看到，如果不使用 “ 两阶段提交 ” ，那么数据库的状态就有可能和用它的日志恢复出来的库的状态不一致。你可能会说，这个概率是不是很低，平时也没有什么动不动就需要恢复临时库的场景呀？其实不是的，不只是误操作后需要用这个过程来恢复数据。当你需要扩容的时候，也就是需要再多搭建一些备库来增加系统的读能力的时候，现在常见的做法也是用全量备份加上应用 binlog 来实现的，这个 “ 不一致 ” 就会导致你的线上出现主从数据库不一致的情况。简单说， redo log 和 binlog 都可以用于表示事务的提交状态，而两阶段提交就是让这两个状态保
+持逻辑上的一致。
+
+
+
+## 19.3 优化建议
+
+redo log 用于保证 crash-safe 能力。 `innodb_flush_log_at_trx_commit` 这个参数设置成 1 的时候，表示每次事务的 redo log 都直接持久化到磁盘。这个参数我建议你设置成 1 ，这样可以保证MySQL 异常重启之后数据不丢失。
+
+`sync_binlog` 这个参数设置成 1 的时候，表示每次事务的 binlog 都持久化到磁盘。这个参数我也建议你设置成 1 ，这样可以保证 MySQL 异常重启之后 binlog 不丢失。
+
+
+
+
+
+
+
+# 20. 问题
 
 ## 小数如何存
 
