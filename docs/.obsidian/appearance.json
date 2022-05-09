@@ -1,5 +1,6 @@
 {
-  "theme": "obsidian",
+  "theme": "moonstone",
   "cssTheme": "Blue Topaz",
-  "textFontFamily": ""
+  "textFontFamily": "",
+  "translucency": false
 }

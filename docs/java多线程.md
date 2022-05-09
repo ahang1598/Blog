@@ -87,14 +87,14 @@ java -Djava.rmi.server.hostname=xx.134.13x.xx -Dcom.sun.management.jmxremote -Dc
 线程通信相对简单，因为它们共享进程内的内存，一个例子是多个线程可以访问同一个共享变量
 线程更轻量，线程上下文切换成本一般上要比进程上下文切换低
 
+----
 
 
 ## 2.2 并行与并发
 
 **并发**
 
-在单核 cpu 下，线程实际还是串行执行的。操作系统中有一个组件叫做任务调度器，将 cpu 的时间片（windows
-下时间片最小约为 15 毫秒）分给不同的程序使用，只是由于 cpu 在线程间（时间片很短）的切换非常快，人类感觉是同时运行的 。一般会将这种线程轮流使用 CPU 的做法称为并发（concurrent）
+在单核 cpu 下，线程实际还是串行执行的。操作系统中有一个组件叫做任务调度器，将 cpu 的时间片（windows下时间片最小约为 15 毫秒）分给不同的程序使用，只是由于 cpu 在线程间（时间片很短）的切换非常快，人类感觉是同时运行的 。一般会将这种线程轮流使用 CPU 的做法称为并发（concurrent） 
 
 ![1583408729416](https://gitee.com/gu_chun_bo/picture/raw/master/image/20200305194534-433138.png)
 
@@ -110,8 +110,7 @@ java -Djava.rmi.server.hostname=xx.134.13x.xx -Dcom.sun.management.jmxremote -Dc
 
 - 家庭主妇做饭、打扫卫生、给孩子喂奶，她一个人轮流交替做这多件事，这时就是并发
 - 雇了3个保姆，一个专做饭、一个专打扫卫生、一个专喂奶，互不干扰，这时是并行
-- 家庭主妇雇了个保姆，她们一起这些事，这时既有并发，也有并行（这时会产生竞争，例如锅只有一口，一
-  个人用锅时，另一个人就得等待）
+- 家庭主妇雇了个保姆，她们一起这些事，这时既有并发，也有并行（这时会产生竞争，例如锅只有一口，一个人用锅时，另一个人就得等待）
 
 
 ## 2.3应用
@@ -256,7 +255,7 @@ public interface Future<V> {
 
 **虚拟机栈与栈帧**
 
-拟机栈描述的是Java方法执行的内存模型：每个方法被执行的时候都会同时创建一个栈帧(stack frame)用于存储局部变量表、操作数栈、动态链接、方法出口等信息，是属于线程的私有的。当java中使用多线程时，每个线程都会维护它自己的栈帧！每个线程只能有一个活动栈帧，对应着当前正在执行的那个方法
+虚拟机栈描述的是Java方法执行的内存模型：每个方法被执行的时候都会同时创建一个栈帧(stack frame)用于存储局部变量表、操作数栈、动态链接、方法出口等信息，是属于线程的私有的。当java中使用多线程时，每个线程都会维护它自己的栈帧！每个线程只能有一个活动栈帧，对应着当前正在执行的那个方法
 
 **线程上下文切换（Thread Context Switch）**
 
@@ -1669,13 +1668,13 @@ public static void method2() {
 
 2. 输出结果如下，最开始状态为001，然后加轻量级锁变成00，最后恢复成001
 
-   ```properties
+```properties
    biasedLockFlag (1bit): 0
    	LockFlag (2bit): 01
    LockFlag (2bit): 00
    biasedLockFlag (1bit): 0
    	LockFlag (2bit): 01
-   ```
+```
 
 ##### 撤销偏向锁-hashcode方法
 
@@ -1684,7 +1683,7 @@ public static void method2() {
 1. 测试代码如下，使用虚拟机参数`-XX:BiasedLockingStartupDelay=0`  ，确保我们的程序最开始使用了偏向锁！但是结果显示程序还是使用了轻量级锁。  Test20.java
 
    ```java
-       public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException {
            Test1 t = new Test1();
            t.hashCode();
            test.parseObjectHeader(getObjectHeader(t));
@@ -1698,13 +1697,13 @@ public static void method2() {
 
 2. 输出结果
 
-   ```properties
+```properties
    biasedLockFlag (1bit): 0
    	LockFlag (2bit): 01
    LockFlag (2bit): 00
    biasedLockFlag (1bit): 0
    	LockFlag (2bit): 01
-   ```
+```
 
 
 ##### 撤销偏向锁-其它线程使用对象
@@ -1715,7 +1714,7 @@ public static void method2() {
 
 2. 输出结果，最开始使用的是偏向锁，但是第二个线程尝试获取对象锁时，发现本来对象偏向的是线程一，那么偏向锁就会失效，加的就是轻量级锁
 
-   ```properties
+   ```
    biasedLockFlag (1bit): 1
    	LockFlag (2bit): 01
    biasedLockFlag (1bit): 1
@@ -1760,9 +1759,10 @@ public static void method2() {
 
 代码：Test22.java    Test23.java这是带超时时间的
 
-![1594473284105](assets/1594473284105.png)
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/202205082251783.png)
 
-Test23.java中jiang'dao'de关于超时的增强，在join(long millis) 的源码中得到了体现：
+
+Test23.java中关于超时的增强，在join(long millis) 的源码中得到了体现：
 
 ```java
     public final synchronized void join(long millis)
@@ -1796,7 +1796,8 @@ Test23.java中jiang'dao'de关于超时的增强，在join(long millis) 的源码
 
 多任务版 GuardedObject图中 Futures 就好比居民楼一层的信箱（每个信箱有房间编号），左侧的 t0，t2，t4 就好比等待邮件的居民，右侧的 t1，t3，t5 就好比邮递员如果需要在多个类之间使用 GuardedObject 对象，作为参数传递不是很方便，因此设计一个用来解耦的中间类，这样不仅能够解耦【结果等待者】和【结果生产者】，还能够同时支持多个任务的管理。和生产者消费者模式的区别就是：这个生产者和消费者之间是一一对应的关系，但是生产者消费者模式并不是。rpc框架的调用中就使用到了这种模式。  Test24.java
 
-![1594518049426](assets/1594518049426.png)
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/202205082252753.png)
+
 
 
 
@@ -1813,8 +1814,7 @@ Test23.java中jiang'dao'de关于超时的增强，在join(long millis) 的源码
 5. JDK 中各种[阻塞队列](https://blog.csdn.net/yanpenglei/article/details/79556591)，采用的就是这种模式
 
 “异步”的意思就是生产者产生消息之后消息没有被立刻消费，而“同步模式”中，消息在产生之后被立刻消费了。
-
-![1594524622020](assets/1594524622020.png)
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java202205082254430.png)
 
 我们写一个线程间通信的消息队列，要注意区别，像rabbit mq等消息框架是进程间通信的。
 
@@ -1868,7 +1868,8 @@ LockSupport.unpark;
 3. Thread_0 恢复运行
 4. 设置 _counter 为 0
 
-![1594532057205](assets/1594532057205.png)
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java202205082255153.png)
+
 
 #### 先调用upark再调用park的过程
 
@@ -2000,7 +2001,8 @@ Java stack information for the threads listed above:
 
 ### 4.9.3 哲学家就餐问题
 
-![1594553609905](assets/1594553609905.png)
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205082256834.png)
+
 
 有五位哲学家，围坐在圆桌旁。
 他们只做两件事，思考和吃饭，思考一会吃口饭，吃完饭后接着思考。
@@ -2014,11 +2016,13 @@ Java stack information for the threads listed above:
 
 很多教程中把饥饿定义为，一个线程由于优先级太低，始终得不到 CPU 调度执行，也不能够结束，饥饿的情况不易演示，讲读写锁时会涉及饥饿问题下面我讲一下一个线程饥饿的例子，先来看看使用顺序加锁的方式解决之前的死锁问题，就是两个线程对两个不同的对象加锁的时候都使用相同的顺序进行加锁。 但是会产生饥饿问题Test29
 
-![1594558469826](https://gitee.com/gu_chun_bo/picture/raw/master/image/20200712205431-675389.png)
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205082257800.png)
+
 
 顺序加锁的解决方案
 
-![1594558499871](assets/1594558499871.png)
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205082256110.png)
+
 
 
 

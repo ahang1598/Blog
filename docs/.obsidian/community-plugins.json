@@ -4,5 +4,9 @@
   "sliding-panes-obsidian",
   "obsidian-image-auto-upload-plugin",
   "obsidian-regex-replace",
-  "highlightr-plugin"
+  "highlightr-plugin",
+  "obsidian-excalidraw-plugin",
+  "obsidian-icons-plugin",
+  "markdown-table-editor",
+  "obsidian-git"
 ]

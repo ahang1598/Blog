@@ -2,6 +2,8 @@
   "legacyEditor": false,
   "useMarkdownLinks": true,
   "foldHeading": false,
-  "autoPairMarkdown": false,
-  "livePreview": false
+  "autoPairMarkdown": true,
+  "livePreview": true,
+  "readableLineLength": false,
+  "promptDelete": false
 }

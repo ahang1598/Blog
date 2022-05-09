@@ -5,6 +5,15 @@
 ## 1. 常量
 用`final`修饰，一旦定义后面就不能修改了，如`final double MAX_D = 100.101`
 
+1.  final 修饰一个引用
+    -   如果引用是基本数据类型，则该引用为常量，该值无法修改。
+    -   如果引用为引用数据类型，比如对象、数组，则<mark style="background: #BBFABBA6;">该对象、数组本身可以修改</mark> ，但指向该对象或数组的<mark style="background: #FF5582A6;">地址的引用不能修改</mark> 。
+    -   如果引用是类的成员变量，则必须当场赋值，否则编译会报错。
+2.  final 修饰类中的方法
+    当使用 final 修饰方法时，这个方法将成为最终方法，<mark style="background: #BBFABBA6;">无法被子类重写</mark> 。但是，<mark style="background: #FF5582A6;">该方法仍然可以被继承。</mark> 
+3.  final 修饰类
+    当用 final 修改类时，该类成为最终类，<mark style="background: #FF5582A6;">无法被继承</mark> 。简称为“断子绝孙类”。比如常用的 String 类就是最终类。
+
 定义一个类常量：在一个类中多个方法都能调用的常量
 用`static final` 修饰
 
@@ -80,7 +89,7 @@ Java没有无符号（unsigned）形式long、int、short、byte类型
 `[-1] = [1000 0001]原= [1111 1110]反= [1111 1111]补`
 
 
-### 2.3. 左移运算：value<<num
+### 2.3. 左移运算：`value<<num`
 
 1）数值value向左移动num位，左边二进制位丢弃，右边补0。（注意byte和short类型移位运算时会变成int型，结果要强制转换）
 
@@ -88,7 +97,7 @@ Java没有无符号（unsigned）形式long、int、short、byte类型
 
 3）左移时舍弃位不包含1，则左移一次，相当于乘2。
 
-### 2.4. 右移运算：value>>num
+### 2.4. 右移运算：`value>>num`
 
 1）数值value向右移动num位，正数左补0，负数左补1，右边舍弃。（即保留符号位）
 
@@ -494,23 +503,22 @@ for(Student s : list) {
 `ArrayList`类包含Collection类的所有方法，还有常用的方法
 表 1 ArrayList类的常用方法
 
-| 方法名称                                    | 说明                                                         |
-| ------------------------------------------- | ------------------------------------------------------------ |
-| E get(int index)                            | 获取此集合中指定索引位置的元素，E 为集合中元素的数据类型     |
-| int index(Object o)                         | 返回此集合中第一次出现指定元素的索引，如果此集合不包含该元素，则返回 -1 |
-| int lastIndexOf(Object o)                   | 返回此集合中最后一次出现指定元素的索引，如果此集合不包含该元素，则返回 -1 |
-| E set(int index, Eelement)                  | 将此集合中指定索引位置的元素修改为 element 参数指定的对象。此方法返回此集合中指定索引位置的原元素 |
-| List<E> subList(int fromlndex, int tolndex) | 返回一个新的集合，新集合中包含 fromlndex 和 tolndex 索引之间的所有元素。包含 fromlndex 处的元素，不包含 tolndex 索引处的元素 |
-
-`LinkedList`包含Collection方法，还有特有方法
-| 方法名                    | 说明                             |
-| ------------------------- | -------------------------------- |
-| public void addFirst(E e) | 在该列表开头插入指定的元素       |
-| public void addLast(E e)  | 将指定的元素追加到此列表的末尾   |
-| public E getFirst()       | 返回此列表中的第一个元素         |
-| public E getLast()        | 返回此列表中的最后一个元素       |
-| public E removeFirst()    | 从此列表中删除并返回第一个元素   |
-| public E removeLast()     | 从此列表中删除并返回最后一个元素 |
+| 方法名称                                      | 说明                                                                                                                                                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E get(int index)                              | 获取此集合中指定索引位置的元素，E 为集合中元素的数据类型                                                                                                                  |
+| int index(Object o)                           | 返回此集合中第一次出现指定元素的索引，如果此集合不包含该元素，则返回 -1                                                                                                   |
+| int lastIndexOf(Object o)                     | 返回此集合中最后一次出现指定元素的索引，如果此集合不包含该元素，则返回 -1                                                                                                 |
+| E set(int index, Eelement)                    | 将此集合中指定索引位置的元素修改为 element 参数指定的对象。此方法返回此集合中指定索引位置的原元素                                                                         |
+| `List<E> subList(int fromlndex, int tolndex)` | 返回一个新的集合，新集合中包含 fromlndex 和 tolndex 索引之间的所有元素。包含 fromlndex 处的元素，不包含 tolndex 索引处的元素 `LinkedList`包含Collection方法，还有特有方法 |
+                                                                                                                       |
+| 方法名                                        | 说明                                                                                                                                                                      |
+| -------------------------                     | --------------------------------                                                                                                                                          |
+| public void addFirst(E e)                     | 在该列表开头插入指定的元素                                                                                                                                                |
+| public void addLast(E e)                      | 将指定的元素追加到此列表的末尾                                                                                                                                            |
+| public E getFirst()                           | 返回此列表中的第一个元素                                                                                                                                                  |
+| public E getLast()                            | 返回此列表中的最后一个元素                                                                                                                                                |
+| public E removeFirst()                        | 从此列表中删除并返回第一个元素                                                                                                                                            |
+| public E removeLast()                         | 从此列表中删除并返回最后一个元素                                                                                                                                          |
 
 #### 5.1.2 list下安全类CopyOnWriteArrayList
 
@@ -860,14 +868,17 @@ g1.show("林青霞");
 
 ```
 ## 7. 类型通配符
+
 - 作用：表示各种泛型List的父类
-- 类型通配符：<?>
-    - List<?>：表示元素类型未知的List，它的元素可以匹配任何的类型
-    - 这种带通配符的List仅表示它是各种泛型List的父类，并不能把元素添加到其中
-- 类型通配符上限：<? extends 类型>
-    - 例如： List<? extends Number>：它表示的类型是Number或者其子类型Integer
-- 类型通配符下限：<? super 类型>
-    - 例如： List<? super Number>：它表示的类型是Number或者其父类型Object
+- 类型通配符：`<?>`
+	- `List<?>`：表示元素类型未知的List，它的元素可以匹配任何的类型
+	- 这种带通配符的List仅表示它是各种泛型List的父类，并不能把元素添加到其中
+- 类型通配符上限：`<? extends 类型>`
+- 类型通配符下限：`<? super 类型>`
+    - 例如：`List<? super Number>`：它表示的类型是Number或者其父类型`Object`
+    - 例如： `List<? extends Number>`：它表示的类型是Number或者其子类型`Integer`
+
+
 
 ## 8. 可变参数
 `int... a`表示，多个变量时可变参数放最后：`int b, int... a`
@@ -1847,19 +1858,18 @@ N - Number(数值类型)
 
 ## `<T>`和`<?>`
 
-“<T>"和"<?>"，首先要区分开两种不同的场景：
+`“<T>"和"<?>"`，首先要区分开两种不同的场景：
 
-1. 类型参数“<T>”主要用于声明泛型类或泛型方法。
-
-   ```java
+1. 类型参数`“<T>”`主要用于声明泛型类或泛型方法。
+```java
    class People<T>{
    public void show(T a) {
        
       }
    }
-   ```
+```
 
-2. 无界通配符“<?>”主要用于使用泛型类或泛型方法
+2. 无界通配符`“<?>”`主要用于使用泛型类或泛型方法
    `SuperClass<?> sup = new SuperClass<String>("lisi");`
 
 参考：https://www.cnblogs.com/jpfss/p/9929045.html
@@ -1868,8 +1878,7 @@ https://www.zhihu.com/question/31429113
 
 
 
-## <? extends T>和<? super T>
-
+## `<? extends T>和<? super T>`
 `ArrayList<? extends E> al = new ArrayList<? extends E>();`
         泛型的限定：
          ? extends E:接收E类型或者E的子类型。
@@ -2013,7 +2022,8 @@ c
 ```
 
 
-
+## 枚举
+https://blog.csdn.net/qq_27093465/article/details/52180865
 
 
 
