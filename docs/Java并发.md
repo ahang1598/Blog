@@ -179,10 +179,189 @@ public class Singleton {
 
 # 2. 线程
 
+https://www.processon.com/view/link/61cbdbad1e08532c3ee65aee#map
+
 ## 2.1 创建
 
-三种方式
+### 2.1.1 2种方式
 [3 1 创建和运行线程](java多线程.md#3%201%20创建和运行线程)
+方式一：继承Thread
+```java
+public class MyThread extends Thread {  
+    @Override  
+    public void run() {  
+        System.out.println("extend Thread");  
+        System.out.println(Thread.currentThread().getName());  
+    }  
+}
+```
+
+方式二：实现Runnable接口，然后配合Thead使用
+```java
+public class MyRunnable implements Runnable{  
+    @Override  
+    public void run() {  
+        System.out.println("implements Runnable");  
+        System.out.println(Thread.currentThread().getName());  
+    }  
+}
+```
+
+| 区别         | 继承Thread               | 实现Runnable     |
+| ------------ | ------------------------ | ---------------- |
+| 代码架构     |                          | 解耦了任务和线程 |
+| 新建线程消耗 | 新的线程需要新建，消耗大 | 复用旧线程       |
+| 双继承       | 无法再继承，扩展性差     | 可以再继承       |
+| 底层源码     | 重写了run方法            | run方法调用了target方法，也就是调用了Runnable方法                 |
+
+当同时继承Thread方法和实现Runnable接口时，继承会覆盖run方法，而无法调用Runnable方法。只会执行继承的方法。
+```java
+// 最后输出extend Thread
+// 采用了匿名内部类方式
+new Thread(new Runnable() {  
+    @Override    public void run() {  
+        System.out.println("implements Runnable");  
+    }  
+}) {  
+    @Override    public void run() {  
+        System.out.println("extend Thread");  
+    }  
+}.start();
+```
+
+lambda表达式：`new Thread( ()-> System.out.println("use lambda") ).start();`
+
+### 2.1.2 start与run
+首先start方法启动子线程，而run启动主线程
+start调用了start0本地方法，但是run只是调用了普通的方法
+
+```java
+public synchronized void start() {  
+	// 对每个子线程都先判断状态，如果已运行Running状态则失败
+	if (threadStatus != 0)  
+        throw new IllegalThreadStateException();  
+	// 加组
+	group.add(this);  
+  
+    boolean started = false;  
+    try {  
+    // 运行本地方法，启动子线程
+        start0();  
+        started = true;  
+    } 
+	......
+}  
+  // 本地方法start0
+private native void start0();
+```
+
+由于子线程启动前会对检查当前状态，如果不符合就会抛出异常
+那么以下代码启动两次线程就会报错。
+```java
+Thread thread = new Thread();  
+thread.start();  
+thread.start();
+```
+
+## 2.2 中断
+
+`interrupt()`：会设置线程的打断标志为true，如果该线程调用了`wait,join,sleep`方法的话就会抛出异常。
+`isInterrupted()`：返回线程打断标志true or false，并且不会清除打断标志，当前咋样就还是咋样
+`interrupted`：返回线程打断标志true or false，但是会清除打断标志，不管之前咋样，后面要改成false
+
+最佳实践一：对中断异常的方法异常抛出方法外
+```java
+ public class MyInterrupt implements Runnable {  
+    @Override  
+    public void run() {  
+	    // 主动判断打断标志，如果出现true则中断线程
+        while(true && !Thread.currentThread().isInterrupted()){  
+            System.out.println("I am fine");  
+            try {  
+	            // 接收方法的错误
+                doSomeThing();  
+            } catch (InterruptedException e) {  
+	            // 由于sleep时打断标志被清除，所以需要再设置打断标志true
+                Thread.currentThread().interrupt();  
+                System.out.println("save exception log");  
+                e.printStackTrace();  
+            }  
+        }  
+    }  
+	// 错误往上抛
+    private void doSomeThing() throws InterruptedException {  
+        Thread.sleep(5000);  
+    }  
+  
+    public static void main(String[] args) throws InterruptedException {  
+        Thread thread = new Thread(new MyInterrupt());  
+        thread.start();  
+        Thread.sleep(1000);  
+        thread.interrupt();  
+    }  
+}
+```
+
+
+最佳实践二：方法内处理异常并设置打断异常
+```java
+public class MyInterrupt2 implements Runnable {  
+    @Override  
+    public void run() {  
+        while(true) {  
+	        // 当线程被打断时设置如何处理
+            if (Thread.currentThread().isInterrupted()) {  
+                System.out.println("interrupted...");  
+                break;            }  
+            doSomeThing();  
+        }  
+    }  
+  
+    private void doSomeThing() {  
+        try {  
+            Thread.sleep(5000);  
+        } catch (InterruptedException e) {  
+        // 错误内部处理，并且设置已经被清除的打断标志为true
+            Thread.currentThread().interrupt();  
+            System.out.println("save execption log");  
+            e.printStackTrace();  
+        }  
+    }  
+  
+    public static void main(String[] args) throws InterruptedException {  
+        Thread thread = new Thread(new MyInterrupt2());  
+        thread.start();  
+        Thread.sleep(2000);  
+        thread.interrupt();  
+    }  
+}
+```
+
+
+响应中断方法
+```java
+Object. wait()/ wait(long)/ wait( long, int)
+Thread.sleep( long)/sleep( long, int)
+Thread.join)/join( long)/ join( long, int)
+java.util.concurrent. BlockingQueue. take()/put(E)
+java.util. concurrent. locks. Lock. lockInterruptibly()
+
+java.util concurrent. CountDownLatch.await()
+java.util.concurrent. CyclicBarrier.await()
+java.util. concurrent.Exchanger.exchange()
+java.nio.channels.InterruptibleChannel相关方法
+java.nio.channels.Selector的相关方法
+```
+
+
+
+面试题：
+如何停止线程
+原理：采用interrupt来设置打断标记true，然后在线程中判断打断标记，如果被打断采取一定设置，比如在sleep时会出现异常，可以日志采集。sleep异常后会重置打断标记为false。
+错误的方法有：stop、suspend，以及通过volatile的boolean会出现无法处理长时间阻塞线程。
+
+如何处理不可中断线程
+针对不同情况，比如ReentryLock里面有对应的中断方法。
 
 ## 2.2 状态
 Java线程状态变迁
@@ -190,6 +369,376 @@ Java线程状态变迁
 ## 2.3 基本使用
 
 [3 3 Thread的常见方法](java多线程.md#3%203%20Thread的常见方法)
+
+`Object`：wait,notify
+
+```java
+// 声明一个对象
+public static Object lock = new Object();  
+public static void main(String[] args) {  
+    new Thread(new Runnable() {  
+        @Override        
+        public void run() {  
+	        // wait/notify需要在同步代码块中，保证代码块完整性。
+            synchronized (lock) {  
+                try {  
+                    System.out.println("waiting.."); 
+                    // Object方法wait，释放锁
+                    lock.wait();  
+                } catch (InterruptedException e) {  
+                    e.printStackTrace();  
+                }  
+                System.out.println("get lock");  
+            }  
+        }    }).start();  
+  
+    new Thread(new Runnable() {  
+        @Override        
+        public void run() {  
+            synchronized(lock){  
+            // 唤醒wait
+                lock.notify();  
+                System.out.println("notify");  
+            }  
+        }    }).start();  
+}
+```
+
+
+notifyall唤醒所有wait线程
+```java  
+/**  
+ * 描述： 3个线程，线程1和线程2首先被阻塞，线程3唤醒它们。notify, notifyAll。 start先执行不代表线程先启动。 
+ * 结果： threadA和threadB都会被唤醒，然后都打印 waiting to end
+ * 如果使用notify的话，只有一个线程被唤醒，还有一个WAITING状态
+ */  
+public class WaitNotifyAll implements Runnable {  
+  
+    private static final Object resourceA = new Object();  
+  
+    public static void main(String[] args) throws InterruptedException {  
+        Runnable r = new WaitNotifyAll();  
+        Thread threadA = new Thread(r);  
+        Thread threadB = new Thread(r);  
+        Thread threadC = new Thread(new Runnable() {  
+            @Override            
+            public void run() {  
+                synchronized (resourceA) {  
+                    resourceA.notifyAll();  
+//                    resourceA.notify();  
+                    System.out.println("ThreadC notified.");  
+                }  
+            }        });  
+        threadA.start();  
+        threadB.start();  
+        Thread.sleep(200);  
+        threadC.start();  
+    }  
+    @Override  
+    public void run() {  
+        synchronized (resourceA) {  
+            System.out.println(Thread.currentThread().getName()+" got resourceA lock.");  
+            try {  
+                System.out.println(Thread.currentThread().getName()+" waits to start.");  
+                resourceA.wait();  
+                System.out.println(Thread.currentThread().getName()+"'s waiting to end.");  
+            } catch (InterruptedException e) {  
+                e.printStackTrace();  
+            }  
+        }  
+    }  
+}
+```
+
+
+调用wait后底层原理：进入对象monitor的等待列表
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205112016728.png)
+
+
+wait/notify 与 sleep异同
+相同点：
+- 阻塞，都会释放CPU
+- 响应中断
+
+不同点：
+- sleep不会释放锁，wait会释放锁
+- wait/notify在同步代码块中存在，保证逻辑一致性
+- sleep必须指定时间
+- 所属的类不同：Object.wait(), Thread.sleep()
+
+使用`TimeUnit.HOURS.sleep(3);`方式比使用`sleep(3000)`更加直观
+比如当要求等待时间3小时3分钟时
+```java
+TimeUnit.HOURS.sleep(3);  
+TimeUnit.MINUTES.sleep(3);
+```
+而且当出现负数时不会报错，会跳过什么都不做。
+但是sleep会直接报错。
+
+
+### 2.3.2 交替打印
+两个线程交替打印至100
+示范1：
+分析：线程A先打印了0，然后就wait等待释放了锁；线程B此时拿到了锁，进行唤醒并打印了1
+```java
+// 结果：打印了0 1然后锁住了
+synchronized (object) {  
+    while (count <= 100) {  
+        object.notify();  
+        System.out.println(Thread.currentThread().getName()+" : "+count++);  
+        if (count <= 100) {  
+            try {  
+                object.wait();  
+            } catch (InterruptedException e) {  
+                e.printStackTrace();  
+            }  
+        }  
+    }  
+}
+```
+
+示范2：
+```java
+public class OddEven {  
+    private static int count = 0;  
+    private static final Object object = new Object();  
+  
+    public static void main(String[] args) {  
+        myRunable r = new myRunable();  
+        Thread t1 = new Thread(r);  
+        Thread t2 = new Thread(r);  
+        t1.start();  
+        t2.start();  
+    }  
+  
+    static class myRunable implements Runnable {  
+  
+        @Override  
+        public void run() {  
+            while (count <= 100) {  
+                synchronized (object) {  
+                    object.notify();  
+                    System.out.println(Thread.currentThread().getName()+" : "+count++);  
+                    if (count <= 100) {  
+                        try {  
+                            object.wait();  
+                        } catch (InterruptedException e) {  
+                            e.printStackTrace();  
+                        }  
+                    }  
+                }  
+            }  
+        }  
+    }  
+  
+  
+}
+```
+
+
+### 2.3.3 生产者消费者模型
+```java
+package threadcoreknowledge.My;  
+  
+import java.util.Date;  
+import java.util.LinkedList;  
+  
+public class ProducerConsumer {  
+    public static void main(String[] args) {  
+        Storage storage = new Storage();  
+        Thread producer = new Thread(new Producer(storage));  
+        Thread consumer = new Thread(new Consumer(storage));  
+        producer.start();  
+        consumer.start();  
+    }  
+}  
+  
+class Producer implements Runnable {  
+  
+    Storage storage;  
+    public Producer(Storage storage) {  
+        this.storage = storage;  
+    }  
+  
+    @Override  
+    public void run() {  
+        for (int i = 0; i < 100; i++) {  
+            storage.put();  
+        }  
+    }  
+}  
+  
+class Consumer implements Runnable {  
+  
+    Storage storage;  
+    public Consumer(Storage storage) {  
+        this.storage = storage;  
+    }  
+  
+    @Override  
+    public void run() {  
+        for (int i = 0; i < 100; i++) {  
+            storage.get();  
+        }  
+    }  
+}  
+  
+class Storage {  
+    private int maxSize;  
+    private LinkedList<Date> list;  
+    public Storage() {  
+        maxSize = 10;  
+        list = new LinkedList<>();  
+    }  
+  
+    public synchronized void put () {  
+        while(list.size() == maxSize) {  
+            try {  
+                wait();  
+            } catch (InterruptedException e) {  
+                e.printStackTrace();  
+            }  
+        }  
+        list.add(new Date());  
+        System.out.println("storage " + list.size());  
+        notify();  
+    }  
+  
+    public synchronized void get() {  
+        while (list.size() == 0) {  
+            try {  
+                wait();  
+            } catch (InterruptedException e) {  
+                e.printStackTrace();  
+            }  
+        }  
+        list.removeLast();  
+        System.out.println("storage" + list.size());  
+        notify();  
+    }  
+}
+```
+
+
+### 2.3.4 join
+join：主线程等子线程运行完后结束
+也就是主 等 子
+底层源码：当子线程还存活 且 还有剩余时间时，会调用wait方法等待子线程。
+可以加时间方法`join(long millis)`，不加时间默认为`join(0)`
+```java
+// 结果：先输出：子线程运行，然后等三秒后，输出：主线程等子线程运行完后结束
+// 如果不加join：直接输出：子线程运行 主线程等子线程运行完后结束, 然后等三秒后进程结束
+public static void main(String[] args) throws InterruptedException {  
+    Thread thread = new Thread(new Runnable() {  
+        @Override        public void run() {  
+            try {  
+                Thread.sleep(3000);  
+            } catch (InterruptedException e) {  
+                e.printStackTrace();  
+            }  
+        }    });  
+    thread.start();  
+    System.out.println("子线程运行");  
+    thread.join();  
+    System.out.println("主线程等子线程运行完后结束");  
+}
+```
+
+
+## 2.4 属性
+|属性名称 | 途用|
+|-- | --|
+|编号（ID）|每个线程有自己的ID，用于标识不同的线程|
+|名称（Name）| 作用让用户或程序员在开发、调试或运行过程中更容易区分每个不同的线程、定位问题等。|
+|是否是守护线程(isDaemon ) |true代表该线程是【守护线程】，false代表线程是非守护线程，也就是【用户线程】。|
+|优先级（Priority ）| 优先级这个属性的目的是告诉线程调度器，用户希望哪些线程相对多运行、哪些少运行。|
+
+守护线程和普通线程区别：
+守护线程结束了不影响JVM退出，但用户线程不结束JVM不会正常结束
+
+程序不应该依赖于优先级：
+不同操作系统优先级映射不一样，但是java一次编译多平台运行，所以对应不同平台后优先级都不同，Linux会忽略，Windows默认7个优先级所以会对应。
+但是优先级较低可能会出现饿死现象，所以避免使用优先级，而采用默认方式。
+
+
+## 2.5 异常
+为什么需要`UncaughtExceptionHandler`
+- 主线程可以捕获异常并程序报错，子线程会打印出错误信息，不会终止程序，无法直观显示
+- 子线程异常无法通过常规try/catch捕获
+```java
+// 对于这两个线程都有异常，常规会出现线程1 报错后抛出Caught Exception，但是线程12都报错且没有抛出Caught Exception
+try {  
+    new Thread(new CantCatchDirectly(), "MyThread-1").start();  
+    Thread.sleep(300);  
+    new Thread(new CantCatchDirectly(), "MyThread-2").start();  
+} catch (RuntimeException e) {  
+    System.out.println("Caught Exception.");  
+}
+```
+
+具体使用策略：
+- 程序统一设置
+- 给每个子线程单独设置
+- 线程池设置
+
+```java
+// 1. 先定义处理异常处理器实现UncaughtExceptionHandler
+public class MyUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {  
+  
+    private String name;  
+  
+    public MyUncaughtExceptionHandler(String name) {  
+        this.name = name;  
+    }  
+  
+    @Override  
+    public void uncaughtException(Thread t, Throwable e) {  
+        Logger logger = Logger.getAnonymousLogger();  
+        logger.log(Level.WARNING, "线程异常，终止啦" + t.getName());  
+        System.out.println(name + "捕获了异常" + t.getName() + "异常");  
+    }  
+}
+```
+
+```java
+// 2. 然后在使用子线程前先设置异常处理器为刚才定义的即可
+Thread.setDefaultUncaughtExceptionHandler(new MyUncaughtExceptionHandler("捕获器1"));
+```
+
+
+## 2.6 死锁
+
+### 2.6.1 死锁检测
+通过`ThreadMXBeanDetection`检查并在程序中显示。
+```java
+public static void main(String[] args) throws InterruptedException {  
+    ThreadMXBeanDetection r1 = new ThreadMXBeanDetection();  
+    ThreadMXBeanDetection r2 = new ThreadMXBeanDetection();  
+    r1.flag = 1;  
+    r2.flag = 0;  
+    Thread t1 = new Thread(r1);  
+    Thread t2 = new Thread(r2);  
+    t1.start();  
+    t2.start();  
+    Thread.sleep(1000);  
+    ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();  
+    long[] deadlockedThreads = threadMXBean.findDeadlockedThreads();  
+    if (deadlockedThreads != null && deadlockedThreads.length > 0) {  
+        for (int i = 0; i < deadlockedThreads.length; i++) {  
+            ThreadInfo threadInfo = threadMXBean.getThreadInfo(deadlockedThreads[i]);  
+            System.out.println("发现死锁" + threadInfo.getThreadName());  
+        }  
+    }  
+}
+```
+
+### 2.6.2 死锁避免
+转账时避免死锁 -- 不在乎多个锁获取的顺序
+但是根据锁的hash值排序来确定获取顺序，如果冲突再加一把锁hash后来判断
+或者通过主键来确定大小
+
+
+
 
 
 # 3. 锁
@@ -327,7 +876,6 @@ size操作
 - 支持阻塞的移除方法：意思是在队列为空时，获取元素的线程会等待队列变为非空。
 
 阻塞队列常用于生产者和消费者的场景
-
 | 方法 | 抛出异常  | 返回特殊值 | 一直阻塞 | 超时退出             |
 | ---- | --------- | ---------- | -------- | -------------------- |
 | 插入 | add(e)    | offer(e)   | put(e)   | offer(e, time, unit) |
@@ -337,7 +885,7 @@ put和take分别尾首含有字母t
 offer和poll都含有字母o。
 
 - ArrayBlockingQueue：一个由数组结构组成的有界阻塞队列。
-- LinkedBlockingQueue：一个由链表结构组成的有界阻塞队列。
+- LinkedBlockingQueue：一个由链表结构组成的无界阻塞队列。
 - PriorityBlockingQueue：一个支持优先级排序的无界阻塞队列。
 - DelayQueue：一个使用优先级队列实现的无界阻塞队列。
 - SynchronousQueue：一个不存储元素的阻塞队列。
@@ -471,6 +1019,18 @@ shutdown只是将线程池的状态设置成SHUTDOWN状态，然后<mark style="
 - getPoolSize：线程池的线程数量。如果线程池不销毁的话，线程池里的线程不会自动销毁，所以这个大小只增不减。
 - getActiveCount：获取活动的线程数
 
+## 6.3 状态
+
+- `RUNNING`∶接受新任务并处理排队任务
+- `SHUTDOWN`∶不接受新任务，但处理排队任务
+- `STOP`∶不接受新任务，也不处理排队任务，并中断正在进行的任务
+- `TIDYING`，中文是整洁，理解了中文就容易理解这个状态了所有任务都已终止，workerCount为零时，线程会转换TIDYING状态，并将运行terminate（）钩子方法。
+- `TERMINATED`∶terminate（）运行完成
+
+
+
+
+
 
 
 # 7. Executor
@@ -546,7 +1106,11 @@ CachedThreadPool的corePoolSize被设置为0，即corePool为空；
 maximumPoolSize被设置为Integer.MAX_VALUE，即maximumPool是无界的。
 keepAliveTime设置为60L，意味着CachedThreadPool中的空闲线程等待新任务的最长时间为60秒，空闲线程超过60秒后将会被终止。
 
-
+| parameter       | newFixedThreadPool | newCachedThreadPool | newSingleThreadExecutor | ScheduledThreadPoolExecutor |
+| --------------- | ------------------ | ------------------- | ----------------------- | --------------------------- |
+| corePoolSize    | n                  | 0                   | 1                       | n                           |
+| maximumPoolSize | n                  |Integer.MAX_VALUE    |    1                     | Integer.MAX_VALUE           |
+| keepAliveTime   | 0                  | 60                    |     0                    | 0                           |
 
 
 
@@ -593,6 +1157,175 @@ FutureTask除了实现Future接口外，还实现了Runnable接口。因此，Fu
 
 FutureTask的实现基于AbstractQueuedSynchronizer（以下简称为AQS）
 基于AQS实现的同步器包括：ReentrantLock、Semaphore、ReentrantReadWriteLock、CountDownLatch和FutureTask
+
+# 8.ThreadLocal
+## 8.1 基本使用
+| Modifier and Type           | Method and Description                 |
+| --------------------------- | ---------------------------------------|
+| `T`                         | `get()`  返回的值在这个线程局部变量的当前线程副本。          |
+| `protected T`               | `initialValue()`  返回当前线程的初始值为这个线程局部变量。   |
+| `void`                      | `remove()`  删除这个线程局部变量的当前线程的值。             |
+| `void`                      | `set(T value)`  设置这个线程局部变量的当前线程的复制设置为指定的值。 |
+| `static <S> ThreadLocal<S>` | `withInitial(Supplier<? extends  S> supplier)`  创建一个线程局部变量 |
+
+`initialValue`方法只会调用一次，当首次使用`get`方法时才使用。
+
+如果`remove`了之后就可以再次通过`set`来设置
+
+两大典型场景：
+1. 每个线程需要独享对象（通常工具类：SimpleDateFormat和Random）
+2. 每个线程要保存全局变量，供线程内多个方法直接调用，避免参数传递麻烦
+
+1. initialValue在第一个get时初始化，对象初始化时机有我们控制
+2. set方式：通过拦截器生成用户信息传递
+
+
+场景一：
+```java
+public class MyThreadLocal {  
+    public static ExecutorService threadPool =  Executors.newFixedThreadPool(10);  
+  
+    public static void main(String[] args) {  
+        for (int i = 0; i < 1000; i++) {  
+            int innerI = i;  
+            threadPool.execute(new Runnable() {  
+                @Override  
+                public void run() {  
+                    String ss = new MyThreadLocal().date(innerI);  
+                    System.out.println(ss);  
+                }  
+            });  
+        }  
+        threadPool.shutdown();  
+    }  
+  
+    public String date(int s) {  
+        Date date = new Date(1000 * s);  
+        // 原先本地定义工具类，每个线程来了都创建一个工具类使用
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  
+        SimpleDateFormat simpleDateFormat = SafeDate.safeDate.get();  
+        String format = simpleDateFormat.format(date);  
+        return format;  
+    }  
+}  
+  
+class SafeDate {  
+    public static ThreadLocal<SimpleDateFormat> safeDate = ThreadLocal.withInitial(  
+            ()-> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));  
+}
+```
+
+场景二：演示ThreadLocal用法2：避免传递参数的麻烦
+```java
+public class ThreadLocalNormalUsage06 {  
+  
+    public static void main(String[] args) {  
+        new Service1().process("");  
+  
+    }  
+}  
+
+// 从第一个类开始传递
+class Service1 {  
+  
+    public void process(String name) {  
+        User user = new User("超哥");  
+        // 线程本地变量设置值
+        UserContextHolder.holder.set(user);  
+        // 调用第二类
+        new Service2().process();  
+    }  
+}  
+// 第二个类对该本线程内变量操作  
+class Service2 {  
+  
+    public void process() {  
+        User user = UserContextHolder.holder.get();  
+        ThreadSafeFormatter.dateFormatThreadLocal.get();  
+        System.out.println("Service2拿到用户名：" + user.name); 
+        // 调用第三个类 
+        new Service3().process();  
+    }  
+}  
+ // 第三个类操作，不用传递，直接获取本线程内变量操作  
+class Service3 {  
+  
+    public void process() {  
+        User user = UserContextHolder.holder.get();  
+        System.out.println("Service3拿到用户名：" + user.name);  
+        // 使用完成后记得手动remove，防止内存泄漏
+        UserContextHolder.holder.remove();  
+    }  
+}  
+  
+class UserContextHolder {  
+    public static ThreadLocal<User> holder = new ThreadLocal<>();  
+}  
+  
+class User {  
+    String name;  
+    public User(String name) {  
+        this.name = name;  
+    }  
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+## 8.2 原理
+
+Thread、ThreadLocalMap、ThreadLocal关系
+
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205132316343.png)
+
+
+ThreadLocalMap与HashMap不同
+冲突时采用线性探测法，而不是拉链法、红黑树
+其他基本类似，如扩容，基本方法都相同
+
+## 8.3 问题
+### 8.3.1 内存泄漏
+原因：
+- ThreadLocalMap的每个Entry都是一个对key的弱引用，同时，每个Entry都包含了一个对value的强引用
+- 正常情况下，当线程终止，保存在ThreadLocal里的value会被垃圾回收，因为没有任何强引用了
+- 但是，如果线程不终止（比如线程需要保持很久），那么key对应的value就不能被回收，因为有以下的调用链∶`Thread → ThreadLocalMap → Entry（key为null）→ Value`
+- 因为value和Thread之间还存在这个强引用链路，所以导致value无法回收，就可能会出现OOM
+- JDK已经考虑到了这个问题，所以在set， remove， rehash方法中会扫描key=null,但value！=null设置为null，这样value对象就可以被回收
+- 但是如果一个ThreadLocal不被使用，那么实际上set，remove，rehash方法也不会被调用，如果同时线程又不停止，那么调用链就一直存在，那么就导致了value的内存泄漏
+
+防止：用完ThreadLocal后需要手动remove
+
+
+### 8.3.2 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205092136250.png)
 
