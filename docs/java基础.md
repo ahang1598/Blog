@@ -1842,7 +1842,7 @@ Comparable相当于“内部比较器”，而Comparator相当于“外部比较
 
 
 
-# 泛型
+# 20. 泛型
 
 E - Element (在集合中使用，因为集合中存放的是元素)
 
@@ -1911,7 +1911,7 @@ https://www.zhihu.com/question/31429113
 
 
 
-# 反射
+# 21. 反射
 
 ## 什么是反射？
 
@@ -1934,6 +1934,34 @@ https://www.zhihu.com/question/31429113
 - 性能问题。Java反射机制中包含了一些动态类型，所以Java虚拟机不能够对这些动态代码进行优化。因此，反射操作的效率要比正常操作效率低很多。我们应该避免在对性能要求很高的程序或经常被执行的代码中使用反射。而且，如何使用反射决定了性能的高低。如果它作为程序中较少运行的部分，性能将不会成为一个问题。
 - 安全限制。使用反射通常需要程序的运行没有安全方面的限制。如果一个程序对安全性提出要求，则最好不要使用反射。
 - 程序健壮性。反射允许代码执行一些通常不被允许的操作，所以使用反射有可能会导致意想不到的后果。反射代码破坏了Java程序结构的抽象性，所以当程序运行的平台发生变化的时候，由于抽象的逻辑结构不能被识别，代码产生的效果与之前会产生差异。
+
+# 22. 异常
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205141711390.jpg)
+
+
+
+throws:
+用来声明一个<mark style="background: #FF5582A6;">方法</mark> 可能产生的所有异常，不做任何处理而是<mark style="background: #FF5582A6;">将异常往上传</mark> ，谁调用我我就抛给谁
+而且后面跟的是异常类名（前面说过），<mark style="background: #FF5582A6;">可以跟多个异常类名</mark> ，用逗号隔开表示抛出异常，由该方法的调用者来处理。throws表示异常产生的可能性，并不一定会发生这种异常。
+`public static void main(String[] args) throws Throwable`
+
+throw:
+这是一个用在<mark style="background: #FF5582A6;">方法体里面</mark> 的异常，用于直接后面跟上异常的对象名  
+<mark style="background: #FF5582A6;">只能抛出一个异常对象名</mark>  
+表示抛出异常，<mark style="background: #FF5582A6;">由方法体内的语句来处理</mark> 
+```java
+try{
+	...
+}catch(Exception e) {
+	// 对异常处理
+	e.printStackTrace();
+}
+```
+
+异常体系结构图
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205141719475.png)
+
+
 
 
 

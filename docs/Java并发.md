@@ -368,6 +368,7 @@ Java线程状态变迁
 ![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/202205082227544.png)
 ## 2.3 基本使用
 
+### 2.3.1 wait/notify
 [3 3 Thread的常见方法](java多线程.md#3%203%20Thread的常见方法)
 
 `Object`：wait,notify
@@ -466,14 +467,7 @@ wait/notify 与 sleep异同
 - sleep必须指定时间
 - 所属的类不同：Object.wait(), Thread.sleep()
 
-使用`TimeUnit.HOURS.sleep(3);`方式比使用`sleep(3000)`更加直观
-比如当要求等待时间3小时3分钟时
-```java
-TimeUnit.HOURS.sleep(3);  
-TimeUnit.MINUTES.sleep(3);
-```
-而且当出现负数时不会报错，会跳过什么都不做。
-但是sleep会直接报错。
+
 
 
 ### 2.3.2 交替打印
@@ -645,6 +639,18 @@ public static void main(String[] args) throws InterruptedException {
 ```
 
 
+### 2.3.5 sleep
+`Thread.sleep(3000)`使程序释放CPU，但是不会释放锁
+
+使用`TimeUnit.HOURS.sleep(3);`方式比使用`sleep(3000)`更加直观
+比如当要求等待时间3小时3分钟时
+```java
+TimeUnit.HOURS.sleep(3);  
+TimeUnit.MINUTES.sleep(3);
+```
+而且当出现负数时不会报错，会跳过什么都不做。
+但是sleep会直接报错。
+
 ## 2.4 属性
 |属性名称 | 途用|
 |-- | --|
@@ -805,10 +811,42 @@ Lock接口提供的synchronized关键字不具备的主要特性
 ## 3.3 重入锁ReentrantLock
 表示该锁能够支持一个线程对资源的重复加锁。
 该锁的还支持获取锁时的公平和非公平性选择。
+默认非公平锁：`Lock lock = new ReentrantLock();`
 
+公平锁：`Lock lock = new ReentrantLock(true);`
 
 公平锁：锁的获取顺序就应该符合请求的绝对时间顺序，也就是FIFO
 非公平锁：线程来了就尝试CAS抢占，如果成功了就拿到锁，与时间顺序无关
+
+获取锁后必须要释放
+```java
+lock.lock();  
+try{  
+    //获取本锁保护的资源  
+    System.out.println(Thread.currentThread().getName()+"开始执行任务");  
+}finally {  
+	// 释放该锁
+    lock.unlock();  
+}
+```
+
+
+`tryLock(3000,TimeUnit.MILLISECONDS )`锁重试
+在一定时间内如果拿不到锁，就放弃该锁
+```java
+if(lock.tryLock(3000, TimeUnit.MILLISECONDS)){  
+    try {  
+          ...
+    }finally {  
+        lock.unlock();  
+    }  
+}
+```
+
+
+
+
+
 
 ## 3.4 读写锁
 ReentrantReadWriteLock
@@ -1149,8 +1187,29 @@ ScheduledThreadPoolExecutor的执行主要分为两大部分。
 
 
 
-## 7.4 FutureTask
+## 7.4 Future
+
+### 7.4.1 Future与Runnable区别
+Runnable缺点：
+- 没有返回值
+- 无法上抛异常
+
+而Future就改变了这两点。
+
+Future方法
+| Modifier and Type | Method and Description |
+| ----------------- | --------------------------------|
+| `boolean`         | `cancel(boolean mayInterruptIfRunning)`  试图取消执行这一任务。 |
+| `V`               | `get()`  如果有必要等待计算完成,然后获取它的结果。           |
+| `V`               | `get(long timeout,  TimeUnit unit)`  如果有必要等待最多计算给定的时间完成,然后获取它的结果,如果可用。 |
+| `boolean`         | `isCancelled()`  返回 `true`如果这个任务被取消之前完成正常。 |
+| `boolean`         | `isDone()`  返回 `true`如果这个任务完成                      |
+
+### 7.4.2 FutureTask
+
 FutureTask除了实现Future接口外，还实现了Runnable接口。因此，FutureTask可以交给Executor执行，也可以由调用线程直接执行（FutureTask.run()）
+
+使用Cancel方法在不同状态下结果。
 ![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205092132375.png)
 
 当一个线程需要等待另一个线程把某个任务执行完后它才能继续执行，此时可以使用FutureTask。
@@ -1158,7 +1217,73 @@ FutureTask除了实现Future接口外，还实现了Runnable接口。因此，Fu
 FutureTask的实现基于AbstractQueuedSynchronizer（以下简称为AQS）
 基于AQS实现的同步器包括：ReentrantLock、Semaphore、ReentrantReadWriteLock、CountDownLatch和FutureTask
 
+
+`Future`使用方式：
+方式一：通过线程池执行。
+方式二：先提交给FutureTask，让它去执行，执行完后从它那拿结果。
+```java
+public class MyFuture {  
+  
+    public static void main(String[] args) throws ExecutionException, InterruptedException {  
+        // 1. 线程池执行，通过submit返回结果  
+        // 1.1 正常函数  
+        LinkedBlockingQueue<Runnable> runnables = new LinkedBlockingQueue<>();  
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 4, 60L, TimeUnit.SECONDS, runnables);  
+        Future<Integer> future1 = executor.submit(new myCall());  
+        Integer integer1 = future1.get();  
+        System.out.println(integer1);  
+  
+        // 1.2 匿名函数方式  
+        Future<Integer> future2 = executor.submit(new Callable<Integer>() {  
+            @Override  
+            public Integer call() throws Exception {  
+                System.out.println("use anonymous call");  
+                return 20;  
+            }  
+        });  
+        Integer integer2 = future2.get();  
+        System.out.println(integer2);  
+  
+        // 1.3 use lamada  
+        Callable<Integer> call = () -> {  
+            System.out.println("use lamada");  
+            return 30;  
+        };  
+        Future<Integer> future3 = executor.submit(() -> {  
+            System.out.println("use lamada");  
+            return 30;  
+        });  
+        System.out.println(future3.get());  
+  
+  
+        // 2. FutureTask执行  
+        FutureTask<Integer> futureTask = new FutureTask<>(new myCall());  
+        // 也可以将futureTask提交给线程池执行或者建立个线程执行
+//        executor.submit(futureTask);  
+        new Thread(futureTask).start();  
+        Integer integer = futureTask.get();  
+        System.out.println("FutureTask " + integer);  
+  
+        executor.shutdown();  
+    }  
+  
+    public static class myCall implements Callable<Integer> {  
+  
+        @Override  
+        public Integer call() throws Exception {  
+            System.out.println("use myCall");  
+            return 10;  
+        }  
+    }  
+}
+```
+
+
+
+
+
 # 8.ThreadLocal
+每个线程内部独享的变量，存储在线程内存空间，
 ## 8.1 基本使用
 | Modifier and Type           | Method and Description                 |
 | --------------------------- | ---------------------------------------|
@@ -1291,8 +1416,8 @@ ThreadLocalMap与HashMap不同
 冲突时采用线性探测法，而不是拉链法、红黑树
 其他基本类似，如扩容，基本方法都相同
 
-## 8.3 问题
-### 8.3.1 内存泄漏
+
+## 8.3 内存泄漏问题
 原因：
 - ThreadLocalMap的每个Entry都是一个对key的弱引用，同时，每个Entry都包含了一个对value的强引用
 - 正常情况下，当线程终止，保存在ThreadLocal里的value会被垃圾回收，因为没有任何强引用了
@@ -1304,7 +1429,29 @@ ThreadLocalMap与HashMap不同
 防止：用完ThreadLocal后需要手动remove
 
 
-### 8.3.2 
+## 8.4 继承主线程变量
+
+ThreadLocal不支持继承主线程的变量，也就无法获取主线程的变量
+需要通过``
+
+```java
+public class MyInheritThreadLocal {  
+	// 原先通过ThreadLocal获取结果子线程得到null
+	// public static ThreadLocal<String> threadLocal = new ThreadLocal<>(); 
+	// 修改为InheritableThreadLocal后，子线程得到了haha值
+    public static ThreadLocal<String> threadLocal = new InheritableThreadLocal<>();  
+	  
+    public static void main(String[] args) {  
+       threadLocal.set("haha");  
+        System.out.println(Thread.currentThread().getName() + " " + threadLocal.get());  
+       new Thread(new Runnable() {  
+           @Override           public void run() {  
+               System.out.println(Thread.currentThread().getName() + " "  + threadLocal.get());  
+           }  
+       }).start();  
+    }  
+}
+```
 
 
 

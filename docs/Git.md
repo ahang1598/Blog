@@ -7,12 +7,36 @@
 
 
 推荐学习网址
-
+[廖雪峰教程](https://www.liaoxuefeng.com/wiki/896043488029600)
 [动画模拟学习](https://learngitbranching.js.org/?locale=zh_CN)
 
 ## 0.1 更新git软件版本
 
 `git update-git-for-windows`
+
+
+## 0.2 设置git
+```shell
+缺省等同于 local
+$ git config --local  该仓库
+$ git config --global  本用户所有仓库
+$ git config --system  所有登录用户
+```
+
+显示 config 的配置，加 --list
+```shell
+$ git config --list --local
+$ git config --list --global
+$ git config --list --system
+```
+
+配置user.name和user.email
+```shell
+$ git config --global user.name ‘your_name’
+$ git config --global user.email ‘your_email@domain.com’
+```
+
+
 
 
 
@@ -37,6 +61,7 @@ Initialized empty Git repository in C:/Users/Ahang/Documents/Git/.git/
 
 
 # 2. 将文件添加到版本库中
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205152127222.png)
 
 - 先在版本库的文件夹里面添加文件如：README,可以写入些内容
 - 再通过`git add README`添加至库中
@@ -253,6 +278,7 @@ HEAD is now at a47393f add GPL
     - 一种是`readme.txt`已经添加==到暂存区后，又作了修改==，现在，撤销修改就回到添加到暂存区后的状态
 
 撤销修改☞回到最后一个状态
+就是让这个文件回到最近一次`git commit`或`git add`时的状态
 
 # 6. 撤销删除
 1. 对于已经在仓库/工作区里面的文件删除：`git rm README`

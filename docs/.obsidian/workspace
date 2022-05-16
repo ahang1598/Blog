@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Java并发.md",
+            "file": "Git.md",
             "mode": "source",
             "source": false
           }
@@ -53,7 +53,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 171
+    "width": 171,
+    "collapsed": true
   },
   "right": {
     "id": "7fa91884506cf4c7",
@@ -69,7 +70,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Java并发.md",
+                "file": "Git.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -86,7 +87,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Java并发.md"
+                "file": "Git.md"
               }
             }
           },
@@ -111,19 +112,19 @@
       }
     ],
     "direction": "horizontal",
-    "width": 214
+    "width": 305
   },
   "active": "ad790eafda1d6056",
   "lastOpenFiles": [
+    "Git.md",
     "Java并发.md",
+    "java基础.md",
+    "Java基础_2.md",
     "面试准备.md",
     "java多线程.md",
     "未命名.md",
     "assets/1594518049426.png.md",
     "设计模式.md",
-    "java基础.md",
-    "Excalidraw/Drawing 2022-05-08 16.49.42.excalidraw.png",
-    "Excalidraw/Drawing 2022-05-08 16.49.42.excalidraw.md",
-    "Excalidraw/Drawing 2022-05-08 16.45.45.excalidraw.png"
+    "Excalidraw/Drawing 2022-05-08 16.49.42.excalidraw.png"
   ]
 }
