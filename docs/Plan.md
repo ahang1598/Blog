@@ -304,13 +304,13 @@
 
 | 题目                                                         | 一刷 | 二刷 | 三刷 |
 | ------------------------------------------------------------ | ---- | ---- | ---- |
-| [01 背包](https://www.nowcoder.com/practice/fd55637d3f24484e96dad9e992d3f62e?tpId=230&tags=&title=&difficulty=0&judgeStatus=0&rp=0) |      | ★    |      |
-| [416.(判断子集之和是否等于target) 分割等和子集](https://leetcode-cn.com/problems/partition-equal-subset-sum/) |      | ★    |      |
-| [完全背包](https://www.nowcoder.com/practice/237ae40ea1e84d8980c1d5666d1c53bc?tpId=230&tags=&title=&difficulty=0&judgeStatus=0&rp=0) |      | ★    |      |
-| [剑指 Offer 46. 把数字翻译成字符串](https://leetcode-cn.com/problems/ba-shu-zi-fan-yi-cheng-zi-fu-chuan-lcof/) |      | ☆    |      |
-| [91. 解码方法](https://leetcode-cn.com/problems/decode-ways/) |      | ☆☆   |      |
-| [322. 零钱兑换](https://leetcode-cn.com/problems/coin-change/) |      | ★    |      |
-| [279. 完全平方数](https://leetcode-cn.com/problems/perfect-squares/) |      | ★    |      |
+| [01 背包](https://www.nowcoder.com/practice/fd55637d3f24484e96dad9e992d3f62e?tpId=230&tags=&title=&difficulty=0&judgeStatus=0&rp=0) |      | ★    | ☆    |
+| [416.(判断子集之和是否等于target) 分割等和子集](https://leetcode-cn.com/problems/partition-equal-subset-sum/) |      | ★    | ★    |
+| [完全背包](https://www.nowcoder.com/practice/237ae40ea1e84d8980c1d5666d1c53bc?tpId=230&tags=&title=&difficulty=0&judgeStatus=0&rp=0) |      | ★    | ☆    |
+| [剑指 Offer 46. 把数字翻译成字符串](https://leetcode-cn.com/problems/ba-shu-zi-fan-yi-cheng-zi-fu-chuan-lcof/) |      | ☆    | ☆    |
+| [91. 解码方法](https://leetcode-cn.com/problems/decode-ways/) |      | ☆☆   | ☆    |
+| [322. 零钱兑换](https://leetcode-cn.com/problems/coin-change/) |      | ★    | ★    |
+| [279. 完全平方数](https://leetcode-cn.com/problems/perfect-squares/) |      | ★    | ★    |
 | [343. 整数拆分](https://leetcode-cn.com/problems/integer-break/) |      | ★    |      |
 | [474. 一和零](https://leetcode-cn.com/problems/ones-and-zeroes/) |      | ☆    |      |
 | [198. 打家劫舍](https://leetcode-cn.com/problems/house-robber/) |      | ★    |      |

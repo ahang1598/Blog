@@ -36,8 +36,62 @@ $ git config --global user.name ‘your_name’
 $ git config --global user.email ‘your_email@domain.com’
 ```
 
+## 0.3 忽略文件上传
+对于部分不需要上传的文件：比如java的.class文件、密码信息文件等
 
+在git的本地仓库添加一个`.gitignore`文件
+里面加入不想上传的文件
 
+1. `#`  表示注释
+2. `/`  目录分割
+3. `*`匹配任意内容：
+	- `a/*`：`a/a`, `a/a/a`(官方文档说不可以匹配`/`，但是测试发现可以匹配)
+	- `a.*` ：`a.a`， `a.`
+4. 字符 `?`匹配除 `/`之外的任何一个字符
+5. `**`匹配任意路径
+	- `**/img` 包含`img`,`a/img`, `a/b/img`...
+	- `a/**/b`匹配“ `a/b`”、“ `a/x/b`”、“ `a/x/y/b`”等
+	- `/**`匹配里面的所有内容：`abc/**`匹配目录“ `abc`”内的所有文件
+6. 当忽略某个文件夹内所有文件，除了一个特殊文件时
+	用`!`来维护该特殊文件
+	注意点：需要先忽略该文件夹，后排除该特殊文件
+```shell
+# 有效顺序
+properties/*
+!properties/password.txt
+
+# 无效顺序
+!properties/password.txt
+properties/*
+```
+
+检查某个文件是否匹配了忽略的规则`git check-ignore -v <file-path>`： `-v`详细信息打印出匹配的规则
+```shell
+$ git check-ignore -v docs/img/img/11.txt
+# 匹配了.gitignore第四行规则docs/img
+.gitignore:4:docs/img   docs/img/img/11.txt
+```
+
+## 0.4 别名
+```shell
+$ git config --global alias.co checkout
+$ git config --global alias.ci commit
+$ git config --global alias.br branch
+```
+
+也可以将一连串命令组合别名
+`git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"`
+
+也可以在该仓库配置文件中配置`alias`
+```shell
+$ cat .git/config
+...
+[branch "main"]
+        remote = origin
+        merge = refs/heads/main
+[alias]
+        lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+```
 
 
 # 1. 创建版本库
@@ -477,7 +531,28 @@ $ git push origin main
 
 
 
-# 8.分支同步master
+# 8.分支
+
+## 8.1 创建合并分支
+
+命令总结：
+1. 查看所有分支：`git branch`
+2. 创建分支：`git branch <name>`
+3. 切换分支：`git checkout <name>`或者`git switch <name>`
+4. 创建+切换分支：`git checkout -b <name>`或者`git switch -c <name>`
+5. 合并某分支到当前分支：`git merge <要被合并的子分支>`
+6. 删除分支：`git branch -d <name>`
+
+
+merge与rebase区别
+`git merge <name>` 是要合并这个文件`<name>`到我这儿来
+`git rebase <name>` 是要合并到他`<name>`那去
+
+1. 创建并切换到该分支`git checkout -b b1`
+2. 在该分支上操作：如创建新文件或修改文件`touch a`
+3. 在分支上提交该操作: `git add a`, `git commit -m 'add a'`
+4. 切换到主分支去合并该分支`git checkout main` ,  `git merge b1`
+
 
 ```bash
 git clone [项目地址]		//克隆远程代码库到本地
@@ -489,8 +564,161 @@ git branch -a		//查看所有分支
 git checkout master		//切换到master
 git  pull		//拉取master最新的内容
 git checkout dev		//切换到分支dev
-git merge master		//同步master的内容 (或者　git rebase master)
+git merge master		//同步master的内容 (或者切换到master上　git rebase dev)
 ```
 
 
 
+## 8.2 合并冲突
+操作如下
+1. 创建并切换到该分支`git checkout -b b1`
+	1. 在该分支上操作：如修改文件`a`最后一行添加`add last line`
+	2. 在分支上提交该操作: `git add a`, `git commit -m 'change a'`
+2. 切换到主分支`git checkout main` 
+	1. 在主分支上对同一文件`a`修改：修改第一行`haha`
+	2. 在主分支上提交`git add a` ,  `git commit -m 'change a'`
+3. 合并子分支`b1`到主分支`main`上：`git merge b1`
+	1. 此时会报错：`Automatic merge failed; fix conflicts and then commit the result`
+	2. 手动修改文件`a`为最后版本
+4. 修改完后，再次在主分支上提交该文件：`git add a` ,  `git commit -m 'change a'`，此时完成本地仓库合并冲突解决。
+
+## 8.3 合并分支
+Git会用`Fast forward`模式，但这种模式下，删除分支后，会丢掉分支信息。
+`--no-ff`方式：强制禁用`Fast forward`模式，Git就会在merge时生成一个新的commit，这样，从分支历史上就可以看出分支信息。
+
+在合并分支时：
+`git merge --no-ff -m "merge with no-ff" dev`
+加`-m "info"` 是添加注释
+
+默认`Fast forward`
+```
+          A---B---C feature
+         /         main
+D---E---F 
+```
+
+使用`--no-ff`
+```
+          A---B---C feature
+         /         \
+D---E---F-----------G main
+```
+
+此时可以显示出各个分支信息
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205161638217.png)
+
+
+## 8.4 提交远程分支
+
+将本地分支`b1`内数据上传到远程仓库的分支`b1`中
+进入到分支下：`git checkout b1`
+然后
+`git push origin b1`
+或者
+`git push --set-upstream origin b1`
+或者
+`git push origin main:b1`
+
+## 8.5 拉取远程分支
+
+默认拉去远程主分支`main`：`git pull`
+
+对于远程子分支`b3`
+先设置拉取追踪的位置为`b3`：`git branch --set-upstream-to=origin/b3 b3`
+然后`git pull`
+
+设置将拉取位置语法：
+`git branch --set-upstream-to=origin/<branch>  <localBranch>`
+
+## 8.6 rebase合并
+当前`HEAD`在子分支`bugFix`上
+此时通过`git rebase main`合并到主分支上，而且是单线模式，更加清晰简洁
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202205171607039.png)
+
+
+现在 bugFix 分支上的工作在 main 的最顶端，同时我们也得到了一个更线性的提交序列。
+注意，提交记录 C3 依然存在（树上那个半透明的节点），而 C3' 是我们 Rebase 到 main 分支上的 C3 的副本。
+现在唯一的问题就是 main 还没有更新
+
+现在切换到主分支上
+然后通过`git rebase bugFix`，由于 `bugFix` 继承自 `main`，所以 Git 只是简单的把 `main` 分支的引用向前移动了一下而已。
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202205171604516.png)
+
+
+
+以上操作来回切换过于繁琐，可以直接指定合并的两个分支
+`git rebase <保留base分支> <要合并的子分支>`
+
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202205171552156.png)
+
+当合并分支某点时，其**上面所有分支**都会按顺序被合并到**指定节点**下面
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202205171557055.png)
+
+
+
+
+# 9. 分支移动
+`HEAD`指向当前操作版本位置，当通过`checkout, switch`切换位置后，`HEAD`也跟着切换
+
+`git checkout c1`将`HEAD`指向某一个版本，这个`c1`可以为某版本的hash值前几位数
+将HEAD指向上一个版本
+`git checkout main^`
+`git checkout HEAD^`
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202205171610549.png)
+
+
+相对引用：从某个确定的位置找之前的第几个位置
+-   使用 1个`^` 向上移动 1 个提交记录：`HEAD^^`向上两个
+-   使用 `~<num>` 向上移动多个提交记录，如 `HEAD~3`向上三个
+
+
+多个父节点分支，通过`^n`来确定第`n`个父节点
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202205171618886.png)
+
+链式移动`git checkout HEAD~^2~2 `
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202205171623602.png)
+
+
+
+
+## 9.1 强制修改分支位置
+`git branch -f <需要移动分支名称> <相对HEAD位置 | 分支HASH值>`
+例如：
+`git branch -f bugFix 73fjd`
+
+`git branch -f main HEAD~3`
+当前HEAD指向bugFix，移动main分支到HEAD往上三个分支位置
+
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205170903834.png)
+
+
+## 9.2 分支回退
+
+本地分支回退
+`git reset <HEAD相对位置 | 分支HASH值>`
+
+`git reset HEAD^`
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205170911190.png)
+
+
+远程分支回退
+新提交记录 `C2'` 引入了**更改** —— 这些更改刚好是用来撤销 `C2` 这个提交的。也就是说 `C2'` 的状态与 `C1` 是相同的。
+revert 之后就可以把你的更改推送到远程仓库与别人分享啦。
+`git revert HEAD`
+
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/java/thread202205170920961.png)
+
+## 9.3 整理分支
+  `git cherry-pick <提交号>...`
+将一些提交复制到当前所在的位置（`HEAD`）下面的话
+
+`git cherry-pick c2 c4`
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202205170939852.png)
+## 9.4 分支标签
+
+给分支打标签，方便后面使用该分支，更有识别性
+`git tag <标签别名> <分支>`
+`git tag v1.0 c1dfse `
+
+后面再使用该分支时，直接通过标签名`v1.0`操作
+`git checkout v1.0`

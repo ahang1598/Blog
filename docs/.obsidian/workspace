@@ -9,8 +9,8 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Git.md",
-            "mode": "source",
+            "file": "算法.md",
+            "mode": "preview",
             "source": false
           }
         }
@@ -70,7 +70,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Git.md",
+                "file": "算法.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -87,7 +87,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Git.md"
+                "file": "算法.md"
               }
             }
           },
@@ -112,19 +112,19 @@
       }
     ],
     "direction": "horizontal",
-    "width": 305
+    "width": 167
   },
   "active": "ad790eafda1d6056",
   "lastOpenFiles": [
-    "Git.md",
+    "算法.md",
     "Java并发.md",
+    "java多线程.md",
+    "MySQL.md",
+    "Git.md",
     "java基础.md",
     "Java基础_2.md",
     "面试准备.md",
-    "java多线程.md",
     "未命名.md",
-    "assets/1594518049426.png.md",
-    "设计模式.md",
-    "Excalidraw/Drawing 2022-05-08 16.49.42.excalidraw.png"
+    "assets/1594518049426.png.md"
   ]
 }

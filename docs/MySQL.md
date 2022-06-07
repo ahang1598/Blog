@@ -1,8 +1,8 @@
 # 1. 使用MySQL
 
 ## 1.1 登录数据库
-`mysq-h 127.0.0.1 -u root -p****`
-- -h指连接的主机名，因为连接的本机，所以为localhost；-
+`mysq-h 127.0.0.1 -u root -p`
+- -h指连接的主机名，因为连接的本机，所以为localhost；
 - -u表示用户名，此处为root；
 - -p指用户密码，可以在-p后面紧接着输入密码。
 
@@ -76,8 +76,6 @@ Linux下忘记密码修改：
 
 # 2. 数据库基本操作
 
-
-
 - 创建数据库 `CREATE DATABASE 数据库名;`
 - 删除数据库 `DROP DATABASE 数据库名;`
 - 查看已存在数据库 `SHOW DATABASES;`
@@ -95,7 +93,7 @@ Linux下忘记密码修改：
 
 第三范式：在2NF基础上，任何非主属性不依赖于其它非主属性（在2NF基础上消除传递依赖）
 					：一个表中不能包含其他相关表中非关键字段的信息,即数据表不能有冗余字段
-					
+
 
 ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220428091348985.png)
 
@@ -107,12 +105,12 @@ Linux下忘记密码修改：
 
 ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/MySQL/image-20220428091357390.png)
 
-## 2.3 设置范围`global,session`
+## 2.3 设置范围global,session
 
  `GLOBAL` 关键字（在全局范围影响，已存会话无效）
 
 - 只对执行完该语句之后产生的会话起作用。
-- 当前已经存在的会话无效
+- <mark style="background: #FF5582A6;">当前已经存在的会话无效</mark> 
 
  `SESSION` 关键字（当前会话范围影响）
 
@@ -127,12 +125,7 @@ Linux下忘记密码修改：
 - 该语句不能在已经开启的事务中间执行，会报错的。
 
 
-
-
-
-
-
-
+----
 
 # 3. 表操作
 
@@ -141,8 +134,6 @@ Linux下忘记密码修改：
 > CREATE TABLE 表名(
 >
 > 属性名 数据类型 [完整性约束条件]，
->
-> 
 >
 > 属性名 数据类型 [完整性约束条件]，
 >
@@ -222,7 +213,7 @@ COMMENT='用户表信息';
 - `desc 表名` 查看表的各属性信息
 - `show create table 表名`查看表的完整创建语句,包括表的字段名、字段数据类型、完整约束条件信息，还可查看默认表的默认存储引擎和字符编码
 
-
+                                                                                                                                               
 
 ## 3.3 修改表
 
@@ -1346,8 +1337,7 @@ Extra |一些额外的信息
 **key_len** : MySQL中使用索引字节长度
 
 - 对于使用**固定长度**类型的索引列来说，它实际占用的存储空间的最大长度就是该固定值，对于指定字符集的
-  变长类型的索引列来说，比如某个索引列的类型是 VARCHAR(100) ，使用的字符集是 utf8 ，那么该列实际占
-  用的最大存储空间就是 100 × 3 = 300 个字节。
+  变长类型的索引列来说，比如某个索引列的类型是 VARCHAR(100) ，使用的字符集是 utf8 ，那么该列实际占的最大存储空间就是 100 × 3 = 300 个字节。
 - 如果该索引列**可以存储 NULL** 值，则 key_len 比不可以存储 NUL值时**多1个字节**。
 - 对于**变长字段**来说，都会有**2个字节的空间**来存储该变长列的实际长度。
 
@@ -1771,7 +1761,7 @@ mysql> show warnings;
 
 
 
-#### 原理
+#### order by 原理
 
 https://juejin.cn/post/6973300662738092069#heading-2
 
@@ -1863,7 +1853,6 @@ MySQL是8.0版本，支持**Descending Indexes**，可以这样修改索引
 ### 5.5.4 Limit查询的优化
 
 Limit常用于分页处理，时长会伴随order by从句使用，因此大多时候回使用Filesorts这样会造成大量的IO问题。
-
 
 
 需求：查询影片id和描述信息，并根据主题进行排序，取出从序号50条开始的5条数据。
@@ -2107,7 +2096,7 @@ mysql> explain select * from t1 where name = '123';
 
 - **优化INSERT语句**
 
-  插入多条记录时，可以采取两种写INSERT语句的方式。第一种是一个INSERT语句插入多条记录。第二种是一个INSERT语句只插入一条记录，执行多个INSERT语句来插入多条记录。第一种方式减少了与数据库之问的连接等操作，其速度比第二种方式要快。
+  插入多条记录时，可以采取两种写INSERT语句的方式。第一种是一个INSERT语句<mark style="background: #FF5582A6;">插入多条</mark> 记录。第二种是一个INSERT语句<mark style="background: #FF5582A6;">只插入一条</mark> 记录，执行多个INSERT语句来插入多条记录。第一种方式减少了与数据库之问的连接等操作，其速度比第二种方式要快。
 
 技巧：当插入大量数据时，建议使用一个INSERT语句插入多条记录的方式。而且，如果能用LOAD DATA INFILE语句，就尽量用LOAD DATA INFILE语句。因为LOAD DATA INFILE语句导入数据的速度比1NSERT语句的速度快。
 
@@ -2244,7 +2233,7 @@ SET character_set_results = 字符集名;
 
 比较规则 是针对某个字符集中的字符比较大小的一种规则
 
-默认比较规则不比较大小写，可以将`utf8_general_ci`修改为`utf_bin`
+默认比较规则不比较大小写，可以将`utf8_general_ci`修改为`utf8_bin`
 
 ```mysql
  show VARIABLES LIKE 'COLLATION_database';
@@ -2537,7 +2526,7 @@ MyISAM数据目录
 
 ## 10.1 适用条件
 
-​						建立索引为`（a,b,c）`
+建立索引为`（a,b,c）`
 
 **全值匹配**：搜索条件中的列和索引列一致，如`where a = 10 and b = 20 and c = 30`
 

@@ -4,6 +4,6 @@
   "foldHeading": false,
   "autoPairMarkdown": true,
   "livePreview": true,
-  "readableLineLength": false,
+  "readableLineLength": true,
   "promptDelete": false
 }

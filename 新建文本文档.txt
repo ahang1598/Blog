@@ -1,0 +1,114 @@
+Ahang@Ahang MINGW64 /c/java/markdown ((24692d2...))
+$ git rebase --help
+
+Ahang@Ahang MINGW64 /c/java/markdown ((24692d2...))
+$ git status
+HEAD detached at refs/heads/t1
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   docs/Git.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+Ahang@Ahang MINGW64 /c/java/markdown ((24692d2...))
+$ git add .
+warning: LF will be replaced by CRLF in docs/Git.md.
+The file will have its original line endings in your working directory
+
+Ahang@Ahang MINGW64 /c/java/markdown ((24692d2...))
+$ git commit -a
+Aborting commit due to empty commit message.
+
+Ahang@Ahang MINGW64 /c/java/markdown ((24692d2...))
+$ git commit -m 'update git'
+[detached HEAD 7be5bb6] update git
+ 1 file changed, 92 insertions(+), 10 deletions(-)
+
+Ahang@Ahang MINGW64 /c/java/markdown ((7be5bb6...))
+$ git push origin main
+Everything up-to-date
+
+Ahang@Ahang MINGW64 /c/java/markdown ((7be5bb6...))
+$ git checkout main
+Warning: you are leaving 1 commit behind, not connected to
+any of your branches:
+
+  7be5bb6 update git
+
+If you want to keep it by creating a new branch, this may be a good time
+to do so with:
+
+ git branch <new-branch-name> 7be5bb6
+
+Switched to branch 'main'
+Your branch is up to date with 'origin/main'.
+
+Ahang@Ahang MINGW64 /c/java/markdown (main)
+$ git lg
+* f7464f6 - (HEAD -> main, origin/main) update git (31 hours ago) <ahang1598>
+* 3f4f2a1 - update bingfa (4 days ago) <ahang1598>
+* d5fb1fe - add java bingfa (8 days ago) <ahang1598>
+* 9a76f00 - change oss (13 days ago) <ahang1598>
+* 447f5f1 - use obsidian (13 days ago) <ahang1598>
+* b6eeda7 - update mysql (3 weeks ago) <ahang1598>
+* 0dea79a - update mysql (3 weeks ago) <ahang1598>
+* 96354c1 - update mysql (3 weeks ago) <ahang1598>
+* b0ee277 - adjust (4 weeks ago) <ahang1598>
+* e5dd376 - update mianshi (4 weeks ago) <ahang1598>
+* 01170fe - update (5 weeks ago) <ahang1598>
+* 8aba537 - update info (5 weeks ago) <ahang1598>
+* 894850c - add jvm (5 weeks ago) <ahang1598>
+* 420cb5d - update (7 weeks ago) <ahang1598>
+* a290792 - update 面试 (8 weeks ago) <ahang1598>
+* 5629381 - update (8 weeks ago) <ahang1598>
+* 4f7bc26 - add experice (9 weeks ago) <ahang1598>
+* ccc4b6d - update algorithm (10 weeks ago) <ahang1598>
+* 18c8678 - update algorithm (2 months ago) <ahang1598>
+* 71ceae0 - update (3 months ago) <ahang1598>
+* f122d4e - update redis and changgou (3 months ago) <ahang1598>
+* b6e50db - update sidebar (3 months ago) <ahang1598>
+* 90b5ae0 - add Redis (3 months ago) <ahang1598>
+
+Ahang@Ahang MINGW64 /c/java/markdown (main)
+$ git log
+commit f7464f63288cf3f65aa98e063fc06301911184ac (HEAD -> main, origin/main)
+Author: ahang1598 <hcie_zpc@163.com>
+Date:   Mon May 16 08:59:01 2022 +0800
+
+    update git
+
+commit 3f4f2a1f67717c39426f99281191e8fad3072e5d
+Author: ahang1598 <hcie_zpc@163.com>
+Date:   Fri May 13 23:28:33 2022 +0800
+
+    update bingfa
+
+commit d5fb1fec3996f4606ae54afd12706c22612f5e48
+Author: ahang1598 <hcie_zpc@163.com>
+Date:   Mon May 9 23:08:08 2022 +0800
+
+    add java bingfa
+
+commit 9a76f00d836c6befd267cee54a516f10036bf7c3
+Author: ahang1598 <hcie_zpc@163.com>
+Date:   Wed May 4 19:27:41 2022 +0800
+
+    change oss
+
+Ahang@Ahang MINGW64 /c/java/markdown (main)
+$ git push origin main
+Everything up-to-date
+
+Ahang@Ahang MINGW64 /c/java/markdown (main)
+$
+
+Ahang@Ahang MINGW64 /c/java/markdown (main)
+$ git checkout 7be5bb6
+error: Your local changes to the following files would be overwritten by checkout:
+        docs/Git.md
+Please commit your changes or stash them before you switch branches.
+Aborting
+
+Ahang@Ahang MINGW64 /c/java/markdown (main)
+$
