@@ -9,8 +9,8 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "算法.md",
-            "mode": "preview",
+            "file": "java基础.md",
+            "mode": "source",
             "source": false
           }
         }
@@ -53,8 +53,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 171,
-    "collapsed": true
+    "width": 171
   },
   "right": {
     "id": "7fa91884506cf4c7",
@@ -70,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "算法.md",
+                "file": "java基础.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -87,7 +86,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "算法.md"
+                "file": "java基础.md"
               }
             }
           },
@@ -112,19 +111,19 @@
       }
     ],
     "direction": "horizontal",
-    "width": 167
+    "width": 266
   },
   "active": "ad790eafda1d6056",
   "lastOpenFiles": [
+    "java基础.md",
     "算法.md",
+    "计划赶不上变化.md",
+    "Jvm.md",
     "Java并发.md",
     "java多线程.md",
     "MySQL.md",
     "Git.md",
-    "java基础.md",
     "Java基础_2.md",
-    "面试准备.md",
-    "未命名.md",
-    "assets/1594518049426.png.md"
+    "面试准备.md"
   ]
 }

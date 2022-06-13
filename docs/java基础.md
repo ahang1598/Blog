@@ -576,9 +576,11 @@ Vector是**底层结构是数组**，一般现在我们已经很少用了。
     - 不同步的，多线程访问需要设置同步
 - HashSet集合保证元素唯一性
 
-![image](https://note.youdao.com/yws/public/resource/9a17bf7311b3424a6840aae93c5a8648/xmlnote/01190DAD843A4320950BE50559F86927/19474)
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202206132239646.jpg)
+
 - 数据结构之哈希表
-![image](https://note.youdao.com/yws/public/resource/9a17bf7311b3424a6840aae93c5a8648/xmlnote/4EBC952395EA4AA585FB91B7E7C448C3/19478)
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202206132239861.jpg)
+
 
 - LinkedHashSet集合特点
     - 哈希表和链表实现的Set接口，具有可预测的迭代次序
@@ -961,9 +963,9 @@ public static void getAllFileName(File f){
 
 
 ### 9.2 I/O
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202206132237507.jpg)
 
-![image](https://note.youdao.com/yws/public/resource/9a17bf7311b3424a6840aae93c5a8648/xmlnote/37C9590457C443619F5B19FB6C35781F/19903)
-![image](https://note.youdao.com/yws/public/resource/9a17bf7311b3424a6840aae93c5a8648/xmlnote/C5BDC1ADEF884B9BA33FD739A4B26ED7/19904)
+![](https://ahang.oss-cn-guangzhou.aliyuncs.com/img/git_202206132238073.jpg)
 
 #### 9.2.1 常用方法
 `FileOutputStream`常用方法，将指定字节写入文件中
