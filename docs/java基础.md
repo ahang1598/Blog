@@ -2,7 +2,7 @@
 
 
 
-## 1. 常量
+# 1. 常量
 用`final`修饰，一旦定义后面就不能修改了，如`final double MAX_D = 100.101`
 
 1.  final 修饰一个引用
@@ -56,7 +56,7 @@ Java没有无符号（unsigned）形式long、int、short、byte类型
 
 运算通过`add()`,`multiply()`,`toString`
 
-## 2. 运算符
+# 2. 运算符
 
 ### 2.1. 异或（XOR，^）：不同为1，相同为0。
 
@@ -142,7 +142,7 @@ n=n & n + 1 | n + 2 ^ n + 3;
 n>>=2;
 ```
 
-## 3. 字符串
+# 3. 字符串
 
 ### 3.1 子串
 ```java
@@ -194,6 +194,7 @@ String substr = str.substring(0,3);  // 从0到2的子串: hel
 #### 3.4.1 StringBuilder --> String
 避免拼接很多小的字符串都要声明一个String来存储，浪费时空。
 通过StringBuilder构建更快相当于放入缓存，当使用toString()方法时才声明一个String。
+
 ```java
         StringBuilder builder = new StringBuilder();  // 构建StringBuilder
         builder.append(a);       // 对其操作
@@ -252,7 +253,7 @@ String substr = str.substring(0,3);  // 从0到2的子串: hel
 
 
 
-## 4. ArrayList集合
+# 4. ArrayList集合
 
 - 什么是集合
 
@@ -391,7 +392,7 @@ List<String> stringList = Arrays.asList("a", "b", "c");  // 直接字符初始�
     System.out.println(arr);  // [a, cc, ddd, bbbb]
 ```
 
-## 5. 集合
+# 5. 集合
 
 集合类型分为`Collection`和`Map`两大类
 ![]( https://ahang.oss-cn-guangzhou.aliyuncs.com/img/5-1912051036333V.png)
@@ -510,7 +511,8 @@ for(Student s : list) {
 | int lastIndexOf(Object o)                     | 返回此集合中最后一次出现指定元素的索引，如果此集合不包含该元素，则返回 -1                                                                                                 |
 | E set(int index, Eelement)                    | 将此集合中指定索引位置的元素修改为 element 参数指定的对象。此方法返回此集合中指定索引位置的原元素                                                                         |
 | `List<E> subList(int fromlndex, int tolndex)` | 返回一个新的集合，新集合中包含 fromlndex 和 tolndex 索引之间的所有元素。包含 fromlndex 处的元素，不包含 tolndex 索引处的元素 `LinkedList`包含Collection方法，还有特有方法 |
-                                                                                                                       |
+​    
+
 | 方法名                                        | 说明                                                                                                                                                                      |
 | -------------------------                     | --------------------------------                                                                                                                                          |
 | public void addFirst(E e)                     | 在该列表开头插入指定的元素                                                                                                                                                |
@@ -824,7 +826,7 @@ HashMap<String, ArrayList<String>> hm = new HashMap<String, ArrayList<String>>()
 
 
 
-## 6. 泛型
+# 6. 泛型
 
 - 含义： 就是将类型由原来的具体的类型参数化，然后在使用/调用时传入具体的类型
 - 使用： 这种参数类型可以用在类、方法和接口中，分别被称为泛型类、泛型方法、泛型接口
@@ -869,7 +871,7 @@ Generic<String> g1 = new GenericImpl<String>();
 g1.show("林青霞");
 
 ```
-## 7. 类型通配符
+# 7. 类型通配符
 
 - 作用：表示各种泛型List的父类
 - 类型通配符：`<?>`
@@ -882,7 +884,7 @@ g1.show("林青霞");
 
 
 
-## 8. 可变参数
+# 8. 可变参数
 `int... a`表示，多个变量时可变参数放最后：`int b, int... a`
 
 ```java
@@ -893,7 +895,7 @@ public static int sum(int... a) {
 }
 ```
 
-## 9. IO文件
+# 9. IO文件
 
 ### 9.1 File
 
@@ -1045,7 +1047,7 @@ fos.close();
 fis.close();
 ```
 
-## 10. 字节字符缓冲流
+# 10. 字节字符缓冲流
 
 ### 10.1 字节缓冲流
 
@@ -1189,7 +1191,7 @@ fis.close();
     bw.close();
 ```
 
-## 11. 特殊操作流
+11. 特殊操作流
 
 ### 11.1 `Scanner`和`BufferedReader`的区别
 - `Scanner`:解析基本数据类型和字符串。它本质上是使用正则表达式去读取不同的数据类型
@@ -1300,7 +1302,7 @@ fis.close();
     ois.close();
 ```
 
-## 12 Properties集合
+# 12 Properties集合
 
 - Properties类继承自HashTable，通常和io流结合使用。
 - 它最突出的特点是将key/value作为配置属性写入到配置文件中以实现配置持久化，或从配置文件中读取这些属性。
@@ -1318,7 +1320,7 @@ fis.close();
 | void store(OutputStream out, String comments) | 将此属性列表（键和元素对）写入此 Properties表中，以适合于使用load(InputStream)方法的格式写入输出字节流 |
 | void store(Writer writer, String comments)    | 将此属性列表（键和元素对）写入此Properties表中，以适合使用 load(Reader)方法的格式写入输出字符流 |
 
-## 网络编程
+# 网络编程
 
 ### 13.1 `InetAddress`
 ```java
@@ -1521,7 +1523,7 @@ public class TcpServerThread {
 ```
 
 
-## 14 Lambda
+# 14 Lambda
 
 ### 14.1 前提和基本使用
 
@@ -1587,7 +1589,7 @@ public class EatableDemo {
     - 匿名内部类：编译之后，产生一个单独的 .class字节码文件
     - Lambda 表达式：编译之后，没有一个单独的.class字节码文件。对应的字节码会在运行的时候动态生成
 
-## 15 方法引用
+# 15 方法引用
 
 | 种类                   | 示例               | 说明                                                         | 对应lambda表达式                       |
 | ---------------------- | ------------------ | ------------------------------------------------------------ | -------------------------------------- |
@@ -1672,7 +1674,7 @@ public interface StudentBuilder {
 ```
 
 
-## 16 接口组成成员
+# 16 接口组成成员
 
 - 常量：`public static final`
 - 抽象方法:`public abstract`,通常直接写`void method();`默认省略了`public abstract`
@@ -1682,31 +1684,78 @@ public interface StudentBuilder {
     - 默认方法可以调用私有的静态方法和非静态方法
     - 静态方法只能调用私有的静态方法
 
-# 17 Stream流
-使用Stream流对集合数据操作，先将集合数据转化为流数据，然后对流数据操作，最后也可以转化为集合数据
+# 17 Stream流式编程
 
-## 17.1 生成Stream流
+## 17.1 创建
+
+**（1）使用指定值创建Stream实例**
+
 ```java
-    //Collection体系的集合可以使用默认方法stream()生成流
-    List<String> list = new ArrayList<String>();
-    Stream<String> listStream = list.stream();
-    Set<String> set = new HashSet<String>();
-    Stream<String> setStream = set.stream();
-    
-    //Map体系的集合间接的生成流
-    Map<String,Integer> map = new HashMap<String, Integer>();
-    Stream<String> keyStream = map.keySet().stream();
-    Stream<Integer> valueStream = map.values().stream();
-    Stream<Map.Entry<String, Integer>> entryStream = map.entrySet().stream();
-    
-    //数组可以通过Stream接口的静态方法of(T... values)生成流
-    String[] strArray = {"hello","world","java"};
-    Stream<String> strArrayStream = Stream.of(strArray);
-    Stream<String> strArrayStream2 = Stream.of("hello", "world", "java");
-    Stream<Integer> intStream = Stream.of(10, 20, 30);
+// of为Stream的静态方法 
+        Stream<String> strStream = Stream.of("hello", "java8", "stream"); 
+// 或者使用基本类型流
+        IntStream intStream = IntStream.of(1, 2, 3);
 ```
 
-## 17.2 Stream流操作
+**（2）使用集合创建Stream实例（常用方式）**
+
+```java
+// 使用guava库，初始化一个不可变的list对象 
+        ImmutableList<Integer> integers = ImmutableList.of(1, 2, 3); 
+// List接口继承Collection接口，java8在Collection接口中添加了stream方法 
+        Stream<Integer> stream = integers.stream(); 
+```
+
+**（3）使用数组创建Stream实例**
+
+```java
+// 初始化一个数组 
+        Integer[] array = {1, 2, 3}; 
+// 使用Arrays的静态方法stream 
+        Stream<Integer> stream = Arrays.stream(array); 
+```
+
+**（4）使用生成器创建Stream实例**
+
+```java
+// 随机生成100个整数 
+        Random random = new Random(); 
+// 加上limit否则就是无限流了 
+        Stream<Integer> stream = Stream.generate(random::nextInt).limit(100); 
+```
+
+**（5）使用迭代器创建Stream实例**
+
+```java
+// 生成100个奇数，加上limit否则就是无限流了 
+        Stream<Integer> stream = Stream.iterate(1, n -> n + 2).limit(100); 
+        stream.forEach(System.out::println); 
+```
+
+**（6）使用IO接口创建Stream实例**
+
+```java
+// 获取指定路径下文件信息，list方法返回Stream类型
+        Stream<Path> pathStream = Files.list(Paths.get("/")); 
+```
+
+
+[参考](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/stream/Stream.html)
+
+​        ![](https://img.liboliu.com/2021-06-14/372acd67-5b57-490f-af46-f9ab859d2846.png)
+​    
+
+  Stream流操作的有状态 vs 无状态
+​        比如map或者filter会从输入流中获取每一个元素，并且在输出流中得到一个结果，这些操作没有内部状态，称为无状态操作。
+​        但是像reduce、sum、max这些操作都需要内部状态来累计计算结果，所以称为有状态操作。
+
+​        这里需要单独解释一下：
+​        有一些操作sort、distinct、limit、skip看上去和filter、map差不多，他们接收一个流，再生成一个流，但是区别在于排序和去重复项需要知道先前的历史。比如排序就需要将所有元素放入缓存区后才能给输出流加入一个项目，这个操作对缓存的要求是无上限的，流有多大就需要多大的缓存才能进行运算。这些操作也是有状态操作。
+
+​        短路与非短路操作
+​        短路：匹配到前部分满足了条件就会停止
+​        非短路：匹配全部
+
 | 方法名                                   | 说明                                                       |
 | ---------------------------------------- | ---------------------------------------------------------- |
 | void forEach(Consumer action)            | 对此流的每个元素执行操作                                   |
@@ -1721,52 +1770,246 @@ public interface StudentBuilder {
 | Stream map(Function mapper)              | 返回由给定函数应用于此流的元素的结果组成的流               |
 | IntStream mapToInt(ToIntFunction mapper) | 返回一个IntStream其中包含将给定函数应用于此流的元素的结果  |
 
+## 中间状态
+
+`sort`
+        Stream流中间状态不会立即执行语句，是懒执行
+        直到使用了最终状态时才会执行中间状态的语句。
+
 ```java
+        ArrayList<Integer> numbers = new ArrayList<>(Arrays.asList(2,3,4,5));
+        Stream<Integer> stream = numbers.stream().sorted( (a,b)->b.compareTo(a) );
+
+// 在已经定义好的流使用的列表中，仍添加数字后，结果仍然会排好序
+        numbers.add(3);
+        numbers.add(1);
+        stream.forEach(System.out::print); // 5 4 3 3 2 1
+distinct
+        ArrayList<Integer> numbers = new ArrayList<>(Arrays.asList(2,3,3,5));
+        numbers.stream().distinct().forEach(System.out::print); // 235
+```
+
+`filter`
+        根据指定条件过滤：如字符串长度，数字大小
+
+```java
+        ArrayList<String> numbers = new ArrayList<>(Arrays.asList("aa", "b", ""));
+        numbers.stream().filter(s -> s.length() > 0).forEach(System.out::print ); // aab 
+```
+
+`map`
+        对每个元素都映射操作
+
+```java
+        ArrayList<Integer> numbers = new ArrayList<>(Arrays.asList(2,3,5));
+        numbers.stream().map(a -> a*a).forEach(System.out::print); // 4925
+```
+
+`limit`取前几个
+`skip`跳过前几个
+
+```java
+        ArrayList<Integer> numbers = new ArrayList<>(Arrays.asList(2,3,3,5));
+
+        numbers.stream().limit(3).forEach(System.out::print);  // 233
+        numbers.stream().skip(1).forEach(System.out::print);  // 335
+```
+
+​        流操作具体流程示意图
+
+```java
+        List<String> strings = Arrays.asList("Hollis", "HollisChuang", "hollis", "Hello", "HelloWorld", "Hollis");
+        Stream s = strings.stream()
+                .filter(string -> string.length()<= 6)
+                .map(String::length)
+                .sorted()
+                .limit(3)
+                .distinct();
+```
+
+​        ![](https://www.hollischuang.com/wp-content/uploads/2019/03/15521242025506.jpg)
+
+
+## 终结状态
+
+​        最终操作会消耗流，产生一个最终结果。也就是说，<mark style="background: #FF5582A6;">在最终操作之后，不能再次使用该流</mark> ，也不能再使用任何中间操作，否则将抛出异常：
+
+```java
+        java.lang.IllegalStateException: stream has already been operated upon or closed
+```
+
+**forEach**
+
+​        Stream 提供了方法 `forEach` 来迭代流中的每个数据。以下代码片段使用 `forEach` 输出了10个随机数：
+
+```java
+        Random random = new Random();
+        random.ints().limit(10).forEach(System.out::println);
+```
+
+**count**
+
+​        count用来统计流中的元素个数。
+
+```java
+        List<String> strings = Arrays.asList("Hollis", "HollisChuang", "hollis", "Hollis666", "Hello", "HelloWorld", "Hollis");
+        System.out.println(strings.stream().count());
+//7
+```
+
+**collect**
+
+​        collect就是一个归约操作，可以接受各种做法作为参数，将流中的元素累积成一个汇总结果（可以转换成set,map,list等）：
+
+```java
+        List<String> strings = Arrays.asList("Hollis", "HollisChuang", "hollis","Hollis666", "Hello", "HelloWorld", "Hollis");
+        strings  = strings.stream().filter(string -> string.startsWith("Hollis")).collect(Collectors.toList());
+        System.out.println(strings);
+//Hollis, HollisChuang, Hollis666, Hollis
         ArrayList<String> str = new ArrayList<String>(Arrays.asList("haha", "hello","hhhh","ahang"));
-        
-        str.stream().filter( s -> s.startsWith("h")).forEach(System.out::println);  
-        // filter过滤后只有以h开头的字符串，forEach()对流中每个元素操作，可能会无序
-        str.stream().filter( s -> s.startsWith("h") ).filter(s -> s.length() == 4).forEach(s -> System.out.println(s));
-        
-        str.stream().skip(1).limit(2).forEach(System.out::println);
-        // skip跳过前几个， limit只保存前几个
-        
-        Stream<String> s1 = str.stream().skip(1);
-        Stream<String> s2 = str.stream().limit(3);
-        Stream.concat(s1, s2).forEach(System.out::println);  // concat合并两个流中元素，重复也存在
-        Stream.concat(s1,s2).distinct().forEach(System.out::println);  // distinct去除重复的元素 
+        Stream<String> strStream= str.stream().filter(s -> s.length() == 4);
+        List<String> lists = strStream.collect(Collectors.toList());   // collect(Collectors.toList()) 转化Stream为List集合
+        Set<String> sets = strStream.collect(Collectors.toSet());   // collect(Collectors.toSet()) 转化Stream为Set集合
 
-        str.stream().sorted().forEach(System.out::println); // 按照字符默认排序
-        str.stream().sorted( (a,b) -> {           // 实现Comparetor接口
-            int num1 = a.length() - b.length();
-            int num2 = num1 == 0? a.compareTo(b) : num1;
-            return num2;
-        } ).forEach(System.out::println);
-        
-        ArrayList<String> list = new ArrayList<String> (Arrays.asList("10", "20", "40","9"));
-        list.stream().map(s -> Integer.parseInt(s)).forEach(s -> System.out.println(s));
-        list.stream().map(Integer::parseInt).forEach(System.out::println);
-        int sum = list.stream().mapToInt(Integer::parseInt).sum();  
-        // mapToInt()可以转化stream为IntStream，会有数字的相关方法
+        String[] names = {"haha,20", "ahang,30","kaka,23"};
+        Stream<String> arrayStream = Stream.of(names);
+        // collect( Collectors.toMap(Function keyMapper,Function valueMapper))转化Stream为map集合
+        Map<String, Integer> map = arrayStream.collect( Collectors.toMap(s->s.split(",")[0], s-> Integer.parseInt(s.split(",")[1]))  );
+        Set<String> keySet = map.keySet();
+        for(String key: keySet){
+            Integer value = map.get(key);
+            System.out.println(key + ":" + value);
+        }
 ```
 
-## 17.3 Stream流转化为集合
+​        接下来，我们还是使用一张图，来演示下，前文的例子中，当一个Stream先后通过filter、map、sort、limit以及distinct处理后，在分别使用不同的最终操作可以得到怎样的结果：
+
+​        下图，展示了文中介绍的所有操作的位置、输入、输出以及使用一个案例展示了其结果。
+​        ![](https://www.hollischuang.com/wp-content/uploads/2019/03/15521245463720.jpg)
+
+# Optional
+
+​        原文链接：https://blog.csdn.net/NoxUni/article/details/107311593
+
+## 概述
+
+可以为null的容器对象，可以保存类型T的值
+可以解决空指针异常
+
+## 创建Optional实例
+
+创建空的Optional类
+`Optional<User> emptyOpt = Optional.empty();`
+
+Of()方法：返回一个指定非 null 值的 Optional。若传入 null，会抛出 NullPointerException
+`Optional<User> opt = Optional.of(user)`
+
+OfNullable()方法：如果入参非空，返回 Optional 描述的指定值，否则返回空的 Optional。该方法可以解决空指针异常问题
+`Optional<User> opt = Optional.ofNullable(user);`
+
+## 验证是否有值
+
+​        有如下两种验证方法：
+
+```
+boolean isPresent()`：有值为 true，无值为 false
+`void ifPresent(Consumer<? super T> consumer)`：接受一个Consumer参数，如果值存在则使用该值调用 consumer，否则不做任何事
+// 如果入参不为空，打印age
+`opt.ifPresent(u -> System.out.println(u.getAge()));
+```
+
+
+## 从Optional中返回值
+
+`T get()`：若 opt 为空，抛出 NoSuchElementException
+
 ```java
-    ArrayList<String> str = new ArrayList<String>(Arrays.asList("haha", "hello","hhhh","ahang"));
-    Stream<String> strStream= str.stream().filter(s -> s.length() == 4);
-    List<String> lists = strStream.collect(Collectors.toList());   // collect(Collectors.toList()) 转化Stream为List集合
-    Set<String> sets = strStream.collect(Collectors.toSet());   // collect(Collectors.toSet()) 转化Stream为Set集合
-
-    String[] names = {"haha,20", "ahang,30","kaka,23"};
-    Stream<String> arrayStream = Stream.of(names);
-    // collect( Collectors.toMap(Function keyMapper,Function valueMapper))转化Stream为map集合
-    Map<String, Integer> map = arrayStream.collect( Collectors.toMap(s->s.split(",")[0], s-> Integer.parseInt(s.split(",")[1]))  );
-    Set<String> keySet = map.keySet();
-    for(String key: keySet){
-        Integer value = map.get(key);
-        System.out.println(key + ":" + value);
-    }
+        User user = new User("Harry", 11);
+        Optional<User> opt = Optional.ofNullable(user);
+        opt.get().getName();
 ```
+
+`T orElse(T other)`：如果存在值则返回值，否则返回 other
+
+```java
+        User user1 = null;
+        User user2 = new User("Harry", 11);
+        User resultA = Optional.ofNullable(user1).orElse(user2); // 返回user2
+
+        User user3 = new User("Ron", 12);
+        User resultB = Optional.ofNullable(user2).orElse(user3); // 返回user2
+        T orElseGet(Supplier<? extends T> other)：如果存在值则返回值，否则执行入参的 Supplier参数，返回其执行结果
+        User result = Optional.orNullable(user).orElseGet(() -> user2);
+```
+
+
+`<X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier)`：存在值则返回值，否则抛出由 Supplier 继承的异常
+        User result = Optional.ofNullable(user).orElseThrow(() -> new IllegalArgumentException());
+
+## 转换值
+
+`<U>Optional<U> map(Function<? super T,? extends U> mapper)`：如果有值，则对其执行调用映射函数得到返回值。如果返回值不为 null，则创建包含映射返回值的Optional作为map方法返回值，否则返回空Optional。
+
+```java
+        User user1 = new User("Harry", 11);
+        User user2 = null;
+        String name1 = Optional.ofNullable(user1).map(u -> u.getName()).orElse("John Doe"); // 返回Harry
+        String name2 = Optional.ofNullable(user2).map(u -> u.getName()).orElse("John Doe"); // 返回John Doe
+```
+
+`<U> Optional<U> flatMap(Function<? super T,Optional<U>> mapper)`：如果值存在，返回基于Optional包含的映射方法的值，否则返回一个空的Optional。
+        与 map() 的区别在于，map方法返回的值应为 Optional 类型
+        String name = Optional.ofNullable(user).flatMap(u -> u.getOptName()).orElse("default");
+
+​        User类中的 getOptName() 方法：
+
+```java
+        public Optional<String> getOptName(){
+            return Optional.ofNullable(name);
+        }
+```
+
+## 过滤值
+
+```
+Optional<T> filter(Predicate<? super <T> predicate)`：如果值存在，并且这个值匹配给定的 predicate，测试结果为 true 则返回一个 Optional 用以描述这个值，否则返回一个空的Optional。
+`Optional<User> result = Optional.ofNullable(user).filter(u -> u.getName() != null && u.getAge() > 0 && u.getAge() < 100);
+```
+
+​        参考：
+​        https://www.cnblogs.com/zhangboyu/p/7580262.html
+​        https://www.runoob.com/java/java8-optional-class.html
+
+# Assert断言
+
+## Java的assert
+
+​        1、`assert <boolean表达式>`
+​        如果<boolean表达式>为true，则程序继续执行。
+​        如果为false，则程序抛出AssertionError，并终止执行。
+​        2、`assert <boolean表达式> : <错误信息表达式>`
+​        如果<boolean表达式>为true，则程序继续执行。
+​        如果为false，则程序抛出java.lang.AssertionError，并输入<错误信息表达式>。
+​        `assert "a".equals("ab") : "断言失败，此表达式的信息将会在抛出异常的时候输出！";`
+
+
+## Junit的Assert
+
+​        以下方法在`import org.junit.Test;`直接使用
+​        或者通过`import org.junit.Assert;`，然后`Assert.assertEquals(Object expected, Object actuals);`
+
+`assertEquals` 和 `assertTrue` 区别
+        相同之处：都能判断两个值是否相等
+        assertTrue 如果为true，则运行success，反之Failure
+        assertEquals 如果预期值与真实值相等，则运行success，反之Failure
+
+​        不同之处：
+<mark style="background: #FF5582A6;">assertEquals 运行Failure会有错误提示</mark> ，提示预期值是xxx，而实际值是xxx。容易调式
+​        assertTrue 没有错误提示
+
+​        判断两数组是否相同：`assertArrayEquals(String message, int[] expecteds, int[] actuals)`
+
+
 
 
 
@@ -2057,8 +2300,17 @@ https://blog.csdn.net/qq_27093465/article/details/52180865
 
 
 
+# 查看类加载器
 
+​        在`DEBUG`时通过 执行器 查看
+`ClassLoader.getSystemClassLoader()`
 
+```
+Thread.currentThread().getContextClassLoader()`
+`ClassLoader.getSystemClassLoader()
+```
+
+# 
 
 
 
