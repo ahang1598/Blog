@@ -7,11 +7,9 @@
         "id": "ad790eafda1d6056",
         "type": "leaf",
         "state": {
-          "type": "markdown",
+          "type": "excalidraw",
           "state": {
-            "file": "算法.md",
-            "mode": "preview",
-            "source": false
+            "file": "Excalidraw/Drawing 2022-11-17 16.46.21.excalidraw.md"
           }
         }
       }
@@ -70,7 +68,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "算法.md",
+                "file": "Excalidraw/Drawing 2022-11-17 16.46.21.excalidraw.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -87,7 +85,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "算法.md"
+                "file": "Excalidraw/Drawing 2022-11-17 16.46.21.excalidraw.md"
               }
             }
           },
@@ -116,6 +114,7 @@
   },
   "active": "ad790eafda1d6056",
   "lastOpenFiles": [
+    "Excalidraw/Drawing 2022-11-17 16.46.21.excalidraw.md",
     "算法.md",
     "java基础.md",
     "计划赶不上变化.md",
@@ -124,7 +123,6 @@
     "java多线程.md",
     "MySQL.md",
     "Git.md",
-    "Java基础_2.md",
-    "面试准备.md"
+    "Java基础_2.md"
   ]
 }

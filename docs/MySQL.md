@@ -213,7 +213,7 @@ COMMENT='用户表信息';
 - `desc 表名` 查看表的各属性信息
 - `show create table 表名`查看表的完整创建语句,包括表的字段名、字段数据类型、完整约束条件信息，还可查看默认表的默认存储引擎和字符编码
 
-                                                                                                                                               
+  ​                                                                                                                                             
 
 ## 3.3 修改表
 
@@ -1463,9 +1463,16 @@ mysql> SELECT * FROM user WHERE emai= 'klvchen123@126.com' LIMIT 1;
 create index ix_name_emaion user(name,email);
 
 name and emai-- 使用索引
-emai and name -- 不使用索引
+emai and name -- 使用索引
 name                  -- 使用索引
 emai                 -- 不使用索引
+
+=和in可以乱序，比如a = 1 and b = 2 and c = 3 建立(a,b,c)索引可以任意顺序，mysql的查询优化器会帮你优化成索引可以识别的形式
+
+mysql会一直向右匹配直到遇到范围查询(>、<、between、like)就停止匹配，
+比如a = 1 and b = 2 and c > 3 and d = 4 
+如果建立(a,b,c,d)顺序的索引，d是用不到索引的，
+如果建立(a,b,d,c)的索引则都可以用到，a,b,d的顺序可以任意调整。
 ```
 
 `没用使用索引`
@@ -2101,6 +2108,54 @@ mysql> explain select * from t1 where name = '123';
 技巧：当插入大量数据时，建议使用一个INSERT语句插入多条记录的方式。而且，如果能用LOAD DATA INFILE语句，就尽量用LOAD DATA INFILE语句。因为LOAD DATA INFILE语句导入数据的速度比1NSERT语句的速度快。
 
 
+
+
+
+## 5.7 分页limit速度太慢优化方法
+
+http://ourmysql.com/archives/1451
+
+http://ourmysql.com/archives/1331
+
+方法一：对查询字段加索引，然后加where指定扫描初始位置， order by排序再查询
+
+`select id,name,content from users where id>100073 order by id asc limit 20`
+
+
+
+方法二： 利用连表
+
+```mysql
+   select * from (
+               select id from wl_tagindex
+               where byname=’f’ order by id limit 300000,10
+   ) a
+   left join wl_tagindex b on a.id=b.id
+```
+
+
+
+方法三： 子查询
+
+优化前：`select * from Member limit 100000, 100`
+
+优化后：`select * from Member where MemberID >= (select MemberID from Member limit 100000,1) limit 100`
+
+
+
+方法四：倒排表优化法
+
+  倒排表法类似建立索引，用一张表来维护页数，然后通过高效的连接得到数据
+
+  缺点：只适合数据数固定的情况，数据不能删除，维护页表困难
+
+
+
+  方法五：反向查找优化法
+
+  当偏移超过一半记录数的时候，先用排序，这样偏移就反转了
+
+  缺点：order by优化比较麻烦，要增加索引，索引影响数据的修改效率，并且要知道总记录数 ，偏移大于数据的一半
 
 
 
