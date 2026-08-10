@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Memory 开源项目调研报告 · 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d12; --bg-grad:#0d1118; --card:#141925; --card-2:#1a2130; --border:#262f40; --border-soft:#1d2533;
+  --text:#e9edf5; --muted:#9aa6ba; --dim:#69748a; --accent:#e8b04b; --accent-soft:rgba(232,176,75,.14);
+  --pro:#5dd49a; --con:#f87683; --info:#67a8ff;
+  --c-mem0:#a78bfa; --c-zep:#2dd4bf; --c-super:#f472b6; --c-agent:#fb923c; --c-viking:#38bdf8; --c-mandol:#34d399; --c-tencent:#ff6b6b;
+  --maxw:1180px; --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:
+  radial-gradient(900px 500px at 12% -8%,rgba(232,176,75,.08),transparent 60%),
+  radial-gradient(800px 600px at 100% 0%,rgba(56,189,248,.06),transparent 55%),
+  linear-gradient(180deg,var(--bg-grad),var(--bg) 40%);}
+body::after{content:"";position:fixed;inset:0;z-index:-1;opacity:.4;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(circle at 50% 30%,#000,transparent 75%)}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono);font-size:.86em}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+nav.top{position:sticky;top:0;z-index:50;background:rgba(10,13,18,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border-soft)}
+nav.top .row{display:flex;align-items:center;gap:18px;height:60px}
+nav.top .brand{font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+nav.top .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+nav.top .chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+nav.top .chips a{font-size:12.5px;font-weight:500;padding:5px 11px;border-radius:999px;border:1px solid var(--border);color:var(--muted);transition:.18s;white-space:nowrap}
+nav.top .chips a:hover{color:var(--text);border-color:var(--accent);background:var(--accent-soft)}
+nav.top .chips a .swatch{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}
+
+header.hero{padding:84px 0 56px;position:relative}
+.hero .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:22px}
+.hero h1{font-family:var(--serif);font-weight:900;font-size:clamp(40px,7vw,76px);line-height:1.02;letter-spacing:-.025em;max-width:14ch}
+.hero h1 em{font-style:italic;font-weight:400;color:var(--accent)}
+.hero .lede{margin-top:26px;max-width:62ch;color:var(--muted);font-size:18px;line-height:1.7}
+.hero .stats{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px}
+.hero .stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;min-width:130px}
+.hero .stat b{display:block;font-family:var(--serif);font-size:30px;font-weight:600;color:var(--text)}
+.hero .stat span{font-size:12.5px;color:var(--dim);font-family:var(--mono)}
+
+section{padding:64px 0;border-top:1px solid var(--border-soft)}
+.sec-head{margin-bottom:40px;max-width:70ch}
+.sec-head .num{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.18em}
+.sec-head h2{font-family:var(--serif);font-weight:600;font-size:clamp(28px,4vw,40px);letter-spacing:-.02em;margin-top:10px;line-height:1.1}
+.sec-head p{color:var(--muted);margin-top:14px;font-size:16.5px}
+
+.landscape{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.lcard{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden}
+.lcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pc,var(--accent))}
+.lcard h3{font-family:var(--serif);font-size:20px;font-weight:600;display:flex;align-items:center;gap:10px}
+.lcard h3 .tag{font-family:var(--mono);font-size:11px;color:var(--pc,var(--accent));background:color-mix(in srgb,var(--pc,var(--accent)) 14%,transparent);padding:3px 8px;border-radius:6px;font-weight:500}
+.lcard p{color:var(--muted);font-size:14.5px;margin-top:10px}
+.lcard .pick{margin-top:14px;font-size:13px;color:var(--dim);font-family:var(--mono)}
+
+.matrix-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:16px;background:var(--card)}
+table.matrix{border-collapse:collapse;width:100%;min-width:1120px;font-size:13.5px}
+table.matrix th,table.matrix td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--border-soft);border-right:1px solid var(--border-soft);vertical-align:top}
+table.matrix thead th{position:sticky;top:0;background:var(--card-2);z-index:2;font-weight:600;font-size:13px}
+table.matrix thead th:first-child{color:var(--dim);font-family:var(--mono);font-weight:500;font-size:11.5px;text-transform:uppercase;letter-spacing:.1em}
+table.matrix tbody td:first-child{font-weight:600;color:var(--text);background:var(--card-2);white-space:nowrap;font-size:12.5px}
+table.matrix tbody tr:hover td{background:rgba(255,255,255,.018)}
+table.matrix tbody tr:hover td:first-child{background:var(--card-2)}
+.pcol{border-top:3px solid var(--pc)!important}
+.pcol-name{font-family:var(--serif)!important;font-size:15px!important;font-weight:600!important}
+td .sub{display:block;color:var(--dim);font-size:11.5px;margin-top:2px}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:18px;font-size:12.5px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:7px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+article.project{background:linear-gradient(180deg,var(--card),transparent 600px);border:1px solid var(--border);border-radius:20px;padding:0;margin-bottom:34px;overflow:hidden;scroll-margin-top:80px}
+.p-head{padding:34px 38px 26px;border-bottom:1px solid var(--border-soft);position:relative}
+.p-head::before{content:"";position:absolute;left:0;top:0;right:0;height:4px;background:var(--pc)}
+.p-head .pmeta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.p-head .pno{font-family:var(--mono);font-size:12px;color:var(--pc);letter-spacing:.16em}
+.p-head .badges{display:flex;gap:7px;flex-wrap:wrap}
+.p-head .b{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid var(--border);color:var(--muted)}
+.p-head h3{font-family:var(--serif);font-size:clamp(30px,4.5vw,44px);font-weight:600;letter-spacing:-.02em;line-height:1.05}
+.p-head .tagline{color:var(--muted);margin-top:12px;font-size:16px;max-width:80ch}
+.p-head .tagline strong{color:var(--text)}
+.p-body{padding:30px 38px 38px;display:grid;grid-template-columns:1.5fr 1fr;gap:34px}
+.p-body h4{font-family:var(--sans);font-size:11.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--dim);margin-bottom:12px;font-weight:600;display:flex;align-items:center;gap:8px}
+.p-body h4::before{content:"";width:14px;height:2px;background:var(--pc)}
+.p-overview{color:var(--muted);font-size:14.5px}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.feat-list li{font-size:14px;color:var(--text);padding-left:22px;position:relative;line-height:1.55}
+.feat-list li::before{content:"◆";position:absolute;left:0;top:1px;color:var(--pc);font-size:9px}
+.feat-list li .d{color:var(--muted);font-size:13px}
+
+.factbox{background:var(--card-2);border:1px solid var(--border-soft);border-radius:14px;padding:20px;font-size:13.5px}
+.factbox .row{display:flex;gap:12px;padding:7px 0;border-bottom:1px dashed var(--border-soft)}
+.factbox .row:last-child{border-bottom:none}
+.factbox .k{color:var(--dim);min-width:96px;font-family:var(--mono);font-size:11.5px;flex-shrink:0}
+.factbox .v{color:var(--text);font-size:13px}
+.factbox .v .pill{display:inline-block;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:1px 6px;margin:2px 3px 2px 0;font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+.proscons{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px}
+.pc-col{border:1px solid var(--border-soft);border-radius:14px;padding:20px}
+.pc-col.pros{background:linear-gradient(180deg,rgba(93,212,154,.06),transparent)}
+.pc-col.cons{background:linear-gradient(180deg,rgba(248,118,131,.06),transparent)}
+.pc-col h4{margin-bottom:14px}
+.pc-col.pros h4{color:var(--pro)}
+.pc-col.cons h4{color:var(--con)}
+.pc-col ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.pc-col li{font-size:13.5px;color:var(--muted);padding-left:20px;position:relative;line-height:1.55}
+.pc-col.pros li::before{content:"+";position:absolute;left:0;color:var(--pro);font-weight:700}
+.pc-col.cons li::before{content:"!";position:absolute;left:2px;color:var(--con);font-weight:700}
+.pc-col li b{color:var(--text);font-weight:600}
+
+.tcf{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.tcf-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;border-top:3px solid var(--pc)}
+.tcf-card h4{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--pc);margin-bottom:12px}
+.tcf-triple{display:flex;flex-direction:column;gap:11px;margin-top:8px}
+.tcf-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12.5px}
+.tcf-cell{padding:9px 10px;border-radius:8px;line-height:1.45}
+.tcf-cell.choose{background:rgba(103,168,255,.1);border:1px solid rgba(103,168,255,.25)}
+.tcf-cell.enables{background:rgba(93,212,154,.09);border:1px solid rgba(93,212,154,.22)}
+.tcf-cell.cost{background:rgba(248,118,131,.09);border:1px solid rgba(248,118,131,.22)}
+.tcf-cell .lab{display:block;font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;opacity:.7;margin-bottom:3px}
+.tcf-cell.choose .lab{color:var(--info)} .tcf-cell.enables .lab{color:var(--pro)} .tcf-cell.cost .lab{color:var(--con)}
+
+.cross-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+table.mini{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+table.mini th,table.mini td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--border-soft)}
+table.mini th{background:var(--card-2);font-size:12px;color:var(--dim);font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+table.mini tr:last-child td{border-bottom:none}
+table.mini td:first-child{font-weight:600}
+table.mini .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px}
+.note{font-size:12.5px;color:var(--dim);margin-top:12px;font-style:italic}
+
+.guide{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.g-card{border:1px solid var(--border);border-radius:14px;padding:22px;background:var(--card);position:relative;overflow:hidden}
+.g-card .if{font-family:var(--mono);font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}
+.g-card .want{font-family:var(--serif);font-size:18px;font-weight:600;margin:8px 0 12px;line-height:1.3;color:var(--text)}
+.g-card .then{display:flex;align-items:center;gap:10px;padding-top:12px;border-top:1px solid var(--border-soft)}
+.g-card .then .arrow{color:var(--accent);font-family:var(--mono)}
+.g-card .then .pname{font-family:var(--serif);font-size:19px;font-weight:600;color:var(--pc)}
+.g-card .why{color:var(--muted);font-size:13px;margin-top:10px}
+
+footer{padding:54px 0 70px;border-top:1px solid var(--border-soft);color:var(--dim);font-size:13px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:30px;justify-content:space-between;align-items:flex-start}
+footer .col h5{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px}
+footer a.lk{color:var(--muted);display:block;padding:3px 0;font-size:13px}
+footer a.lk:hover{color:var(--accent)}
+.warn-box{background:var(--accent-soft);border:1px solid rgba(232,176,75,.3);border-radius:12px;padding:16px 20px;font-size:13.5px;color:var(--text);margin-top:18px}
+.warn-box b{color:var(--accent)}
+
+@media(max-width:880px){
+  .p-body{grid-template-columns:1fr}
+  .proscons{grid-template-columns:1fr}
+  .cross-grid{grid-template-columns:1fr}
+  .hero .stats{gap:10px}
+  nav.top .chips{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="top"><div class="wrap row">
+  <div class="brand"><span class="dot"></span>Agent Memory · 调研</div>
+  <div class="chips">
+    <a href="#mem0"><span class="swatch" style="background:var(--c-mem0)"></span>mem0</a>
+    <a href="#zep"><span class="swatch" style="background:var(--c-zep)"></span>zep</a>
+    <a href="#supermemory"><span class="swatch" style="background:var(--c-super)"></span>supermemory</a>
+    <a href="#agentmemory"><span class="swatch" style="background:var(--c-agent)"></span>agentmemory</a>
+    <a href="#openviking"><span class="swatch" style="background:var(--c-viking)"></span>OpenViking</a>
+    <a href="#mandol"><span class="swatch" style="background:var(--c-mandol)"></span>Mandol</a>
+    <a href="#tencent"><span class="swatch" style="background:var(--c-tencent)"></span>TencentDB</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">Open-Source Landscape Research · 2026.08.10</div>
+  <h1>Agent <em>Memory</em><br>开源项目调研</h1>
+  <p class="lede">七款主流 Agent 记忆开源项目的横向技术调研：从<strong>记忆模型、底层引擎、数据库依赖</strong>到<strong>技术选型与功能的因果关系</strong>。每个结论均基于各项目的 README、依赖清单（pyproject.toml / package.json / Cargo.toml）与源码核实，而非营销话术。</p>
+  <div class="stats">
+    <div class="stat"><b>7</b><span>PROJECTS</span></div>
+    <div class="stat"><b>5</b><span>LANGUAGES</span></div>
+    <div class="stat"><b>5</b><span>MEMORY PARADIGMS</span></div>
+    <div class="stat"><b>25+</b><span>VECTOR BACKENDS</span></div>
+  </div>
+</div></header>
+
+<section id="summary"><div class="wrap">
+  <div class="sec-head">
+    <div class="num">01 — 执行摘要</div>
+    <h2>七条路线，一个目标</h2>
+    <p>这七个项目都想解决同一个问题——<strong>让 LLM Agent 拥有跨会话的长期记忆</strong>——但技术赌注截然不同。差异不在"做不做记忆"，而在<strong>把记忆当成什么</strong>：事实库、时序图、活图谱、类脑分层、虚拟文件系统、进程内语义图，还是团队级一体化资产平台。这一根本分野决定了它们各自的引擎、数据库选型与适用场景。</p>
+  </div>
+  <div class="landscape">
+    <div class="lcard" style="--pc:var(--c-mem0)"><h3>mem0 <span class="tag">事实抽取</span></h3><p>最成熟、生态最广的记忆层。LLM 单次抽取原子事实 → 哈希去重 → 实体链接 → 混合检索。25 个向量库 / 18 个 LLM / 11 个 embedder，开箱即用。</p><div class="pick">→ 通用集成 · 快速接入</div></div>
+    <div class="lcard" style="--pc:var(--c-zep)"><h3>zep <span class="tag">时序知识图</span></h3><p>唯一把"时间"作为一等公民。事实带 valid_at/invalid_at，矛盾时 latest-wins。引擎是独立的 Graphiti（Neo4j）。注意：本仓库是云版集成 + legacy CE（已废弃）。</p><div class="pick">→ 事实会随时间变化</div></div>
+    <div class="lcard" style="--pc:var(--c-super)"><h3>supermemory <span class="tag">活知识图</span></h3><p>"活图谱"+ 用户画像 + 混合搜索。HNSW 内嵌引擎、Cloudflare 边缘原生。但<strong>核心引擎闭源</strong>，此仓库只是 SDK / MCP / 前端。</p><div class="pick">→ 托管开箱 · 个人大脑</div></div>
+    <div class="lcard" style="--pc:var(--c-agent)"><h3>agentmemory <span class="tag">编码 Agent 记忆</span></h3><p>专为 Claude Code / Cursor 等 30+ 编码 Agent 设计。通过 hooks 静默捕获工具调用，零外部数据库（iii-engine + SQLite），4 层类脑记忆。</p><div class="pick">→ 给编码 Agent 装记忆</div></div>
+    <div class="lcard" style="--pc:var(--c-viking)"><h3>OpenViking <span class="tag">上下文数据库</span></h3><p>字节跳动出品。把记忆/资源/技能暴露为 <span class="mono">viking://</span> 虚拟文件系统，Agent 用 ls/tree/grep 浏览，L0/L1/L2 三级渐进加载省 token。Rust+C+++Python 多语言。</p><div class="pick">→ 企业级 · 可观测检索</div></div>
+    <div class="lcard" style="--pc:var(--c-mandol)"><h3>Mandol <span class="tag">研究 SOTA</span></h3><p>长期对话的进程内分层记忆。统一 KV+FAISS+BM25+SPLADE+图，<strong>检索时无 LLM</strong>。自报 LoCoMo 92.21% / LongMemEval 88.40% SOTA。Python，研究阶段。</p><div class="pick">→ 论文复现 · 无 LLM 检索</div></div>
+    <div class="lcard" style="--pc:var(--c-tencent)"><h3>TencentDB <span class="tag">团队平台</span></h3><p>腾讯出品。Agent 团队的一体化记忆平台：4 资产（Chat Memory/Skills/Wiki/CodeGraph）+ L0–L3 分层 + <strong>透明 LLM 代理</strong>（agent 零代码改动）。standalone 模式零锁定，service 模式绑腾讯云。</p><div class="pick">→ 团队级 · 一体化资产</div></div>
+  </div>
+  <div class="warn-box"><b>读前须知：</b>七个项目的基准分数（LoCoMo / LongMemEval / PersonaMem 等）<strong>并非同类对比</strong>——mem0 是 Platform-only 数字、agentmemory 是检索 R@5（对比项用不同数据集）、Mandol 是论文 SOTA、supermemory/OpenViking 为厂商自报、TencentDB 仅有单一 PersonaMem 基准。横向比较时请参考"横向专题"章节的标注。</div>
+</div></section>
+
+<section id="matrix"><div class="wrap">
+  <div class="sec-head">
+    <div class="num">02 — 全景对比矩阵</div>
+    <h2>一表看懂七款项目</h2>
+    <p>核心维度的横向速查。每列一个项目，行是技术选型与能力。颜色对应各项目主题色，便于在后续章节中追踪。</p>
+  </div>
+  <div class="matrix-scroll"><table class="matrix">
+    <thead><tr>
+      <th>维度</th>
+      <th class="pcol pcol-name" style="--pc:var(--c-mem0)">mem0</th>
+      <th class="pcol pcol-name" style="--pc:var(--c-zep)">zep</th>
+      <th class="pcol pcol-name" style="--pc:var(--c-super)">supermemory</th>
+      <th class="pcol pcol-name" style="--pc:var(--c-agent)">agentmemory</th>
+      <th class="pcol pcol-name" style="--pc:var(--c-viking)">OpenViking</th>
+      <th class="pcol pcol-name" style="--pc:var(--c-mandol)">Mandol</th>
+      <th class="pcol pcol-name" style="--pc:var(--c-tencent)">TencentDB</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>定位</td>
+        <td>通用记忆层<span class="sub">事实抽取 + 实体链接</span></td>
+        <td>时序知识图平台<span class="sub">事实带时间戳</span></td>
+        <td>记忆+上下文层<span class="sub">活图谱 + 画像</span></td>
+        <td>编码 Agent 记忆<span class="sub">hooks 自动捕获</span></td>
+        <td>上下文数据库<span class="sub">虚拟文件系统</span></td>
+        <td>研究型分层记忆<span class="sub">长期对话 SOTA</span></td>
+        <td>Agent 团队记忆平台<span class="sub">4 模块 + 4 资产</span></td>
+      </tr>
+      <tr><td>记忆模型</td>
+        <td>事实 + 哈希去重 + 实体链接</td>
+        <td>情景(消息) + 语义(时序图)</td>
+        <td>活图谱 Updates/Extends/Derives</td>
+        <td>4 层：工作/情景/语义/程序</td>
+        <td>文件系统 + L0/L1/L2 分层</td>
+        <td>语义图：基础层 + 抽象层</td>
+        <td>分层 L0→L3 + 4 资产</td>
+      </tr>
+      <tr><td>主要语言</td>
+        <td>Python + TS</td>
+        <td>Go + Python<span class="sub">无 Rust</span></td>
+        <td>TypeScript + Python</td>
+        <td>TypeScript<span class="sub">ESM only</span></td>
+        <td>Rust + C++ + Python + TS</td>
+        <td>Python<span class="sub">仅 3.12 / Linux</span></td>
+        <td>TypeScript<span class="sub">Node 22+ 全栈</span></td>
+      </tr>
+      <tr><td>引擎核心</td>
+        <td>LLM 单次 ADD 抽取 + 工厂模式</td>
+        <td>Graphiti<span class="sub">独立服务</span></td>
+        <td>闭源引擎<span class="sub">本仓库不含</span></td>
+        <td>iii-engine<span class="sub">Worker/Fn/Trigger</span></td>
+        <td>ragfs(Git对象) + C++向量</td>
+        <td>SemanticMap+Graph 进程内</td>
+        <td>MemoryCore 网关+异步管道<span class="sub">原生 node:http</span></td>
+      </tr>
+      <tr><td>向量存储</td>
+        <td><b>25 种</b>可插拔<span class="sub">Qdrant/PGVector…</span></td>
+        <td>pgvector</td>
+        <td>内嵌 HNSW<span class="sub">本地磁盘</span></td>
+        <td>内存 Map 暴力余弦<span class="sub">非向量DB</span></td>
+        <td>C++ flat int8 / VikingDB 云</td>
+        <td>FAISS (flat)</td>
+        <td>sqlite-vec / 云 TCVDB</td>
+      </tr>
+      <tr><td>图存储</td>
+        <td>无<span class="sub">V3 移除,改实体链接</span></td>
+        <td>Neo4j</td>
+        <td>内嵌关系图</td>
+        <td>自建知识图(BFS)</td>
+        <td>无传统图DB</td>
+        <td>进程内语义图</td>
+        <td>无<span class="sub">graphology 内存+CodeGraph</span></td>
+      </tr>
+      <tr><td>关系/其他 DB</td>
+        <td>Postgres / SQLite</td>
+        <td>PostgreSQL</td>
+        <td>SQLite(DO) / R2 缓存</td>
+        <td>SQLite(iii KV)</td>
+        <td>无<span class="sub">rusqlite + redis 缓存</span></td>
+        <td>RocksDB<span class="sub">唯一持久化</span></td>
+        <td>SQLite/Redis/COS<span class="sub">+ClickHouse 可选</span></td>
+      </tr>
+      <tr><td>LLM 提供商</td>
+        <td><b>18</b> 个</td>
+        <td>OpenAI 默认 / 兼容</td>
+        <td>7+ (BYOK)</td>
+        <td>默认 No-op / 8+</td>
+        <td>8 (LiteLLM 网关)</td>
+        <td>OpenAI 兼容(6 家)</td>
+        <td>OpenAI 兼容 + 混元</td>
+      </tr>
+      <tr><td>检索策略</td>
+        <td>语义+BM25+实体boost+rerank</td>
+        <td>MMR + RRF</td>
+        <td>余弦+关系扩展+排序</td>
+        <td>BM25+向量+图 RRF(k=60)</td>
+        <td>目录递归分层 + flat_hybrid</td>
+        <td>三塔路由 + 量化去噪</td>
+        <td>BM25+向量 RRF+Wiki FTS5</td>
+      </tr>
+      <tr><td>检索用 LLM</td>
+        <td>否</td><td>否</td><td>否</td><td>否</td><td>否</td><td><b>否</b><span class="sub">关键卖点</span></td><td>否</td>
+      </tr>
+      <tr><td>部署形态</td>
+        <td>库 / server / 托管 / CLI</td>
+        <td>托管(主) / CE 废弃</td>
+        <td>托管 / 自托管二进制</td>
+        <td>自托管 only<span class="sub">不做 SaaS</span></td>
+        <td>pip / Docker / K8s / 托管</td>
+        <td>库 + demo<span class="sub">无生产 server</span></td>
+        <td>Docker / K8s·TKE / standalone</td>
+      </tr>
+      <tr><td>协议</td>
+        <td>REST, MCP skills</td>
+        <td>REST, MCP(废弃)</td>
+        <td>REST, MCP(widget)</td>
+        <td>REST(130), MCP(54)</td>
+        <td>REST, MCP, WebDAV, FS</td>
+        <td>库 API</td>
+        <td>REST, MCP, 透明代理</td>
+      </tr>
+      <tr><td>License</td>
+        <td>Apache-2.0</td>
+        <td>Apache-2.0<span class="sub">引擎 Graphiti 同</span></td>
+        <td>Apache-2.0<span class="sub">引擎闭核</span></td>
+        <td>Apache-2.0</td>
+        <td><b style="color:var(--con)">AGPL-3.0</b></td>
+        <td>Apache-2.0</td>
+        <td>MIT<span class="sub">docker README 误标 Proprietary</span></td>
+      </tr>
+      <tr><td>成熟度</td>
+        <td>生产级<span class="sub">YC S24</span></td>
+        <td>成熟<span class="sub">CE 已停维护</span></td>
+        <td>成熟<span class="sub">闭核</span></td>
+        <td>0.9.x<span class="sub">v1.0 目标 2027</span></td>
+        <td>早期<span class="sub">论文 VLDB'26</span></td>
+        <td>Alpha<span class="sub">研究阶段</span></td>
+        <td>v2.0-beta<span class="sub">单一 PersonaMem 基准</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+  <div class="legend">
+    <span><i style="background:var(--c-mem0)"></i>mem0</span><span><i style="background:var(--c-zep)"></i>zep</span>
+    <span><i style="background:var(--c-super)"></i>supermemory</span><span><i style="background:var(--c-agent)"></i>agentmemory</span>
+    <span><i style="background:var(--c-viking)"></i>OpenViking</span><span><i style="background:var(--c-mandol)"></i>Mandol</span>
+    <span><i style="background:var(--c-tencent)"></i>TencentDB</span>
+  </div>
+</div></section>
+
+<section id="projects"><div class="wrap">
+  <div class="sec-head">
+    <div class="num">03 — 逐项深度分析</div>
+    <h2>每个项目的完整画像</h2>
+    <p>定位 · 功能 · 引擎 · 数据库 · 技术栈 · 优缺点。点击顶部导航可在项目间跳转。</p>
+  </div>
+
+  <article class="project" id="mem0" style="--pc:var(--c-mem0)">
+    <div class="p-head">
+      <div class="pmeta"><span class="pno">PROJECT 01</span><div class="badges"><span class="b">Python</span><span class="b">TypeScript</span><span class="b">FastAPI</span><span class="b">Apache-2.0</span><span class="b">YC S24</span></div></div>
+      <h3>mem0</h3>
+      <p class="tagline"><strong>生态最广的通用记忆层。</strong>从对话中抽取离散事实/偏好，去重、链接实体，存为向量+关键词+实体索引，查询时只返回相关子集。同一引擎驱动托管云、自托管 server 与 SDK。<span class="mono">arXiv:2504.19413</span></p>
+    </div>
+    <div class="p-body">
+      <div>
+        <h4>核心功能</h4>
+        <ul class="feat-list">
+          <li>Memory CRUD（add/get/search/update/delete/history）+ 同步与<strong>异步一等公民 API</strong></li>
+          <li>LLM <strong>单次 ADD 抽取</strong>原子事实，写路径仅 1 次 LLM 调用</li>
+          <li>MD5 哈希去重 + spaCy 实体抽取 → <strong>实体链接</strong>（sidecar 向量集合）</li>
+          <li>混合检索：语义 + BM25 + 实体 boost + 可选 reranker，支持 <span class="mono">explain=True</span></li>
+          <li>多租户隔离（user/agent/run/actor_id）+ 严格身份键剥离防注入</li>
+          <li>过程记忆（procedural_memory）、TTL 过期、高级元数据过滤（eq/in/wildcard/AND-OR）</li>
+          <li>SQLite 历史账本（每次增改删留痕）、多模态 vision、CLI、浏览器扩展</li>
+        </ul>
+      </div>
+      <div>
+        <h4>引擎 · 数据库 · 技术栈</h4>
+        <div class="factbox">
+          <div class="row"><span class="k">向量库</span><span class="v"><b>25 种</b>：Qdrant(默认库)/PGVector(默认server)/Chroma/Milvus/Pinecone/Weaviate/Redis/ES/OpenSearch/FAISS/Mongo/Supabase/Upstash/Azure/Vertex/Databricks/S3 Vectors/Neptune/Turbopuffer/Oracle/Cassandra…</span></div>
+          <div class="row"><span class="k">图库</span><span class="v"><b style="color:var(--con)">OSS V3 已移除</b>（旧 Neo4j/Memgraph → 实体链接；富图功能转 Platform-only）</span></div>
+          <div class="row"><span class="k">关系库</span><span class="v">Postgres（server）<span class="pill">SQLite</span>历史账本</span></div>
+          <div class="row"><span class="k">LLM</span><span class="v"><b>18</b>：OpenAI(默认 gpt-5-mini)/Anthropic/Azure/Gemini/Bedrock/Groq/Together/DeepSeek/xAI/Ollama/vLLM/LiteLLM…</span></div>
+          <div class="row"><span class="k">Embed</span><span class="v"><b>11</b>：OpenAI(默认)/Ollama/HF/Gemini/Vertex/Together/Bedrock/FastEmbed…</span></div>
+          <div class="row"><span class="k">部署</span><span class="v">SDK / 自托管 server（FastAPI+Postgres+pgvector+Dashboard+JWT）/ 托管 Platform / CLI</span></div>
+        </div>
+      </div>
+      <div class="proscons">
+        <div class="pc-col pros"><h4>优点</h4><ul>
+          <li><b>生态广度断层领先</b>：25 向量库/18 LLM/11 embedder，工厂模式 + register_provider 扩展点</li>
+          <li><b>写路径高效</b>：单次 LLM 抽取 + 批量嵌入 + 批量持久化，写成本最低之一</li>
+          <li>身份/安全模型成熟（多次 CVE 式修复），敏感字段遥测脱敏</li>
+          <li>Python 与 TS SDK 功能对等；server 端运维打磨（限流、审计日志、Dashboard）</li>
+        </ul></div>
+        <div class="pc-col cons"><h4>缺点 / 限制</h4><ul>
+          <li><b>OpenAI 默认耦合</b>：gpt-5-mini + text-embedding-3-small 硬编码默认，server 仅打包 OpenAI/Anthropic/Gemini</li>
+          <li><b>OSS 移除图支持</b>是架构 U 型转弯，旧用户须迁移到实体链接或买 Platform</li>
+          <li>写路径 <b>append-only</b>（无 UPDATE/DELETE），改写副本会重复累积，靠调用方清理</li>
+          <li>混合检索<strong>非统一</strong>：不 override keyword_search 的库（FAISS/Pinecone/Supabase）静默降级为纯语义</li>
+          <li>spaCy 强依赖（不装则实体 boost 全失）；<span class="mono">main.py</span> 单文件 3852 行；遥测默认开（posthog）</li>
+        </ul></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="project" id="zep" style="--pc:var(--c-zep)">
+    <div class="p-head">
+      <div class="pmeta"><span class="pno">PROJECT 02</span><div class="badges"><span class="b">Go</span><span class="b">Python</span><span class="b">Neo4j</span><span class="b">pgvector</span><span class="b">Apache-2.0</span></div></div>
+      <h3>zep</h3>
+      <p class="tagline"><strong>把"时间"做成一等公民的记忆平台。</strong>事实携带 <span class="mono">valid_at / invalid_at</span>，新事实与旧事实矛盾时按"最新有效时间"胜出，旧边失效而非删除——可做"某时刻为真"的时序查询。<strong>引擎是独立的 Graphiti 项目</strong>（Neo4j）。</p>
+    </div>
+    <div class="p-body">
+      <div>
+        <h4>核心功能</h4>
+        <ul class="feat-list">
+          <li><strong>时序知识图</strong>：实体为节点、事实为带时间区间的边，矛盾 latest-valid_at-wins</li>
+          <li>情景记忆（原始消息，Postgres）+ 语义记忆（抽取的时序图，Neo4j）分离</li>
+          <li>LLM 事实抽取；支持显式事实三元组（绕过抽取）</li>
+          <li>可配置本体（ontology）：节点/边类型（默认 User/Preference/Event/Organization…）</li>
+          <li>向量搜索 + <strong>MMR + Reciprocal Rank Fusion</strong> 重排</li>
+          <li>批量摄入管道（Slack/文档/转录/邮件/JSON/CSV），惰性生成器不爆内存</li>
+          <li>只读 MCP server（13 工具）+ 13 个框架集成（LangGraph/CrewAI/AutoGen…）</li>
+        </ul>
+      </div>
+      <div>
+        <h4>引擎 · 数据库 · 技术栈</h4>
+        <div class="factbox">
+          <div class="row"><span class="k">引擎</span><span class="v"><b>Graphiti</b>（独立项目 <span class="mono">github.com/getzep/graphiti</span>），Zep Go server 是其 thin HTTP client</span></div>
+          <div class="row"><span class="k">向量库</span><span class="v">pgvector（消息+消息向量）</span></div>
+          <div class="row"><span class="k">图库</span><span class="v"><b>Neo4j 5.22</b>（实体+时序事实边）<span class="sub">Graphiti 自身也支持 FalkorDB，但本仓库未接</span></span></div>
+          <div class="row"><span class="k">关系库</span><span class="v">PostgreSQL（sessions/messages/users）</span></div>
+          <div class="row"><span class="k">LLM</span><span class="v">OpenAI 默认(gpt-4o-mini)/Anthropic/OpenAI-compatible(Ollama/vLLM/LiteLLM/OpenRouter)</span></div>
+          <div class="row"><span class="k">部署</span><span class="v">Zep Cloud（主）/ <b style="color:var(--con)">CE 自托管已废弃</b>（4 服务 Docker）/ SDK(Python/TS/Go)</span></div>
+          <div class="row"><span class="k">注意</span><span class="v"><b>本仓库非产品本体</b>：是云版集成+工具+冻结的 legacy CE，无当前引擎源码</span></div>
+        </div>
+      </div>
+      <div class="proscons">
+        <div class="pc-col pros"><h4>优点</h4><ul>
+          <li><b>时序性独一无二</b>：valid_at/invalid_at + latest-wins，论文背书（temporal KG）</li>
+          <li>情景 vs 语义存储分离清晰，各司其职（pgvector 消息 / Neo4j 图）</li>
+          <li>重排扎实（MMR + RRF，非朴素 top-k）</li>
+          <li><span class="mono">zep-ingest</span> 工程质量高：惰性生成器、客户端逐项校验所有限制、<span class="mono">preview()</span> 零 API 调用</li>
+          <li>3 语言官方 SDK + 13 框架集成，各自独立版本</li>
+        </ul></div>
+        <div class="pc-col cons"><h4>缺点 / 限制</h4><ul>
+          <li><b>自托管 OSS（CE）已废弃</b>：只能用付费云或直接用较低层的 Graphiti</li>
+          <li>CE 是 4 服务运维（Zep + Postgres+pgvector + Graphiti + Neo4j），负担重</li>
+          <li>本体<strong>不可追溯</strong>（改需重灌新图）；矛盾解决仅 latest-wins（无置信度/权威加权）</li>
+          <li>异步摄入 → <b>no read-after-write</b>（当轮内刚加的事实立即可检索不到）</li>
+          <li>实体合并基于名字（语义别名"ROBOT-202" vs "PROTOTYPE-202" 会产生重复节点）；缺 <span class="mono">created_at</span> 默认摄入时间会永久破坏时间线</li>
+          <li>两个 MCP server 均标记废弃；硬限制多（10k episode / 250 fact）</li>
+        </ul></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="project" id="supermemory" style="--pc:var(--c-super)">
+    <div class="p-head">
+      <div class="pmeta"><span class="pno">PROJECT 03</span><div class="badges"><span class="b">TypeScript</span><span class="b">Python</span><span class="b">Cloudflare</span><span class="b">HNSW</span><span class="b">闭核引擎</span></div></div>
+      <h3>supermemory</h3>
+      <p class="tagline"><strong>活的知识图谱 + 用户画像，Cloudflare 边缘原生。</strong>不是朴素向量 RAG，而是抽取事实、维护带版本/矛盾/自动遗忘的"活图谱"，按用户动态生成画像。自报 LongMemEval/LoCoMo/ConvoMem #1。<strong>但核心引擎不开源</strong>——此仓库只有 SDK / MCP / 前端。</p>
+    </div>
+    <div class="p-body">
+      <div>
+        <h4>核心功能</h4>
+        <ul class="feat-list">
+          <li>事实抽取 + <strong>时序追踪 + 矛盾解决 + 自动遗忘</strong>（活图谱）</li>
+          <li>自动维护用户画像（静态事实 + 动态近期活动，~50ms）</li>
+          <li>混合搜索：<span class="mono">searchMode: "hybrid"</span> 一查询同时返回 RAG 文档 + 个性化记忆</li>
+          <li>连接器（实时 webhook）：Google Drive/Gmail/Notion/OneDrive/GitHub/Web Crawler</li>
+          <li>多模态抽取：PDF/图像(OCR)/视频(转录)/代码(AST 感知分块)</li>
+          <li>三种关系：<strong>Updates（版本链）/ Extends（丰富上下文）/ Derives（推断）</strong></li>
+          <li>容器标签（spaces）多租户隔离；MemoryBench 开源评测框架</li>
+          <li>开放 MCP（含交互式 "MCP App" widget + OAuth provider）</li>
+        </ul>
+      </div>
+      <div>
+        <h4>引擎 · 数据库 · 技术栈</h4>
+        <div class="factbox">
+          <div class="row"><span class="k">引擎</span><span class="v"><b style="color:var(--con)">闭核</b>：托管 <span class="mono">api.supermemory.ai</span> 或自托管二进制，<strong>源码不在此仓库</strong></span></div>
+          <div class="row"><span class="k">向量索引</span><span class="v"><b>HNSW</b> 内嵌（O(log n)，亚毫秒）</span></div>
+          <div class="row"><span class="k">本仓库存储</span><span class="v">Cloudflare <span class="pill">R2</span>缓存 + <span class="pill">Durable Objects</span>(SQLite,极小)</span></div>
+          <div class="row"><span class="k">LLM</span><span class="v">OpenAI 默认(gpt-5.1)/Anthropic/Gemini/Groq/CF Workers AI/Vertex/Ollama-compat；托管用专有模型</span></div>
+          <div class="row"><span class="k">Embed</span><span class="v">本地默认 <span class="mono">bge-base-en-v1.5</span>(768)/OpenAI/Gemini/bge-m3(多语言)。<b>维度锁定</b>（改需重灌）</span></div>
+          <div class="row"><span class="k">部署</span><span class="v">托管平台 / 自托管二进制(port 6767,可 Ollama 全离线) / MCP Worker / SDK(TS+Py)</span></div>
+        </div>
+      </div>
+      <div class="proscons">
+        <div class="pc-col pros"><h4>优点</h4><ul>
+          <li><b>边缘原生</b>：Next.js 经 OpenNext 部署 Workers + Durable Objects，全球低延迟</li>
+          <li>DX 优秀：记忆 + RAG + 画像 + 连接器 + 文件处理，单一 API</li>
+          <li>"memory vs RAG" 论证扎实，活图谱模型设计成熟</li>
+          <li>自托管可全离线（本地嵌入 + Ollama），BYOK 覆盖 7+ LLM</li>
+          <li>开放 MCP 实现成熟（含交互式 widget + OAuth），非薄工具壳</li>
+          <li>monorepo 工具链成熟（Turbo + Bun + Biome + Sentry + PostHog）</li>
+        </ul></div>
+        <div class="pc-col cons"><h4>缺点 / 限制</h4><ul>
+          <li><b>核心引擎不开源</b>——本仓库无图引擎/摄入/嵌入索引源码，引擎实质闭核</li>
+          <li><span class="mono">CLAUDE.md</span> 部分过时/误导（描述的后端路由与绑定在此仓库不存在）</li>
+          <li><b>Cloudflare 强耦合</b>：两个 app 硬绑 Workers/OpenNext/DO/R2，他处重部署非平凡</li>
+          <li>嵌入<b>维度锁定</b>（换 provider/model/dims 须重建数据目录，不匹配则拒启动）</li>
+          <li>默认本地嵌入仅英文；连接器等平台特有功能不给自托管 → 推向付费</li>
+          <li>基准分数与指标厂商自报，MemoryBench 也是自家框架，独立复现未提供</li>
+        </ul></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="project" id="agentmemory" style="--pc:var(--c-agent)">
+    <div class="p-head">
+      <div class="pmeta"><span class="pno">PROJECT 04</span><div class="badges"><span class="b">TypeScript</span><span class="b">iii-engine</span><span class="b">零外部DB</span><span class="b">MCP 54工具</span><span class="b">Apache-2.0</span></div></div>
+      <h3>agentmemory</h3>
+      <p class="tagline"><strong>给编码 Agent 装持久记忆，零数据库运维。</strong>为 Claude Code / Cursor / Codex 等 30+ 编码 Agent 设计，通过生命周期 hooks 静默捕获每次工具调用，LLM 压缩为结构化事实，BM25+向量+知识图混合检索，下次会话自动注入。基于 <strong>iii-engine</strong>。</p>
+    </div>
+    <div class="p-body">
+      <div>
+        <h4>核心功能</h4>
+        <ul class="feat-list">
+          <li>12 个生命周期 hooks 自动捕获工具使用（SessionStart/PreToolUse/PostToolUse/Stop…）</li>
+          <li><strong>4 层类脑记忆</strong>：工作→情景→语义→程序（灵感来自睡眠巩固）+ Ebbinghaus 衰减自动遗忘</li>
+          <li>三流混合检索（BM25 + 向量 + 知识图）<strong>RRF(k=60) 融合</strong></li>
+          <li>隐私过滤：存前剥离 API key/密钥/<span class="mono">&lt;private&gt;</span> 标签</li>
+          <li>知识图抽取 + BFS 遍历；SHA-256 去重（5 分钟窗口）</li>
+          <li>实时查看器（:3113）+ 会话回放；双向 MEMORY.md 桥；Git 快照 + 审计 + 治理删除</li>
+          <li>多 Agent 协调原语：action leases / signals / routines / checkpoints</li>
+          <li>团队记忆（命名空间共享/私有）；130 REST 端点 + <strong>54 MCP 工具</strong> + 15 skills</li>
+        </ul>
+      </div>
+      <div>
+        <h4>引擎 · 数据库 · 技术栈</h4>
+        <div class="factbox">
+          <div class="row"><span class="k">引擎</span><span class="v"><b>iii-engine v0.11.2</b>（预编译二进制，非 cargo crate）；三原语 Worker/Function/Trigger，~260 个 <span class="mono">mem::*</span> 函数</span></div>
+          <div class="row"><span class="k">向量</span><span class="v"><b>内存 Map 暴力余弦</b>（非向量 DB，无 ANN/HNSW），持久化为 base64 JSON</span></div>
+          <div class="row"><span class="k">图</span><span class="v">自建知识图（图节点/边 + BFS 遍历）</span></div>
+          <div class="row"><span class="k">存储</span><span class="v"><b>零外部 DB</b>：iii-state KV（file-based SQLite <span class="mono">./data/state_store.db</span>），52 个 KV scope</span></div>
+          <div class="row"><span class="k">LLM</span><span class="v"><b>默认 No-op</b>（无 LLM，仅合成 BM25 压缩）/Anthropic/OpenAI/Gemini/OpenRouter/本地(Ollama/LMStudio/vLLM)</span></div>
+          <div class="row"><span class="k">Embed</span><span class="v">本地默认 <span class="mono">all-MiniLM-L6-v2</span>(384,离线免费)/OpenAI/Gemini/Voyage/Cohere/CLIP(图像)</span></div>
+          <div class="row"><span class="k">部署</span><span class="v"><span class="mono">npx</span> 自托管 / Docker(distroless) / fly.io·Railway·Render·Coolify 模板 / <b>明确不做 SaaS</b></span></div>
+        </div>
+      </div>
+      <div class="proscons">
+        <div class="pc-col pros"><h4>优点</h4><ul>
+          <li><b>零外部 DB</b>：SQLite + 内存索引，真单二进制，无须起 Postgres/Qdrant/Redis</li>
+          <li><b>Agent 覆盖最广</b>：30+ Agent 共享一个 MCP 块 + 宿主专属 hook/skill 插件</li>
+          <li>检索基准强且可复现：LongMemEval-S <b>95.2% R@5 / 98.6% R@10 / 88.2% MRR</b></li>
+          <li>隐私优先（存前剥离密钥）；本地嵌入+本地 LLM 可达 <b>$0/年</b></li>
+          <li>Token 高效（~1900/会话 vs 22K+ 的 CLAUDE.md，省 92%）</li>
+          <li>MCP 工具集最丰富（54）；多 Agent 原语罕见；1596+ 测试；CJK 感知搜索</li>
+        </ul></div>
+        <div class="pc-col cons"><h4>缺点 / 限制</h4><ul>
+          <li><b>硬依赖 iii-engine v0.11.2</b>：冷门、不透明的预编译二进制（非标准运行时），绑定单一版本</li>
+          <li><b>暴力内存向量无 ANN</b>：线性 O(n) 余弦，大语料会降级（除非换 iii-database）</li>
+          <li><b>Windows 二等公民</b>：<span class="mono">connect</span> 不支持原生，需 WSL2，安装脚本仅 sh</li>
+          <li><b>默认 LLM 是 No-op</b>：开箱非全功能（压缩/摘要/图抽取全关），需配 LLM 才完整</li>
+          <li>基准非同类对比（自测 R@5 vs 他人不同数据集）；README 营销重，<span class="mono">DESIGN.md</span> 是网站样式非架构</li>
+          <li>hook 健壮性脆弱（Stop-hook 递归 bug 致 Claude Agent SDK 降为 opt-in）；iii console 无 auth</li>
+        </ul></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="project" id="openviking" style="--pc:var(--c-viking)">
+    <div class="p-head">
+      <div class="pmeta"><span class="pno">PROJECT 05</span><div class="badges"><span class="b">Rust</span><span class="b">C++</span><span class="b">Python</span><span class="b">字节跳动</span><span class="b" style="color:var(--con)">AGPL-3.0</span></div></div>
+      <h3>OpenViking</h3>
+      <p class="tagline"><strong>把 Agent 上下文当文件系统。</strong>字节跳动/火山引擎出品。记忆/资源/技能统一为 <span class="mono">viking://</span> 虚拟 FS，Agent 用 ls/tree/find/grep 浏览；每个条目写入时算成 L0/L1/L2 三级，按相关性渐进加载。<strong>检索留下可观测的目录浏览轨迹</strong>。VikingMem 论文（VLDB 2026）。</p>
+    </div>
+    <div class="p-body">
+      <div>
+        <h4>核心功能</h4>
+        <ul class="feat-list">
+          <li>统一虚拟文件系统 <span class="mono">viking://</span>，Agent 用文件系统原语浏览所有上下文</li>
+          <li><strong>L0(抽象~100token)/L1(概览~2k)/L2(全量) 三级渐进加载</strong>，先判相关性再读全文</li>
+          <li>目录递归分层检索：向量搜找最高分目录 → 逐层下钻 + 分数传播 + 收敛检测</li>
+          <li><strong>可观测检索轨迹</strong>：每次查询记录浏览路径（调试 agent 上下文利器）</li>
+          <li>会话→长期记忆：commit 时压缩 + schema 驱动 LLM 抽取记忆</li>
+          <li>多模态摄入（PDF/DOCX/PPTX/XLSX/EPUB/HTML/RSS/代码 tree-sitter 12+ 语言）</li>
+          <li><strong>静态加密</strong>（AES-256-GCM + HKDF）+ 多租户（account/user/agent）隔离</li>
+          <li>REST / MCP / <strong>WebDAV</strong> / 文件系统式 API + OAuth2（OIDC/LDAP）+ .ovpack 备份迁移</li>
+        </ul>
+      </div>
+      <div>
+        <h4>引擎 · 数据库 · 技术栈</h4>
+        <div class="factbox">
+          <div class="row"><span class="k">引擎</span><span class="v">内容层 <b>ragfs</b>（Rust，Git 对象存储，<span class="mono">gix-*</span>）+ 向量层 <b>C++</b>（abi3+maturin 绑定 Python）</span></div>
+          <div class="row"><span class="k">向量</span><span class="v">C++ <b>暴力 flat + int8 SIMD 量化</b>（<b style="color:var(--con)">无 HNSW</b>）/ 远程 / <b>VikingDB 云</b> / 自定义 classpath</span></div>
+          <div class="row"><span class="k">图库</span><span class="v">无传统图 DB（用关系+向量）</span></div>
+          <div class="row"><span class="k">关系库</span><span class="v"><b>无 SQL 必需</b>：<span class="pill">rusqlite</span>元数据 + <span class="pill">redis</span>缓存</span></div>
+          <div class="row"><span class="k">LLM</span><span class="v">volcengine(Ark)/openai/azure/kimi/glm(智谱)/<b>LiteLLM 网关</b>/本地 Ollama</span></div>
+          <div class="row"><span class="k">Embed</span><span class="v">11 家：OpenAI/Cohere/Dashscope/Gemini/Jina/MiniMax/Voyage/本地 <span class="mono">Qwen3-Embedding</span> 0.6B/4B/8B</span></div>
+          <div class="row"><span class="k">部署</span><span class="v"><span class="mono">pip</span>(编译Rust+C++)/Docker(GHCR)/docker-compose+Caddy/<b>K8s Helm</b>/桌面 Helper(beta)/火山引擎托管</span></div>
+        </div>
+      </div>
+      <div class="proscons">
+        <div class="pc-col pros"><h4>优点</h4><ul>
+          <li><b>三级加载大幅省 token</b>：LoCoMo 输入 token 降 34–91%，延迟降 58–66%</li>
+          <li><b>可观测检索轨迹</b>独此一家，调试 agent 上下文极有用</li>
+          <li>多语言性能故事真实：Rust 内容引擎 + C++ 向量 int8 SIMD + Python 编排</li>
+          <li>一切可插拔（向量 classpath / LiteLLM / 11 嵌入 / AGFS 多写副本）</li>
+          <li>安全内建（AES-256-GCM + Argon2id + OIDC/LDAP）；运维成熟（Prometheus+OTel）</li>
+          <li>诚实基准（<span class="mono">benchmark/</span> 复现脚本 + 论文）；宽 Agent 集成；3 官方 SDK + Rust CLI</li>
+        </ul></div>
+        <div class="pc-col cons"><h4>缺点 / 限制</h4><ul>
+          <li><b>AGPL-3.0</b>：闭源商用嵌入受限（仅 <span class="mono">ov_cli</span>/examples 是 Apache-2.0）</li>
+          <li><b>本地引擎无 HNSW</b>：暴力 flat（int8 量化），大规模须转云 VikingDB 或 cuVS GPU，<b>无本地 ANN 中间档</b></li>
+          <li>量化仅 int8（无 PQ/SQ8/二值）；大规模本地语料受限</li>
+          <li><b>构建复杂</b>：源码安装需 Rust ≥1.91 + C++/CMake + Python 3.10 + Node 24（SPA）</li>
+          <li>字节/火山生态耦合（云默认 VikingDB，托管仅中国区）；cache 后缀 mooncake/yuanrong 是内部存储默认禁用</li>
+          <li>中国优先（部分设计文档仅中文）；项目早期（Helper/全球托管 beta/coming-soon）；重于极简记忆库</li>
+        </ul></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="project" id="mandol" style="--pc:var(--c-mandol)">
+    <div class="p-head">
+      <div class="pmeta"><span class="pno">PROJECT 06</span><div class="badges"><span class="b">Python 3.12</span><span class="b">Linux</span><span class="b">FAISS</span><span class="b">无LLM检索</span><span class="b">Apache-2.0</span></div></div>
+      <h3>Mandol</h3>
+      <p class="tagline"><strong>长期对话的进程内分层记忆，检索时无 LLM。</strong>基础层 + 高级抽象层（情景事实/实体关系图/分层 L1·L2 摘要）统一进单一语义图；检索走查询自适应路由 → 两阶段去噪 + 冲突解决 → token 约束上下文，全程<strong>不调 LLM</strong>。自报 LoCoMo 92.21% / LongMemEval 88.40% SOTA。论文 <span class="mono">arXiv:2606.29778</span>。</p>
+    </div>
+    <div class="p-body">
+      <div>
+        <h4>核心功能</h4>
+        <ul class="feat-list">
+          <li><strong>分层记忆模型</strong>：基础层（MemoryUnit/Space/显式隐式关系）+ 抽象层（情景事件链/语义实体图/用户偏好）</li>
+          <li><strong>进程内统一混合存储</strong> SemanticMap+SemanticGraph：KV + FAISS dense + BM25/SPLADE sparse + 图拓扑，消除跨 DB IO</li>
+          <li><strong>三塔检索</strong>（分层 / 图 / 情景）+ 查询自适应路由 + 跨塔剪枝 + 统一 rerank</li>
+          <li><strong>智能量化检索</strong>：自适应路由 → 两阶段去噪 → 冲突解决 → token 约束，<strong>全程无 LLM</strong></li>
+          <li>LLM 仅用于<strong>记忆构建</strong>（auto_builder）：分层 L1/L2 摘要、情景事实、实体关系图</li>
+          <li>Leiden/DBSCAN 聚类做实体/事实去重；RocksDB 分层分页冷数据</li>
+          <li>可恢复 + checkpoint 的基准管道（LoCoMo / LongMemEval 独立 harness）</li>
+        </ul>
+      </div>
+      <div>
+        <h4>引擎 · 数据库 · 技术栈</h4>
+        <div class="factbox">
+          <div class="row"><span class="k">向量</span><span class="v">内嵌 <b>FAISS</b>（IDMap,Flat）<span class="sub">Milvus/Neo4j/zep-cloud 仅在 pyproject 供基准对比，运行时不导入</span></span></div>
+          <div class="row"><span class="k">稀疏</span><span class="v">内存 <b>BM25</b>(rank-bm25) + <b>SPLADE</b>(sentence-transformers)</span></div>
+          <div class="row"><span class="k">图</span><span class="v">进程内自建语义图（非外部图 DB）</span></div>
+          <div class="row"><span class="k">持久化</span><span class="v"><b>RocksDB</b>(rocksdict) 唯一 payload 后端（分层分页，高/低水位淘汰）<span class="sub">无存储后端切换契约</span></span></div>
+          <div class="row"><span class="k">LLM</span><span class="v">OpenAI 兼容：DeepSeek/OpenAI/OpenRouter/DashScope(阿里)/CSTCloud + Standard/Reasoning Provider（仅构建用）</span></div>
+          <div class="row"><span class="k">Embed</span><span class="v">本地 <span class="mono">sentence-transformers</span>+torch（MiniLM 快速 / 论文用 <span class="mono">Qwen3-Embedding-0.6B</span>）；rerank <span class="mono">bge-reranker-v2-m3</span>（native 或 vllm.sh 服务）</span></div>
+          <div class="row"><span class="k">部署</span><span class="v"><span class="mono">pip install mandol</span>(PyPI 0.1.0) / <span class="mono">uv sync</span> 源码 / 库导入 / FastAPI <b>demo(非生产)</b> / 可选 vllm reranker 服务</span></div>
+        </div>
+      </div>
+      <div class="proscons">
+        <div class="pc-col pros"><h4>优点</h4><ul>
+          <li><b>基准驱动 + 同行评审</b>：双 SOTA + 延迟胜（H800@10QPS 搜索均值 82.2ms vs MemOS 440.5ms）</li>
+          <li><b>LLM-free 检索</b>：路由+量化+去噪不调 LLM，查询期成本/延迟极低</li>
+          <li><b>统一混合存储</b>：KV+向量+稀疏+图同进程，消除跨 DB IO；RocksDB 冷数据分页</li>
+          <li>刻意用轻量检索模型（Qwen3-0.6B + bge-reranker），非数十亿参数</li>
+          <li>模块清晰、Apache-2.0、惰性导入（import mandol 不拉 PyTorch/FAISS）、可恢复基准管道</li>
+        </ul></div>
+        <div class="pc-col cons"><h4>缺点 / 限制</h4><ul>
+          <li><b>Alpha，研究级</b>：明确"非生产服务"，API 在 0.x 会变</li>
+          <li><b>环境严格</b>：仅 Python 3.12、Linux 定向、满血需 CUDA 12 + Torch 2.8 + Linux x86_64 flash-attn（Win/Mac 装不上）</li>
+          <li><b>重依赖</b>：torch2.8/faiss/numba/scipy/spacy 大模型/igraph/transformers/langchain/llmlingua/bert-score</li>
+          <li><b>无存储可移植性</b>：仅 RocksDB，无可切换存储后端契约</li>
+          <li>高级记忆<strong>构建期 LLM 昂贵</strong>（多次抽取 + LLM 去重），需付费 key 且规模慢</li>
+          <li>无一等生产 server（FastAPI 仅 demo）；<span class="mono">tests/</span> 仅 1 文件；单进程无扩缩容；基准依赖 LLM-judge</li>
+        </ul></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="project" id="tencent" style="--pc:var(--c-tencent)">
+    <div class="p-head">
+      <div class="pmeta"><span class="pno">PROJECT 07</span><div class="badges"><span class="b">TypeScript</span><span class="b">Node 22+</span><span class="b">4 模块</span><span class="b">透明代理</span><span class="b">MIT</span></div></div>
+      <h3>TencentDB-Agent-Memory</h3>
+      <p class="tagline"><strong>面向 Agent 团队的一体化记忆与知识平台。</strong>腾讯出品。把对话/文档/代码蒸馏成 4 类资产（Chat Memory / Skills / Wiki / CodeGraph），可绑定 agent 并跨团队共享。4 模块架构：引擎 + 知识 + 管理台 + <strong>透明 LLM 代理</strong>（agent 零代码改动即获记忆注入与写回）。standalone 模式零厂商依赖。</p>
+    </div>
+    <div class="p-body">
+      <div>
+        <h4>核心功能</h4>
+        <ul class="feat-list">
+          <li><strong>四层分层记忆管道</strong>：L0 Conversation → L1 Atom（事实抽取）→ L2 Scenario → L3 Persona，LLM 异步管道精炼</li>
+          <li><strong>4 类资产一体</strong>：Chat Memory + Skills（版本化可执行技能）+ Wiki（LLM 维护带链接图）+ CodeGraph（代码符号/调用/影响路径）</li>
+          <li><strong>透明代理（MemoryProxy）</strong>：拦截 Claude Code/CodeBuddy/Codex 等的 LLM 请求，注入记忆/技能/知识 + 写回，agent 零代码改动</li>
+          <li>多租户（service_id/spaceId）+ ACL（private/team/restricted/agent 四级可见）</li>
+          <li>冷启动摄入：导入仓库→CodeGraph、文档→Wiki、会话→Skills + Chat Memory</li>
+          <li>框架适配：OpenClaw/Hermes/Claude Code/CodeBuddy/Codex/SDK + MCP server</li>
+          <li>限流（TPM/QPM per space×model）+ 计费 + 三通道可观测（Opik/Langfuse/ClickHouse）</li>
+          <li><span class="mono">mem:</span> 会话指令（sync/create-skill/help）</li>
+        </ul>
+      </div>
+      <div>
+        <h4>引擎 · 数据库 · 技术栈</h4>
+        <div class="factbox">
+          <div class="row"><span class="k">架构</span><span class="v"><b>4 模块</b>：MemoryCore(引擎+网关,:8420) / MemoryKnowledge(Wiki+CodeGraph,:8421) / MemoryPanel(管理台 UI,:8125) / MemoryProxy(透明代理,:8096)</span></div>
+          <div class="row"><span class="k">语言/框架</span><span class="v">100% TypeScript/Node 22+；MemoryCore 原生 <span class="mono">node:http</span>，其余 Hono；前端 React 18 + tea-component</span></div>
+          <div class="row"><span class="k">向量</span><span class="v"><b>sqlite-vec</b>(standalone) / <b>腾讯云 VectorDB(TCVDB)</b>(service)</span></div>
+          <div class="row"><span class="k">文档/状态</span><span class="v">本地 FS(standalone) / <span class="pill">腾讯 COS</span>对象存储(service)；Redis 分布式锁+队列(service)</span></div>
+          <div class="row"><span class="k">图库</span><span class="v"><b>无原生图 DB</b>（"知识图"为内存 graphology + SQLite；CodeGraph 是代码调用图）</span></div>
+          <div class="row"><span class="k">可选</span><span class="v"><span class="pill">ClickHouse</span>用量 <span class="pill">MongoDB</span> <span class="pill">Kafka</span> <span class="pill">opik</span> <span class="pill">Langfuse</span></span></div>
+          <div class="row"><span class="k">LLM</span><span class="v">OpenAI 兼容默认/DeepSeek/OpenAI/腾讯混元·Lkeap/Anthropic（MemoryProxy 原生支持 OpenAI+Anthropic 协议）</span></div>
+          <div class="row"><span class="k">Embed</span><span class="v">openai(text-embedding-3-small)/deepseek/local(node-llama-cpp)/none(TCVDB 服务端算 bge-large-zh)；jieba 中文分词</span></div>
+          <div class="row"><span class="k">检索</span><span class="v">混合 BM25 + 向量 <b>RRF</b> 融合（hybrid/embedding/keyword 可配）；Knowledge 加 Wiki FTS5 + 链接图(Louvain) + CodeGraph 遍历</span></div>
+          <div class="row"><span class="k">部署</span><span class="v">一键 <span class="mono">start-all.sh</span>(Docker Hub 镜像) / Docker Compose / <b>K8s/TKE</b> / standalone 离线（仅需 Node + LLM key）</span></div>
+        </div>
+      </div>
+      <div class="proscons">
+        <div class="pc-col pros"><h4>优点</h4><ul>
+          <li><b>透明代理模式</b>独到：Claude Code/CodeBuddy/Codex 等编码 agent 零代码改动即获记忆注入+写回</li>
+          <li><b>L0–L3 分层</b>比扁平事实存储更丰富（L1 Atom ≈ mem0 记忆，再叠加 L2 场景 + L3 画像）</li>
+          <li><b>4 资产类型一体</b>（含 <b>CodeGraph 影响路径分析</b>——对比集里独有）</li>
+          <li><b>standalone 零厂商锁定</b>（SQLite + 本地 FS，无腾讯依赖）</li>
+          <li>框架无关（OpenClaw/Hermes/Claude Code/CodeBuddy/Codex/SDK）；企业级运维面（多租户/ACL/限流/计费/三可观测/K8s）</li>
+          <li>MIT；MCP server + 完整管理台 UI</li>
+        </ul></div>
+        <div class="pc-col cons"><h4>缺点 / 限制</h4><ul>
+          <li><b>service 模式腾讯云硬锁</b>：TCVDB+COS 无 Pinecone/Weaviate/Milvus/S3 抽象，迁移工具仅 SQLite→TCVDB 单向</li>
+          <li><b>全 TS/Node 重运行时</b>（~920MB 镜像），无轻量 Go/Rust 单二进制；不适合边缘/嵌入式</li>
+          <li><b>运维重</b>：4 服务 + Redis +（service 模式）TCVDB+COS+ClickHouse+…，需平台工程能力</li>
+          <li><b>v2.0-beta</b>，多模块仍 0.1.0；CodeGraph 仅公开 HTTPS repo 成熟；记忆路由仍在迭代</li>
+          <li>Wiki/CodeGraph 构建异步且慢（v2.0.1 路线图专门提速）；<b>单一 PersonaMem 基准</b>（48%→76%），无 LoCoMo/LongMemEval 标准对比</li>
+          <li>License 信号矛盾（docker README 误标 "Proprietary"，根 LICENSE 为 MIT）；围绕腾讯内生态（Shark/TokenHub/混元默认），非腾讯部署有摩擦；无原生图 DB</li>
+        </ul></div>
+      </div>
+    </div>
+  </article>
+</div></section>
+
+<section id="tech-feature"><div class="wrap">
+  <div class="sec-head">
+    <div class="num">04 — 技术选型 ↔ 功能 的因果关系</div>
+    <h2>为什么选这个技术，带来什么能力</h2>
+    <p>这是本次调研的核心命题。每个项目的功能差异，<strong>不是偶然堆砌，而是其底层技术选型的必然结果</strong>。下表把每个关键选择拆成三段：<b style="color:var(--info)">选了什么</b> → <b style="color:var(--pro)">带来了什么功能</b> → <b style="color:var(--con)">付出了什么代价</b>。</p>
+  </div>
+  <div class="tcf">
+    <div class="tcf-card" style="--pc:var(--c-mem0)"><h4>mem0</h4><div class="tcf-triple">
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>25 向量库工厂 + 单次 ADD LLM 抽取</div><div class="tcf-cell enables"><span class="lab">带来功能</span>极致生态兼容 + 写路径仅 1 次 LLM</div><div class="tcf-cell cost"><span class="lab">代价</span>混合检索非统一（部分库静默降级）+ append-only 无更新</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>实体链接 sidecar 集合（替代图 DB）</div><div class="tcf-cell enables"><span class="lab">带来功能</span>实体 boost 检索，无需 Neo4j 运维</div><div class="tcf-cell cost"><span class="lab">代价</span>失去图遍历/Cypher；OSS 图能力被砍（Platform-only）</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>双语言 SDK（Py+TS）+ 自托管 server</div><div class="tcf-cell enables"><span class="lab">带来功能</span>全栈覆盖，前后端/库都能用</div><div class="tcf-cell cost"><span class="lab">代价</span>main.py 3852 行单文件，维护负担</div></div>
+    </div></div>
+
+    <div class="tcf-card" style="--pc:var(--c-zep)"><h4>zep</h4><div class="tcf-triple">
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>Neo4j 图 DB + valid_at/invalid_at 边</div><div class="tcf-cell enables"><span class="lab">带来功能</span>时序知识图，"某时刻为真"查询 + 矛盾感知</div><div class="tcf-cell cost"><span class="lab">代价</span>图 DB 运维；实体合并按名字（别名重复）</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>Graphiti 独立服务（Go server 当 thin client）</div><div class="tcf-cell enables"><span class="lab">带来功能</span>引擎可独立演进/复用，解耦清晰</div><div class="tcf-cell cost"><span class="lab">代价</span>4 服务运维负担；异步摄入 no read-after-write</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>Postgres+pgvector 双角色（消息+向量）</div><div class="tcf-cell enables"><span class="lab">带来功能</span>情景/语义分离 + MMR/RRF 重排</div><div class="tcf-cell cost"><span class="lab">代价</span>本体不可追溯（改需重灌）</div></div>
+    </div></div>
+
+    <div class="tcf-card" style="--pc:var(--c-super)"><h4>supermemory</h4><div class="tcf-triple">
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>内嵌 HNSW + 6 阶段活图谱管道</div><div class="tcf-cell enables"><span class="lab">带来功能</span>亚毫秒检索 + 时序/矛盾/自动遗忘</div><div class="tcf-cell cost"><span class="lab">代价</span>引擎闭核（差异化靠专有提取模型）</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>Cloudflare Workers + OpenNext + Durable Objects</div><div class="tcf-cell enables"><span class="lab">带来功能</span>边缘原生全球低延迟 + 交互式 MCP widget</div><div class="tcf-cell cost"><span class="lab">代价</span>强耦合 CF，他处重部署非平凡</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>嵌入维度锁定（ingest 后不可变）</div><div class="tcf-cell enables"><span class="lab">带来功能</span>索引一致性，零运行时维度冲突</div><div class="tcf-cell cost"><span class="lab">代价</span>换 provider/model 须全量重灌，不匹配拒启动</div></div>
+    </div></div>
+
+    <div class="tcf-card" style="--pc:var(--c-agent)"><h4>agentmemory</h4><div class="tcf-triple">
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>iii-engine + 内存 KV（零外部 DB）</div><div class="tcf-cell enables"><span class="lab">带来功能</span>真单二进制，无 DB 运维，5 秒接入</div><div class="tcf-cell cost"><span class="lab">代价</span>暴力向量无 ANN（大语料降级）；锁定冷门 iii 二进制</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>12 生命周期 hooks + 4 层类脑记忆</div><div class="tcf-cell enables"><span class="lab">带来功能</span>静默自动捕获编码 Agent + 睡眠式巩固/遗忘</div><div class="tcf-cell cost"><span class="lab">代价</span>hook 健壮性脆弱（Stop-hook 递归 bug）</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>本地嵌入 + 默认 No-op LLM</div><div class="tcf-cell enables"><span class="lab">带来功能</span>可达 $0/年，全离线</div><div class="tcf-cell cost"><span class="lab">代价</span>开箱非全功能，需配 LLM 才完整</div></div>
+    </div></div>
+
+    <div class="tcf-card" style="--pc:var(--c-viking)"><h4>OpenViking</h4><div class="tcf-triple">
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>虚拟 FS（viking://）+ Git 对象存储（ragfs/Rust）</div><div class="tcf-cell enables"><span class="lab">带来功能</span>上下文当文件浏览（ls/tree/grep）+ git 式版本</div><div class="tcf-cell cost"><span class="lab">代价</span>概念抽象重，单用户 CLI 场景过度工程</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>L0/L1/L2 三级渐进加载</div><div class="tcf-cell enables"><span class="lab">带来功能</span>省 34–91% 输入 token + 可观测检索轨迹</div><div class="tcf-cell cost"><span class="lab">代价</span>需预计算每目录/文件的三级摘要</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>C++ 暴力 flat + int8 + VikingDB 云逃生舱</div><div class="tcf-cell enables"><span class="lab">带来功能</span>本地快速量化检索 + 弹性云扩容</div><div class="tcf-cell cost"><span class="lab">代价</span>本地无 HNSW（大规模须云/GPU）；AGPL-3.0 限商用</div></div>
+    </div></div>
+
+    <div class="tcf-card" style="--pc:var(--c-mandol)"><h4>Mandol</h4><div class="tcf-triple">
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>进程内统一混合存储（KV+FAISS+BM25+SPLADE+图）</div><div class="tcf-cell enables"><span class="lab">带来功能</span>消除跨 DB IO，检索无 LLM 低延迟（82.2ms）</div><div class="tcf-cell cost"><span class="lab">代价</span>单进程，无多节点/分片扩缩容</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>三塔检索 + 查询自适应路由（分层/图/情景）</div><div class="tcf-cell enables"><span class="lab">带来功能</span>覆盖单跳/多跳/时序/开放域/知识更新多查询类型</div><div class="tcf-cell cost"><span class="lab">代价</span>这是 LoCoMo/LongMemEval 高分的根因，但也绑死评测导向</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>LLM 仅构建（auto_builder）+ 轻量检索模型</div><div class="tcf-cell enables"><span class="lab">带来功能</span>高质量分层/情景/实体图 + 查询期零 LLM 成本</div><div class="tcf-cell cost"><span class="lab">代价</span>构建期 LLM 昂贵（多次抽取+去重）；仅 RocksDB 无可移植</div></div>
+    </div></div>
+
+    <div class="tcf-card" style="--pc:var(--c-tencent)"><h4>TencentDB-Agent-Memory</h4><div class="tcf-triple">
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>透明 LLM 代理（MemoryProxy, Hono+node-pty）</div><div class="tcf-cell enables"><span class="lab">带来功能</span>编码 agent 零代码改动即获记忆注入+写回</div><div class="tcf-cell cost"><span class="lab">代价</span>多一跳 + 重 Node 运行时，非边缘友好</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>L0–L3 分层 + 4 资产（含 CodeGraph）</div><div class="tcf-cell enables"><span class="lab">带来功能</span>比扁平事实更丰富；记忆/技能/wiki/代码图一体</div><div class="tcf-cell cost"><span class="lab">代价</span>范围广但单项深度不及专精（如图推理弱于 Zep）；构建异步慢</div></div>
+      <div class="tcf-row"><div class="tcf-cell choose"><span class="lab">选了什么</span>双模式：standalone SQLite / service TCVDB+COS</div><div class="tcf-cell enables"><span class="lab">带来功能</span>本地零锁 + 云可扩展两全</div><div class="tcf-cell cost"><span class="lab">代价</span>service 模式腾讯云硬锁，无通用向量库抽象</div></div>
+    </div></div>
+  </div>
+</div></section>
+
+<section id="cross"><div class="wrap">
+  <div class="sec-head">
+    <div class="num">05 — 横向专题对比</div>
+    <h2>基准 · 向量引擎 · 记忆模型 · 协议</h2>
+    <p>把七个项目放在同一坐标轴上看差异。注意：基准分数<strong>并非同类对比</strong>，下表逐项标注了口径。</p>
+  </div>
+  <div class="cross-grid">
+    <div>
+      <table class="mini">
+        <thead><tr><th>项目</th><th>LoCoMo</th><th>LongMemEval</th><th>口径备注</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sw" style="background:var(--c-mem0)"></span>mem0</td><td>92.5</td><td>94.4</td><td>Platform-only，OSS 方向性相似</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-zep)"></span>zep</td><td>—</td><td>—</td><td>有论文+harness，未报单一分数</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-super)"></span>supermemory</td><td>自报#1</td><td>自报#1</td><td>厂商自报，含 ConvoMem</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-agent)"></span>agentmemory</td><td>—</td><td>R@5 95.2%</td><td>检索基准，对比项用不同数据集</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-viking)"></span>OpenViking</td><td>80–83%</td><td>—</td><td>用户记忆准确率 24-57%→80-83%</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-mandol)"></span>Mandol</td><td><b>92.21</b></td><td><b>88.40</b></td><td>论文 SOTA，GPT-4o-mini/4.1-mini</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-tencent)"></span>TencentDB</td><td>—</td><td>—</td><td>仅 PersonaMem 48%→76%（单一基准）</td></tr>
+        </tbody>
+      </table>
+      <p class="note">这些分数来自不同评测口径、不同后端模型、不同数据子集，<strong>不能直接横比排名</strong>。仅作"各自在标准基准上的自我标定"参考。</p>
+    </div>
+    <div>
+      <table class="mini">
+        <thead><tr><th>项目</th><th>向量引擎</th><th>有无 ANN</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sw" style="background:var(--c-mem0)"></span>mem0</td><td>25 种可插拔（pgvector/Qdrant…）</td><td>取决于所选库</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-zep)"></span>zep</td><td>pgvector</td><td>HNSW（pg）</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-super)"></span>supermemory</td><td>内嵌 HNSW（闭核）</td><td><b style="color:var(--pro)">有</b></td></tr>
+          <tr><td><span class="sw" style="background:var(--c-agent)"></span>agentmemory</td><td>内存 Map 暴力余弦</td><td><b style="color:var(--con)">无</b></td></tr>
+          <tr><td><span class="sw" style="background:var(--c-viking)"></span>OpenViking</td><td>C++ flat int8 / 云 VikingDB</td><td>本地<b style="color:var(--con)">无</b>，云有</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-mandol)"></span>Mandol</td><td>FAISS flat</td><td>本地 flat</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-tencent)"></span>TencentDB</td><td>sqlite-vec / 云 TCVDB</td><td>云<b style="color:var(--pro)">有</b>，本地无</td></tr>
+        </tbody>
+      </table>
+      <p class="note">向量引擎选型直接决定<strong>检索延迟与可承载语料规模</strong>——这正是 agentmemory/OpenViking/TencentDB 本地"暴力扫描"在大语料下的硬伤。</p>
+    </div>
+    <div>
+      <table class="mini">
+        <thead><tr><th>项目</th><th>记忆模型范式</th><th>是否时序感知</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sw" style="background:var(--c-mem0)"></span>mem0</td><td>事实抽取 + 哈希去重 + 实体链接</td><td>否（时间推理 Platform-only）</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-zep)"></span>zep</td><td>情景 + 语义时序知识图</td><td><b style="color:var(--pro)">是（核心）</b></td></tr>
+          <tr><td><span class="sw" style="background:var(--c-super)"></span>supermemory</td><td>活图谱 Updates/Extends/Derives</td><td>是（版本链）</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-agent)"></span>agentmemory</td><td>4 层类脑 + Ebbinghaus 衰减</td><td>部分（衰减曲线）</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-viking)"></span>OpenViking</td><td>虚拟 FS + L0/L1/L2 分层</td><td>git 式版本</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-mandol)"></span>Mandol</td><td>分层语义图 + 三塔（情景/图/分层）</td><td>部分</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-tencent)"></span>TencentDB</td><td>分层 L0–L3 + 4 资产(含 CodeGraph)</td><td>否</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <table class="mini">
+        <thead><tr><th>项目</th><th>部署谱系</th><th>协议</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sw" style="background:var(--c-mem0)"></span>mem0</td><td>库 → server → 托管 → CLI</td><td>REST · MCP</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-zep)"></span>zep</td><td>托管(主)，CE 废弃</td><td>REST · MCP(废)</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-super)"></span>supermemory</td><td>托管 → 自托管二进制</td><td>REST · MCP(widget)</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-agent)"></span>agentmemory</td><td>自托管 only（不做 SaaS）</td><td>REST(130) · MCP(54)</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-viking)"></span>OpenViking</td><td>pip → Docker → K8s → 托管</td><td>REST · MCP · WebDAV · FS</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-mandol)"></span>Mandol</td><td>库 + demo（无生产 server）</td><td>库 API</td></tr>
+          <tr><td><span class="sw" style="background:var(--c-tencent)"></span>TencentDB</td><td>Docker → K8s/TKE → standalone</td><td>REST · MCP · 透明代理</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div></section>
+
+<section id="guide"><div class="wrap">
+  <div class="sec-head">
+    <div class="num">06 — 选型决策指南</div>
+    <h2>如果想要 X，选 Y</h2>
+    <p>基于实际场景的快速选型建议。先明确你的首要约束，再对号入座。</p>
+  </div>
+  <div class="guide">
+    <div class="g-card" style="--pc:var(--c-mem0)"><div class="if">如果你的首要需求是</div><div class="want">最广生态兼容 + 快速集成现有向量库/LLM</div><div class="then"><span class="arrow">→</span><span class="pname">mem0</span></div><div class="why">25 向量库 + 18 LLM 工厂模式，几乎接啥都行；双语言 SDK + 自托管 server + 托管云全形态。</div></div>
+    <div class="g-card" style="--pc:var(--c-zep)"><div class="if">如果你的首要需求是</div><div class="want">事实会随时间变化，需要时序感知与矛盾解决</div><div class="then"><span class="arrow">→</span><span class="pname">zep / Graphiti</span></div><div class="why">唯一把时间做成一等公民；valid_at/invalid_at + latest-wins。注意自托管用 Graphiti 引擎本身（CE 已废弃）。</div></div>
+    <div class="g-card" style="--pc:var(--c-agent)"><div class="if">如果你的首要需求是</div><div class="want">给 Claude Code / Cursor 等编码 Agent 加持久记忆，零 DB 运维</div><div class="then"><span class="arrow">→</span><span class="pname">agentmemory</span></div><div class="why">hooks 自动捕获 + 单二进制 + 30+ Agent 支持 + 本地嵌入可达 $0。中小语料检索质量优秀。</div></div>
+    <div class="g-card" style="--pc:var(--c-viking)"><div class="if">如果你的首要需求是</div><div class="want">企业级、可观测检索、省 token、多租户与加密</div><div class="then"><span class="arrow">→</span><span class="pname">OpenViking</span></div><div class="why">虚拟 FS + 三级加载省 34-91% token + 检索轨迹可调试 + AES-256 + OIDC/LDAP + K8s。注意 AGPL-3.0。</div></div>
+    <div class="g-card" style="--pc:var(--c-mandol)"><div class="if">如果你的首要需求是</div><div class="want">研究复现长期对话 SOTA、查询期零 LLM 成本</div><div class="then"><span class="arrow">→</span><span class="pname">Mandol</span></div><div class="why">进程内统一存储 + 三塔检索，双基准 SOTA；但仅 Python 3.12/Linux、Alpha、无生产 server。</div></div>
+    <div class="g-card" style="--pc:var(--c-super)"><div class="if">如果你的首要需求是</div><div class="want">托管开箱即用 + 边缘低延迟 + 个人"第二大脑"</div><div class="then"><span class="arrow">→</span><span class="pname">supermemory</span></div><div class="why">Cloudflare 原生 + 活图谱 + 连接器 + 成熟 MCP。但核心引擎闭核，差异化质量在专有模型（厂商锁定）。</div></div>
+    <div class="g-card" style="--pc:var(--c-tencent)"><div class="if">如果你的首要需求是</div><div class="want">Agent 团队级一体化平台：记忆+技能+Wiki+代码图，多租户+管理台</div><div class="then"><span class="arrow">→</span><span class="pname">TencentDB</span></div><div class="why">4 资产类型 + L0–L3 分层 + 透明代理让现有编码 agent 零改动接入；standalone 无锁定。但 service 模式绑腾讯云、beta、重运维。</div></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="col">
+    <h5>调研方法</h5>
+    <p style="max-width:46ch">由并行调研 Agent 分批深入各项目，结论基于 README、依赖清单（pyproject.toml / package.json / Cargo.toml）与源码核实，非营销话术。基准分数口径各异，已逐项标注。调研日期 2026-08-10。</p>
+  </div>
+  <div class="col">
+    <h5>项目源</h5>
+    <a class="lk" href="#">mem0 — github.com/mem0ai/mem0</a>
+    <a class="lk" href="#">zep — github.com/getzep/zep（Graphiti: getzep/graphiti）</a>
+    <a class="lk" href="#">supermemory — github.com/supermemoryai/supermemory</a>
+    <a class="lk" href="#">agentmemory — github.com/agentmemory（iii-engine: iii-hq/iii）</a>
+    <a class="lk" href="#">OpenViking — github.com/volcengine/OpenViking</a>
+    <a class="lk" href="#">Mandol — github.com/AgentCombo/Mandol</a>
+    <a class="lk" href="#">TencentDB-Agent-Memory — github.com/Tencent/TencentDB-Agent-Memory</a>
+  </div>
+  <div class="col">
+    <h5>免责声明</h5>
+    <p style="max-width:30ch">本报告为特定时间点的静态调研，各项目快速演进。生产选型前请以各仓库最新 README/CHANGELOG 为准，并独立验证基准与安全声明。</p>
+  </div>
+</div></footer>
+
+<script>
+const links=[...document.querySelectorAll('nav.top .chips a')];
+const arts=[...document.querySelectorAll('article.project')];
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;links.forEach(l=>l.style.color=l.getAttribute('href')==='#'+id?'var(--text)':'');}});},{rootMargin:'-30% 0px -60% 0px'});
+arts.forEach(a=>io.observe(a));
+</script>
+</body>
+</html>
