@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑰ 整体分层与 Gateway 中枢</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .layer3 { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:0; overflow:hidden; margin:16px 0; }
+  .layer3 > div { padding:14px 18px; border-bottom:1px solid var(--border); }
+  .layer3 > div:last-child { border-bottom:none; }
+  .layer3 h5 { margin:0 0 6px; font-size:13px; }
+  .layer3 .l1 { background:rgba(88,166,255,0.06); } .layer3 .l1 h5 { color:var(--accent); }
+  .layer3 .l2 { background:rgba(210,153,34,0.06); } .layer3 .l2 h5 { color:var(--orange); }
+  .layer3 .l3 { background:rgba(188,140,255,0.06); } .layer3 .l3 h5 { color:var(--purple); }
+  .layer3 p { font-size:13px; margin:6px 0; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑰ 整体分层与 Gateway 中枢
+  <span class="sub">阶段 1 · 平台支撑 · 三层切分与 core 为何必须 plugin-agnostic</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:大框架怎么切分才不烂</a></li>
+  <li><a href="#design">分层设计:三层 + Gateway 中枢</a></li>
+  <li><a href="#why">为何这么设计:复用、隔离、单中枢</a></li>
+  <li><a href="#example">完整示例:一次请求穿越三层</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:大框架怎么切分才不烂</h2>
+
+<p>一个生产级 Agent 平台要同时管:推理循环、工具、上下文、记忆、channels(Telegram/Discord/...)、多个 provider、插件、持久化、并发、用户身份... 如果全堆在一起,会变成<strong>无法维护的怪兽</strong>——改一处影响处处,测试不可能,扩展靠改核心。</p>
+
+<p>demo 级做法:一个 monolith,所有功能写一起。能跑,但:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li><strong>核心被污染</strong>:接 Telegram 要改核心,接 Discord 还要改核心,核心越来越臃肿。</li>
+  <li><strong>无法复用</strong>:推理循环和 OpenClaw 业务绑死,换个场景要重写。</li>
+  <li><strong>测试地狱</strong>:测推理要起 Telegram,测 Telegram 要真模型,耦合死。</li>
+  <li><strong>扩展靠改核心</strong>:加个新功能(provider/channel/tool)必须改核心代码。</li>
+</ul>
+</div>
+
+<p>生产需要<strong>清晰的分层</strong>:每层职责单一,通过明确接口交互,核心稳定,扩展在外。</p>
+
+<h2 id="design">二 · 分层设计:三层 + Gateway 中枢</h2>
+
+<div class="layer3">
+<div class="l3">
+<h5>[层 3] 插件层(extensions/ · 可替换)</h5>
+<p>· <strong>provider 插件</strong>:OpenAI/Anthropic/Google... 各自管认证、模型目录、API 适配</p>
+<p>· <strong>channel 插件</strong>:Telegram/Discord/Slack... 各自管传输、消息格式、回调</p>
+<p>· <strong>能力插件</strong>:memory/browser/canvas... 各自管特定能力</p>
+<p>· <strong>特点</strong>:独立、可增删、不互相依赖;通过 SDK seam 接入核心</p>
+</div>
+<div class="l2">
+<h5>[层 2] 编排层(core src/ · OpenClaw 自有)</h5>
+<p>· agent 编排(embedded runner、harness、lanes、hooks)</p>
+<p>· gateway(WebSocket 服务、协议、路由)</p>
+<p>· 状态管理、持久化、并发控制</p>
+<p>· 插件加载/注册/隔离机制</p>
+<p>· <strong>特点</strong>:plugin-agnostic(不知道具体插件,只知通用契约)</p>
+</div>
+<div class="l1">
+<h5>[层 1] 可复用库(packages/ · 框架无关)</h5>
+<p>· <strong>agent-core</strong>:纯推理循环(turn/attempt/run、工具派发、消息折叠)</p>
+<p>· <strong>ai / llm-core</strong>:provider API 归一化、流式、校验</p>
+<p>· <strong>gateway-protocol</strong>:协议 schema/校验</p>
+<p>· <strong>特点</strong>:不知道 OpenClaw 存在,可被任何框架复用</p>
+</div>
+</div>
+
+<h3>Gateway:编排层里的单中枢</h3>
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                Gateway · 单守护进程中枢                                 │
+└──────────────────────────────────────────────────────────────────────┘
+
+       控制面客户端                    Node 设备
+   (macOS app / CLI / Web)        (暴露 caps/commands)
+            │                            │
+            └──────────┬─────────────────┘
+                       ▼ WebSocket
+              ┌─────────────────┐
+              │   GATEWAY        │  ← 单守护进程,owns:
+              │   (编排层核心)   │     · 所有 channels(TG/Discord/...)
+              │                   │     · 所有 agent 实例
+              │                   │     · 状态/持久化
+              │                   │     · 插件加载
+              └─────────────────┘
+                       │
+            ┌──────────┴──────────┐
+            ▼                     ▼
+       Provider API           工具执行(本地/远程)</div>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么分三层(库/编排/插件)</h3>
+<p><strong>层 1(可复用库)</strong>剥离出来,是为了<strong>复用和测试</strong>:纯推理循环不依赖 OpenClaw 业务,任何框架能用,且能独立测试(不启 gateway/channel)。<strong>层 2(编排)</strong>是 OpenClaw 自有逻辑,负责把库、插件、状态、并发粘合起来。<strong>层 3(插件)</strong>是可替换的扩展点。<strong>分层让每层可独立演进</strong>:库升级不破坏编排,编排重构不动插件,插件增删不改核心。<strong>关键边界:层 1 不知道 OpenClaw,层 2 不知道具体插件,层 3 通过 seam 接入。</strong></p>
+
+<h3>决策 2:为什么核心必须 plugin-agnostic</h3>
+<p>核心(<code>src/</code>)如果"知道"某个具体 provider/channel(如硬编码 OpenAI 逻辑),会引发:① <strong>核心膨胀</strong>——接 N 个 provider 就在核心塞 N 套逻辑;② <strong>无法替换</strong>——想换掉 OpenAI 要改核心;③ <strong>测试耦合</strong>——测核心要 mock 具体 provider。<strong>plugin-agnostic 设计</strong>:核心只定义通用契约(provider 是什么形态、channel 是什么接口),具体实现由插件提供,核心通过注册表发现。<strong>这让核心稳定、可测试、可扩展</strong>——加新 provider 不动核心,只写插件。这是大型框架可维护的基石。</p>
+
+<h3>决策 3:为什么 Gateway 是单守护进程中枢</h3>
+<p>生产中,channels(Telegram 长连接)、agent 实例、状态、插件都要长期存活。如果分散成多个进程,协调成本高(状态同步、进程通信、崩溃恢复)。<strong>单 Gateway 守护进程</strong> owns 所有:一个进程管所有 channels、所有 agent、所有状态。<strong>好处</strong>:① <strong>状态一致</strong>——所有 agent 状态在同一进程,内存共享无需分布式同步;② <strong>插件加载一次</strong>——启动扫描插件,所有 agent 复用;③ <strong>协调简单</strong>——lanes/hooks/并发都在进程内。<strong>代价</strong>:单点是可用性风险(进程挂全挂),用持久化(状态存 SQLite,重启恢复)+ 多实例(水平扩展,每实例独立 agent 集)缓解。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:三层 + 单中枢带来<strong>接口设计、插件注册、单点风险缓解</strong>的复杂度,换来的是<strong>可复用、可测试、可扩展、状态一致</strong>。替代方案(monolith)的失败模式是"核心被污染、无法复用、测试地狱、扩展靠改核心"。<strong>接受分层复杂度,因为大型框架的生命线是'核心稳定 + 扩展在外'——没有这个,框架活不过几次大改。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:一次请求穿越三层</h2>
+
+<div class="flow-diagram"><span class="stage-label">[用户在 Telegram 发消息]</span>
+  ↓
+<span class="stage-label">[层 3 · channel 插件]</span> Telegram 插件接收
+  · 长连接收到消息 → 归一化成内部 envelope
+  · 通过 SDK seam 传给编排层
+  ↓
+<span class="stage-label">[层 2 · 编排层 Gateway]</span>
+  · Gateway 路由:这个消息属于哪个 agent/session?
+  · 触发 agent run(lanes 排队、hook 链)
+  · 加载身份(第⑮篇)、拼 prompt(第③篇)
+  ↓
+<span class="stage-label">[层 1 · 可复用库 agent-core]</span>
+  · runLoop:调模型 → 工具循环 → 折叠消息
+  · 调用层 3 的 provider 插件(OpenAI)发请求
+  ↓
+<span class="stage-label">[层 3 · provider 插件]</span> OpenAI 插件
+  · 认证、构造请求、发 HTTP、解析 SSE 流
+  · 归一化事件返回给 agent-core
+  ↓
+<span class="stage-label">[层 1 · agent-core]</span> 继续循环直到完成
+  ↓
+<span class="stage-label">[层 2 · 编排层]</span> 流式回复
+  · 通过 block chunker(第⑨篇)转 channel 流
+  ↓
+<span class="stage-label">[层 3 · channel 插件]</span> Telegram 插件发送
+  · 适配 Telegram 消息格式 → 发送</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:一次请求<strong>穿越三层多次</strong>——channel 进、provider 调用、channel 出。每层只做自己擅长的(库做推理、编排做协调、插件做对接),通过明确 seam 交互。换 channel(改用 Discord)只换层 3 的 Telegram→Discord,层 1/2 不动。换 provider 同理。这就是分层的价值——<strong>变更局部化</strong>。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"都写一起,功能实现就行"</td><td>"没架构意识"</td></tr>
+<tr><td>知道要分模块</td><td>"有意识但边界不清"</td></tr>
+<tr><td>能说三层 + plugin-agnostic</td><td>"及格"</td></tr>
+<tr><td>能谈库复用、核心纯净、单中枢权衡、seam 设计</td><td><strong>"架构判断力强"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点三层</strong>:"分可复用库(纯推理)、编排层(OpenClaw 自有)、插件层(provider/channel/能力)。"</li>
+<li><strong>给核心边界</strong>:"层 1 不知道 OpenClaw(可复用),层 2 不知道具体插件(plugin-agnostic),层 3 通过 seam 接入。"</li>
+<li><strong>主动谈 plugin-agnostic</strong>:"核心只定义通用契约,具体 provider/channel 由插件实现。加新 provider 不动核心。这是可维护基石。"</li>
+<li><strong>主动谈单中枢</strong>:"Gateway 单守护进程 owns 所有,状态一致、插件加载一次、协调简单。单点风险用持久化+多实例缓解。"</li>
+<li><strong>收口在变更局部化</strong>:"分层让变更局部——换 channel/provider 只换插件,核心不动。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从分层到单点风险层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="16-autonomy-proactive.html">← ⑯ 自主性</a>
+<a href="18-plugin-isolation.html">⑱ 插件系统隔离 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑰ 整体分层 · 阶段 1 平台支撑<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 库与编排边界", q:"为什么把推理循环(agent-core)剥成独立库,而不是放在编排层里?放一起不是更简单(无跨层调用)?",
+    a:"<strong>三个理由</strong>:1)<strong>复用</strong>——agent-core 是纯推理循环(模型流→工具→折叠),任何框架(不只 OpenClaw)都能用。放在编排层就和 OpenClaw 业务绑死,换个场景要重写;2)<strong>独立测试</strong>——agent-core 可不启 gateway/channel/数据库就测(纯单元测推理逻辑)。放编排层测推理要起整个 OpenClaw,测试地狱;3)<strong>演进独立</strong>——推理循环的算法改进(如新压缩策略)在库内迭代,不触碰编排层,降低回归风险。<strong>跨层调用的代价</strong>是值得的:库通过明确接口(convertToLlm、streamFn 等)被编排层调用,接口稳定,内部重构不影响编排。<strong>核心洞察</strong>:可复用逻辑(与业务无关)和业务编排逻辑(OpenClaw 特有)必须物理分离,否则两者互相污染。" },
+  { round:"第 2 题 · plugin-agnostic", q:"核心 plugin-agnostic 是什么意思?如果核心连'有个叫 OpenAI 的 provider'都不知道,它怎么调 OpenAI 发请求?",
+    a:"<strong>plugin-agnostic 不是'不知道有插件',而是'不硬编码具体插件'</strong>。<strong>核心知道的是通用契约</strong>:1)核心定义'provider 是什么形态'——一个接口/抽象,声明'任何 provider 必须提供 stream 函数、认证方式、模型目录格式';2)核心定义'channel 是什么形态'——接口声明'任何 channel 必须提供收发消息、能力声明';3)<strong>具体插件实现契约</strong>:OpenAI 插件实现 provider 接口(它的 stream 函数调 OpenAI API);4)<strong>核心通过注册表发现</strong>:启动时插件注册自己('我是 provider,叫 OpenAI'),核心收到请求时查注册表'哪个 provider 处理这个 model.api',调用它的 stream。<strong>所以核心'知道'的是'有 provider 这个概念和接口',不知道'OpenAI 的具体实现'</strong>。换 OpenAI 实现或加新 provider,核心代码零改动,只是注册表多了项。<strong>这就是面向接口而非实现</strong>。" },
+  { round:"第 3 题 · 单点风险", q:"Gateway 是单守护进程,如果它挂了,所有 agent/channels 都停。这是严重的可用性风险。为什么不做成分布式(多节点)?",
+    a:"<strong>单点的可用性风险是真实的,但分布式代价更大</strong>。<strong>单点的好处</strong>:① 状态一致(所有 agent 状态同进程内存,无需分布式同步);② 插件加载一次;③ 协调简单(lanes/hooks 进程内)。<strong>分布式的代价</strong>:① <strong>状态同步复杂</strong>——多节点要共享 agent 状态,引入分布式锁/共识(Raft/Paxos),复杂度爆炸;② <strong>消息一致性</strong>——同一 session 不能两节点同时处理(第⑬篇),跨节点协调开销大;③ <strong>故障模式复杂</strong>——网络分区、脑裂,比单点崩溃难处理得多。<strong>生产权衡</strong>:大多数部署单节点够用(用持久化兜底——状态存 SQLite,进程挂了重启恢复,只丢正在跑的 run)。需要高可用时用<strong>'多实例独立 agent 集'</strong>而非'多节点共享状态'——每个实例 owns 不同的 agent(水平分片),单实例挂只影响它的 agent,不影响其他。<strong>核心洞察</strong>:在 agent 这种'强状态'系统里,单点的简单性通常比分布式的可用性更值得——除非规模真的需要,否则不引入分布式复杂度。" },
+  { round:"第 4 题 · seam 设计", q:"插件通过 seam 接入核心。这个 seam(接口)怎么设计?如果 seam 太宽(暴露太多核心内部),插件和核心耦合;太窄(暴露太少),插件做不了事。怎么平衡?",
+    a:"<strong>seam 设计是核心-插件关系的核心难题</strong>。<strong>原则</strong>:1)<strong>按能力域切分窄 seam</strong>——不是一个大而全的 API,而是按能力分多个窄入口(provider seam、channel seam、tool seam、hook seam),插件只导入它需要的;2)<strong>暴露'做什么'不暴露'怎么做'</strong>——seam 是抽象接口(provider 提供 stream 函数),不是核心内部类(不暴露核心的 agent state 内部结构);3)<strong>稳定优先</strong>——seam 一旦发布就是契约,改动要版本化/废弃流程,不能随便 breaking;4)<strong>版本化</strong>——seam 有版本,插件声明兼容版本,核心升级时检查兼容性;5)<strong>明确禁止</strong>——插件不能 import 核心内部路径(如 src/internal),只能走 SDK 的公开 subpath。<strong>平衡判断</strong>:seam 应该'刚好够插件完成职责'——少了插件做不了事(功能缺失),多了耦合(核心难演进)。实践中通过'先内部用,稳定了再提为公开 seam'的方式逐步固化,避免过早抽象。<strong>这是 SDK 设计的艺术</strong>:稳定、最小、够用。" },
+  { round:"第 5 题 · 多实例水平扩展", q:"你提到水平扩展用'多实例独立 agent 集'。如果用户 Alice 的 agent 在实例 1,她从手机连到了实例 2(负载均衡路由),怎么办?实例 2 没有 Alice 的 agent。",
+    a:"<strong>需要 sticky routing(粘性路由)或 agent 迁移</strong>。<strong>方案 1:sticky routing</strong>——负载均衡器按 agent-id 路由,Alice 的请求始终路由到实例 1(她的 agent 所在)。实现:负载均衡器记 agent→instance 映射(或一致性哈希)。优点:简单,状态不迁移。缺点:实例挂了 Alice 的 agent 不可用直到恢复/迁移。<strong>方案 2:agent 迁移</strong>——如果 Alice 连到实例 2,实例 2 发现没她的 agent,从持久化(SQLite)加载重建。优点:任何实例都能服务任何 agent。缺点:重建有延迟(加载状态、重连 channel)。<strong>方案 3:agent 归属持久化</strong>——agent 的归属(在哪个实例)存共享存储,新实例查到归属后转发请求或迁移。<strong>生产推荐组合</strong>:sticky routing(默认,快)+ 故障时迁移(实例挂了,别处重建)。关键前提是<strong>状态必须持久化</strong>(SQLite,第⑩篇状态管理)——任何实例都能从持久化恢复 agent 状态。<strong>没有持久化,多实例是空谈</strong>——实例挂了状态全丢。所以'分层 + 单中枢 + 强持久化'是基础,水平扩展建立在这个基础上。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了库/编排边界、plugin-agnostic、单点风险、seam 设计、多实例扩展。<br><br>下一篇 <a href="18-plugin-isolation.html">⑱ 插件系统隔离</a>。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

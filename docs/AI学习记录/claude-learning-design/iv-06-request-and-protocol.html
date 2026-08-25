@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6 · 请求双层类型 + compile 墙 · opencode 面试视角</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+  :root{--bg:#0d1117;--bg-soft:#161b22;--bg-card:#1c2230;--border:#30363d;--text:#e6edf3;--text-dim:#9da7b3;--c1:#58a6ff;--c2:#3fb950;--c3:#d29922;--c4:#f778ba;--c5:#a371f7;--c6:#ff7b72;--code-bg:#0a0e14;--shadow:0 8px 32px rgba(0,0,0,0.4)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}code{font-family:"SFMono-Regular","JetBrains Mono",Consolas,monospace}
+  .hero{padding:56px 24px 40px;border-bottom:1px solid var(--border);background:radial-gradient(ellipse at top,rgba(255,123,98,0.10),transparent 60%)}
+  .hero .wrap{max-width:1140px;margin:0 auto}
+  .hero .crumb{font-size:12px;color:var(--text-dim);margin-bottom:14px}.hero .crumb a{color:var(--c6)}
+  .hero .series{display:inline-block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.3);padding:5px 12px;border-radius:20px;margin-bottom:14px}
+  .hero h1{font-size:33px;font-weight:800;line-height:1.2;letter-spacing:-0.4px;margin-bottom:10px}
+  .hero .lead{font-size:16px;color:var(--text-dim);max-width:820px}.hero .lead b{color:var(--text)}
+  .toc{position:sticky;top:0;z-index:50;background:rgba(13,17,23,0.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .toc-inner{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;gap:6px;flex-wrap:wrap}
+  .toc a{font-size:12px;color:var(--text-dim);padding:5px 11px;border-radius:6px;transition:.12s}.toc a:hover{background:rgba(255,123,98,0.10);color:var(--c6)}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  section{padding:46px 0;border-bottom:1px solid var(--border)}
+  h2{font-size:23px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:11px}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--c6),#ff584d);color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+  h2 .star{background:linear-gradient(135deg,var(--c6),var(--c5))}
+  h3{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--text)}
+  h4{font-size:14.5px;font-weight:700;margin:14px 0 6px;color:var(--c5)}
+  .lead{color:var(--text-dim);font-size:16px;margin-bottom:22px;max-width:880px}
+  p{margin-bottom:12px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:18px 0}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.card h4{margin-top:0}
+  .card.bad{border-color:rgba(210,153,34,0.4)}.card.bad h4{color:var(--c3)}
+  .card.good{border-color:rgba(63,185,80,0.4)}.card.good h4{color:var(--c2)}
+  .card p{color:var(--text-dim);font-size:13.5px;margin-bottom:6px}
+  .card ul{padding-left:18px;color:var(--text-dim);font-size:13.5px}.card li{margin-bottom:4px}
+  .callout{border-left:3px solid var(--c6);background:rgba(255,123,98,0.06);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}.callout .t{font-weight:700;margin-bottom:4px}.callout p{color:var(--text-dim);font-size:14px;margin:0}
+  .callout.warn{border-left-color:var(--c3);background:rgba(210,153,34,0.08)}.callout.ok{border-left-color:var(--c2);background:rgba(63,185,80,0.08)}.callout.key{border-left-color:var(--c4);background:rgba(247,120,186,0.07)}.callout.synth{border-left-color:var(--c5);background:rgba(163,113,247,0.10)}
+  .diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px;margin:18px 0;overflow-x:auto}.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+  .dual{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .pane{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.pane.iv{border-top:3px solid var(--c4)}.pane.cand{border-top:3px solid var(--c2)}
+  .pane h4{margin-top:0;font-size:15px}.pane.iv h4{color:var(--c4)}.pane.cand h4{color:var(--c2)}
+  .pane ol{padding-left:20px;color:var(--text-dim);font-size:13.5px}.pane li{margin-bottom:6px}.pane li b{color:var(--text)}
+  a.file{color:var(--c3);font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;border-bottom:1px dotted var(--c3)}
+  /* legend */
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:14px 0 0;font-size:12.5px;color:var(--text-dim)}
+  .legend .chip{display:inline-flex;align-items:center;gap:6px}
+  .legend .dot{width:11px;height:11px;border-radius:3px}
+  /* rendered (model view) */
+  .rendered{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;font-family:"SFMono-Regular","JetBrains Mono",Consolas,monospace;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:var(--text);margin:14px 0;overflow:auto;max-height:620px}
+  .rendered .agent{color:#ff7b72}
+  .rendered .env{color:#3fb950}
+  .rendered .date{color:#3fb950}
+  .rendered .skill{color:#f778ba}
+  .rendered .ref{color:#a371f7}
+  .rendered .history{color:#58a6ff}
+  .rendered .tool{color:#d29922}
+  .rendered .cmt{color:#8b949e;font-style:italic}
+  .rendered .sep{color:#6e7681}
+  .rendered .key{color:#79c0ff}
+  .rendered .str{color:#a5d6ff}
+  .drill{background:linear-gradient(180deg,rgba(247,120,186,0.04),transparent);border-top:2px solid rgba(247,120,186,0.25)}
+  .progress{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .progress .bar{flex:1;min-width:200px;height:9px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .progress .fill{height:100%;background:linear-gradient(90deg,var(--c4),var(--c6));width:0;transition:width .3s}
+  .progress .pct{font-size:13px;color:var(--text-dim);font-family:"SFMono-Regular",Consolas,monospace}
+  .btn-reset{font-size:12px;color:var(--text-dim);background:var(--bg-card);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer;transition:.12s}.btn-reset:hover{border-color:var(--c3);color:var(--c3)}
+  .thread{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:0;margin-bottom:16px;overflow:hidden}
+  .thread-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .thread-head .ic{font-size:16px}.thread-head .title{font-weight:700;font-size:15px;flex:1}
+  .thread-head .layer-tag{font-size:11px;color:var(--c4);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(247,120,186,0.10);padding:3px 8px;border-radius:5px}
+  .step{padding:18px 20px;border-bottom:1px solid var(--border)}.step:last-child{border-bottom:none}.step.locked{display:none}.step.done{opacity:0.65}
+  .q{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+  .q .lvl{display:inline-block;font-size:10.5px;color:var(--c5);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(163,113,247,0.10);padding:2px 7px;border-radius:4px;margin-right:8px;vertical-align:middle}
+  .hint{font-size:13px;color:var(--text-dim);margin-bottom:12px}
+  .reveal-btn{font-size:13px;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.35);padding:7px 15px;border-radius:7px;cursor:pointer;transition:.12s}.reveal-btn:hover{background:rgba(255,123,98,0.20)}
+  .answer{display:none;margin-top:14px;padding:14px 16px;background:rgba(63,185,80,0.05);border:1px solid rgba(63,185,80,0.25);border-radius:9px}.answer.show{display:block}
+  .answer .at{font-size:11.5px;color:var(--c2);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+  .answer ul{padding-left:20px;color:var(--text-dim);font-size:13.5px}.answer li{margin-bottom:7px}.answer li b{color:var(--text)}
+  .answer .ref{margin-top:10px;font-size:12px;color:var(--text-dim)}
+  .rating{display:none;margin-top:14px;align-items:center;gap:8px;flex-wrap:wrap}.rating.show{display:flex}
+  .rating .lbl{font-size:12.5px;color:var(--text-dim);margin-right:4px}
+  .rate-btn{font-size:12.5px;padding:6px 13px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg-soft);color:var(--text-dim);transition:.12s}.rate-btn:hover{color:var(--text)}
+  .rate-btn.sel.ok{background:rgba(63,185,80,0.15);border-color:var(--c2);color:var(--c2)}
+  .rate-btn.sel.mid{background:rgba(210,153,34,0.15);border-color:var(--c3);color:var(--c3)}
+  .rate-btn.sel.no{background:rgba(255,123,98,0.15);border-color:var(--c6);color:var(--c6)}
+  .next-btn{display:none;margin-top:14px;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--c4),var(--c6));border:none;padding:8px 16px;border-radius:7px;cursor:pointer;transition:.12s}.next-btn.show{display:inline-block}.next-btn:hover{opacity:0.9}
+  .finish{display:none;padding:16px 20px;background:rgba(63,185,80,0.06);color:var(--c2);font-weight:600;font-size:14px;text-align:center}.finish.show{display:block}
+  .nav-foot{display:flex;justify-content:space-between;padding:24px 0;gap:12px}
+  .nav-foot a{font-size:13px;padding:9px 16px;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);transition:.12s}.nav-foot a:hover{border-color:var(--c6);color:var(--c6)}.nav-foot .next{margin-left:auto}
+  footer{padding:34px 24px;text-align:center;color:var(--text-dim);font-size:13px;border-top:1px solid var(--border)}footer a{color:var(--c6)}
+  @media(max-width:820px){.grid-2,.grid-3,.dual{grid-template-columns:1fr}.hero h1{font-size:27px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="iv-00-index.html">← 总索引</a></div>
+    <span class="series">Chapter 6 · 面试视角（6/7）</span>
+    <h1>请求双层类型 + compile 墙 + promptCacheKey</h1>
+    <p class="lead">从"runner 想要一次推理"到"provider 收到 HTTP 字节"，中间有两道精心设计的墙：<b>第一道</b>把宽容的调用输入<b>归一</b>成严格的 LLMRequest（类型错误留在边界）；<b>第二道 compile 墙</b>把与 provider 无关的 LLMRequest <b>翻译</b>成 provider 专属的 HTTP body（让加一个 provider 只改一个文件）。再加一个 <code>promptCacheKey</code>，让长 session 的系统块<b>只付一次钱</b>。</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#position">① 定位</a>
+    <a href="#problem">② 问题先于方案</a>
+    <a href="#design">③ 设计拆解</a>
+    <a href="#tradeoff">④ 生产级取舍</a>
+    <a href="#example">★ 完整示例</a>
+    <a href="#dual">⑤ 双视角</a>
+    <a href="#drill">🎯 面试追问</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<section id="position">
+  <h2><span class="num">1</span>一句话定位</h2>
+  <p class="lead"><b>第一层（lenient 输入）</b>：runner 用宽容的 <code>RequestInput</code> 调 <code>LLM.request(...)</code>——system 可以是 string/数组、messages 可以是未构造的、prompt 是快捷方式。<b>第二层（strict LLMRequest）</b>：工厂把它 normalize 成一个 schema 严格、可比较、已校验的 <code>LLMRequest</code>，整个下层（路由/缓存/compile）只看这个。<b>compile 墙</b>：LLMRequest 到 provider HTTP body 之间的一道墙，集中校验 + 翻译。</p>
+  <div class="callout key">
+    <div class="t">🔑 一句话</div>
+    <p>两层类型把<b>调用便利</b>和<b>下游严格</b>分开；compile 墙把<b>API 形状</b>和<b>部署细节</b>分开。错误留在边界，下游永远干净。</p>
+  </div>
+</section>
+
+<section id="problem">
+  <h2><span class="num">2</span>问题先于方案</h2>
+  <p class="lead">如果只有一层类型、或 compile 在 runner 里直接拼 body，会发生什么？</p>
+  <div class="grid-2">
+    <div class="card bad">
+      <h4>痛点 A · 调用点样板爆炸</h4>
+      <p>如果只有 strict 类型，每个调用点都得手动构造 SystemPart、Message、ContentPart……runner 代码被样板淹没，教程没法写，<code>prompt:</code> 快捷方式消失。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 B · 错误推迟到 provider</h4>
+      <p>如果只有 lenient，下游收到半构造的形状。malformed 输入在 provider 返回 400 时才暴露——<b>错误远离根因</b>，难诊断。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 C · 加 provider = 改 runner</h4>
+      <p>如果 compile 在 runner 里，每加一个 provider 就得动 runner 的 body 构造逻辑。<b>N 个 provider = N 处 runner 改动</b>，爆炸半径失控。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 D · 缓存策略散落</h4>
+      <p>没有 compile 墙，cache breakpoint 在每个 provider adapter 里各自推导。一次缓存策略变更 = N 处改动，且容易漏。</p>
+    </div>
+  </div>
+  <div class="callout warn">
+    <div class="t">⚠ 共同病根</div>
+    <p>把"便利"、"严格"、"翻译"、"部署"四种关注点<b>焊在一起</b>。每一处改动都波及所有维度。</p>
+  </div>
+</section>
+
+<section id="design">
+  <h2><span class="num">3</span>设计拆解</h2>
+  <p class="lead">两道墙，三个受益方。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 820 360" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,sans-serif">
+      <defs>
+        <marker id="a6" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#9da7b3"/></marker>
+        <marker id="a6r" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#ff7b72"/></marker>
+        <marker id="a6p" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#a371f7"/></marker>
+      </defs>
+      <!-- runner -->
+      <rect x="30" y="40" width="170" height="100" rx="10" fill="#161b22" stroke="#ff7b72" stroke-width="1.3"/>
+      <text x="115" y="66" text-anchor="middle" fill="#ff7b72" font-size="13" font-weight="700">runner</text>
+      <text x="115" y="86" text-anchor="middle" fill="#9da7b3" font-size="10.5">用 lenient 输入</text>
+      <text x="115" y="102" text-anchor="middle" fill="#9da7b3" font-size="10.5">system: [a,b].map(make)</text>
+      <text x="115" y="118" text-anchor="middle" fill="#9da7b3" font-size="10.5">prompt: "..."（快捷）</text>
+
+      <!-- wall 1: normalize -->
+      <rect x="240" y="50" width="40" height="80" rx="6" fill="rgba(255,123,98,0.12)" stroke="#ff7b72" stroke-width="2" stroke-dasharray="4 3"/>
+      <text x="260" y="96" text-anchor="middle" fill="#ff7b72" font-size="11" font-weight="700" transform="rotate(-90 260 96)">normalize</text>
+      <line x1="200" y1="90" x2="238" y2="90" stroke="#ff7b72" stroke-width="1.6" marker-end="url(#a6r)"/>
+
+      <!-- LLMRequest -->
+      <rect x="310" y="40" width="180" height="100" rx="10" fill="#0a0e14" stroke="#3fb950" stroke-width="1.8"/>
+      <text x="400" y="66" text-anchor="middle" fill="#3fb950" font-size="13" font-weight="700">LLMRequest</text>
+      <text x="400" y="86" text-anchor="middle" fill="#9da7b3" font-size="10.5">strict · 已校验</text>
+      <text x="400" y="102" text-anchor="middle" fill="#9da7b3" font-size="10.5">schema: Message[]</text>
+      <text x="400" y="118" text-anchor="middle" fill="#9da7b3" font-size="10.5">ToolDefinition[]</text>
+
+      <!-- wall 2: compile -->
+      <rect x="530" y="50" width="40" height="80" rx="6" fill="rgba(163,113,247,0.15)" stroke="#a371f7" stroke-width="2" stroke-dasharray="4 3"/>
+      <text x="550" y="100" text-anchor="middle" fill="#a371f7" font-size="11" font-weight="700" transform="rotate(-90 550 100)">compile 墙</text>
+      <line x1="490" y1="90" x2="528" y2="90" stroke="#a371f7" stroke-width="1.6" marker-end="url(#a6p)"/>
+
+      <!-- providers -->
+      <rect x="600" y="20" width="190" height="40" rx="8" fill="#161b22" stroke="#a371f7" stroke-width="1.2"/><text x="695" y="45" text-anchor="middle" fill="#a371f7" font-size="12" font-weight="700">Anthropic body</text>
+      <rect x="600" y="70" width="190" height="40" rx="8" fill="#161b22" stroke="#a371f7" stroke-width="1.2"/><text x="695" y="95" text-anchor="middle" fill="#a371f7" font-size="12" font-weight="700">OpenAI body</text>
+      <rect x="600" y="120" width="190" height="40" rx="8" fill="#161b22" stroke="#a371f7" stroke-width="1.2"/><text x="695" y="145" text-anchor="middle" fill="#a371f7" font-size="12" font-weight="700">Gemini / Bedrock …</text>
+
+      <!-- benefits row -->
+      <rect x="30" y="200" width="760" height="120" rx="10" fill="rgba(63,185,80,0.05)" stroke="rgba(63,185,80,0.3)"/>
+      <text x="50" y="226" fill="#3fb950" font-size="12" font-weight="700" letter-spacing="1">三道墙/层各自的收益</text>
+      <text x="115" y="252" text-anchor="middle" fill="#9da7b3" font-size="11">调用点：少样板，可读</text>
+      <text x="115" y="272" text-anchor="middle" fill="#9da7b3" font-size="11">错误留边界，不漏到 provider</text>
+      <text x="400" y="252" text-anchor="middle" fill="#9da7b3" font-size="11">下游：单一已校验对象</text>
+      <text x="400" y="272" text-anchor="middle" fill="#9da7b3" font-size="11">缓存策略集中施加</text>
+      <text x="695" y="252" text-anchor="middle" fill="#9da7b3" font-size="11">加 provider = 一个文件</text>
+      <text x="695" y="272" text-anchor="middle" fill="#9da7b3" font-size="11">部署细节与 API 形状解耦</text>
+      <text x="115" y="300" text-anchor="middle" fill="#ff7b72" font-size="11" font-weight="700">lenient 的价值</text>
+      <text x="400" y="300" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="700">strict 的价值</text>
+      <text x="695" y="300" text-anchor="middle" fill="#a371f7" font-size="11" font-weight="700">compile 墙的价值</text>
+    </svg>
+  </div>
+
+  <h3>三个设计点详解</h3>
+  <div class="grid-3">
+    <div class="card good">
+      <h4>① lenient → strict 两层类型</h4>
+      <p>调用点用宽容输入（少样板）；工厂 normalize 成 strict LLMRequest（一次校验，下游不再校验）。<b>类型错误留在工厂边界</b>。</p>
+    </div>
+    <div class="card good">
+      <h4>② promptCacheKey</h4>
+      <p>从 sessionID 派生的稳定 key，让 provider 把同一 session 的请求路由到同一缓存桶。<b>系统块只付一次钱</b>，后续轮次命中缓存折扣。</p>
+    </div>
+    <div class="card good">
+      <h4>③ compile 墙</h4>
+      <p>LLMRequest → provider body 的集中翻译点。body schema 在这校验（HTTP 前拦错）；cache policy 在这施加（一处改全局生效）。</p>
+    </div>
+  </div>
+  <div class="callout">
+    <div class="t">📌 Protocol ≠ Route（API 形状 ≠ 部署）</div>
+    <p>compile 墙还把"这个 API 长什么样"（Protocol：body.from、event codec、step 状态机）和"发去哪"（Route：URL、auth、framing）分开。Anthropic Cloud / Vertex-Anthropic / Bedrock-Anthropic <b>共享同一个 Protocol</b>，只换 Route——这是 compile 墙带来的组合能力。</p>
+  </div>
+</section>
+
+<section id="tradeoff">
+  <h2><span class="num">4</span>生产级取舍</h2>
+  <p class="lead">每道墙/层都有维护成本，但收益数量级地大于成本。</p>
+  <div class="grid-2">
+    <div class="card good">
+      <h4>选择：两层类型</h4>
+      <ul>
+        <li>调用点可读、样板少</li>
+        <li>下游单一已校验对象</li>
+        <li>类型错误在工厂边界暴露</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>合成一层的代价</h4>
+      <ul>
+        <li>strict-only：样板爆炸、教程难写</li>
+        <li>lenient-only：错误漏到 provider 400</li>
+        <li>缓存/选项施加在半构造形状上</li>
+      </ul>
+    </div>
+    <div class="card good">
+      <h4>选择：compile 墙 + promptCacheKey</h4>
+      <ul>
+        <li>加 provider 一个文件</li>
+        <li>缓存策略一处施加全局生效</li>
+        <li>长 session 系统块只付一次钱</li>
+        <li>Protocol 与 Route 可组合</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>无墙/无 cacheKey 的代价</h4>
+      <ul>
+        <li>N provider = N 处 runner 改动</li>
+        <li>缓存策略散落、易漏</li>
+        <li>系统块每轮全价（成本数量级上升）</li>
+        <li>部署与 API 形状耦合死</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout key">
+    <div class="t">🔑 本质</div>
+    <p>这套设计的核心是<b>把关注点正交化</b>：便利 / 严格 / 翻译 / 部署，各归各位。任何一处改动只动它那一层。这是可维护性的根基。</p>
+  </div>
+</section>
+
+<section id="example">
+  <h2><span class="num">★</span>完整示例：一条 prompt 最终交付给模型的样子</h2>
+  <p class="lead">这是你要求的"完整示例"——但聚焦<b>设计意图</b>而非 JSON 细节。每种颜色代表一个来源，能看清"哪些进缓存前缀、哪些是增量、cacheKey 怎么省钱的"。</p>
+
+  <h4>最终交付物：LLMRequest（normalize 后、compile 前）</h4>
+  <div class="legend">
+    <span class="chip"><span class="dot" style="background:#ff7b72"></span>agent 系统提示</span>
+    <span class="chip"><span class="dot" style="background:#3fb950"></span>SystemContext baseline（env/date）</span>
+    <span class="chip"><span class="dot" style="background:#f778ba"></span>skill 指引</span>
+    <span class="chip"><span class="dot" style="background:#a371f7"></span>reference 指引</span>
+    <span class="chip"><span class="dot" style="background:#58a6ff"></span>历史消息</span>
+    <span class="chip"><span class="dot" style="background:#d29922"></span>工具定义</span>
+    <span class="chip"><span class="dot" style="background:#8b949e"></span>注释（模型看不到）</span>
+  </div>
+
+<div class="rendered"><span class="key">LLMRequest</span> {
+  <span class="key">model</span>: <span class="str">"claude-opus-4-1"</span>,  <span class="cmt">// 由 catalog → protocol route 解析（iv-07 讲 Location）</span>
+
+  <span class="cmt">// ────────────────────────────────────────────────────────────</span>
+  <span class="cmt">// system 数组：两段。这是 prompt cache 前缀的核心，必须字节稳定（iv-03）</span>
+  <span class="cmt">// ────────────────────────────────────────────────────────────</span>
+  <span class="key">system</span>: [
+
+    <span class="cmt">// [0] agent.info.system —— 模型的"身份与指令"</span>
+    <span class="agent">SystemPart {
+      text: "You are an expert software engineering agent...\n"
+            "You have access to tools...\n"
+            "Always prefer functional array methods..."   <span class="cmt">// 来自 build agent 内置 prompt</span>
+    }</span>,
+
+    <span class="cmt">// [1] system.baseline —— SystemContext combine 出的环境基线</span>
+    <span class="cmt">//     这段每轮进缓存前缀；reconcile 保证字节稳定（iv-03）</span>
+    <span class="env">SystemPart {
+      text:
+        "Here is useful information about the environment:\n"
+        "<env>\n"
+        "  Working directory: /home/user/my-project\n"
+        "  Is directory a git repo: Yes\n"
+        "  Platform: linux\n"
+        "</env>\n\n"</span>
+        <span class="date">+ "Today's date is 2026-08-02.\n\n"</span>          <span class="cmt">// core/date 源</span>
+        <span class="skill">+ "## Skills\nYou can invoke skills...\n"</span>   <span class="cmt">// skill guidance 源</span>
+        <span class="ref">+ "## References\n@AGENTS.md: ..."</span>             <span class="cmt">// reference guidance 源</span>
+    }
+  ],
+
+  <span class="cmt">// ────────────────────────────────────────────────────────────</span>
+  <span class="cmt">// messages：从 durable log 重投影（iv-05）。下一轮是纯函数</span>
+  <span class="cmt">// ────────────────────────────────────────────────────────────</span>
+  <span class="key">messages</span>: [
+    <span class="history">Message.user({ text: "写个 hello world" })</span>,
+
+    <span class="cmt">// assistant 消息会拆成 1+N：文本 part + 每个工具调用（iv-05 提到 to-llm-message）</span>
+    <span class="history">Message.assistant({ text: "I'll create a Python file." })</span>,
+    <span class="history">Message.tool({ id: "call_1", name: "write",
+                    result: "wrote hello.py" })</span>,
+
+    <span class="cmt">// 这轮新 promote 的 steer（iv-04），在 turn 边界注入</span>
+    <span class="history">Message.user({ text: "用 Python，加类型注解" })</span>
+  ],
+
+  <span class="cmt">// ────────────────────────────────────────────────────────────</span>
+  <span class="cmt">// tools：materialize 后的定义（iv-07 讲 Location-scoped 注册）</span>
+  <span class="cmt">// ────────────────────────────────────────────────────────────</span>
+  <span class="key">tools</span>: [
+    <span class="tool">ToolDefinition({ name: "read",  inputSchema: {...} })</span>,
+    <span class="tool">ToolDefinition({ name: "write", inputSchema: {...} })</span>,
+    <span class="tool">ToolDefinition({ name: "bash",  inputSchema: {...} })</span>
+    <span class="cmt">// whollyDisabled 的工具不出现（iv-07 权限过滤）</span>
+  ],
+
+  <span class="cmt">// ────────────────────────────────────────────────────────────</span>
+  <span class="cmt">// providerOptions：promptCacheKey 是省钱的关键</span>
+  <span class="cmt">// ────────────────────────────────────────────────────────────</span>
+  <span class="key">providerOptions</span>: {
+    <span class="key">openai</span>: {
+      <span class="key">promptCacheKey</span>: <span class="str">"sess_a1b2c3..."</span>   <span class="cmt">// ← 从 sessionID 派生</span>
+      <span class="cmt">//   作用：把同 session 的所有请求路由到同一缓存桶</span>
+      <span class="cmt">//   效果：几千 token 的 system 数组，50 轮对话只付 ~1 次全价</span>
+      <span class="cmt">//         其余 49 轮命中缓存折扣（输入 token 大幅降价）</span>
+    }
+  }
+}
+</div>
+
+  <h4>过 compile 墙后：Anthropic HTTP body（节选）</h4>
+  <div class="callout key">
+    <div class="t">🔑 compile 做了三件事</div>
+    <p>① <code>body.from(request)</code> 把 LLMRequest 翻成 Anthropic 形状；② <code>body.schema</code> 校验（HTTP 前拦错）；③ <code>applyCachePolicy</code> 在 system/messages 上钉 <code>cache_control</code> 断点——<b>一处施加，所有 provider 的 body.from 都能看到</b>。</p>
+  </div>
+
+<div class="rendered"><span class="cmt">POST https://api.anthropic.com/v1/messages</span>
+<span class="key">headers</span>: { <span class="str">"x-api-key"</span>: <span class="sep">***</span>, <span class="str">"anthropic-version"</span>: <span class="str">"2023-06-01"</span> }
+
+<span class="key">body</span>: {
+  <span class="key">model</span>: <span class="str">"claude-opus-4-1"</span>,
+  <span class="key">system</span>: [
+    { <span class="key">type</span>: <span class="str">"text"</span>,
+      <span class="key">text</span>: <span class="agent">"You are an expert..."</span>,
+      <span class="ref">cache_control</span>: { <span class="key">type</span>: <span class="str">"ephemeral"</span> } <span class="cmt">// ← 断点：到此为止可缓存</span>
+    },
+    { <span class="key">type</span>: <span class="str">"text"</span>,
+      <span class="key">text</span>: <span class="env">"<env>...</env>"</span> }
+  ],
+  <span class="key">messages</span>: [ <span class="cmt">/* to-llm-message 投影的 messages，结构同上 */</span> ],
+  <span class="key">tools</span>: [ <span class="cmt">/* materialize 的工具，转成 Anthropic tool schema */</span> ],
+  <span class="key">max_tokens</span>: <span class="str">8192</span>,
+  <span class="key">stream</span>: <span class="str">true</span>
+}
+
+<span class="cmt">// 响应：SSE → LLMEvent 流（message_start / content_block_delta / ...）</span>
+<span class="cmt">// → 每个 event 增量写 durable log（iv-05）→ 模型可见状态单一真相源</span>
+</div>
+
+  <div class="callout synth">
+    <div class="t">🎓 这张图把全系列串起来了</div>
+    <p>这个 LLMRequest 里：system 的字节稳定靠 <b>iv-03</b>（epoch）；messages 的重投影靠 <b>iv-05</b>（一轮一次 + 重载）；steer 的边界注入靠 <b>iv-04</b>；admission 把它落盘靠 <b>iv-02</b>；分层让它可演化靠 <b>iv-01</b>。一个请求，六篇文章的设计都在里面。</p>
+  </div>
+</section>
+
+<section id="dual">
+  <h2><span class="num">5</span>面试双视角</h2>
+  <p class="lead">这题考的是<b>成本意识 + 可扩展性设计</b>——你懂不懂 prompt cache 经济学，懂不懂"加 provider 不动核心"。</p>
+  <div class="dual">
+    <div class="pane iv">
+      <h4>🎙️ 面试官为何问这题</h4>
+      <ol>
+        <li><b>探 prompt cache 经济学</b>——知不知道 promptCacheKey 省什么、不省什么。</li>
+        <li><b>探类型设计成熟度</b>——能不能说出 lenient/strict 两层各买什么。</li>
+        <li><b>探可扩展性</b>——加一个 provider 要改几处？compile 墙的价值。</li>
+        <li><b>埋雷</b>：很多人答"用接口隔离 provider"。追问"接口在哪施加缓存断点？"——看你能不能答出"compile 墙集中施加"。</li>
+      </ol>
+    </div>
+    <div class="pane cand">
+      <h4>🧑‍💻 面试者拆解（五段式）</h4>
+      <ol>
+        <li><b>抽象定位</b>：两道墙正交化四个关注点（便利/严格/翻译/部署），错误留边界，下游干净。</li>
+        <li><b>讲约束</b>：lenient 输入 → normalize → strict LLMRequest → compile 墙 → provider body；promptCacheKey 派生自 sessionID。</li>
+        <li><b>讲收益</b>：调用点可读；类型错误在工厂；加 provider 一个文件；cache 一处施加；长 session 系统块只付一次钱。</li>
+        <li><b>主动讲代价</b>：两层类型多一层维护；compile 墙多一道间接。但远小于"样板爆炸/N 处改动/缓存散落"的代价。</li>
+        <li><b>给未来演化</b>：Protocol 与 Route 分离是部署灵活性的接缝——同 provider 可上多云（Cloud/Vertex/Bedrock），只换 Route。</li>
+      </ol>
+    </div>
+  </div>
+  <div class="callout ok">
+    <div class="t">✅ 加分项</div>
+    <p>主动量化收益："一个 3000 token 的 system 数组，50 轮对话。无 cacheKey：50 × 3000 = 15 万全价输入 token。有 cacheKey + 命中：约 1 × 3000 全价 + 49 × 缓存折扣。<b>省一个数量级的输入成本</b>。"——把设计决策翻译成钱，是最有说服力的面试信号。</p>
+  </div>
+</section>
+
+</div>
+
+<section id="drill" class="drill">
+  <div class="wrap">
+    <h2><span class="num">🎯</span>面试追问 · 模拟面试官深挖</h2>
+    <p class="lead">两层类型各自价值？promptCacheKey 省了什么？compile 墙对加 provider 意味着什么？追到答不出。</p>
+    <div class="progress">
+      <span class="pct" id="pct">进度 0%</span>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <button class="btn-reset" onclick="IV.reset()">重置本页进度</button>
+    </div>
+    <div id="threads"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="nav-foot">
+    <a href="iv-05-one-stream-per-turn.html">← 第 5 篇 一轮一次 stream</a>
+    <a class="next" href="iv-07-location-and-bounding.html">下一章：Location 隔离 →</a>
+  </div>
+</div>
+
+<footer>opencode 面试视角 · 第 6/7 篇 · 请求与 compile 墙 · <a href="iv-00-index.html">返回总索引</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+<script>
+const IV = (() => {
+  const KEY = "iv-drill-06";
+  const data = [
+    {
+      title: "两层类型各自的价值",
+      icon: "🏷",
+      steps: [
+        { q: "根问题：为什么要有 lenient 输入和 strict LLMRequest 两层？合成一层不行吗？",
+          hint: "调用点想要什么？下游想要什么？这两者矛盾吗？",
+          a: [
+            "<b>调用点想要少样板、可读</b>：runner 想 system: [a,b].map(make)，想 prompt: '...' 快捷。如果要手动构造每个 SystemPart/Message/ContentPart，代码被淹没。",
+            "<b>下游想要单一已校验对象</b>：路由/缓存/compile 不想反复校验、不想看到半构造形状。",
+            "<b>这两者矛盾</b>：少样板 = 宽容输入；已校验 = 严格输出。一层不可能同时满足。",
+            "<b>两层分开</b>：lenient 服务调用便利，strict 服务下游严格，工厂做 normalize 把错误留在边界。"
+          ],
+          ref: "packages/llm/src/llm.ts — request(input: RequestInput) 工厂 + normalize。"
+        },
+        { q: "追问 1：合成一层（只有 strict）会怎样？只有 lenient 呢？",
+          hint: "分别从调用点和下游角度想。",
+          a: [
+            "<b>只有 strict</b>：调用点样板爆炸，每个 system/message 都要手动构造类实例；prompt 快捷方式没了；教程没法写。",
+            "<b>只有 lenient</b>：下游收到半构造形状（string 或 SystemPart？）；malformed 输入在 provider 返回 400 时才暴露，错误远离根因；缓存策略施加在不确定形状上。",
+            "<b>两层</b>：错误在工厂边界一次性暴露（类型错误而非运行时 400），下游永远拿到干净对象。",
+            "本质：<b>把'便利'和'严格'解耦</b>，各归各位。"
+          ],
+          ref: "schema/messages.ts LLMRequest class 提供 input/update 的 functional get/put。"
+        }
+      ]
+    },
+    {
+      title: "promptCacheKey 省了什么？",
+      icon: "💰",
+      steps: [
+        { q: "根问题：promptCacheKey 从 sessionID 派生，塞进 providerOptions。它到底省了什么钱？不省什么？",
+          hint: "provider 的 prompt cache 怎么分桶？同 session 多轮有什么共同的东西？",
+          a: [
+            "<b>省的是'重复输入 token 的全价计费'</b>。provider 给缓存命中的输入 token 大幅折扣（Anthropic 可低至 1/10）。",
+            "<b>同 session 多轮的共同前缀</b>：system 数组（几千 token）+ 早期历史。每轮都重发，但内容几乎不变。",
+            "<b>promptCacheKey 让 provider 把同 session 路由到同一缓存桶</b>：第 1 轮全价写入缓存，后续轮次命中折扣。",
+            "<b>不省的</b>：不省输出 token；不省每轮新增的增量消息；不省 cache miss 的部分。它只优化'稳定前缀的重发成本'。"
+          ],
+          ref: "量化：3000 token system × 50 轮。无 key=15万全价；有 key≈3000 全价+49×折扣，省一个数量级。"
+        },
+        { q: "追问 1：那不用 promptCacheKey，靠 provider 自动缓存行不行？",
+          hint: "provider 自动缓存靠什么匹配？稳定吗？",
+          a: [
+            "<b>不稳定</b>。provider 自动缓存靠请求级指纹（前缀字节哈希）。任何微小差异（排序、空白）就 miss。",
+            "<b>显式 key 把'哪些请求算同一组'交给我们控制</b>：用 sessionID 当 key，明确告诉 provider'这些是同一对话，共享缓存'。",
+            "结合 iv-03 的字节稳定（reconcile 复用存的字节）和这里的显式 key，<b>双重保险</b>：内容稳定 + 路由稳定。",
+            "这就是为什么 iv-03 和 iv-06 要一起理解——缓存命中是'字节稳定 + 显式分桶'两件事的乘积。"
+          ],
+          ref: "runner/llm.ts 调 LLM.request 时带 providerOptions.openai.promptCacheKey。"
+        }
+      ]
+    },
+    {
+      title: "compile 墙对加 provider 的意义",
+      icon: "🧱",
+      steps: [
+        { q: "根问题：现在要加一个新 provider（比如 Cerebras）。如果没有 compile 墙，要改哪些地方？有了呢？",
+          hint: "新 provider 的 body 长什么样？谁构造？谁校验？",
+          a: [
+            "<b>没有 compile 墙</b>：runner 里直接拼 body。加 provider 要动 runner 的 body 构造、动缓存断点施加、动校验。N 个 provider = N 处 runner 改动，爆炸半径失控。",
+            "<b>有 compile 墙</b>：新 provider 只需实现一个 Protocol（body.from + body.schema + event codec + step 状态机）。runner、executor（重试/限流/错误归类）、transport（SSE framing）全是共享基础设施，不动。",
+            "<b>实例</b>：DeepSeek、TogetherAI、Cerebras 都复用 OpenAIChat.protocol，不 fork 300 行。这就是'加 provider 一个文件'。",
+            "<b>本质</b>：compile 墙把'翻译逻辑'集中到 provider 自己的 Protocol 里，runner 只懂抽象的 LLMRequest。"
+          ],
+          ref: "packages/llm/src/protocols/ 各 provider 一个文件；route/protocol.ts 的 Protocol 契约。"
+        },
+        { q: "追问 1：你提到 Protocol ≠ Route。这俩分开买什么？",
+          hint: "同一个 API（如 Anthropic）能部署在哪？",
+          a: [
+            "<b>Protocol = API 形状</b>（这个 API 的 body 怎么构造、SSE 怎么解析、step 状态机）。是 provider 内禀属性。",
+            "<b>Route = 部署细节</b>（发去哪个 URL、用什么 auth、什么 framing）。是部署属性。",
+            "<b>组合价值</b>：Anthropic Cloud / Vertex-Anthropic / Bedrock-Anthropic <b>共享同一个 AnthropicMessages.protocol</b>，只换 Route（不同 endpoint/auth/framing）。",
+            "<b>没有分离</b>：body 构造和部署细节焊死，每换一个部署（云）就要 fork 一份 protocol。分离让'同一 API 上多云'变成组合而非复制。"
+          ],
+          ref: "route/protocol.ts 文档注释：Protocol 是 intrinsic，Route 是 deployment。compile 是它们的接缝。"
+        }
+      ]
+    }
+  ];
+  let state = JSON.parse(localStorage.getItem(KEY) || "{}");
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+  function pct(){ let total=0,done=0; data.forEach((t,ti)=>{total+=t.steps.length;done+=Math.min(state[ti]||0,t.steps.length);}); return Math.round(done/total*100); }
+  function render(){
+    const root = document.getElementById("threads"); root.innerHTML = "";
+    data.forEach((t,ti)=>{
+      const cur = state[ti]||0; const finished = cur>=t.steps.length;
+      const div = document.createElement("div"); div.className="thread";
+      div.innerHTML = `<div class="thread-head"><span class="ic">${t.icon}</span><span class="title">${t.title}</span><span class="layer-tag">${finished?"✓ 完成":"第 "+(cur+1)+"/"+t.steps.length+" 层"}</span></div>`;
+      t.steps.forEach((s,si)=>{
+        const unlocked = si<=cur; const stepDone = si<cur;
+        const step = document.createElement("div"); step.className="step"+(unlocked?"":" locked")+(stepDone?" done":""); step.dataset.ti=ti; step.dataset.si=si;
+        step.innerHTML = `<div class="q"><span class="lvl">L${si+1}</span>${s.q}</div>${s.hint?`<div class="hint">💡 ${s.hint}</div>`:""}${!stepDone?`<button class="reveal-btn" data-act="reveal">查看参考答案</button>`:""}<div class="answer"><div class="at">参考答案要点</div><ul>${s.a.map(x=>`<li>${x}</li>`).join("")}</ul>${s.ref?`<div class="ref">📌 ${s.ref}</div>`:""}</div>${!stepDone?`<div class="rating"><span class="lbl">自评（诚实最重要）：</span><button class="rate-btn" data-rate="ok">✓ 答得好</button><button class="rate-btn" data-rate="mid">△ 部分懂</button><button class="rate-btn" data-rate="no">✗ 没答出</button></div>${si<t.steps.length-1?`<button class="next-btn" data-act="next">解锁下一层追问 →</button>`:""}`:""}${stepDone&&si===t.steps.length-1?`<div class="finish show">🎉 本线索完成 · 你已答到最深一层</div>`:""}`;
+        div.appendChild(step);
+      });
+      root.appendChild(div);
+    });
+    root.querySelectorAll(".step").forEach(step=>{
+      const ti=+step.dataset.ti, si=+step.dataset.si;
+      const rb=step.querySelector('[data-act="reveal"]');
+      if(rb) rb.addEventListener("click",()=>{step.querySelector(".answer").classList.add("show");step.querySelector(".rating").classList.add("show");rb.style.display="none";});
+      step.querySelectorAll(".rate-btn").forEach(b=>b.addEventListener("click",()=>{step.querySelectorAll(".rate-btn").forEach(x=>x.classList.remove("sel","ok","mid","no"));b.classList.add("sel",b.dataset.rate);const nb=step.querySelector(".next-btn");if(nb)nb.classList.add("show");}));
+      const nb=step.querySelector('[data-act="next"]');
+      if(nb) nb.addEventListener("click",()=>{state[ti]=Math.max(state[ti]||0,si+2);save();render();updatePct();});
+    });
+    updatePct();
+  }
+  function updatePct(){const p=pct();document.getElementById("fill").style.width=p+"%";document.getElementById("pct").textContent="进度 "+p+"%";}
+  function reset(){state={};save();render();}
+  return {render,reset};
+})();
+document.querySelectorAll("pre code").forEach(el=>hljs.highlightElement(el));
+IV.render();
+</script>
+</body>
+</html>

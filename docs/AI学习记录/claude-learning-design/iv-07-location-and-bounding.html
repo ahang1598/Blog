@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7 · Location 隔离 + 工具输出有界 · opencode 面试视角</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+  :root{--bg:#0d1117;--bg-soft:#161b22;--bg-card:#1c2230;--border:#30363d;--text:#e6edf3;--text-dim:#9da7b3;--c1:#58a6ff;--c2:#3fb950;--c3:#d29922;--c4:#f778ba;--c5:#a371f7;--c6:#ff7b72;--code-bg:#0a0e14;--shadow:0 8px 32px rgba(0,0,0,0.4)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}code{font-family:"SFMono-Regular","JetBrains Mono",Consolas,monospace}
+  .hero{padding:56px 24px 40px;border-bottom:1px solid var(--border);background:radial-gradient(ellipse at top,rgba(255,123,98,0.10),transparent 60%)}
+  .hero .wrap{max-width:1140px;margin:0 auto}
+  .hero .crumb{font-size:12px;color:var(--text-dim);margin-bottom:14px}.hero .crumb a{color:var(--c6)}
+  .hero .series{display:inline-block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.3);padding:5px 12px;border-radius:20px;margin-bottom:14px}
+  .hero h1{font-size:33px;font-weight:800;line-height:1.2;letter-spacing:-0.4px;margin-bottom:10px}
+  .hero .lead{font-size:16px;color:var(--text-dim);max-width:820px}.hero .lead b{color:var(--text)}
+  .toc{position:sticky;top:0;z-index:50;background:rgba(13,17,23,0.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .toc-inner{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;gap:6px;flex-wrap:wrap}
+  .toc a{font-size:12px;color:var(--text-dim);padding:5px 11px;border-radius:6px;transition:.12s}.toc a:hover{background:rgba(255,123,98,0.10);color:var(--c6)}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  section{padding:46px 0;border-bottom:1px solid var(--border)}
+  h2{font-size:23px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:11px}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--c6),#ff584d);color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+  h3{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--text)}
+  h4{font-size:14.5px;font-weight:700;margin:14px 0 6px;color:var(--c5)}
+  .lead{color:var(--text-dim);font-size:16px;margin-bottom:22px;max-width:880px}
+  p{margin-bottom:12px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:18px 0}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.card h4{margin-top:0}
+  .card.bad{border-color:rgba(210,153,34,0.4)}.card.bad h4{color:var(--c3)}
+  .card.good{border-color:rgba(63,185,80,0.4)}.card.good h4{color:var(--c2)}
+  .card p{color:var(--text-dim);font-size:13.5px;margin-bottom:6px}
+  .card ul{padding-left:18px;color:var(--text-dim);font-size:13.5px}.card li{margin-bottom:4px}
+  .callout{border-left:3px solid var(--c6);background:rgba(255,123,98,0.06);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}.callout .t{font-weight:700;margin-bottom:4px}.callout p{color:var(--text-dim);font-size:14px;margin:0}
+  .callout.warn{border-left-color:var(--c3);background:rgba(210,153,34,0.08)}.callout.ok{border-left-color:var(--c2);background:rgba(63,185,80,0.08)}.callout.key{border-left-color:var(--c4);background:rgba(247,120,186,0.07)}
+  .diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px;margin:18px 0;overflow-x:auto}.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+  .dual{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .pane{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.pane.iv{border-top:3px solid var(--c4)}.pane.cand{border-top:3px solid var(--c2)}
+  .pane h4{margin-top:0;font-size:15px}.pane.iv h4{color:var(--c4)}.pane.cand h4{color:var(--c2)}
+  .pane ol{padding-left:20px;color:var(--text-dim);font-size:13.5px}.pane li{margin-bottom:6px}.pane li b{color:var(--text)}
+  a.file{color:var(--c3);font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;border-bottom:1px dotted var(--c3)}
+  .drill{background:linear-gradient(180deg,rgba(247,120,186,0.04),transparent);border-top:2px solid rgba(247,120,186,0.25)}
+  .progress{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .progress .bar{flex:1;min-width:200px;height:9px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .progress .fill{height:100%;background:linear-gradient(90deg,var(--c4),var(--c6));width:0;transition:width .3s}
+  .progress .pct{font-size:13px;color:var(--text-dim);font-family:"SFMono-Regular",Consolas,monospace}
+  .btn-reset{font-size:12px;color:var(--text-dim);background:var(--bg-card);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer;transition:.12s}.btn-reset:hover{border-color:var(--c3);color:var(--c3)}
+  .thread{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:0;margin-bottom:16px;overflow:hidden}
+  .thread-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .thread-head .ic{font-size:16px}.thread-head .title{font-weight:700;font-size:15px;flex:1}
+  .thread-head .layer-tag{font-size:11px;color:var(--c4);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(247,120,186,0.10);padding:3px 8px;border-radius:5px}
+  .step{padding:18px 20px;border-bottom:1px solid var(--border)}.step:last-child{border-bottom:none}.step.locked{display:none}.step.done{opacity:0.65}
+  .q{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+  .q .lvl{display:inline-block;font-size:10.5px;color:var(--c5);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(163,113,247,0.10);padding:2px 7px;border-radius:4px;margin-right:8px;vertical-align:middle}
+  .hint{font-size:13px;color:var(--text-dim);margin-bottom:12px}
+  .reveal-btn{font-size:13px;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.35);padding:7px 15px;border-radius:7px;cursor:pointer;transition:.12s}.reveal-btn:hover{background:rgba(255,123,98,0.20)}
+  .answer{display:none;margin-top:14px;padding:14px 16px;background:rgba(63,185,80,0.05);border:1px solid rgba(63,185,80,0.25);border-radius:9px}.answer.show{display:block}
+  .answer .at{font-size:11.5px;color:var(--c2);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+  .answer ul{padding-left:20px;color:var(--text-dim);font-size:13.5px}.answer li{margin-bottom:7px}.answer li b{color:var(--text)}
+  .answer .ref{margin-top:10px;font-size:12px;color:var(--text-dim)}
+  .rating{display:none;margin-top:14px;align-items:center;gap:8px;flex-wrap:wrap}.rating.show{display:flex}
+  .rating .lbl{font-size:12.5px;color:var(--text-dim);margin-right:4px}
+  .rate-btn{font-size:12.5px;padding:6px 13px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg-soft);color:var(--text-dim);transition:.12s}.rate-btn:hover{color:var(--text)}
+  .rate-btn.sel.ok{background:rgba(63,185,80,0.15);border-color:var(--c2);color:var(--c2)}
+  .rate-btn.sel.mid{background:rgba(210,153,34,0.15);border-color:var(--c3);color:var(--c3)}
+  .rate-btn.sel.no{background:rgba(255,123,98,0.15);border-color:var(--c6);color:var(--c6)}
+  .next-btn{display:none;margin-top:14px;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--c4),var(--c6));border:none;padding:8px 16px;border-radius:7px;cursor:pointer;transition:.12s}.next-btn.show{display:inline-block}.next-btn:hover{opacity:0.9}
+  .finish{display:none;padding:16px 20px;background:rgba(63,185,80,0.06);color:var(--c2);font-weight:600;font-size:14px;text-align:center}.finish.show{display:block}
+  .nav-foot{display:flex;justify-content:space-between;padding:24px 0;gap:12px}
+  .nav-foot a{font-size:13px;padding:9px 16px;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);transition:.12s}.nav-foot a:hover{border-color:var(--c6);color:var(--c6)}.nav-foot .next{margin-left:auto}
+  footer{padding:34px 24px;text-align:center;color:var(--text-dim);font-size:13px;border-top:1px solid var(--border)}footer a{color:var(--c6)}
+  @media(max-width:820px){.grid-2,.grid-3,.dual{grid-template-columns:1fr}.hero h1{font-size:27px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="iv-00-index.html">← 总索引</a></div>
+    <span class="series">Chapter 7 · 面试视角（7/11）</span>
+    <h1>Location 隔离 + 工具输出有界</h1>
+    <p class="lead">为什么 opencode 的工具注册表、权限、模型解析、FS 都是<b>按工作目录隔离</b>的，而不是进程级单例？因为单例会<b>锁死未来</b>——多工作区、多 worktree、集群化全都做不了。而工具输出必须有界，是因为一次 <code>cat huge.log</code> 的几兆字节会同时<b>撑爆上下文、打挂缓存、淹没信号</b>。这两个设计分别守护<b>可扩展性</b>和<b>成本可控性</b>。</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#position">① 定位</a>
+    <a href="#problem">② 问题先于方案</a>
+    <a href="#design">③ 设计拆解</a>
+    <a href="#tradeoff">④ 生产级取舍</a>
+    <a href="#dual">⑤ 双视角</a>
+    <a href="#drill">🎯 面试追问</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<section id="position">
+  <h2><span class="num">1</span>一句话定位</h2>
+  <p class="lead"><b>Location 隔离</b>：几乎所有有状态的核心服务（ToolRegistry、Permission、Model、FileSystem、Watcher、Pty…）都注册成 <code>location</code> 标签的 LayerNode。给一个 <code>Location.Ref</code>，系统 hoist 出该目录专属的服务树，编译出一个<b>隔离的运行时</b>。<b>工具输出有界</b>：每个工具输出有 MAX_LINES / MAX_BYTES 上限，超出就把全文落盘，只在上下文里留 head+tail 预览 + 文件路径。</p>
+  <div class="callout key">
+    <div class="t">🔑 一句话</div>
+    <p>Location 隔离让"一个进程同时服务 N 个工作区"和"未来把 session 迁到别的节点"都成为可能；输出有界把"一次坏工具调用"的成本封顶在一个常数。</p>
+  </div>
+</section>
+
+<section id="problem">
+  <h2><span class="num">2</span>问题先于方案</h2>
+  <p class="lead">如果这些服务是进程级单例、工具输出无界，生产里会怎样？</p>
+  <div class="grid-2">
+    <div class="card bad">
+      <h4>痛点 A · 多工作区互相污染</h4>
+      <p>单例 ToolRegistry 服务所有目录。session A 在 /repo1，session B 在 /repo2，但它们<b>共享同一套工具注册表</b>——A 注册的工具 B 能看到，反之亦然。配置/MCP 串了。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 B · worktree 无法隔离</h4>
+      <p>同一个仓库的多个 git worktree，文件快照/变更检测本该独立。单例会让它们<b>共享 FS watcher 和权限状态</b>，变更归属混乱。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 C · 集群化无接缝</h4>
+      <p>未来想把 session 迁到别的节点执行。如果服务是进程单例，迁移=把每个注册表都拆开重装。<b>没有干净的接缝</b>，集群化变成大重构。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 D · 工具输出撑爆一切</h4>
+      <p>用户让 agent <code>cat huge.log</code>（10MB）。无界输出：<b>①</b> 撑爆上下文窗口（provider 413 / overflow）；<b>②</b> 进入历史后每轮全价计费；<b>③</b> 99% 无关日志淹没真正的错误信号。</p>
+    </div>
+  </div>
+  <div class="callout warn">
+    <div class="t">⚠ 共同病根</div>
+    <p>把"作用域"和"边界"当成事后考虑。作用域（哪个目录的运行时）和边界（一次调用最多多少字节）必须在设计时就钉死，否则会被坏输入和未来需求同时打穿。</p>
+  </div>
+</section>
+
+<section id="design">
+  <h2><span class="num">3</span>设计拆解</h2>
+  <p class="lead">两个正交的设计：作用域的隔离（Location）和输出的封顶（ToolOutputStore）。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 820 400" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,sans-serif">
+      <defs>
+        <marker id="a7" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#9da7b3"/></marker>
+      </defs>
+      <text x="40" y="36" fill="#ff7b72" font-size="12" font-weight="700" letter-spacing="1">Location-scoped 服务树（按目录隔离）</text>
+
+      <!-- process -->
+      <rect x="30" y="50" width="760" height="170" rx="12" fill="rgba(255,123,98,0.04)" stroke="rgba(255,123,98,0.25)"/>
+      <text x="50" y="74" fill="#9da7b3" font-size="11">进程</text>
+
+      <!-- location A tree -->
+      <rect x="55" y="90" width="320" height="115" rx="9" fill="rgba(88,166,255,0.05)" stroke="#58a6ff" stroke-width="1.3" stroke-dasharray="4 3"/>
+      <text x="215" y="110" text-anchor="middle" fill="#58a6ff" font-size="11.5" font-weight="700">Location.Ref = /repo1</text>
+      <rect x="70" y="122" width="80" height="30" rx="5" fill="#161b22" stroke="#9da7b3" stroke-width="1"/><text x="110" y="141" text-anchor="middle" fill="#9da7b3" font-size="10">ToolRegistry</text>
+      <rect x="158" y="122" width="80" height="30" rx="5" fill="#161b22" stroke="#9da7b3" stroke-width="1"/><text x="198" y="141" text-anchor="middle" fill="#9da7b3" font-size="10">Permission</text>
+      <rect x="246" y="122" width="80" height="30" rx="5" fill="#161b22" stroke="#9da7b3" stroke-width="1"/><text x="286" y="141" text-anchor="middle" fill="#9da7b3" font-size="10">FileSystem</text>
+      <rect x="70" y="162" width="80" height="30" rx="5" fill="#161b22" stroke="#9da7b3" stroke-width="1"/><text x="110" y="181" text-anchor="middle" fill="#9da7b3" font-size="10">Model</text>
+      <rect x="158" y="162" width="80" height="30" rx="5" fill="#161b22" stroke="#9da7b3" stroke-width="1"/><text x="198" y="181" text-anchor="middle" fill="#9da7b3" font-size="10">Watcher</text>
+      <rect x="246" y="162" width="80" height="30" rx="5" fill="#161b22" stroke="#9da7b3" stroke-width="1"/><text x="286" y="181" text-anchor="middle" fill="#9da7b3" font-size="10">Pty</text>
+
+      <!-- location B tree -->
+      <rect x="445" y="90" width="320" height="115" rx="9" fill="rgba(163,113,247,0.05)" stroke="#a371f7" stroke-width="1.3" stroke-dasharray="4 3"/>
+      <text x="605" y="110" text-anchor="middle" fill="#a371f7" font-size="11.5" font-weight="700">Location.Ref = /repo2</text>
+      <rect x="460" y="122" width="80" height="30" rx="5" fill="#161b22" stroke="#9da7b3" stroke-width="1"/><text x="500" y="141" text-anchor="middle" fill="#9da7b3" font-size="10">ToolRegistry</text>
+      <rect x="548" y="122" width="80" height="30" rx="5" fill="#161b22" stroke="#9da7b3" stroke-width="1"/><text x="588" y="141" text-anchor="middle" fill="#9da7b3" font-size="10">Permission</text>
+      <rect x="636" y="122" width="80" height="30" rx="5" fill="#161b22" stroke="#9da7b3" stroke-width="1"/><text x="676" y="141" text-anchor="middle" fill="#9da7b3" font-size="10">FileSystem</text>
+      <rect x="460" y="162" width="80" height="30" rx="5" fill="#161b22" stroke="#9da7b3" stroke-width="1"/><text x="500" y="181" text-anchor="middle" fill="#9da7b3" font-size="10">Model</text>
+      <text x="605" y="181" text-anchor="middle" fill="#a371f7" font-size="10.5">…各自独立实例…</text>
+
+      <text x="400" y="155" text-anchor="middle" fill="#d29922" font-size="11" font-weight="600">互不污染</text>
+
+      <!-- clustering seam -->
+      <text x="40" y="260" fill="#3fb950" font-size="12" font-weight="700" letter-spacing="1">集群化接缝：LocationServiceMap</text>
+      <rect x="55" y="275" width="710" height="44" rx="8" fill="rgba(63,185,80,0.06)" stroke="#3fb950" stroke-width="1.3"/>
+      <text x="410" y="298" text-anchor="middle" fill="#3fb950" font-size="12" font-weight="600">未来："这个 Location 的 owner 在别的节点"</text>
+      <text x="410" y="314" text-anchor="middle" fill="#9da7b3" font-size="10.5">→ 只换 LocationServiceMap 的实现（本地 map → 分布式 lease），不动任何服务</text>
+
+      <!-- bounding -->
+      <text x="40" y="350" fill="#d29922" font-size="12" font-weight="700" letter-spacing="1">工具输出有界：MAX_BYTES / MAX_LINES</text>
+      <rect x="55" y="362" width="710" height="30" rx="6" fill="rgba(210,153,34,0.06)" stroke="#d29922" stroke-width="1.2"/>
+      <text x="410" y="382" text-anchor="middle" fill="#9da7b3" font-size="11">超出 → 全文落盘 + 上下文留 head+tail 预览 + 路径（模型可按需重读）</text>
+    </svg>
+  </div>
+
+  <h3>Location 隔离的四个收益</h3>
+  <div class="grid-2">
+    <div class="card good">
+      <h4>① 多工作区今天就能用</h4>
+      <p>一个 opencode 进程同时服务 N 个目录，各自独立的工具/FS/权限。<b>不互相污染</b>。</p>
+    </div>
+    <div class="card good">
+      <h4>② 多 worktree VCS 隔离</h4>
+      <p>每个 git worktree 独立的快照/变更/权限状态，因为它们是 Location-scoped 而非进程单例。</p>
+    </div>
+    <div class="card good">
+      <h4>③ 集群化接缝</h4>
+      <p>整个 per-session 运行时是 <code>LayerMap</code> 里按 <code>Location.Ref</code> 寻址的值。迁节点 = 在 <code>LocationServiceMap</code> 边界做路由，<b>不重构每个服务</b>。</p>
+    </div>
+    <div class="card good">
+      <h4>④ 可测/可替换</h4>
+      <p>测试可注入假 FileSystem，hoist/compile 走显式依赖图，<b>切片替换干净</b>。</p>
+    </div>
+  </div>
+
+  <h3>工具输出有界的三个理由</h3>
+  <div class="grid-3">
+    <div class="card good">
+      <h4>① 防上下文爆炸</h4>
+      <p>一次 <code>cat huge.log</code> 几兆字节。无界会 provider 413 / context-overflow，<b>直接杀死 turn</b>。</p>
+    </div>
+    <div class="card good">
+      <h4>② 防缓存打挂</h4>
+      <p>大输出进历史后每轮重发；非确定输出（时间戳/PID）让前缀每轮漂移，<b>缓存全 miss</b>。</p>
+    </div>
+    <div class="card good">
+      <h4>③ 防信号淹没</h4>
+      <p>99% 无关日志里找错误，模型推理质量下降。head+tail 预览保留<b>开头和结尾</b>（错误通常在这）。</p>
+    </div>
+  </div>
+</section>
+
+<section id="tradeoff">
+  <h2><span class="num">4</span>生产级取舍</h2>
+  <p class="lead">隔离和有界都有成本（多实例的内存、预览的信息损失），但守护的是可扩展性和成本可控性。</p>
+  <div class="grid-2">
+    <div class="card good">
+      <h4>选择：Location-scoped 而非进程单例</h4>
+      <ul>
+        <li>多工作区/多 worktree 互不污染</li>
+        <li>集群化有干净接缝（换 map 即可）</li>
+        <li>依赖图显式，可测可替换</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>进程单例的代价</h4>
+      <ul>
+        <li>多工作区串配置/MCP</li>
+        <li>worktree 变更归属混乱</li>
+        <li>集群化=大重构，无接缝</li>
+        <li>测试必须起整个进程</li>
+      </ul>
+    </div>
+    <div class="card good">
+      <h4>选择：工具输出 head+tail + 落盘</h4>
+      <ul>
+        <li>单次调用成本封顶常数</li>
+        <li>模型可按需 read 全文（路径已给）</li>
+        <li>保留错误最常出现的首尾</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>无界输出的代价</h4>
+      <ul>
+        <li>撑爆上下文 → turn 死</li>
+        <li>每轮全价重发 → 成本爆炸</li>
+        <li>非确定输出 → 缓存全 miss</li>
+        <li>噪声淹没 → 推理质量降</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout key">
+    <div class="t">🔑 本质</div>
+    <p>这两个设计的共同主题是<b>给"坏情况"封顶</b>。Location 隔离给"未来需求"封顶（集群化不必大重构）；输出有界给"坏输入成本"封顶（一次坏调用不会拖垮整个 session）。成熟的系统设计总是问"最坏会怎样，怎么封顶"。</p>
+  </div>
+</section>
+
+<section id="dual">
+  <h2><span class="num">5</span>面试双视角</h2>
+  <p class="lead">这题考的是<b>可扩展性设计 + 成本控制</b>——你懂不懂"作用域"和"边界"是一等设计约束。</p>
+  <div class="dual">
+    <div class="pane iv">
+      <h4>🎙️ 面试官为何问这题</h4>
+      <ol>
+        <li><b>探可扩展性直觉</b>——知不知道进程单例会锁死多租户/集群化。</li>
+        <li><b>探"作用域"思维</b>——能不能区分"进程级"和"位置级"服务。</li>
+        <li><b>探成本意识</b>——工具输出无界会撑爆上下文 + 打挂缓存，双重成本。</li>
+        <li><b>埋雷</b>：很多人答"加个 limit 就行"。追问"limit 之后模型怎么看全文？"——看你能不能答出"head+tail 预览 + 落盘 + 按需重读"。</li>
+      </ol>
+    </div>
+    <div class="pane cand">
+      <h4>🧑‍💻 面试者拆解（五段式）</h4>
+      <ol>
+        <li><b>抽象定位</b>：作用域（Location）和边界（输出封顶）是一等设计约束，给"坏情况"封顶。</li>
+        <li><b>讲约束</b>：有状态服务按 Location.Ref 隔离成独立服务树；工具输出有 MAX_BYTES，超出落盘 + head+tail 预览。</li>
+        <li><b>讲收益</b>：多工作区/集群化/可测；上下文不爆 + 缓存稳定 + 信号清晰。</li>
+        <li><b>主动讲代价</b>：多实例的内存开销；预览丢中间信息（但模型能 read 全文）。代价远小于"污染/爆炸"的代价。</li>
+        <li><b>给未来演化</b>：LocationServiceMap 是接缝——从本地 map 换分布式 lease 即可集群化；MAX_BYTES 可按文档配置调，不同场景不同阈值。</li>
+      </ol>
+    </div>
+  </div>
+  <div class="callout ok">
+    <div class="t">✅ 加分项</div>
+    <p>主动收束全系列："Location 隔离是<b>空间维度的边界</b>（哪个目录的运行时），输出有界是<b>字节维度的边界</b>（一次调用最多多少）。加上 iv-02 的<b>时间维度边界</b>（admission vs execution）、iv-05 的<b>轮次边界</b>（一轮一次 stream）——这整套设计都是在<b>给不同维度的坏情况封顶</b>。这是贯穿 opencode 的统一哲学。"</p>
+  </div>
+</section>
+
+</div>
+
+<section id="drill" class="drill">
+  <div class="wrap">
+    <h2><span class="num">🎯</span>面试追问 · 模拟面试官深挖</h2>
+    <p class="lead">Location 隔离的 4 个收益？进程单例锁死未来在哪？工具输出无界的 3 种崩坏？追到答不出。</p>
+    <div class="progress">
+      <span class="pct" id="pct">进度 0%</span>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <button class="btn-reset" onclick="IV.reset()">重置本页进度</button>
+    </div>
+    <div id="threads"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="nav-foot">
+    <a href="iv-06-request-and-protocol.html">← 第 6 篇 请求与 compile 墙</a>
+    <a class="next" href="iv-08-agent-architecture.html">下一章：智能体架构 →</a>
+  </div>
+</div>
+
+<footer>opencode 面试视角 · 第 7/11 篇 · Location 与输出有界 · <a href="iv-00-index.html">返回总索引</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+<script>
+const IV = (() => {
+  const KEY = "iv-drill-07";
+  const data = [
+    {
+      title: "Location 隔离的 4 个收益",
+      icon: "🗺",
+      steps: [
+        { q: "根问题：为什么 ToolRegistry、Permission、Model、FileSystem 这些服务要按 Location（工作目录）隔离，而不是进程级单例？",
+          hint: "一个进程同时服务多个目录时会怎样？未来要集群化呢？",
+          a: [
+            "<b>① 多工作区今天就能用</b>：一个进程同时服务 N 个目录，各自独立的工具/FS/权限/配置，不互相污染。单例会让 A 的工具 B 看到。",
+            "<b>② 多 worktree VCS 隔离</b>：每个 git worktree 独立的快照/变更/权限状态，因为它们 Location-scoped。",
+            "<b>③ 集群化接缝</b>：整个 per-session 运行时是 LayerMap 里按 Location.Ref 寻址的值。迁节点=在 LocationServiceMap 边界路由，不重构每个服务。",
+            "<b>④ 可测/可替换</b>：测试注入假 FileSystem，hoist/compile 走显式依赖图，切片替换干净。"
+          ],
+          ref: "packages/core/src/location.ts + effect/app-node.ts（location 标签）+ location-services.ts（buildLocationServiceMap）。"
+        },
+        { q: "追问 1：'按 Location.Ref 寻址的值'是什么意思？为什么这是集群化接缝？",
+          hint: "如果服务是进程单例，迁节点要做什么？Location-scoped 呢？",
+          a: [
+            "<b>单例的问题</b>：服务焊在进程里。要迁 session 到别的节点，得拆开每个注册表（ToolRegistry、Permission…），大重构。",
+            "<b>Location-scoped 的解法</b>：整个运行时是 LayerMap 里 Location.Ref → Layer 的映射。'这个 Location 的运行时在哪'是一个<b>可路由的地址</b>。",
+            "<b>接缝</b>：LocationServiceMap 是唯一的查找点。本地实现=进程内 Map；集群实现=分布式 lease 查询。只换这一个组件，所有服务不动。",
+            "类比：单例像'服务直接焊在主板'；Location-scoped 像'服务插在可寻址插槽'——插槽映射从本地换成网络，服务无感。"
+          ],
+          ref: "AGENTS.md V2 — \"discovers placement through SessionStore plus LocationServiceMap.get(session.location) only when a drain starts\"。"
+        }
+      ]
+    },
+    {
+      title: "进程单例会锁死未来",
+      icon: "🔒",
+      steps: [
+        { q: "根问题：如果现在图省事，把这些服务都做成进程级单例，未来哪些需求会因此做不了或代价巨大？",
+          hint: "多租户？多 worktree？集群化？测试？",
+          a: [
+            "<b>多租户/多工作区</b>：单例服务所有目录，配置/MCP 串。要做多工作区得给每个服务加'目录参数'——又退化成隐式 Location 维度（iv-02 讲过这种反模式）。",
+            "<b>多 worktree</b>：FS watcher、文件快照、权限状态全共享，变更归属混乱，无法正确归属'哪个 worktree 改了什么'。",
+            "<b>集群化</b>：迁 session 到别的节点要拆每个注册表。没有 LocationServiceMap 接缝，集群化=大重构。",
+            "<b>测试</b>：单例必须起整个进程才能测，单测变集成测，反馈从毫秒到秒。"
+          ],
+          ref: "这是'图省事锁死未来'的典型——单例省了初期的隔离代码，却让所有未来扩展都付重构代价。"
+        }
+      ]
+    },
+    {
+      title: "工具输出无界的 3 种崩坏",
+      icon: "💥",
+      steps: [
+        { q: "根问题：用户让 agent cat 一个 10MB 的日志文件，工具结果直接塞进上下文。生产里会怎样崩？",
+          hint: "上下文窗口？每轮成本？模型推理质量？",
+          a: [
+            "<b>① 上下文爆炸</b>：10MB 远超上下文窗口。provider 返回 413 / context-overflow，<b>直接杀死这个 turn</b>，session 卡住。",
+            "<b>② 成本爆炸</b>：即使不超窗口，这 10MB 进入历史后<b>每轮都全价重发</b>。一个坏调用让后续 N 轮的输入成本都爆炸。",
+            "<b>③ 缓存打挂</b>：日志里有时间戳/PID 等非确定内容，每次重渲染不同，前缀字节漂移，<b>整个 session 的缓存全 miss</b>（iv-03 讲过）。",
+            "<b>④ 信号淹没</b>：99% 无关日志里找那一行错误，模型推理质量下降，可能漏掉真正的信号。"
+          ],
+          ref: "packages/core/src/tool/tool-output-store.ts — MAX_LINES=2000, MAX_BYTES=50KB。"
+        },
+        { q: "追问 1：那有界之后，模型怎么看全文？只给 head+tail 不会丢关键信息吗？",
+          hint: "落盘的是什么？模型有什么工具？",
+          a: [
+            "<b>全文落盘</b>到 managed 文件（tool-output/tool_<id>）。上下文里只留 head+tail 预览 + 一个截断标记 + 文件路径。",
+            "<b>模型有 read 工具</b>：如果预览里看出关键部分在中段，模型可以主动 read 那个落盘文件，按行/范围读。",
+            "<b>head+tail 是经验最优</b>：错误信息通常在开头（启动失败）或结尾（崩溃栈）。中间往往是重复日志，价值低。",
+            "<b>本质</b>：把'默认全量'改成'默认预览 + 按需深读'。用模型的主动性换上下文成本的常数封顶。"
+          ],
+          ref: "ToolOutputStore 返回 outputPaths，read 工具可消费。这是'用工具调用换上下文预算'的设计。"
+        }
+      ]
+    }
+  ];
+  let state = JSON.parse(localStorage.getItem(KEY) || "{}");
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+  function pct(){ let total=0,done=0; data.forEach((t,ti)=>{total+=t.steps.length;done+=Math.min(state[ti]||0,t.steps.length);}); return Math.round(done/total*100); }
+  function render(){
+    const root = document.getElementById("threads"); root.innerHTML = "";
+    data.forEach((t,ti)=>{
+      const cur = state[ti]||0; const finished = cur>=t.steps.length;
+      const div = document.createElement("div"); div.className="thread";
+      div.innerHTML = `<div class="thread-head"><span class="ic">${t.icon}</span><span class="title">${t.title}</span><span class="layer-tag">${finished?"✓ 完成":"第 "+(cur+1)+"/"+t.steps.length+" 层"}</span></div>`;
+      t.steps.forEach((s,si)=>{
+        const unlocked = si<=cur; const stepDone = si<cur;
+        const step = document.createElement("div"); step.className="step"+(unlocked?"":" locked")+(stepDone?" done":""); step.dataset.ti=ti; step.dataset.si=si;
+        step.innerHTML = `<div class="q"><span class="lvl">L${si+1}</span>${s.q}</div>${s.hint?`<div class="hint">💡 ${s.hint}</div>`:""}${!stepDone?`<button class="reveal-btn" data-act="reveal">查看参考答案</button>`:""}<div class="answer"><div class="at">参考答案要点</div><ul>${s.a.map(x=>`<li>${x}</li>`).join("")}</ul>${s.ref?`<div class="ref">📌 ${s.ref}</div>`:""}</div>${!stepDone?`<div class="rating"><span class="lbl">自评（诚实最重要）：</span><button class="rate-btn" data-rate="ok">✓ 答得好</button><button class="rate-btn" data-rate="mid">△ 部分懂</button><button class="rate-btn" data-rate="no">✗ 没答出</button></div>${si<t.steps.length-1?`<button class="next-btn" data-act="next">解锁下一层追问 →</button>`:""}`:""}${stepDone&&si===t.steps.length-1?`<div class="finish show">🎉 本线索完成 · 你已答到最深一层</div>`:""}`;
+        div.appendChild(step);
+      });
+      root.appendChild(div);
+    });
+    root.querySelectorAll(".step").forEach(step=>{
+      const ti=+step.dataset.ti, si=+step.dataset.si;
+      const rb=step.querySelector('[data-act="reveal"]');
+      if(rb) rb.addEventListener("click",()=>{step.querySelector(".answer").classList.add("show");step.querySelector(".rating").classList.add("show");rb.style.display="none";});
+      step.querySelectorAll(".rate-btn").forEach(b=>b.addEventListener("click",()=>{step.querySelectorAll(".rate-btn").forEach(x=>x.classList.remove("sel","ok","mid","no"));b.classList.add("sel",b.dataset.rate);const nb=step.querySelector(".next-btn");if(nb)nb.classList.add("show");}));
+      const nb=step.querySelector('[data-act="next"]');
+      if(nb) nb.addEventListener("click",()=>{state[ti]=Math.max(state[ti]||0,si+2);save();render();updatePct();});
+    });
+    updatePct();
+  }
+  function updatePct(){const p=pct();document.getElementById("fill").style.width=p+"%";document.getElementById("pct").textContent="进度 "+p+"%";}
+  function reset(){state={};save();render();}
+  return {render,reset};
+})();
+document.querySelectorAll("pre code").forEach(el=>hljs.highlightElement(el));
+IV.render();
+</script>
+</body>
+</html>

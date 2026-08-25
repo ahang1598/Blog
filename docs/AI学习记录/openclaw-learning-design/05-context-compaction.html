@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑤ 上下文压缩设计</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .compare { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  .compare > div { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:14px 16px; }
+  .compare h5 { margin:0 0 8px; font-size:13px; border-bottom:1px solid var(--border); padding-bottom:6px; }
+  .compare .bad h5 { color:var(--red); } .compare .good h5 { color:var(--green); }
+  .compare p { font-size:13px; }
+  @media (max-width:760px){ .compare { grid-template-columns:1fr; } }
+  .summary-template { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:16px 20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.7; }
+  .summary-template .h { color:var(--accent); font-weight:700; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑤ 上下文压缩设计
+  <span class="sub">阶段 2 · 智能核心主线 · 摘要式 vs 滑动窗口的生产取舍</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:token 不够用了怎么办</a></li>
+  <li><a href="#design">分层设计:摘要式压缩的四步管线</a></li>
+  <li><a href="#why">为何这么设计:摘要式、迭代更新、turn 边界、故障容忍</a></li>
+  <li><a href="#example">完整示例:一次压缩的结构化摘要产物</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:token 不够用了怎么办</h2>
+
+<p>对话越长,历史消息越多,塞进 Prompt 的 token 越多。迟早撞上模型的上下文窗口上限。这是所有长对话 Agent 的<strong>核心生产难题</strong>。</p>
+
+<p>最直觉的解法是<strong>滑动窗口</strong>:只保留最近 N 条消息,丢掉最旧的。听起来简单合理。但在生产中它会引发灾难:</p>
+
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li><strong>失忆重复</strong>:丢掉了"我们已否定了方案 A"的旧消息,模型重新提议方案 A,用户崩溃。</li>
+  <li><strong>工具配对断裂</strong>:丢掉了一个 tool_use 但留下 tool_result(或反过来),provider 报错崩(见第④篇)。</li>
+  <li><strong>关键决策丢失</strong>:重要的"我们为什么选 B 而不是 C"被丢了,后续推理失去依据。</li>
+  <li><strong>身份漂移</strong>:早期建立的工作约定(用某编码规范)被丢,agent 行为逐渐跑偏。</li>
+</ul>
+</div>
+
+<p>滑动窗口的本质问题是<strong>无差别丢弃</strong>——它不区分"这条消息重要吗",只看新旧。生产需要的是<strong>有信息保真度的丢弃</strong>:旧内容可以被压缩,但关键信息要保留。</p>
+
+<h2 id="design">二 · 分层设计:摘要式压缩的四步管线</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                    上下文压缩 · 摘要式管线                              │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[触发]</span> token 用量接近窗口上限?
+  │  公式:contextTokens > contextWindow - reserveTokens
+  │  (留 reserveTokens 给模型生成本轮回复)
+  ▼
+  <span class="stage-label">[1] 找切点(cut point)</span>
+  │  从后往前累计 token,直到累计够 keepRecentTokens(保留原文的尾巴)
+  │  ↓ 关键:切点必须 snap 到 turn 边界(不能切断一个 turn 中间)
+  ▼
+  <span class="stage-label">[2] 分割</span>
+  │  messagesToSummarize = 切点之前的所有消息
+  │  recentTail          = 切点之后的消息(保留原文)
+  ▼
+  <span class="stage-label">[3] 生成摘要(迭代更新)</span>
+  │  把 messagesToSummarize + 上一次的 previousSummary 喂给模型
+  │  → 输出更新后的 structured summary(Goal/Progress/Decisions/...)
+  │  ↓ 不是从头重算,是基于上一版增量更新
+  ▼
+  <span class="stage-label">[4] 替换 + 修复</span>
+  │  新上下文 = [摘要消息] + [recentTail 原文]
+  │  修复:删 tool_use 时连删 tool_result(配对不变量)
+  │  保存边界标记(下次压缩从这里续)
+  ▼
+  后续 turn 模型看到的是:[结构化摘要] + [最近 N 条原文]</div>
+
+<h3>两个核心数字</h3>
+<table>
+<thead><tr><th>参数</th><th>含义</th><th>典型值</th></tr></thead>
+<tbody>
+<tr><td><code>reserveTokens</code></td><td>给模型本轮回复预留的空间</td><td>~16000</td></tr>
+<tr><td><code>keepRecentTokens</code></td><td>保留原文的"尾巴"大小</td><td>~20000</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:四个关键决策</h2>
+
+<h3>决策 1:为什么摘要式而非滑动窗口</h3>
+<div class="compare">
+<div class="bad">
+<h5>滑动窗口 truncation</h5>
+<p>• 优点:实现极简</p>
+<p>• 失忆重复:丢掉否定结论,模型重新提议</p>
+<p>• 配对断裂:无差别删破坏 tool_use/result</p>
+<p>• 关键决策丢失</p>
+<p>• 适合:无状态问答</p>
+</div>
+<div class="good">
+<h5>摘要式 compaction</h5>
+<p>• 代价:多一次模型调用(成本)</p>
+<p>• 信息保真:关键决策/进展被结构化保留</p>
+<p>• 配对安全:摘要消息不含原始 id,不破坏</p>
+<p>• 连续性:模型知道"我们到哪了"</p>
+<p>• 适合:长任务、协作、生产</p>
+</div>
+</div>
+
+<h3>决策 2:为什么"迭代更新旧摘要"而非"从头重算"</h3>
+<p>对话很长时,要总结的旧消息可能本身就有几万 token。两种做法:</p>
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li><strong>从头重算</strong>:每次把所有旧消息重新总结。问题:① 越往后旧消息越多,成本爆炸;② 每次重新总结会丢失上一版摘要里已提炼的精华。</li>
+  <li><strong>迭代更新</strong>:只总结"自上次压缩后的新消息",和上一版摘要合并成新摘要。① 成本恒定(只处理增量);② 连续性更好(基于上一版增量更新);③ 可控的误差累积。</li>
+</ul>
+</div>
+<p><strong>接受"误差累积"的代价</strong>,因为重算成本不可接受,且结构化模板(见下)的锚点机制能控制累积。</p>
+
+<h3>决策 3:为什么切点必须 snap 到 turn 边界</h3>
+<p>一个 turn = 模型一次推理 + 它的工具调用 + 工具结果。如果切点落在 turn 中间(比如切在一个 tool_use 后但 tool_result 前),会<strong>破坏配对不变量</strong>。所以切点必须 snap 到 turn 的边界——要么整个 turn 进摘要,要么整个 turn 留原文。这要求找切点时检测"分割的 turn"并整段处理。</p>
+
+<h3>决策 4:为什么故障容忍是设计前提</h3>
+<p>压缩本身要调模型,模型可能失败(超时、畸形返回、摘要质量差)。如果压缩失败就让对话崩,生产不可用。所以压缩必须是<strong>渐进降级</strong>的:</p>
+<div class="flow-diagram">压缩尝试失败
+  ↓
+<strong>降级 1</strong>:丢弃超大消息后再试(可能是某条 tool_result 太大撑爆摘要 prompt)
+  ↓ 还失败
+<strong>降级 2</strong>:只总结能总结的,无法总结的部分用占位符
+  ↓ 连续 N 次都失败
+<strong>降级 3</strong>:熔断(停止压缩,接受 token 溢出或截断),不让无限重试拖死对话</div>
+
+<div class="card key">
+<strong>核心取舍</strong>:摘要式压缩带来<strong>额外的模型调用成本和实现复杂度</strong>(切点、迭代更新、修复、降级链),换来的是<strong>信息保真度和连续性</strong>。替代方案(滑动窗口)的失败模式是"模型失忆、配对断裂、决策丢失"——这些在生产中直接表现为 bug 和用户投诉。接受成本,因为它把不可恢复的信息丢失变成可控的渐进降级。
+</div>
+
+<h2 id="example">四 · 完整示例:一次压缩的结构化摘要产物</h2>
+
+<p>假设对话已经讨论了一个 bug 修复任务,跑了 30 turn。压缩触发,摘要消息长这样(<strong>结构化模板,不是自由文本</strong>):</p>
+
+<div class="summary-template"><span class="h">## Goal</span>
+修复 package.json 里 dependencies 版本冲突导致的安装失败
+
+<span class="h">## Progress</span>
+- <span class="h">Done</span>:复现了问题(npm install 报 ERESOLVE);定位到是 react@18 和 react-dom@17 冲突
+- <span class="h">In Progress</span>:把 react-dom 升级到 18 以匹配
+- <span class="h">Blocked</span>:无
+
+<span class="h">## Key Decisions</span>
+- <span class="h">决定</span>升级 react-dom 而非降级 react(用户偏好最新版)
+- <span class="h">否决</span>用 overrides 强制版本(会掩盖未来的真实冲突)
+
+<span class="h">## Next Steps</span>
+- 升级后跑测试确认无回归
+- 检查是否还有其他依赖 react-dom 17 的包
+
+<span class="h">## Critical Context</span>
+- 项目用 pnpm(不是 npm)
+- 用户上次说过不喜欢 any 类型,改类型要精确
+- 文件 src/App.tsx 已经改过一处,不要重复改</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:摘要不是"把对话缩写一下",而是<strong>用结构化模板锚定关键信息</strong>——Goal/Progress/Decisions/Next/Critical Context。这些锚点是<strong>防误差累积的机制</strong>:即使迭代更新多次,只要每次都填这些槽位,关键信息(决策、否决理由、用户偏好)就不会漂移丢失。模型看到这个摘要 + 最近原文,就能无缝继续,不重复已废方案。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"对话太长就截掉最旧的"</td><td>"demo 思维,不知道这会引发什么"</td></tr>
+<tr><td>知道滑动窗口有问题,提摘要</td><td>"有意识但没考虑成本/配对"</td></tr>
+<tr><td>能说摘要式 + 保留尾巴 + 配对修复</td><td>"及格,有生产感"</td></tr>
+<tr><td>能谈迭代更新、turn 边界 snap、故障降级链、误差累积控制</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先否定滑动窗口</strong>:"token 不够不能简单截旧的——会失忆重复、配对断裂、决策丢失。"</li>
+<li><strong>给摘要式方案</strong>:"我用摘要式压缩:把旧消息总结成结构化摘要,保留最近 N 条原文。模型看到 [摘要] + [最近原文]。"</li>
+<li><strong>主动谈迭代更新</strong>:"长对话下不从头重算(成本爆炸),而是基于上一版摘要增量更新——只处理自上次压缩后的新消息。代价是误差累积,用结构化模板锚点控制。"</li>
+<li><strong>主动谈 turn 边界</strong>:"切点必须 snap 到 turn 边界,不能切断 turn 中间破坏 tool_use/result 配对。"</li>
+<li><strong>主动谈故障容忍</strong>:"压缩本身要调模型,会失败。设计成渐进降级:丢超大消息→部分总结→熔断,不让压缩失败拖死对话。"</li>
+</ol>
+
+<div class="card warn">
+<strong>主动展现的生产洞察</strong>:
+<ul style="margin-bottom:0">
+  <li>结构化摘要模板(Goal/Progress/Decisions)是<strong>防误差累积的锚点机制</strong></li>
+  <li>reserveTokens + keepRecentTokens 是两个核心数字</li>
+  <li>压缩改的是 Session,不动 Agent(见第①篇)</li>
+</ul>
+</div>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,层层下钻到误差累积和故障容忍。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="04-tool-system.html">← ④ 工具系统</a>
+<a href="06-memory-architecture.html">⑥ 多层记忆架构 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑤ 上下文压缩设计 · 阶段 2 智能核心<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 滑动窗口的崩点", q:"你说滑动窗口(只保留最近 N 条)在生产会崩。具体说三个它会引发的、不可恢复的生产问题。",
+    a:"<strong>1) 失忆重复</strong>:丢掉'我们已否定了方案 A'的旧消息,模型重新提议方案 A,用户崩溃,信任崩塌。<strong>2) 工具配对断裂</strong>:无差别删消息可能删了 tool_use 留 tool_result(或反),provider 下次请求报 'unexpected tool_use_id' 直接崩。<strong>3) 关键决策丢失</strong>:'我们为什么选 B 不选 C'的论证被丢,后续推理失去依据,agent 行为逐渐跑偏。这三个都是<strong>信息层面的不可恢复丢失</strong>——丢了找不回,只能用户重新解释。而摘要式是把信息<strong>压缩</strong>而非<strong>丢弃</strong>,关键决策被结构化保留。" },
+  { round:"第 2 题 · 迭代更新的误差累积", q:"你说'基于上一版摘要增量更新',而不是从头重算。但迭代更新会不会让误差累积——每次更新可能丢一点信息,十次压缩后摘要还准吗?怎么控制?",
+    a:"<strong>会累积,这是接受的代价</strong>。控制机制是<strong>结构化模板的锚点</strong>:摘要不是自由文本,而是固定填几个槽位(Goal/Progress/Decisions/Next/Critical Context)。每次更新都重新填这些槽位,强制模型<strong>重新审视每个锚点</strong>是否还成立。这样即使某次更新漏了一点,下一次填 Decisions 槽位时模型会重新从原文里捞关键决策。<strong>更深的控制</strong>:Critical Context 槽位专门放'绝对不能丢'的信息(用户偏好、已改文件),有更高保留优先级。还有<strong>熔断</strong>:如果连续多次摘要质量评估不达标,触发全量重算或告警。核心洞察:误差累积是真实存在的,但用结构化模板把'容易丢的关键信息'变成'每次必须填的槽位',把无序漂移变成有约束的演化。" },
+  { round:"第 3 题 · turn 边界", q:"找切点时为什么要 snap 到 turn 边界?如果切点恰好落在一个 turn 的 tool_use 和 tool_result 之间,具体会发生什么?",
+    a:"<strong>会破坏配对不变量,provider 崩</strong>。一个 turn = 模型一次推理 + 它的工具调用(tool_use)+ 工具结果(tool_result)。如果切点落在 tool_use 之后、tool_result 之前:tool_use 进了'要总结的旧消息'(最终变成摘要,丢失原始 id),tool_result 留在'保留的原文尾巴'。结果尾巴里有个 tool_result 但找不到对应 tool_use,下次请求 provider 报错。<strong>snap 到 turn 边界</strong>意味着:要么整个 turn(含 use 和 result)进摘要区,要么整个 turn 留原文,绝不切开。实现上找切点时要检测'分割的 turn'(cut 落在 turn 中间),然后把整个 turn 推进或拉出,保证 turn 完整性。" },
+  { round:"第 4 题 · 故障降级", q:"压缩本身要调模型总结。如果这次模型总结失败了(超时/畸形返回),怎么办?直接报错让对话崩吗?",
+    a:"<strong>绝不让压缩失败崩对话</strong>。设计成渐进降级链:<strong>降级 1</strong>:可能是某条 tool_result 太大撑爆了摘要 prompt,丢弃超大消息后再试;<strong>降级 2</strong>:如果还失败,只总结能总结的部分,无法总结的用占位符(如'[此段内容过大已省略]');<strong>降级 3 熔断</strong>:连续 N 次失败就停止压缩,接受 token 溢出或退化为简单截断,而不是无限重试拖死对话。核心原则:<strong>压缩是优化不是必需</strong>——压缩失败时,退而求其次(截断、占位)也比让整个对话崩强。这要求压缩子系统有自己的重试上限和熔断器,和推理循环的重试分开管理。" },
+  { round:"第 5 题 · 压缩与缓存的张力", q:"压缩把历史换成了摘要,这是不是意味着 prompt 缓存全废了(因为前缀变了)?压缩后第一个 turn 的延迟会不会暴涨?有缓解办法吗?",
+    a:"<strong>是的,压缩会让缓存失效一次</strong>——因为上下文从'[原文历史]'变成了'[摘要]+[较短原文]',前缀字节级不同。<strong>缓解办法</strong>:1)<strong>摘要放在稳定前缀区之后</strong>——摘要本身是结构化模板,内容相对稳定,可以放在 system prompt 之后、对话历史之前,这样摘要变化只影响摘要段之后的缓存,而非整段;2)<strong>摘要尽量复用上一版的结构</strong>——迭代更新而非重写,字节变化最小化;3)<strong>接受这一次 miss</strong>——压缩不频繁(只在 token 接近上限时触发),偶尔一次缓存 miss 的代价远小于信息丢失。<strong>更深的设计</strong>:有些 provider 支持'会话级缓存'或'摘要缓存',可以让摘要本身被缓存。核心是——压缩是<strong>低频高代价</strong>操作,接受它的缓存代价以换取长期可用性,这是正确的取舍。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了滑动窗口崩点、迭代更新误差累积、turn 边界、故障降级、压缩与缓存张力。<br><br>下一篇 <a href="06-memory-architecture.html">⑥ 多层记忆架构</a> 讲记忆 vs 压缩的本质区别——为什么记忆是完全独立的子系统。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

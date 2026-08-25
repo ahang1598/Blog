@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑱ 插件系统:扩展点与隔离边界</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑱ 插件系统:扩展点与隔离边界
+  <span class="sub">阶段 1 · 平台支撑 · 控制面/运行时面 + manifest 先于代码</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:扩展不能侵蚀核心</a></li>
+  <li><a href="#design">分层设计:控制面 + 运行时面</a></li>
+  <li><a href="#why">为何这么设计:manifest 先行、注册事务、隔离硬约束</a></li>
+  <li><a href="#example">完整示例:一个插件从安装到激活</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:扩展不能侵蚀核心</h2>
+
+<p>第⑰篇讲了核心必须 plugin-agnostic。但"核心不依赖插件"只是<strong>一 半</strong>。完整的问题是:<strong>插件系统要既能加载第三方扩展,又不让扩展搞坏核心</strong>。</p>
+
+<p>第三方插件是<strong>不受信任的代码</strong>——它可能有 bug、可能不兼容、可能恶意。如果直接加载运行:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li><strong>崩溃传染</strong>:插件抛未捕获异常,核心跟着挂。</li>
+  <li><strong>状态污染</strong>:插件乱改全局状态,影响其他插件/核心。</li>
+  <li><strong>资源泄漏</strong>:插件持有连接/文件不释放,累积拖垮系统。</li>
+  <li><strong>不兼容混入</strong>:插件声明支持某能力但实现不对,运行时才崩。</li>
+  <li><strong>加载顺序混乱</strong>:插件间有依赖,乱序加载半崩状态。</li>
+</ul>
+</div>
+
+<p>同时,插件加载还要<strong>快</strong>——启动不能慢,又要<strong>灵活</strong>——运行时增删。这些需求互相打架。</p>
+
+<h2 id="design">二 · 分层设计:控制面 + 运行时面</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                插件系统 · 控制面 + 运行时面                              │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[控制面 · 不执行插件代码]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ ① 发现:扫描插件包,读 manifest(元数据)                  │
+  │   · manifest = openclaw.plugin.json(声明能力,非代码)    │
+  │   · 不 import 插件代码,纯元数据解析                       │
+  │ ② 校验:manifest 合法性(格式、依赖、版本兼容)            │
+  │   · 不兼容直接拒绝,不加载                                  │
+  │ ③ 激活规划:决定哪些插件启用、顺序、冲突处理               │
+  │   · 基于元数据,无副作用                                   │
+  └──────────────────────────────────────────────────────────┘
+                              │ 规划好
+                              ▼
+  <span class="stage-label">[运行时面 · 执行插件代码]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ ④ 加载:import 插件代码,执行 register(api)              │
+  │   · 在注册事务里(失败回滚全局副作用)                     │
+  │ ⑤ 注册:插件通过 api 声明能力(我能提供 X)                │
+  │   · 写入注册表,核心后续查表使用                           │
+  │ ⑥ 隔离执行:插件代码在受限环境跑                            │
+  │   · 异常捕获不传染核心                                     │
+  │   · 不能 import 核心内部                                   │
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>manifest 是什么(关键概念)</h3>
+<p>manifest(<code>openclaw.plugin.json</code>)是插件的<strong>静态声明文件</strong>,描述:插件叫什么、提供什么能力(provider/channel/tool/hook)、依赖什么、版本号、配置 schema。<strong>它纯是元数据,不含代码</strong>。控制面只读 manifest 就能做大量决策(校验、激活规划),不必执行插件代码。</p>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么 manifest 先于代码加载</h3>
+<p>这是<strong>性能和安全的关键</strong>。如果加载插件就要执行代码(import 触发执行),那:① <strong>慢</strong>——每个插件启动都要执行,几十个插件启动几秒;② <strong>不安全</strong>——校验之前代码已执行,恶意插件可在校验拒绝前搞破坏;③ <strong>无法规划</strong>——不知道插件提供啥能力之前就加载,无法决定启用顺序。<strong>manifest 先行</strong>:只读元数据(快、无副作用)就能校验+规划,通过了才执行代码。这是"<strong>先看说明书再开机</strong>"——避免盲目加载不兼容/恶意插件。</p>
+
+<h3>决策 2:为什么注册要事务化(失败回滚)</h3>
+<p>插件 register 时会产生<strong>全局副作用</strong>——往注册表写能力、可能初始化资源。如果中途失败(插件第 3 个能力注册时崩),前面 2 个已写入注册表,留下<strong>半残状态</strong>——核心以为插件提供某些能力,但插件实际没初始化完,调用就崩。<strong>事务化</strong>:把整个 register 包成事务,失败时回滚所有已注册的能力(注册表恢复到插件加载前)。<strong>要么全成功,要么全没有</strong>,不留半残。这避免了"部分加载"的幽灵 bug。</p>
+
+<h3>决策 3:为什么插件不能 import 核心内部</h3>
+<p>这是<strong>隔离的硬约束</strong>。如果插件能 import 核心 <code>src/internal</code>,它就和核心<strong>实现细节耦合</strong>——核心重构内部,插件就崩。这:① <strong>破坏核心演进能力</strong>——核心不敢重构怕搞坏插件;② <strong>插件不可移植</strong>——绑死特定核心版本;③ <strong>安全风险</strong>——插件能触及核心内部状态绕过限制。<strong>硬约束</strong>:插件只能通过公开 SDK seam(第⑰篇)接入,禁止 import 内部路径。这让核心内部可自由重构,插件只依赖稳定公开 API。<strong>接受这个约束,因为核心演进能力是长期可维护性的根基。</strong></p>
+
+<div class="card key">
+<strong>核心取舍</strong>:控制面/运行时面分离 + manifest + 事务 + 隔离约束带来<strong>加载管线、注册表、异常边界、SDK 设计</strong>的复杂度,换来的是<strong>第三方扩展安全、核心不被侵蚀、加载快且可靠</strong>。替代方案(直接加载)的失败模式是"崩溃传染、状态污染、半残加载、核心不敢改"。<strong>接受复杂度,因为插件系统是平台生命力的核心——没有隔离,第三方扩展会很快把核心搞成不可维护的泥潭。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:一个插件从安装到激活</h2>
+
+<p>用户安装了一个第三方 Notion 集成插件。完整流程:</p>
+
+<div class="flow-diagram"><span class="stage-label">[控制面]</span>
+  ① 发现:扫描插件目录,找到 notion-plugin/
+     读 openclaw.plugin.json:
+     · id: "notion"
+     · 提供: tool("notion_search"), tool("notion_create")
+     · 依赖: 无
+     · 版本: 1.2.0
+  ② 校验:manifest 格式合法、版本兼容核心、依赖满足 ✓
+  ③ 激活规划:notion 无冲突,启用
+  · 全程没执行 notion 代码,纯元数据决策
+
+<span class="stage-label">[运行时面]</span>
+  ④ 加载:import notion 代码 → 执行 register(api)
+     · 进入注册事务
+  ⑤ 注册:notion 调 api.registerTool("notion_search", ...)
+              api.registerTool("notion_create", ...)
+     · 写入注册表
+     · 事务提交 ✓
+  ⑥ 隔离:后续 notion 工具被调用时,异常捕获不传染核心
+
+<span class="stage-label">[运行时使用]</span>
+  · agent 查注册表发现 notion_search 工具
+  · 模型决定调用 → 框架调 notion 插件的 execute
+  · notion 执行(在隔离边界内)→ 返回结果</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:notion 插件<strong>从安装到使用</strong>,核心代码<strong>零修改</strong>——它通过 manifest 声明、SDK seam 接入、注册表登记、隔离执行,全程不需要核心"认识"它。这就是插件系统的目标:<strong>核心稳定,扩展可插拔</strong>。如果 notion 崩了,异常被隔离,不影响 agent 用其他工具。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"动态 import 插件就行"</td><td>"没考虑隔离和安全"</td></tr>
+<tr><td>知道要校验</td><td>"有意识但没分层"</td></tr>
+<tr><td>能说 manifest + 注册 + 隔离</td><td>"及格"</td></tr>
+<tr><td>能谈控制面/运行时面、事务化、内部禁止 import、SDK seam</td><td><strong>"有平台设计深度"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点问题</strong>:"第三方插件是不受信代码,直接加载会崩溃传染、状态污染、半残加载。"</li>
+<li><strong>给两面</strong>:"控制面(读 manifest 元数据,不执行代码)→ 运行时面(import 执行 register)。先看说明书再开机。"</li>
+<li><strong>主动谈 manifest</strong>:"manifest 是静态声明文件,纯元数据。控制面只读它就能校验+规划,不必执行代码。快且安全。"</li>
+<li><strong>主动谈事务</strong>:"register 包成事务,失败回滚所有已注册能力。不留半残状态。要么全成功要么全没有。"</li>
+<li><strong>主动谈隔离</strong>:"插件只能通过公开 SDK seam 接入,禁止 import 核心内部。这让核心可自由重构。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从 manifest 到插件崩溃层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="17-architecture-layering.html">← ⑰ 整体分层</a>
+<a href="19-provider-routing.html">⑲ Provider 路由 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑱ 插件系统隔离 · 阶段 1 平台支撑<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · manifest vs 代码", q:"为什么控制面只读 manifest 不执行代码?执行代码也能读元数据啊(如反射)。manifest 单独存在的价值是什么?",
+    a:"<strong>三个价值</strong>:1)<strong>速度</strong>——读 JSON 文件比 import+执行代码快几个数量级。几十个插件启动,manifest 扫描毫秒级,代码执行可能几秒;2)<strong>无副作用</strong>——执行代码可能触发副作用(初始化连接、写文件、改全局状态),在校验/规划阶段不该有副作用。manifest 是纯数据,读了不影响系统;3)<strong>安全</strong>——校验之前不该执行插件代码(可能是恶意的)。manifest 先行让系统在执行任何插件代码前就完成校验和激活决策,恶意/不兼容插件在校验阶段被拒,代码从未执行。<strong>反射/执行代码读元数据</strong>的问题:① 代码已执行(副作用/安全风险已发生);② 慢;③ 如果插件崩了,连元数据都读不到。<strong>manifest 单独存在</strong>让'决策'和'执行'清晰分离,这是插件系统可靠性的基础。" },
+  { round:"第 2 题 · 事务回滚", q:"register 事务失败回滚。但插件可能已经初始化了外部资源(如连了数据库)。注册表回滚了,但数据库连接还在。怎么办?",
+    a:"<strong>注册表回滚只管注册表内部状态,外部副作用需要插件配合清理</strong>。设计:1)<strong>插件提供 cleanup/destroy 钩子</strong>——插件声明'我加载时要清理的接口',事务回滚时核心调用 cleanup 让插件自己释放外部资源(关连接、删临时文件);2)<strong>资源所有权清晰</strong>——插件初始化的资源归插件所有,插件失败时插件负责清理,核心不管插件内部资源;3)<strong>超时保护</strong>——cleanup 也有超时,防插件 cleanup 卡死;4)<strong>最终兜底</strong>——如果插件没正确 cleanup(写得烂),资源泄漏,靠外部机制(连接池超时回收、定期 GC、进程重启)兜底,不影响核心。<strong>关键洞察</strong>:事务保证核心状态(注册表)一致性,但插件的外部副作用只能靠<strong>插件合作的 cleanup 契约</strong>。所以插件 SDK 必须要求插件声明 cleanup,核心调用,这是插件可靠卸载/回滚的必要条件。写得烂的插件可能泄漏,但不会搞坏核心——隔离边界保证这点。" },
+  { round:"第 3 题 · 插件崩溃隔离", q:"agent 调用 notion_search 工具,notion 插件 execute 抛了未捕获异常。怎么保证不传染核心,agent 还能用别的工具?",
+    a:"<strong>核心调用插件 execute 时必须包 try/catch 边界</strong>。机制:1)<strong>调用边界</strong>——核心调插件任何函数(register/execute/hook)都包 try/catch,捕获所有异常,不让向上传播;2)<strong>异常转结果</strong>——插件 execute 抛异常,核心捕获后转成'工具失败'结果(合成失败 tool_result),喂回模型,模型据此换方案——而非整个 agent 崩;3)<strong>标记插件异常</strong>——记录是哪个插件失败(日志/监控),便于排查;4)<strong>降级</strong>——如果某插件反复崩,可标记它'不可用',后续调用直接返回'工具不可用'而非反复崩;5)<strong>不传染</strong>——notion 崩只影响 notion 工具,agent 继续用别的工具(read/write/exec 等),任务不中断。<strong>关键</strong>:插件是独立故障域,一个崩不该带垮系统。这是隔离的最低要求——异常边界。没有它,一个烂插件能让整个 agent 平台不可用。" },
+  { round:"第 4 题 · 插件依赖", q:"插件 B 依赖插件 A(A 必须先加载)。如果用户只装了 B 没装 A,或者加载顺序乱了(B 先 A 后),怎么办?",
+    a:"<strong>manifest 声明依赖 + 拓扑排序加载</strong>。机制:1)<strong>manifest 声明依赖</strong>——B 的 manifest 声明 requiresPlugins: ['A'],控制面读 manifest 时记录依赖关系;2)<strong>缺失检测</strong>——校验阶段发现 B 依赖 A 但 A 未安装/未启用,直接拒绝 B('依赖 A 缺失'),不加载 B;3)<strong>拓扑排序</strong>——加载顺序按依赖关系拓扑排序,A 先于 B 加载,保证 B 的 register 跑时 A 已就绪;4)<strong>循环依赖检测</strong>——如果 A 依赖 B 且 B 依赖 A(循环),拒绝加载并报错,要求作者解循环;5)<strong>版本依赖</strong>——B 可能要求 A 的特定版本(如 A>=2.0),校验版本兼容。<strong>关键</strong>:依赖管理在<strong>控制面(元数据层)</strong>完成,不靠运行时碰运气。manifest 让依赖关系在加载前就清晰,系统据此排序/拒绝,不会出现'B 跑时 A 还没加载'的运行时错误。" },
+  { round:"第 5 题 · 运行时增删", q:"系统跑着,用户想新装一个插件(不重启)。运行时插件加载/卸载要注意什么?为什么这比启动时加载更难?",
+    a:"<strong>运行时增删比启动加载难得多,因为系统已经在运行</strong>。注意:1)<strong>正在使用的插件不能直接卸</strong>——如果有 agent 正在调用某插件工具,卸载会崩。要等所有调用完成或标记'停用'(不接新调用,等已有调用结束);2)<strong>状态一致性</strong>——插件可能持有了状态(注册的能力、缓存),运行时新增要更新注册表但不影响正在跑的 agent(它们可能引用旧注册表快照);3)<strong>热加载隔离</strong>——新插件的 register 在运行环境跑,可能触发副作用影响在线请求,要小心;4)<strong>回滚更难</strong>——启动时加载失败整个启动停,运行时加载失败要保证不影响已运行的服务;5)<strong>缓存失效</strong>——很多地方缓存了'可用工具/能力'(如 prompt 里注入的工具列表),增删插件要传播缓存失效。<strong>生产策略</strong>:① <strong>默认保守</strong>——很多系统要求重启才生效(简单可靠);② <strong>支持热加载但受限</strong>——只允许'新增'(比卸载安全),卸载走'停用等待'流程;③ <strong>版本化注册表</strong>——agent 引用注册表时用快照,注册表更新不影响已引用的,新 agent 用新表。<strong>核心</strong>:运行时增删是高级特性,除非真的不能停(高可用要求),否则'重启加载'更简单可靠。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了 manifest 价值、事务外部副作用、崩溃隔离、依赖管理、运行时增删。<br><br>最后一篇 <a href="19-provider-routing.html">⑲ Provider 路由</a>。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

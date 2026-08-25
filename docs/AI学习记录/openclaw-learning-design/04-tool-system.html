@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>④ 工具系统设计</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .timeline { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:16px 20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.6; overflow-x:auto; white-space:pre; }
+  .timeline .t { color:var(--green); }
+  .timeline .p { color:var(--accent); }
+  .timeline .s { color:var(--orange); }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>④ 工具系统设计
+  <span class="sub">阶段 2 · 智能核心主线 · 契约、派发策略与配对不变量</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:工具不是"函数调用"</a></li>
+  <li><a href="#design">分层设计:契约、派发、配对三个子系统</a></li>
+  <li><a href="#why">为何这么设计:类型契约、降级策略、硬不变量</a></li>
+  <li><a href="#example">完整示例:三个工具的混合派发时间线</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:工具不是"函数调用"</h2>
+
+<p>demo 级工具系统:定义几个函数,模型说调哪个就调哪个,把返回值塞回消息。简单。</p>
+
+<p>但生产中,"工具"承载了远超函数调用的复杂度。一次工具交互要回答这些问题,而每个都藏坑:</p>
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li><strong>契约</strong>:模型传的参数怎么知道对不对?模型常把数字传成字符串、JSON 传成转义字符串。</li>
+  <li><strong>派发</strong>:模型一次要调 5 个工具,哪些能并行哪些必须串行?一个改文件一个读同一文件,顺序错了结果错。</li>
+  <li><strong>配对</strong>:工具调用(tool_use)和工具结果(tool_result)怎么严格对应?漏配会让 provider 报错甚至崩溃。</li>
+  <li><strong>副作用</strong>:工具失败了,已经写的文件回滚吗?重试会重复写吗?</li>
+  <li><strong>权限</strong>:哪些工具模型能调?子 Agent 能不能调危险工具?</li>
+  <li><strong>取消</strong>:工具执行到一半用户取消,怎么干净停止不留半成品?</li>
+</ul>
+</div>
+
+<p>把这些都塞进"调个函数"的心智,生产必崩。</p>
+
+<h2 id="design">二 · 分层设计:契约、派发、配对三个子系统</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                        工具系统 · 三个子系统                            │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[1] 契约子系统 · 工具怎么定义</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ AgentTool = {                                             │
+  │   name, label,                                            │
+  │   parameterSchema:  <TypeSchema 类型契约>                 │  ← 模型可见,定义合法参数形态
+  │   outputSchema:     <类型契约,描述返回值>                 │
+  │   executionMode:    "sequential" | "parallel"             │  ← 派发策略声明
+  │   execute(callId, params, signal, onUpdate): Promise      │  ← 实际执行
+  │ }                                                         │
+  └──────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+  <span class="stage-label">[2] 派发子系统 · 一次工具调用怎么跑</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 模型返回 N 个 tool_use                                    │
+  │   ├─ 扫描:任一工具声明 sequential? → 整批串行           │  ← 一个 sequential 降级整批
+  │   ├─ 否则:并行 prepare(顺序) + 并行 execute           │
+  │   ├─ prepare 四阶段:                                      │
+  │   │    resolve(找工具) → prepareArgs → validate(契约) │
+  │   │    → beforeCall(hook)                                │
+  │   └─ 结果按模型原始顺序排成 ToolResultMessage            │  ← 保 provider 消息顺序
+  └──────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+  <span class="stage-label">[3] 配对子系统 · tool_use ↔ tool_result 不变量</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 每个 tool_use 必须有且仅有一个 tool_result 回应           │  ← 硬不变量
+  │   · 漏配 → provider 报错("unexpected tool_use_id")     │
+  │   · 压缩/截断历史时必须修复孤儿配对                       │
+  │   · 中断后合成"失败 tool_result"防止悬空 tool_use        │
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>三个关键设计点</h3>
+<table>
+<thead><tr><th>设计点</th><th>做法</th><th>不这么做的后果</th></tr></thead>
+<tbody>
+<tr><td><strong>类型契约(TypeSchema)</strong></td><td>每个工具有正式的类型 schema 描述参数</td><td>模型传错参数只能运行时炸;无法自动校验/纠偏</td></tr>
+<tr><td><strong>executionMode 声明</strong></td><td>工具自己声明 sequential 或 parallel</td><td>框架瞎猜并行性,副作用工具并发写文件竞态</td></tr>
+<tr><td><strong>结果按原始顺序</strong></td><td>并行执行但结果按模型给的顺序回排</td><td>provider 报"tool_use_id 顺序不符"</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:类型契约、降级策略、硬不变量</h2>
+
+<h3>动机 1:为什么用类型 schema 而非自由字符串</h3>
+<p>模型不是程序,它会<strong>传错参数</strong>:让它传数字它传 "42"(字符串),让它传对象它传 JSON 字符串。如果工具只接受"自由参数",这些错误只能运行时炸,且模型不知道哪里错了。用<strong>正式的类型 schema</strong> 后:1)框架能在调用前<strong>校验并纠偏</strong>(字符串数字转数字、JSON 字符串解析成对象);2)校验失败能返回<strong>结构化错误</strong>给模型让它重试;3)schema 本身就是<strong>给模型看的契约文档</strong>,模型据此组织参数。这是把"祈祷模型别传错"变成"防御性契约"。</p>
+
+<h3>动机 2:为什么"一个 sequential 降级整批"</h3>
+<p>并行执行是为了快,但<strong>副作用工具不能乱并行</strong>。比如"写文件 A"和"写文件 B"看似独立,但若它们改的是同一项目,顺序可能影响结果(后写覆盖先写)。设计上让<strong>每个工具自己声明是否必须串行</strong>,一旦批里有一个声明 sequential,<strong>整批退化为串行执行</strong>。这是个保守策略——宁可慢也别错。为什么是"整批"而非"只串行那一个"?因为工具间可能有隐式依赖(都改同一文件),保守地全串行最安全。<strong>接受这个保守,因为并行写坏文件的排查成本远高于串行的延迟成本。</strong></p>
+
+<h3>动机 3:为什么 tool_use/tool_result 配对是硬不变量</h3>
+<p>provider API 强制要求<strong>每个 tool_use 必须恰好有一个 tool_result 回应</strong>。少一个,下次请求 provider 报"unexpected tool_use_id"直接崩;多一个,也被拒。这不是建议是<strong>硬约束</strong>。所以:1)工具执行失败也要合成一个"失败 tool_result"(不能漏);2)压缩历史时若删了 tool_use 必须同时删对应 result,反之亦然(<strong>孤儿修复</strong>);3)用户中途取消,正在执行的 tool_use 要合成中断结果。这个不变量贯穿压缩、中断、重试所有路径。</p>
+
+<h3>动机 4:为什么 prepare 要分四阶段</h3>
+<p>"调用工具"其实有四步:<strong>resolve</strong>(工具存不存在/有没有权限)→ <strong>prepareArgs</strong>(注入运行时上下文如当前路径)→ <strong>validate</strong>(契约校验)→ <strong>beforeCall</strong>(hook 拦截/审计)。分开是因为每步可能<strong>短路失败</strong>:resolve 失败说明工具不可用,validate 失败说明参数错,这些都要返回不同的结构化错误给模型,而不是混在一起报"调用失败"。也便于 hook 在 beforeCall 统一拦截(如安全审计)。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:类型契约 + executionMode 声明 + 配对不变量带来<strong>定义工具时的纪律负担</strong>(每个工具要写 schema、声明模式、保证幂等可重试),换来的是<strong>校验/纠偏/审计/并行安全</strong>都成为框架统一能力。替代方案(自由函数)的失败模式是"模型传错参数运行时炸、副作用工具并发竞态、压缩后 provider 报错崩"。接受纪律,因为它把不可控的运行时炸点变成可控的编译期契约。
+</div>
+
+<h2 id="example">四 · 完整示例:三个工具的混合派发时间线</h2>
+
+<p>模型这一轮返回了三个 tool_use。我们看派发子系统如何处理:</p>
+
+<div class="timeline"><span class="p">[模型返回 3 个 tool_use]</span>
+  ├─ read(package.json)          ← 声明 parallel
+  ├─ write(config.ts, "...")     ← 声明 <span class="s">sequential</span>(副作用)
+  └─ web_search("best practices") ← 声明 parallel
+
+<span class="p">[派发扫描]</span> write 声明了 sequential → <span class="s">整批退化为串行</span>
+  (虽然 read 和 web_search 本可并行,但保守全串行)
+
+<span class="t">t0</span>  <span class="p">[prepare read]</span> resolve✓ prepareArgs(注入工作区)✓ validate✓ beforeCall✓
+<span class="t">t1</span>  <span class="p">[execute read]</span> → 返回 package.json 内容 ✅
+<span class="t">t2</span>  <span class="p">[prepare write]</span> ... (四阶段全过)
+<span class="t">t3</span>  <span class="p">[execute write]</span> → 文件写入 ✅
+<span class="t">t4</span>  <span class="p">[prepare web_search]</span> ...
+<span class="t">t5</span>  <span class="p">[execute web_search]</span> → 返回搜索结果 ✅
+
+<span class="p">[结果回排]</span> 按模型原始顺序:[read 结果, write 结果, web_search 结果]
+  → 组成 ToolResultMessage 喂回模型
+  → 模型基于三个结果继续推理</div>
+
+<div class="card note">
+<strong>关键观察</strong>:即使 read 和 web_search 本可以并行跑(省时间),因为 write 声明了 sequential,整批串行。<strong>这是保守换取安全</strong>。如果三个都声明 parallel,prepare 仍顺序(快),但 execute 会 Promise.all 并发,结果<strong>依然按模型原始顺序回排</strong>——并发执行不破坏 provider 消息顺序契约。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"工具就是模型调函数,返回结果"</td><td>"demo 级,没考虑生产"</td></tr>
+<tr><td>知道有 schema 校验</td><td>"有意识但浅"</td></tr>
+<tr><td>能说串行/并行、配对、prepare 阶段</td><td>"及格,有系统设计感"</td></tr>
+<tr><td>能谈"一个 sequential 降级整批"的取舍、配对为何硬不变量、契约校验纠偏、孤儿修复</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点三个子系统</strong>:"我会把工具系统拆成契约、派发、配对三个子系统。契约用类型 schema 定义参数,派发决定串并行,配对保证 tool_use/result 对应。"</li>
+<li><strong>立刻给契约动机</strong>:"用类型 schema 而非自由参数,是因为模型常传错(字符串数字、JSON 字符串)。schema 让框架能在调用前校验纠偏,失败返回结构化错误让模型重试,而不是运行时炸。"</li>
+<li><strong>主动谈降级策略</strong>:"派发上让工具自己声明 executionMode,批里有一个 sequential 就整批串行。这是保守策略——副作用工具并发竞态的排查成本远高于串行延迟。"</li>
+<li><strong>主动谈配对不变量</strong>:"tool_use/tool_result 配对是 provider 的硬约束,少一个多一个都会让下次请求崩。所以工具失败也要合成失败结果,压缩历史要修复孤儿配对,中断要合成中断结果。"</li>
+<li><strong>收口在取舍</strong>:"代价是定义工具时要写 schema、声明模式、保证幂等,换来的是校验/审计/并行安全都成框架统一能力。"</li>
+</ol>
+
+<div class="card warn">
+<strong>主动展现的生产洞察</strong>:
+<ul style="margin-bottom:0">
+  <li>"并行 execute 但结果按模型原始顺序回排"是 provider 契约要求,不是可选优化</li>
+  <li>prepare 分四阶段是为了每步能短路返回不同结构化错误</li>
+  <li>幂等性是工具能否安全重试的前提(非幂等工具如发邮件绝不能自动重试)</li>
+</ul>
+</div>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从契约到派发到配对层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="03-prompt-assembly.html">← ③ Prompt 拼接</a>
+<a href="05-context-compaction.html">⑤ 上下文压缩设计 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ④ 工具系统设计 · 阶段 2 智能核心<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 类型契约", q:"为什么工具参数要用正式的类型 schema,而不是直接接受模型传来的任意 JSON?模型传错参数时两种做法的差别是什么?",
+    a:"<strong>因为模型常传错参数</strong>(字符串数字、JSON 字符串、缺字段),自由 JSON 只能运行时炸且模型不知道哪里错。<strong>类型 schema 做法</strong>:1)调用前<strong>校验</strong>——发现'数字字段传了字符串';2)<strong>纠偏</strong>——把'42'转 42、JSON 字符串解析成对象(宽容模型常见错误);3)校验失败返回<strong>结构化错误</strong>(哪个字段、什么问题),模型据此重试而非瞎猜;4)schema 本身是给模型的<strong>契约文档</strong>。差别:自由 JSON 是'祈祷模型别传错',schema 是'防御性契约 + 自动纠偏'。生产中模型传错是高频事件,schema 把不可控炸点变成可控重试。" },
+  { round:"第 2 题 · 降级策略", q:"模型一次返回三个工具:两个只读(可并行),一个写文件(必须串行)。你的'一个 sequential 降级整批'策略会让那两个只读的也串行跑。为什么不只串行写文件、让两个只读并行?保守全串行的代价你接受吗?",
+    a:"<strong>接受,因为隐式依赖的风险不可控</strong>。表面上两个只读工具独立,但它们可能<strong>间接依赖写文件的结果</strong>(比如 read 读的就是 write 刚写的文件,或顺序影响 web_search 的缓存)。框架无法静态判断工具间的隐式依赖,保守全串行是最安全的。<strong>代价是延迟</strong>(本可 3 倍并行变 3 倍串行),但相比'并行写坏文件后花几小时排查'的代价,串行延迟是值得的。如果某场景确认无依赖,可以让所有相关工具都声明 parallel 来解锁并行——这是<strong>把并行决策权交给工具作者</strong>(他最清楚自己工具有没有副作用/依赖),而非框架瞎猜。" },
+  { round:"第 3 题 · 配对不变量", q:"tool_use 和 tool_result 必须一一对应。如果工具执行时进程崩溃了,这个 tool_use 就没有 result。下次请求会发生什么?怎么防止?",
+    a:"<strong>下次请求 provider 报 'unexpected tool_use_id' 直接崩</strong>——因为历史里有 tool_use 但没对应 result,provider 认为状态不一致。<strong>防止方法</strong>:1)工具执行失败/超时/崩溃,框架必须<strong>合成一个失败 tool_result</strong>(如 {error: 'execution crashed'})填回去,绝不留悬空 tool_use;2)用户中途取消,正在执行的 tool_use 也要合成中断结果;3)这要求框架对'工具执行'有<strong>兜底包装</strong>——任何异常都转化为一个 tool_result,而不是让异常向上传播导致漏配。这是配对不变量的核心:宁可返回失败结果也不能漏。" },
+  { round:"第 4 题 · 压缩与孤儿", q:"对话太长要做压缩,删掉一些旧消息。如果删了一个 tool_use 但留下了它的 tool_result(或反过来),会发生什么?设计上怎么处理?",
+    a:"<strong>同样会破坏配对不变量,provider 报错</strong>。删 tool_use 留 tool_result,或删 tool_result 留 tool_use,都是'孤儿'。<strong>设计处理</strong>:压缩时必须做<strong>孤儿修复</strong>——删 tool_use 时连带删其 tool_result,删 tool_result 时连带删其 tool_use,或者把它们成对保留/成对删除。更隐蔽的情况:删一个 assistant 消息(含多个 tool_use)时,要找到所有对应的 tool_result 消息一起处理。这要求压缩逻辑<strong>理解消息间的配对关系</strong>,而不是按消息条数机械删。生产中这是压缩子系统最容易出 bug 的地方——所以孤儿修复通常是独立的修复步骤,在压缩后专门跑一次扫描。" },
+  { round:"第 5 题 · 非幂等工具", q:"'发邮件'这种有外部副作用的工具,如果 attempt 层因为网络抖动重试了,邮件会发两次。工具系统怎么知道哪些工具能安全重试、哪些不能?",
+    a:"<strong>这是工具系统必须显式建模的属性——幂等性</strong>。设计上:1)工具声明自己是否幂等(或通过元数据标记副作用等级);2)框架的重试逻辑<strong>只对幂等工具自动重试</strong>,对非幂等工具(发邮件、转账、下单)失败时<strong>不自动重试</strong>,而是返回失败让模型/用户决定;3)即使重试,也要给非幂等工具配<strong>幂等键</strong>(idempotency key),让接收方据键去重(发邮件带相同 request_id,服务端见到相同 id 不重复发)。核心洞察:<strong>'能不能重试'不是框架能自动判断的,必须工具作者声明</strong>。框架据此决定重试策略,而非一刀切重试所有工具——否则副作用工具重试就是生产事故的温床。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了类型契约、降级策略、配对不变量、压缩孤儿修复、幂等性声明。<br><br>下一篇 <a href="05-context-compaction.html">⑤ 上下文压缩设计</a> 讲长对话怎么不被 token 撑爆——摘要式 vs 滑动窗口的生产取舍。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

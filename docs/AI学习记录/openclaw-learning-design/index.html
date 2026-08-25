@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 框架设计精解 · 总索引</title>
+<style>
+  :root {
+    --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3;
+    --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922;
+    --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    line-height:1.65; font-size:15px; }
+  .container { max-width:1180px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:30px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:32px; font-size:18px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); }
+  .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .module-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px; margin:20px 0; }
+  .module-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 20px;
+    text-decoration:none; color:var(--text); transition:border-color 0.15s,transform 0.15s; display:block; }
+  .module-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .module-card.part-a { border-left:4px solid var(--accent); }
+  .module-card.part-b { border-left:4px solid var(--orange); }
+  .module-card.part-c { border-left:4px solid var(--green); }
+  .module-card.part-d { border-left:4px solid var(--purple); }
+  .module-card.flagship { border-left-width:4px; }
+  .module-card.flagship.part-a { border-left:4px solid var(--red); }
+  .module-num { font-size:12px; color:var(--muted); font-family:monospace; }
+  .module-title { font-size:16px; font-weight:600; color:var(--accent); margin:4px 0 6px; }
+  .module-card:hover .module-title { text-decoration:underline; }
+  .module-desc { font-size:13px; color:var(--muted); line-height:1.5; }
+  .module-tag { display:inline-block; background:#221a0e; color:var(--orange); padding:1px 6px; border-radius:3px;
+    font-size:10px; font-weight:600; margin-left:6px; }
+  .module-tag.hot { background:#2a1414; color:var(--red); }
+  .start-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  .start-grid > div { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 20px; }
+  .start-grid h4 { margin:0 0 8px; color:var(--green); }
+  .start-grid.fast h4 { color:var(--orange); }
+  .start-grid p { font-size:13px; }
+  @media (max-width:760px){ .start-grid { grid-template-columns:1fr; } }
+  .footer { margin-top:40px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .part-header { display:flex; align-items:center; gap:10px; margin-top:40px; }
+  .part-badge { display:inline-block; padding:3px 12px; border-radius:14px; font-size:12px; font-weight:700; letter-spacing:0.5px; }
+  .part-badge.a { background:#1f3a5f; color:var(--accent); }
+  .part-badge.b { background:#3a2f1f; color:var(--orange); }
+  .part-badge.c { background:#1f3a2c; color:var(--green); }
+  .part-badge.d { background:#2f1f3a; color:var(--purple); }
+  .part-count { color:var(--muted); font-size:13px; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:20px 0; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; text-align:center; }
+  .stat .num { font-size:28px; font-weight:700; color:var(--accent); }
+  .stat .label { font-size:12px; color:var(--muted); margin-top:4px; }
+  @media (max-width:600px){ .stats { grid-template-columns:repeat(2,1fr); } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Agent 框架设计精解
+  <span class="sub">19 篇设计级深度解析 · 面试双视角 · 95 道递进追问自测 · 从设计哲学而非代码细节理解生产级 Agent 框架</span>
+</h1>
+
+<div class="card key">
+<strong>这套文档回答一个核心问题</strong>:<em>一个生产级 Agent 框架为什么是这样设计的?每个子系统解决什么真实痛点?面试官问这些究竟在考察什么深度?</em>
+<br><br>
+<strong>不贴代码、不讲实现</strong>——只讲分层、契约、决策、取舍、生产动机。每篇含<strong>完整概念示例</strong> + <strong>面试双视角</strong>(面试官为何问 + 面试者如何答)+ <strong>5 题递进追问</strong>。
+</div>
+
+<div class="stats">
+<div class="stat"><div class="num">19</div><div class="label">设计模块</div></div>
+<div class="stat"><div class="num">95</div><div class="label">递进追问题</div></div>
+<div class="stat"><div class="num">16</div><div class="label">Agent 专属篇</div></div>
+<div class="stat"><div class="num">3</div><div class="label">平台支撑篇</div></div>
+</div>
+
+<!-- ============ 从哪开始 ============ -->
+<h2>从哪开始</h2>
+<div class="start-grid">
+<div class="start-grid fast">
+<h4>🚀 面试速成(5 小时,6 篇)</h4>
+<p>只读最常被问、最能拉开差距的篇目:</p>
+<ol>
+  <li><a href="01-agent-concepts.html">① 三概念辨析</a> · 30 min</li>
+  <li><a href="02-reasoning-loop.html">② 三层循环</a> · 45 min</li>
+  <li><a href="03-prompt-assembly.html">③ Prompt 拼接</a> · 45 min</li>
+  <li><a href="05-context-compaction.html">⑤ 上下文压缩</a> · 50 min</li>
+  <li><a href="06-memory-architecture.html">⑥ 多层记忆</a> · 50 min</li>
+  <li><a href="12-interruption-terminal.html">⑫ 终端状态优先级格</a> · 40 min</li>
+</ol>
+<p style="color:var(--muted)">覆盖面试官最常深挖的题,共 30 道追问。</p>
+</div>
+<div>
+<h4>📚 系统精读(14 小时,全 19 篇)</h4>
+<p>按 Part A → B → C → D 顺序读完。完整学习路线见 <a href="learning-plan.html">学习计划</a>。</p>
+<p>读完后应能独立设计一个生产级 Agent 框架,并说清每个决策的取舍。</p>
+<p style="color:var(--muted)"><strong>第一次读</strong>:从 <a href="01-agent-concepts.html">① 三概念辨析</a> 开始,这是所有后续的地基。</p>
+</div>
+</div>
+
+<!-- ============ Part A ============ -->
+<div class="part-header">
+<span class="part-badge a">Part A</span>
+<h2 style="margin-top:0;border:none;padding:0">Agent 智能核心</h2>
+<span class="part-count">9 篇 · 回答"一次推理如何完整跑完"</span>
+</div>
+
+<div class="module-grid">
+<a class="module-card part-a flagship" href="01-agent-concepts.html">
+<div class="module-num">① 阶段 1 · 起点 <span class="module-tag hot">地基</span></div>
+<div class="module-title">Agent / Session / Run 三概念辨析</div>
+<div class="module-desc">人们最常混淆的三个概念。三者各自的生命周期、数量关系、为何必须分开建模。失败作用域、压缩归属、重试边界。</div>
+</a>
+<a class="module-card part-a flagship" href="02-reasoning-loop.html">
+<div class="module-num">② 阶段 2 · 核心 <span class="module-tag hot">高频</span></div>
+<div class="module-title">推理循环:三层嵌套设计</div>
+<div class="module-desc">turn/attempt/run 各 owns 什么。为什么"一次推理""可重试尝试""故障兜底"要拆三层。每层 owns 什么故障。</div>
+</a>
+<a class="module-card part-a flagship" href="03-prompt-assembly.html">
+<div class="module-num">③ 阶段 2 · 核心 <span class="module-tag hot">高频</span></div>
+<div class="module-title">Prompt 拼接设计</div>
+<div class="module-desc">缓存经济学(稳定前缀为何是钱)。provider 注入如何不污染 core。完整拼接的概念产物形态。模型身份为何放后面。</div>
+</a>
+<a class="module-card part-a flagship" href="04-tool-system.html">
+<div class="module-num">④ 阶段 2 · 核心 <span class="module-tag hot">高频</span></div>
+<div class="module-title">工具系统设计</div>
+<div class="module-desc">类型 schema 契约。串行/并行派发(一个 sequential 为何降级整批)。tool_use/tool_result 配对为何是硬不变量。幂等性。</div>
+</a>
+<a class="module-card part-a flagship" href="05-context-compaction.html">
+<div class="module-num">⑤ 阶段 2 · 核心 <span class="module-tag hot">高频</span></div>
+<div class="module-title">上下文压缩设计</div>
+<div class="module-desc">摘要式 vs 滑动窗口的生产取舍。为何迭代更新旧摘要而非重算。turn 边界感知。故障容忍降级链。结构化模板锚点。</div>
+</a>
+<a class="module-card part-a flagship" href="06-memory-architecture.html">
+<div class="module-num">⑥ 阶段 2 · 核心 <span class="module-tag hot">高频</span></div>
+<div class="module-title">多层记忆架构</div>
+<div class="module-desc">记忆 vs 压缩的本质区别。为何不抄经典 episodic/semantic 图。四层栈 + 混合检索。dreaming 短期→长期巩固。置信度筛选。</div>
+</a>
+<a class="module-card part-a" href="07-skills-system.html">
+<div class="module-num">⑦ 阶段 2</div>
+<div class="module-title">Skills 动态能力系统</div>
+<div class="module-desc">运行时如何获得新能力而不撑爆 prompt。索引注入 + 按需加载。版本化资源。触发条件。skill vs 工具的区别。</div>
+</a>
+<a class="module-card part-a" href="08-reasoning-models.html">
+<div class="module-num">⑧ 阶段 2</div>
+<div class="module-title">推理模型与思维链处理</div>
+<div class="module-desc">thinking 为何不能当普通文本。独立字段、透传策略、压缩优先丢、预算分级。completedBeforeOrAtTimeout 精神。</div>
+</a>
+<a class="module-card part-a" href="09-streaming-design.html">
+<div class="module-num">⑨ 阶段 2</div>
+<div class="module-title">流式架构设计</div>
+<div class="module-desc">双层流(模型 token vs channel block)。为何不 token 直送聊天协议。切分优先级链。代码块不撕裂。preview 取舍。</div>
+</a>
+</div>
+
+<!-- ============ Part B ============ -->
+<div class="part-header">
+<span class="part-badge b">Part B</span>
+<h2 style="margin-top:0;border:none;padding:0">Agent 协作与可靠性</h2>
+<span class="part-count">5 篇 · 回答"怎么不崩、能分工"</span>
+</div>
+
+<div class="module-grid">
+<a class="module-card part-b" href="10-subagent-delegation.html">
+<div class="module-num">⑩ 阶段 3</div>
+<div class="module-title">子 Agent 与任务委派</div>
+<div class="module-desc">递归 session 模型(子=另一个 session,非更小运行时)。push-based 完成为何优于轮询。工具策略单调继承。共享工作树。</div>
+</a>
+<a class="module-card part-b" href="11-lifecycle-hooks.html">
+<div class="module-num">⑪ 阶段 3</div>
+<div class="module-title">Hooks:生命周期扩展点</div>
+<div class="module-desc">各阶段钩子。阻塞型 vs 观察型。终止语义(proceed/block/cancel/modify)。串行确定性。fail-closed。核心保持纯净。</div>
+</a>
+<a class="module-card part-b flagship" href="12-interruption-terminal.html">
+<div class="module-num">⑫ 阶段 3 · 核心 <span class="module-tag hot">高频</span></div>
+<div class="module-title">中断与终端状态优先级格</div>
+<div class="module-desc">为何终端状态要闭式优先级格(timeout>cancelled>failed)。sticky 规则。单一真相源。证据优先于时间戳的例外。</div>
+</a>
+<a class="module-card part-b" href="13-concurrency-lanes.html">
+<div class="module-num">⑬ 阶段 3</div>
+<div class="module-title">并发模型:lanes 与会话串行化</div>
+<div class="module-desc">按 session-key 串行的最小串行化原则。跨进程写锁。子 agent 独立 lane。acquire 超时与死锁预防。防止 race。</div>
+</a>
+<a class="module-card part-b" href="14-retry-failover.html">
+<div class="module-num">⑭ 阶段 3</div>
+<div class="module-title">重试、回退与故障容忍</div>
+<div class="module-desc">attempt/run 重试边界。故障分类(瞬态vs永久)。凭据轮转。非幂等操作绝不自动重试(红线)。退避抖动防风暴。预算控制。</div>
+</a>
+</div>
+
+<!-- ============ Part C ============ -->
+<div class="part-header">
+<span class="part-badge c">Part C</span>
+<h2 style="margin-top:0;border:none;padding:0">Agent 身份与自主性</h2>
+<span class="part-count">2 篇 · 回答"怎么成为持续存在、能主动的实体"</span>
+</div>
+
+<div class="module-grid">
+<a class="module-card part-c" href="15-identity-bootstrap.html">
+<div class="module-num">⑮ 阶段 4</div>
+<div class="module-title">Agent 身份、人格与冷启动</div>
+<div class="module-desc">bootstrap 文件栈(AGENTS/SOUL/USER/MEMORY)。为何用文件。分层限额 + 截断。截断与稳定身份的张力。身份演化与安全。</div>
+</a>
+<a class="module-card part-c" href="16-autonomy-proactive.html">
+<div class="module-num">⑯ 阶段 4</div>
+<div class="module-title">自主性:heartbeat、主动委派、后台巩固</div>
+<div class="module-desc">agent 如何不被问才动。heartbeat/cron/dreaming 三机制。可逆性权限分级。注入风险。错误汇报。自主成本控制。</div>
+</a>
+</div>
+
+<!-- ============ Part D ============ -->
+<div class="part-header">
+<span class="part-badge d">Part D</span>
+<h2 style="margin-top:0;border:none;padding:0">平台支撑(最小必要)</h2>
+<span class="part-count">3 篇 · 回答"整体怎么切分才不烂"</span>
+</div>
+
+<div class="module-grid">
+<a class="module-card part-d" href="17-architecture-layering.html">
+<div class="module-num">⑰ 阶段 1</div>
+<div class="module-title">整体分层与 Gateway 中枢</div>
+<div class="module-desc">三层切分(可复用库/编排/插件)。core 为何必须 plugin-agnostic。Gateway 单守护进程。单点风险 vs 分布式复杂度。seam 设计。</div>
+</a>
+<a class="module-card part-d" href="18-plugin-isolation.html">
+<div class="module-num">⑱ 阶段 1</div>
+<div class="module-title">插件系统:扩展点与隔离边界</div>
+<div class="module-desc">控制面/运行时面分离。manifest 先于代码。注册事务化。插件不能 import 核心内部。崩溃隔离。依赖管理。</div>
+</a>
+<a class="module-card part-d" href="19-provider-routing.html">
+<div class="module-num">⑲ 阶段 1</div>
+<div class="module-title">Provider 路由:API family 抽象</div>
+<div class="module-desc">为何按 API family 而非 provider-id 路由(解耦点选择)。harness 选择 fail-closed vs auto。specifics 隔离在插件。本地/云混合。</div>
+</a>
+</div>
+
+<!-- ============ 按问题查 ============ -->
+<h2>按问题查</h2>
+<table>
+<thead><tr><th>你的问题</th><th>看哪篇</th></tr></thead>
+<tbody>
+<tr><td>Agent / Session / Run 怎么分?</td><td><a href="01-agent-concepts.html">①</a></td></tr>
+<tr><td>推理循环怎么设计?</td><td><a href="02-reasoning-loop.html">②</a></td></tr>
+<tr><td>Prompt 怎么拼的?为什么贵?</td><td><a href="03-prompt-assembly.html">③</a></td></tr>
+<tr><td>工具调用怎么实现的?</td><td><a href="04-tool-system.html">④</a></td></tr>
+<tr><td>长对话 token 爆了怎么办?</td><td><a href="05-context-compaction.html">⑤</a></td></tr>
+<tr><td>Agent 怎么记住用户偏好?</td><td><a href="06-memory-architecture.html">⑥</a></td></tr>
+<tr><td>记忆和压缩有啥区别?</td><td><a href="06-memory-architecture.html">⑥</a> 第 1 节</td></tr>
+<tr><td>Agent 怎么获得新能力?</td><td><a href="07-skills-system.html">⑦</a></td></tr>
+<tr><td>思维链 thinking 怎么处理?</td><td><a href="08-reasoning-models.html">⑧</a></td></tr>
+<tr><td>流式输出怎么不爆 channel?</td><td><a href="09-streaming-design.html">⑨</a></td></tr>
+<tr><td>多个子 Agent 怎么协作?</td><td><a href="10-subagent-delegation.html">⑩</a></td></tr>
+<tr><td>核心流程怎么被扩展?</td><td><a href="11-lifecycle-hooks.html">⑪</a></td></tr>
+<tr><td>用户中途取消怎么处理?</td><td><a href="12-interruption-terminal.html">⑫</a></td></tr>
+<tr><td>同会话并发请求怎么办?</td><td><a href="13-concurrency-lanes.html">⑬</a></td></tr>
+<tr><td>模型失败/超时怎么重试?</td><td><a href="14-retry-failover.html">⑭</a></td></tr>
+<tr><td>Agent 怎么"知道我是谁"?</td><td><a href="15-identity-bootstrap.html">⑮</a></td></tr>
+<tr><td>Agent 怎么主动做事?</td><td><a href="16-autonomy-proactive.html">⑯</a></td></tr>
+<tr><td>框架怎么分层才不烂?</td><td><a href="17-architecture-layering.html">⑰</a></td></tr>
+<tr><td>插件怎么隔离不搞坏核心?</td><td><a href="18-plugin-isolation.html">⑱</a></td></tr>
+<tr><td>接 10 个模型厂商怎么设计?</td><td><a href="19-provider-routing.html">⑲</a></td></tr>
+</tbody>
+</table>
+
+<!-- ============ 设计哲学 ============ -->
+<h2>这套文档的设计哲学</h2>
+<div class="card note">
+<ul style="margin-bottom:0">
+  <li><strong>设计级,非代码级</strong>——绝不出现 <code>file:line</code>、函数源码、"第 X 行做了 Y"。只讲分层、契约、决策、取舍、生产动机。</li>
+  <li><strong>面试双视角</strong>——每篇含「面试官为何问(考察什么深度)+ 面试者如何答(展现什么生产洞察)」。</li>
+  <li><strong>生产而非 demo</strong>——每个设计点落到"生产中为何必须这样,简单做法为何会在真实负载下崩"。</li>
+  <li><strong>不回避取舍</strong>——每个设计都显式命名它<strong>接受了什么代价</strong>。生产设计没有银弹。</li>
+  <li><strong>测验递进下钻</strong>——模拟面试官层层追问,逼到生产取舍层面,巩固理解。</li>
+</ul>
+</div>
+
+<!-- ============ 每篇结构 ============ -->
+<h2>每篇固定 7 节结构</h2>
+<div class="card key">
+<ol style="margin-bottom:0">
+  <li><strong>设计问题</strong> — 生产中要解决的真实痛点</li>
+  <li><strong>分层设计</strong> — 一张概念架构图(讲职责,不讲代码)</li>
+  <li><strong>为何这么设计</strong> — 生产动机 + 备选方案对比 + 显式命名取舍</li>
+  <li><strong>完整示例</strong> — 一次概念性 worked example(产物形态 + 推理链路)</li>
+  <li><strong>面试官视角</strong> — 考察什么深度;浅答 vs 深答的分水岭</li>
+  <li><strong>面试者视角</strong> — 如何结构化作答;主动展现哪些生产洞察</li>
+  <li><strong>递进追问测验</strong> — 5 题层层下钻,可显示参考答案</li>
+</ol>
+</div>
+
+<!-- ============ 下一步 ============ -->
+<h2>下一步</h2>
+<div class="card key">
+<ul style="margin-bottom:0">
+  <li><strong>第一次读</strong>:从 <a href="01-agent-concepts.html">① 三概念辨析</a> 开始</li>
+  <li><strong>想看完整路线</strong>:去 <a href="learning-plan.html">学习计划</a>(4 阶段路线图 + 两条路径)</li>
+  <li><strong>面试前抱佛脚</strong>:走"面试速成"6 篇(见上)</li>
+  <li><strong>读完后</strong>:挑薄弱篇目重做追问测验;尝试用自己的话向别人讲清每个设计决策的取舍</li>
+</ul>
+</div>
+
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · 19 篇设计级深度解析 · 面试双视角 · 95 道递进追问自测<br>
+单文件自包含 HTML,离线可用 · 设计哲学优先,屏蔽代码实现细节 · 中文正文+英文标识符<br>
+所有 HTML 互相链接,可从任一篇跳转
+</div>
+
+</div>
+</body>
+</html>

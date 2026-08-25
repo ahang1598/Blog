@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5 · 一轮一次 stream · opencode 面试视角</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+  :root{--bg:#0d1117;--bg-soft:#161b22;--bg-card:#1c2230;--border:#30363d;--text:#e6edf3;--text-dim:#9da7b3;--c1:#58a6ff;--c2:#3fb950;--c3:#d29922;--c4:#f778ba;--c5:#a371f7;--c6:#ff7b72;--code-bg:#0a0e14;--shadow:0 8px 32px rgba(0,0,0,0.4)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}code{font-family:"SFMono-Regular","JetBrains Mono",Consolas,monospace}
+  .hero{padding:56px 24px 40px;border-bottom:1px solid var(--border);background:radial-gradient(ellipse at top,rgba(255,123,98,0.10),transparent 60%)}
+  .hero .wrap{max-width:1140px;margin:0 auto}
+  .hero .crumb{font-size:12px;color:var(--text-dim);margin-bottom:14px}.hero .crumb a{color:var(--c6)}
+  .hero .series{display:inline-block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.3);padding:5px 12px;border-radius:20px;margin-bottom:14px}
+  .hero h1{font-size:33px;font-weight:800;line-height:1.2;letter-spacing:-0.4px;margin-bottom:10px}
+  .hero .lead{font-size:16px;color:var(--text-dim);max-width:820px}.hero .lead b{color:var(--text)}
+  .toc{position:sticky;top:0;z-index:50;background:rgba(13,17,23,0.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .toc-inner{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;gap:6px;flex-wrap:wrap}
+  .toc a{font-size:12px;color:var(--text-dim);padding:5px 11px;border-radius:6px;transition:.12s}.toc a:hover{background:rgba(255,123,98,0.10);color:var(--c6)}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  section{padding:46px 0;border-bottom:1px solid var(--border)}
+  h2{font-size:23px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:11px}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--c6),#ff584d);color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+  h3{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--text)}
+  h4{font-size:14.5px;font-weight:700;margin:14px 0 6px;color:var(--c5)}
+  .lead{color:var(--text-dim);font-size:16px;margin-bottom:22px;max-width:880px}
+  p{margin-bottom:12px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:18px 0}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.card h4{margin-top:0}
+  .card.bad{border-color:rgba(210,153,34,0.4)}.card.bad h4{color:var(--c3)}
+  .card.good{border-color:rgba(63,185,80,0.4)}.card.good h4{color:var(--c2)}
+  .card p{color:var(--text-dim);font-size:13.5px;margin-bottom:6px}
+  .card ul{padding-left:18px;color:var(--text-dim);font-size:13.5px}.card li{margin-bottom:4px}
+  .callout{border-left:3px solid var(--c6);background:rgba(255,123,98,0.06);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}.callout .t{font-weight:700;margin-bottom:4px}.callout p{color:var(--text-dim);font-size:14px;margin:0}
+  .callout.warn{border-left-color:var(--c3);background:rgba(210,153,34,0.08)}.callout.ok{border-left-color:var(--c2);background:rgba(63,185,80,0.08)}.callout.key{border-left-color:var(--c4);background:rgba(247,120,186,0.07)}
+  .diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px;margin:18px 0;overflow-x:auto}.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+  .dual{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .pane{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.pane.iv{border-top:3px solid var(--c4)}.pane.cand{border-top:3px solid var(--c2)}
+  .pane h4{margin-top:0;font-size:15px}.pane.iv h4{color:var(--c4)}.pane.cand h4{color:var(--c2)}
+  .pane ol{padding-left:20px;color:var(--text-dim);font-size:13.5px}.pane li{margin-bottom:6px}.pane li b{color:var(--text)}
+  a.file{color:var(--c3);font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;border-bottom:1px dotted var(--c3)}
+  .drill{background:linear-gradient(180deg,rgba(247,120,186,0.04),transparent);border-top:2px solid rgba(247,120,186,0.25)}
+  .progress{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .progress .bar{flex:1;min-width:200px;height:9px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .progress .fill{height:100%;background:linear-gradient(90deg,var(--c4),var(--c6));width:0;transition:width .3s}
+  .progress .pct{font-size:13px;color:var(--text-dim);font-family:"SFMono-Regular",Consolas,monospace}
+  .btn-reset{font-size:12px;color:var(--text-dim);background:var(--bg-card);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer;transition:.12s}.btn-reset:hover{border-color:var(--c3);color:var(--c3)}
+  .thread{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:0;margin-bottom:16px;overflow:hidden}
+  .thread-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .thread-head .ic{font-size:16px}.thread-head .title{font-weight:700;font-size:15px;flex:1}
+  .thread-head .layer-tag{font-size:11px;color:var(--c4);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(247,120,186,0.10);padding:3px 8px;border-radius:5px}
+  .step{padding:18px 20px;border-bottom:1px solid var(--border)}.step:last-child{border-bottom:none}.step.locked{display:none}.step.done{opacity:0.65}
+  .q{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+  .q .lvl{display:inline-block;font-size:10.5px;color:var(--c5);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(163,113,247,0.10);padding:2px 7px;border-radius:4px;margin-right:8px;vertical-align:middle}
+  .hint{font-size:13px;color:var(--text-dim);margin-bottom:12px}
+  .reveal-btn{font-size:13px;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.35);padding:7px 15px;border-radius:7px;cursor:pointer;transition:.12s}.reveal-btn:hover{background:rgba(255,123,98,0.20)}
+  .answer{display:none;margin-top:14px;padding:14px 16px;background:rgba(63,185,80,0.05);border:1px solid rgba(63,185,80,0.25);border-radius:9px}.answer.show{display:block}
+  .answer .at{font-size:11.5px;color:var(--c2);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+  .answer ul{padding-left:20px;color:var(--text-dim);font-size:13.5px}.answer li{margin-bottom:7px}.answer li b{color:var(--text)}
+  .answer .ref{margin-top:10px;font-size:12px;color:var(--text-dim)}
+  .rating{display:none;margin-top:14px;align-items:center;gap:8px;flex-wrap:wrap}.rating.show{display:flex}
+  .rating .lbl{font-size:12.5px;color:var(--text-dim);margin-right:4px}
+  .rate-btn{font-size:12.5px;padding:6px 13px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg-soft);color:var(--text-dim);transition:.12s}.rate-btn:hover{color:var(--text)}
+  .rate-btn.sel.ok{background:rgba(63,185,80,0.15);border-color:var(--c2);color:var(--c2)}
+  .rate-btn.sel.mid{background:rgba(210,153,34,0.15);border-color:var(--c3);color:var(--c3)}
+  .rate-btn.sel.no{background:rgba(255,123,98,0.15);border-color:var(--c6);color:var(--c6)}
+  .next-btn{display:none;margin-top:14px;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--c4),var(--c6));border:none;padding:8px 16px;border-radius:7px;cursor:pointer;transition:.12s}.next-btn.show{display:inline-block}.next-btn:hover{opacity:0.9}
+  .finish{display:none;padding:16px 20px;background:rgba(63,185,80,0.06);color:var(--c2);font-weight:600;font-size:14px;text-align:center}.finish.show{display:block}
+  .nav-foot{display:flex;justify-content:space-between;padding:24px 0;gap:12px}
+  .nav-foot a{font-size:13px;padding:9px 16px;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);transition:.12s}.nav-foot a:hover{border-color:var(--c6);color:var(--c6)}.nav-foot .next{margin-left:auto}
+  footer{padding:34px 24px;text-align:center;color:var(--text-dim);font-size:13px;border-top:1px solid var(--border)}footer a{color:var(--c6)}
+  @media(max-width:820px){.grid-2,.grid-3,.dual{grid-template-columns:1fr}.hero h1{font-size:27px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="iv-00-index.html">← 总索引</a></div>
+    <span class="series">Chapter 5 · 面试视角（5/7）</span>
+    <h1>每轮一次 stream + continuation 前重载历史</h1>
+    <p class="lead">"provider turn"是 opencode 里一个<b>硬命名的原子单元</b>：恰好一次 <code>llm.stream(request)</code>，流到终止，然后结算工具，然后——若要继续——<b>从 durable log 重新投影历史</b>，构造一个全新的请求再发一次。这不是迂腐，是因为这一轮是计费、取消、缓存断点、错误归类的<b>共同边界</b>。绕过它会同时破坏这五件事。</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#position">① 定位</a>
+    <a href="#problem">② 问题先于方案</a>
+    <a href="#design">③ 设计拆解</a>
+    <a href="#tradeoff">④ 生产级取舍</a>
+    <a href="#dual">⑤ 双视角</a>
+    <a href="#drill">🎯 面试追问</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<section id="position">
+  <h2><span class="num">1</span>一句话定位</h2>
+  <p class="lead">一个 provider turn = <b>恰好一次 llm.stream</b>，它流到完成，期间产出的 assistant 文本/工具调用都增量写进 durable log；stream 结束后 join 所有工具 fiber；若需要 continuation（模型还想要更多工具结果），<b>重新从 DB 查历史</b>，重建请求，开下一个 turn。<b>不存在"内存里拼一条消息接着流"</b>。</p>
+  <div class="callout key">
+    <div class="t">🔑 一句话</div>
+    <p>下一轮请求是 <code>(sessionID, baselineSeq, model)</code> 的<b>纯函数</b>，没有任何隐藏的内存状态。崩溃/重启后跑同样的输入，得到同样的请求。</p>
+  </div>
+</section>
+
+<section id="problem">
+  <h2><span class="num">2</span>问题先于方案</h2>
+  <p class="lead">"legacy 单体"做法是在一个内存循环里反复调 stream、在内存数组里拼消息、工具结果直接塞回内存接着流。这个"内存工具循环"反模式生产里会崩在哪？</p>
+  <div class="grid-2">
+    <div class="card bad">
+      <h4>痛点 A · 崩溃恢复失真</h4>
+      <p>工具执行完、下一轮 stream 还没发，进程崩了。内存里拼好的"下一轮 messages"<b>没了</b>。重启只能从 log 重建，但 log 和内存不一致——<b>续跑的请求和崩溃前不一样</b>。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 B · 缓存前缀漂移</h4>
+      <p>内存拼接路径的顺序/去重逻辑可能和 durable projector 不一致（projector 有 compaction 边界、baselineSeq 过滤）。<b>拼出来的 messages 字节不同 → 缓存 miss</b>。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 C · 取消/中断无干净边界</h4>
+      <p>没有"一个 turn"的清晰概念，stream 和工具结算交错。<b>中断没有原子窗口</b>，可能切在工具执行中、流到一半，留下半完成状态。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 D · 并发 steer 无法注入</h4>
+      <p>内存循环不查 log，steer 被持久化后<b>内存循环看不到</b>。要专门 inject 逻辑——而重载路径<b>免费就拿到了</b>（steer 已是 durable 消息）。</p>
+    </div>
+  </div>
+  <div class="callout warn">
+    <div class="t">⚠ 共同病根</div>
+    <p>把"模型可见状态"留在<b>内存</b>里，而权威状态在<b>log</b>里。两条真相源必然发散。重载路径消灭了第二条真相源。</p>
+  </div>
+</section>
+
+<section id="design">
+  <h2><span class="num">3</span>设计拆解</h2>
+  <p class="lead">一个 provider turn 的生命周期，以及 continuation 怎么衔接下一个 turn。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,sans-serif">
+      <defs>
+        <marker id="a5" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#9da7b3"/></marker>
+        <marker id="a5r" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#ff7b72"/></marker>
+      </defs>
+      <!-- turn box -->
+      <rect x="40" y="30" width="740" height="240" rx="12" fill="rgba(255,123,98,0.05)" stroke="rgba(255,123,98,0.3)" stroke-width="1.5"/>
+      <text x="60" y="56" fill="#ff7b72" font-size="13" font-weight="700" letter-spacing="1">一个 PROVIDER TURN（恰好一次 llm.stream）</text>
+
+      <rect x="70" y="80" width="150" height="56" rx="8" fill="#161b22" stroke="#9da7b3" stroke-width="1.2"/>
+      <text x="145" y="104" text-anchor="middle" fill="#e6edf3" font-size="12.5" font-weight="700">① 选 agent+model</text>
+      <text x="145" y="120" text-anchor="middle" fill="#9da7b3" font-size="10">+ 初始化 context epoch</text>
+
+      <rect x="250" y="80" width="150" height="56" rx="8" fill="#161b22" stroke="#9da7b3" stroke-width="1.2"/>
+      <text x="325" y="104" text-anchor="middle" fill="#e6edf3" font-size="12.5" font-weight="700">② 重投影历史</text>
+      <text x="325" y="120" text-anchor="middle" fill="#9da7b3" font-size="10">从 DB（baselineSeq）</text>
+
+      <rect x="430" y="80" width="150" height="56" rx="8" fill="#161b22" stroke="#9da7b3" stroke-width="1.2"/>
+      <text x="505" y="104" text-anchor="middle" fill="#e6edf3" font-size="12.5" font-weight="700">③ materialize 工具</text>
+      <text x="505" y="120" text-anchor="middle" fill="#9da7b3" font-size="10">+ 权限过滤</text>
+
+      <rect x="610" y="80" width="150" height="56" rx="8" fill="#0a0e14" stroke="#ff7b72" stroke-width="1.8"/>
+      <text x="685" y="104" text-anchor="middle" fill="#ff7b72" font-size="12.5" font-weight="700">④ llm.stream</text>
+      <text x="685" y="120" text-anchor="middle" fill="#9da7b3" font-size="10">★ 唯一一次</text>
+
+      <line x1="220" y1="108" x2="248" y2="108" stroke="#9da7b3" stroke-width="1.2" marker-end="url(#a5)"/>
+      <line x1="400" y1="108" x2="428" y2="108" stroke="#9da7b3" stroke-width="1.2" marker-end="url(#a5)"/>
+      <line x1="580" y1="108" x2="608" y2="108" stroke="#9da7b3" stroke-width="1.2" marker-end="url(#a5)"/>
+
+      <rect x="250" y="170" width="490" height="70" rx="8" fill="#0a0e14" stroke="#3fb950" stroke-width="1.4" stroke-dasharray="4 3"/>
+      <text x="495" y="196" text-anchor="middle" fill="#3fb950" font-size="12.5" font-weight="700">stream 期间：每个 LLMEvent 增量写 durable log</text>
+      <text x="495" y="214" text-anchor="middle" fill="#9da7b3" font-size="10.5">assistant 文本 · reasoning · tool-call · tool-result（工具在 FiberSet 里并发跑）</text>
+      <text x="495" y="230" text-anchor="middle" fill="#9da7b3" font-size="10.5">stream 结束 → join 所有工具 fiber → 发 Step.Ended</text>
+      <line x1="685" y1="136" x2="600" y2="168" stroke="#3fb950" stroke-width="1.2" marker-end="url(#a5)"/>
+
+      <!-- continuation -->
+      <text x="60" y="310" fill="#a371f7" font-size="13" font-weight="700">需要 continuation？</text>
+      <rect x="70" y="325" width="220" height="50" rx="8" fill="rgba(163,113,247,0.08)" stroke="#a371f7" stroke-width="1.3"/>
+      <text x="180" y="348" text-anchor="middle" fill="#a371f7" font-size="12" font-weight="700">needsContinuation = true</text>
+      <text x="180" y="364" text-anchor="middle" fill="#9da7b3" font-size="10">（模型还想调更多工具）</text>
+
+      <line x1="290" y1="350" x2="388" y2="350" stroke="#ff7b72" stroke-width="1.7" marker-end="url(#a5r)"/>
+      <text x="338" y="342" text-anchor="middle" fill="#ff7b72" font-size="10.5" font-weight="600">回到 ②</text>
+
+      <rect x="400" y="325" width="380" height="50" rx="8" fill="#0a0e14" stroke="#ff7b72" stroke-width="1.6"/>
+      <text x="590" y="348" text-anchor="middle" fill="#ff7b72" font-size="12.5" font-weight="700">重新查 DB → 全新 request → 下一个 turn</text>
+      <text x="590" y="364" text-anchor="middle" fill="#9da7b3" font-size="10">下一轮是 (sessionID, baselineSeq, model) 的纯函数</text>
+    </svg>
+  </div>
+
+  <h3>"一轮一次 stream"为什么是硬不变式（5 个理由）</h3>
+  <div class="grid-3">
+    <div class="card good">
+      <h4>① 计费单元</h4>
+      <p>token/成本在<b>终止的 finish 事件</b>里上报。一个 turn = 一次计费。多个 stream 拼一个 turn 就没有单一计费点。</p>
+    </div>
+    <div class="card good">
+      <h4>② 取消单元</h4>
+      <p>一个 turn = 一个可中断的 stream。中断打在这个边界上，干净。</p>
+    </div>
+    <div class="card good">
+      <h4>③ 缓存断点</h4>
+      <p>"到这轮为止的请求体"是 prompt cache 的缓存对象。一个 turn 一个断点。</p>
+    </div>
+    <div class="card good">
+      <h4>④ 错误归类</h4>
+      <p>一个 LLMError 映射到一个 retry-or-fail 决策。turn 是错误处理的粒度。</p>
+    </div>
+    <div class="card good">
+      <h4>⑤ 工具分组</h4>
+      <p>一个 turn 里的所有 tool call 一起结算，然后才 continuation。批次原子。</p>
+    </div>
+  </div>
+  <div class="callout">
+    <div class="t">📌 TurnTransition 是<b>例外</b>，不是规则</div>
+    <p>compaction / overflow-compaction 是唯一能打断"一轮一次"的信号，它们用 <code>TurnTransitionError</code> defect 表达，被 runTurn 捕获后<b>重新进入 runTurn</b>（重新 reload、重建请求）——而不是在 stream 中间 mutating 状态。例外也走重载路径。</p>
+  </div>
+</section>
+
+<section id="tradeoff">
+  <h2><span class="num">4</span>生产级取舍</h2>
+  <p class="lead">每轮重载历史看起来"浪费"（多一次 DB 查询），但它消灭了一整类一致性 bug。</p>
+  <div class="grid-2">
+    <div class="card good">
+      <h4>选择：每轮从 DB 重投影</h4>
+      <ul>
+        <li>下一轮请求是<b>纯函数</b>，无隐藏状态</li>
+        <li>崩溃续跑必然一致（DB 是唯一真相）</li>
+        <li>缓存前缀字节稳定（projector 确定性）</li>
+        <li>steer 持久化后免费出现在下轮</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>内存拼接的代价</h4>
+      <ul>
+        <li>内存与 log 双真相源 → 发散</li>
+        <li>崩溃续跑请求失真</li>
+        <li>拼接逻辑≠projector → 缓存 miss</li>
+        <li>steer 要专门 inject 逻辑</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout key">
+    <div class="t">🔑 本质</div>
+    <p>重载不是性能负担，是<b>一致性保险</b>。一次 DB 查询（毫秒级）换来"下一轮请求绝对正确"——对比一次 LLM 调用（秒级、贵），这个保险几乎免费。</p>
+  </div>
+</section>
+
+<section id="dual">
+  <h2><span class="num">5</span>面试双视角</h2>
+  <p class="lead">这题考的是<b>抗失败设计 + 不变式思维</b>——你能不能识别"一轮一次 stream"是个不变式，以及为什么 continuation 必须重载。</p>
+  <div class="dual">
+    <div class="pane iv">
+      <h4>🎙️ 面试官为何问这题</h4>
+      <ol>
+        <li><b>探你有没有"单一真相源"直觉</b>——内存 vs log 双真相会发散。</li>
+        <li><b>探不变式思维</b>——能不能说出"一轮一次"对应的多个理由（计费/取消/缓存/错误/工具）。</li>
+        <li><b>探崩溃恢复</b>——续跑怎么保证请求一致？</li>
+        <li><b>埋雷</b>：很多人答"重载浪费 DB 查询"。追问"对比一次 LLM 调用的成本呢？"——看你能不能答出"保险几乎免费"。</li>
+      </ol>
+    </div>
+    <div class="pane cand">
+      <h4>🧑‍💻 面试者拆解（五段式）</h4>
+      <ol>
+        <li><b>抽象定位</b>：provider turn 是计费/取消/缓存/错误/工具的<b>共同原子边界</b>，所以"一轮一次 stream"是硬不变式。</li>
+        <li><b>讲约束</b>：continuation 必须从 DB 重投影，下一轮是 (sessionID, baselineSeq, model) 的纯函数。</li>
+        <li><b>讲收益</b>：单一真相源（DB）；崩溃续跑必然一致；缓存稳定；steer 免费注入。</li>
+        <li><b>主动讲代价</b>：每轮多一次 DB 查询。但对比 LLM 调用成本（秒级、贵），这个毫秒级保险几乎免费。</li>
+        <li><b>给未来演化</b>：重载路径是"function of log"——未来加 compaction、加 epoch、加新消息类型，都只在 projector 一处改，continuation 主循环不动。</li>
+      </ol>
+    </div>
+  </div>
+  <div class="callout ok">
+    <div class="t">✅ 加分项</div>
+    <p>主动联系前几篇："重载历史用的是 iv-03 的 baselineSeq 锚点（保证 baseline+历史原子对子）；steer 免费注入依赖 iv-04 的'durable 消息'设计；turn 边界正是 iv-04 promote steer 的安全点。"——这五篇是<b>一个一致性体系</b>的不同侧面。</p>
+  </div>
+</section>
+
+</div>
+
+<section id="drill" class="drill">
+  <div class="wrap">
+    <h2><span class="num">🎯</span>面试追问 · 模拟面试官深挖</h2>
+    <p class="lead">一轮一次 stream 的 5 个理由？continuation 为何必须重载？内存工具循环反模式？追到答不出。</p>
+    <div class="progress">
+      <span class="pct" id="pct">进度 0%</span>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <button class="btn-reset" onclick="IV.reset()">重置本页进度</button>
+    </div>
+    <div id="threads"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="nav-foot">
+    <a href="iv-04-delivery-vocabulary.html">← 第 4 篇 steer/queue</a>
+    <a class="next" href="iv-06-request-and-protocol.html">下一章：请求与 compile 墙 →</a>
+  </div>
+</div>
+
+<footer>opencode 面试视角 · 第 5/7 篇 · 一轮一次 stream · <a href="iv-00-index.html">返回总索引</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+<script>
+const IV = (() => {
+  const KEY = "iv-drill-05";
+  const data = [
+    {
+      title: "一轮一次 stream 的 5 个理由",
+      icon: "🎯",
+      steps: [
+        { q: "根问题：为什么必须是'一个 provider turn = 恰好一次 llm.stream'？为什么不能在一个 turn 里多次调 stream？",
+          hint: "想想计费、取消、缓存、错误、工具各需要什么边界。",
+          a: [
+            "<b>① 计费</b>：token/成本在终止的 finish 事件上报。一个 turn 一次计费，多次 stream 拼一个 turn 就没有单一计费点。",
+            "<b>② 取消</b>：一个 turn = 一个可中断 stream。中断打在 turn 边界干净；多次 stream 交错就没干净窗口。",
+            "<b>③ 缓存断点</b>：'到这轮为止的请求体'是 prompt cache 对象。一个 turn 一个断点。",
+            "<b>④ 错误归类</b>：一个 LLMError 映射一个 retry-or-fail。turn 是错误处理粒度。",
+            "<b>⑤ 工具分组</b>：一个 turn 的所有 tool call 一起结算再 continuation，批次原子。"
+          ],
+          ref: "packages/core/src/session/runner/llm.ts — runTurnAttempt 构造一个 request、一次 llm.stream、join toolFibers、返回 needsContinuation。"
+        },
+        { q: "追问 1：那 compaction 触发时要打断当前 turn 重新开始，这不就破坏了'一轮一次'吗？",
+          hint: "TurnTransition 怎么处理？它是 mutating 还是重进？",
+          a: [
+            "<b>不破坏</b>。compaction / overflow 用 TurnTransitionError（defect）表达，被 runTurn 的 catchDefect 捕获。",
+            "捕获后<b>重新进入 runTurn</b>——重新 reload 历史、重建请求、开新的'一次 stream'。不是在 stream 中间改状态。",
+            "所以例外也走重载路径，'一轮一次'不变式在每个实际 stream 调用上依然成立。",
+            "这是用'信号 + 重进'而非'内联 mutation'处理例外的设计——保住了不变式的纯洁性。"
+          ],
+          ref: "continueAfterCompaction / continueAfterOverflowCompaction 作为 TurnTransitionError defect。"
+        }
+      ]
+    },
+    {
+      title: "continuation 为何必须重载历史？",
+      icon: "🔄",
+      steps: [
+        { q: "根问题：模型调了个工具，工具结果回来了，现在要继续对话。直接把工具结果塞进内存里的 messages 数组，接着 stream，不行吗？为什么必须重新查 DB？",
+          hint: "崩溃了怎么办？内存和 log 一致吗？steer 怎么进来？",
+          a: [
+            "<b>崩溃恢复</b>：工具执行完、下轮 stream 还没发，进程崩了。内存 messages 没了，重启只能从 log 重建。如果允许内存拼接，重启的请求和崩溃前不一致。",
+            "<b>缓存稳定</b>：内存拼接的顺序/去重可能和 durable projector 不一致（projector 有 compaction 边界、baselineSeq 过滤）。字节不同→缓存 miss。",
+            "<b>steer 注入</b>：上一轮期间用户发的 steer 已经持久化成 durable 消息。重载免费拿到；内存循环要专门 inject。",
+            "<b>结论</b>：重载让下一轮成为 (sessionID, baselineSeq, model) 的纯函数，无隐藏状态。这是单一真相源。"
+          ],
+          ref: "packages/core/src/session/history.ts — entriesForRunner(db, sessionID, baselineSeq)。"
+        }
+      ]
+    },
+    {
+      title: "内存工具循环反模式",
+      icon: "🐞",
+      steps: [
+        { q: "根问题：legacy 'SessionPrompt 单体'就是在内存循环里反复 stream + 内存拼消息。这套生产里具体怎么崩？",
+          hint: "状态在哪？崩溃后能恢复一致吗？",
+          a: [
+            "<b>状态分歧</b>：模型可见状态留在内存数组，权威状态在 log。两套真相必然发散——内存有 log 没有的，或反之。",
+            "<b>崩溃续跑失真</b>：进程没了，内存没了。重启从 log 重建的请求 ≠ 崩溃前内存里的请求。模型上下文错位。",
+            "<b>缓存命中崩溃</b>：内存拼接路径≠projector 的确定性路径，前缀字节漂移，缓存读全 miss。",
+            "<b>交错无法中断</b>：stream 和工具结算交错，没有 turn 边界，中断会切在半完成状态，Step.Ended/failUnsettledTools 失去干净接缝。"
+          ],
+          ref: "runner/llm.ts 文件头注释明确警告不要 bridge through legacy SessionPrompt.loop 或 in-memory tool loop。"
+        },
+        { q: "追问 1：那为什么 legacy 还存在？为什么不直接删掉？",
+          hint: "迁移成本 vs 共存。",
+          a: [
+            "<b>历史包袱</b>：legacy 是已上线的执行路径（用 AI SDK 的 streamText），删掉要迁移所有功能、所有 provider 特化处理。",
+            "<b>共存过渡</b>：opencode 用 event-v2-bridge 把两套的事件流桥接，让 V2（durable）和 V1（legacy）能并存，渐进迁移。",
+            "<b>学习价值</b>：legacy 是<b>反面教材</b>——它的痛点正是 V2 设计要解决的。看懂 legacy 崩在哪，就懂了 V2 为何这么设计。",
+            "面试时可以说：'legacy 单体证明了内存循环反模式的失败，V2 用 durable log + 重载路径根治了它。'这是把历史包袱变成设计论据。"
+          ],
+          ref: "packages/opencode/src/event-v2-bridge.ts 桥接两套；AGENTS.md 警告不要 bridge through legacy。"
+        }
+      ]
+    }
+  ];
+  let state = JSON.parse(localStorage.getItem(KEY) || "{}");
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+  function pct(){ let total=0,done=0; data.forEach((t,ti)=>{total+=t.steps.length;done+=Math.min(state[ti]||0,t.steps.length);}); return Math.round(done/total*100); }
+  function render(){
+    const root = document.getElementById("threads"); root.innerHTML = "";
+    data.forEach((t,ti)=>{
+      const cur = state[ti]||0; const finished = cur>=t.steps.length;
+      const div = document.createElement("div"); div.className="thread";
+      div.innerHTML = `<div class="thread-head"><span class="ic">${t.icon}</span><span class="title">${t.title}</span><span class="layer-tag">${finished?"✓ 完成":"第 "+(cur+1)+"/"+t.steps.length+" 层"}</span></div>`;
+      t.steps.forEach((s,si)=>{
+        const unlocked = si<=cur; const stepDone = si<cur;
+        const step = document.createElement("div"); step.className="step"+(unlocked?"":" locked")+(stepDone?" done":""); step.dataset.ti=ti; step.dataset.si=si;
+        step.innerHTML = `<div class="q"><span class="lvl">L${si+1}</span>${s.q}</div>${s.hint?`<div class="hint">💡 ${s.hint}</div>`:""}${!stepDone?`<button class="reveal-btn" data-act="reveal">查看参考答案</button>`:""}<div class="answer"><div class="at">参考答案要点</div><ul>${s.a.map(x=>`<li>${x}</li>`).join("")}</ul>${s.ref?`<div class="ref">📌 ${s.ref}</div>`:""}</div>${!stepDone?`<div class="rating"><span class="lbl">自评（诚实最重要）：</span><button class="rate-btn" data-rate="ok">✓ 答得好</button><button class="rate-btn" data-rate="mid">△ 部分懂</button><button class="rate-btn" data-rate="no">✗ 没答出</button></div>${si<t.steps.length-1?`<button class="next-btn" data-act="next">解锁下一层追问 →</button>`:""}`:""}${stepDone&&si===t.steps.length-1?`<div class="finish show">🎉 本线索完成 · 你已答到最深一层</div>`:""}`;
+        div.appendChild(step);
+      });
+      root.appendChild(div);
+    });
+    root.querySelectorAll(".step").forEach(step=>{
+      const ti=+step.dataset.ti, si=+step.dataset.si;
+      const rb=step.querySelector('[data-act="reveal"]');
+      if(rb) rb.addEventListener("click",()=>{step.querySelector(".answer").classList.add("show");step.querySelector(".rating").classList.add("show");rb.style.display="none";});
+      step.querySelectorAll(".rate-btn").forEach(b=>b.addEventListener("click",()=>{step.querySelectorAll(".rate-btn").forEach(x=>x.classList.remove("sel","ok","mid","no"));b.classList.add("sel",b.dataset.rate);const nb=step.querySelector(".next-btn");if(nb)nb.classList.add("show");}));
+      const nb=step.querySelector('[data-act="next"]');
+      if(nb) nb.addEventListener("click",()=>{state[ti]=Math.max(state[ti]||0,si+2);save();render();updatePct();});
+    });
+    updatePct();
+  }
+  function updatePct(){const p=pct();document.getElementById("fill").style.width=p+"%";document.getElementById("pct").textContent="进度 "+p+"%";}
+  function reset(){state={};save();render();}
+  return {render,reset};
+})();
+document.querySelectorAll("pre code").forEach(el=>hljs.highlightElement(el));
+IV.render();
+</script>
+</body>
+</html>

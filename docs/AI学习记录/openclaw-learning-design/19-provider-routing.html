@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑲ Provider 路由:API family 抽象</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑲ Provider 路由:API family 抽象
+  <span class="sub">阶段 1 · 平台支撑 · 为什么按 API family 而非 provider-id 路由</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:接 10 个厂商怎么不烂</a></li>
+  <li><a href="#design">分层设计:API family 注册表</a></li>
+  <li><a href="#why">为何这么设计:family 解耦、harness 选择、fail-closed</a></li>
+  <li><a href="#example">完整示例:"用 gpt-5"的解析全过程</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:接 10 个厂商怎么不烂</h2>
+
+<p>生产 Agent 要支持多家模型厂商:OpenAI、Anthropic、Google、Mistral、Azure、本地 Ollama、vLLM... 每家的 API 都不同:</p>
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li><strong>端点不同</strong>:不同 baseUrl、不同认证(Bearer/OAuth/API key)</li>
+  <li><strong>请求格式不同</strong>:messages 结构、tool 定义、stream 格式</li>
+  <li><strong>能力不同</strong>:有的支持 thinking,有的不支持;tool schema 容忍度不同</li>
+  <li><strong>错误码不同</strong>:同样的"限流"各家返回不同</li>
+</ul>
+</div>
+
+<p>demo 级做法:在核心里写 <code>if (provider === 'openai') {...} else if (provider === 'anthropic') {...}</code>。10 个厂商就 10 个分支,核心臃肿,加新厂商改核心,核心和厂商绑死。</p>
+
+<p>更隐蔽的问题:很多<strong>新厂商其实和某家老厂商 API 兼容</strong>(如 DeepSeek、Moonshot 都兼容 OpenAI API)。如果按 provider-id 路由,即使 DeepSeek 用的是 OpenAI 格式,也得为它单独写一套适配——<strong>重复劳动</strong>。</p>
+
+<h2 id="design">二 · 分层设计:API family 注册表</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                Provider 路由 · API family 抽象                          │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[关键洞察] 按协议家族路由,不按厂商</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 很多厂商共用同一套 API 协议:                                │
+  │   · openai-completions 家族:OpenAI/DeepSeek/Moonshot/... │
+  │   · anthropic-messages 家族:Anthropic                     │
+  │   · openai-responses 家族:新版 OpenAI/Azure               │
+  │   · google-generative-ai:Google                           │
+  │ · 路由按家族,适配器按家族写一遍,多厂商复用                │
+  └──────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[三层路由]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ ① 模型声明其 family                                        │
+  │   Model { id, api: "openai-completions", baseUrl, ... }   │
+  │ ② api-registry 按 family 注册适配器                        │
+  │   Map<family, {stream, streamSimple}>                     │
+  │ ③ 运行时按 model.api 查 registry 找适配器                  │
+  │   不问"哪个厂商",只问"说哪种协议"                          │
+  └──────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[厂商 specifics 在插件]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 每个厂商插件管自己的:认证、模型目录、特殊兼容、错误分类    │
+  │ · 但都用所属 family 的通用 stream 适配器发请求              │
+  │ · 厂商差异隔离在插件,核心只懂 family                       │
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>API family 抽象的价值</h3>
+<table>
+<thead><tr><th>做法</th><th>加新厂商(兼容 OpenAI API)</th></tr></thead>
+<tbody>
+<tr><td>按 provider-id 路由</td><td>核心加分支 + 写全套适配(重复)</td></tr>
+<tr><td><strong>按 API family 路由</strong></td><td>新厂商插件声明 family=openai-completions,<strong>复用现有适配器</strong>,只写厂商特定(认证/目录)</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么按 API family 而非 provider-id</h3>
+<p>这是<strong>解耦点的选择</strong>。如果按 provider-id,解耦点在"厂商边界"——每个厂商一套逻辑,即使两家 API 完全相同也得分别写。<strong>按 API family</strong>,解耦点在"协议边界"——共用协议的厂商复用同一适配器。<strong>这抓住了市场的真实结构</strong>:很多厂商是"兼容某主流 API 的替代品"(OpenAI 兼容生态特别大),按协议家族抽象让适配器数量 ≈ 协议家族数(几个),远小于厂商数(几十)。加新厂商(兼容已有协议)几乎零成本。</p>
+
+<h3>决策 2:为什么 harness 选择要 fail-closed</h3>
+<p>harness(运行时实现)可能有多个来源:OpenClaw 自带、第三方(如 Codex app-server)。选择 harness 时,如果用户配置了"用 codex harness"但 codex 不可用,<strong>fail-closed(失败关闭)</strong>——明确报错而非静默回退到自带 harness。<strong>为什么</strong>:① <strong>用户意图明确</strong>——用户指定 codex 是有原因的(可能依赖它的特定行为),静默回退会让用户以为在用 codex 实际不是,行为不符预期,难调试;② <strong>避免隐式行为</strong>——生产要可预测,配置了啥就是啥,不可用就报错让用户知道。<strong>例外</strong>:"auto" 模式允许回退(用户没指定具体 harness,系统自动选最合适的)。<strong>核心原则:显式配置 fail-closed,自动模式可回退。</strong></p>
+
+<h3>决策 3:为什么厂商 specifics 隔离在插件</h3>
+<p>虽然两家厂商用同一家族协议(如 openai-completions),但仍有<strong>厂商特定差异</strong>:① 认证方式(OpenAI 用 Bearer,某厂商用自定义头);② 模型目录(各自支持的模型列表);③ 特殊兼容(某厂商的 tool schema 有怪癖要预处理);④ 错误分类(同样 429,一家可重试一家是硬限)。这些<strong>不能强行塞进通用适配器</strong>(会污染家族逻辑),也不能塞进核心(违背 plugin-agnostic)。<strong>放厂商插件</strong>:每个厂商插件管自己的 specifics,通过钩子注入到通用流程(如"发请求前预处理认证""收到错误后分类是否可重试")。<strong>家族适配器管通用,插件管特定,核心只懂 family</strong>——三层清晰。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:API family 抽象 + harness 选择 + 插件 specifics 带来<strong>家族识别、适配器复用、插件钩子设计</strong>的复杂度,换来的是<strong>加厂商低成本、核心不被污染、协议演进灵活</strong>。替代方案(按厂商 if/else)的失败模式是"核心臃肿、重复适配、加厂商改核心"。<strong>接受复杂度,因为模型生态正在爆发式增长,按 family 抽象是控制复杂度的唯一可持续方式。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:"用 gpt-5"的解析全过程</h2>
+
+<div class="flow-diagram"><span class="stage-label">[用户/配置]</span> "用 gpt-5"
+  ↓
+<span class="stage-label">[模型解析]</span> gpt-5 → Model 对象
+  · id: "gpt-5"
+  · api: "openai-responses"(声明协议家族)
+  · baseUrl: "https://api.openai.com/v1"
+  · provider 插件: openai
+  ↓
+<span class="stage-label">[路由 · 按 family]</span>
+  · 查 api-registry["openai-responses"]
+  · 找到通用 stream 适配器(负责构造请求/解析流)
+  ↓
+<span class="stage-label">[openai 插件 specifics]</span>
+  · 认证:用用户的 OpenAI key 注入 Bearer
+  · 模型目录:gpt-5 在目录里 ✓
+  · 错误分类:429 可重试(退避),401 凭据过期(刷新)
+  ↓
+<span class="stage-label">[发请求]</span>
+  · 通用适配器 + openai 插件 specifics 组合
+  · POST /v1/responses(家族协议) + Bearer(厂商认证)
+  ↓
+<span class="stage-label">[对比:加 DeepSeek(兼容 openai-completions)]</span>
+  · DeepSeek 插件声明 api: "openai-completions"
+  · 复用 openai-completions 家族的 stream 适配器 ✓
+  · 只写 DeepSeek specifics:认证(它的 key)、baseUrl、模型目录
+  · 核心/适配器零改动</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:加 DeepSeek 这种"OpenAI 兼容"厂商,<strong>核心和适配器都不用改</strong>——DeepSeek 插件声明它用 openai-completions 家族,复用现有适配器,只写自己的 specifics(认证/目录)。这就是 family 抽象的威力:<strong>加兼容厂商近乎零成本</strong>。如果按 provider-id,DeepSeek 要从核心到适配器全套重写。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"if 厂商分支"</td><td>"没解耦意识"</td></tr>
+<tr><td>知道要抽象 provider</td><td>"有意识但抽象点错"</td></tr>
+<tr><td>能说 family + 注册表</td><td>"及格"</td></tr>
+<tr><td>能谈解耦点选择、fail-closed vs auto、specifics 隔离、加厂商成本</td><td><strong>"有平台抽象深度"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点问题</strong>:"多家厂商 API 不同,if/else 会核心臃肿。且很多厂商兼容同一协议,按厂商路由重复劳动。"</li>
+<li><strong>给 family 抽象</strong>:"按 API family(协议家族)路由——openai-completions/anthropic-messages 等。模型声明 family,registry 按 family 注册适配器,复用。"</li>
+<li><strong>主动谈解耦点</strong>:"解耦点在协议边界而非厂商边界。加兼容厂商(DeepSeek 兼容 OpenAI)近乎零成本,只写 specifics。"</li>
+<li><strong>主动谈 specifics 隔离</strong>:"厂商特定(认证/目录/兼容怪癖)在厂商插件,通过钩子注入通用流程。家族管通用,插件管特定。"</li>
+<li><strong>主动谈 fail-closed</strong>:"显式配置 harness 失败 fail-closed(报错不静默回退),auto 模式可回退。生产要可预测。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从 family 识别到新协议演进层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="18-plugin-isolation.html">← ⑱ 插件系统</a>
+<a href="index.html">索引 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑲ Provider 路由 · 阶段 1 平台支撑(完)<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · family 识别", q:"一个新模型来了,系统怎么知道它属于哪个 API family?是模型自己声明,还是系统检测?",
+    a:"<strong>通常是模型配置显式声明 family</strong>。机制:1)<strong>模型对象带 api 字段</strong>——Model { id, api: "openai-completions", baseUrl, ... },声明它说哪种协议;2)<strong>声明来源</strong>:① 厂商插件提供模型目录(每个模型声明 family);② 用户配置可覆盖/指定;③ 自动检测极少用(不可靠);3)<strong>不用自动检测</strong>的原因:① 不可靠——发个请求看响应格式判断,可能误判(尤其错误响应);② 慢——每次要试探;③ 副作用——检测请求可能消耗配额。<strong>显式声明的好处</strong>:确定、快、无副作用。厂商插件最懂自己的模型说啥协议,由它声明最准。<strong>例外</strong>:用户自定义模型(接个本地 vLLM),让用户在配置里声明 family(如 api: openai-completions),因为他自己知道 vLLM 兼容啥。" },
+  { round:"第 2 题 · family 演进", q:"OpenAI 出了新版 API(responses 而非 completions)。系统已经有 openai-completions 家族,怎么加 openai-responses?老模型还能用老家族吗?",
+    a:"<strong>家族是可扩展的,新旧并存</strong>。机制:1)<strong>新增家族注册</strong>——在 api-registry 注册新 family "openai-responses"(它的 stream 适配器处理新协议);2)<strong>模型按需声明</strong>——gpt-5 等新模型声明 api: openai-responses,老模型(gpt-3.5)仍声明 api: openai-completions;3)<strong>新旧并存</strong>——两个家族注册表都有,各服务各自的模型,不互相影响;4)<strong>核心不变</strong>——核心只按 model.api 查 registry,加了新家族核心代码零改动(只是 registry 多项)。<strong>关键</strong>:家族抽象天然支持协议演进——新协议是新家族,老协议保持。这比"升级现有家族"(可能 breaking 老模型)安全得多。<strong>对比按 provider-id</strong>:如果按厂商,OpenAI 出新协议要在'openai'分支里加 if 版本,核心臃肿且易 breaking。家族抽象让演进是纯加法,无破坏。" },
+  { round:"第 3 题 · fail-closed vs auto", q:"用户配置了 'harness: codex',但 codex 插件没装/不可用。fail-closed 报错。但用户可能觉得'我只想用 codex,没有就算了用默认'。fail-closed 不会太严格吗?",
+    a:"<strong>严格是对的,因为隐式回退的代价更大</strong>。<strong>fail-closed 报错的理由</strong>:1)<strong>意图明确性</strong>——用户写 'harness: codex' 表达了明确意图(要用 codex 的特定行为)。静默回退到默认会让用户以为在用 codex 实际不是,行为不符预期,这种'静默错误'在生产中极难发现和调试;2)<strong>可预测性</strong>——生产系统要'配置啥就是啥',不可用就明确报错让用户知道并决定(装 codex 插件 or 改配置),而非系统替用户做决定;3)<strong>避免陷阱</strong>——如果默认回退,用户可能基于错误假设(以为在用 codex)做后续决策,导致连锁问题。<strong>但用户确实可能想要'优先 codex,不行就默认'</strong>:这正是 <strong>auto 模式</strong>的用途——配置 'harness: auto',系统自动选可用的最合适 harness,可回退。<strong>所以设计提供两种</strong>:显式(fail-closed,严格遵从意图)和 auto(灵活,允许回退)。用户按需求选。<strong>关键</strong>:不让'显式配置'隐式降级——显式是承诺,要么兑现要么报错,不能偷偷换。" },
+  { round:"第 4 题 · 跨 family 转换", q:"主 provider 是 OpenAI(family A),回退到 Claude(family B)。两个 family 的消息格式、tool 格式都不同。回退时要重新转换整个上下文。这个转换会丢信息吗?",
+    a:"<strong>会丢 family 特定的信息,要小心处理</strong>。机制:1)<strong>内部归一化表示</strong>——系统内部用一个归一化的消息格式(AgentMessage,第③篇),不绑死任何 family。family A 的响应已归一化成内部格式;2)<strong>回退时按 family B 重新序列化</strong>——把内部格式转成 family B(Claude)的请求格式;3)<strong>可能丢的</strong>:① family 特定字段(如 OpenAI 特有的某参数 Claude 不认)——剥离;② thinking 格式差异——归一化处理(第⑧篇);③ tool schema 容忍度差异——某 family 不支持的 schema 结构要转换;4)<strong>不丢的</strong>:对话历史的基本语义(谁说了什么、工具调用和结果)——这些在内部归一化格式里有。<strong>关键设计</strong>:内部归一化是'最大公约数',保留所有 family 共有的语义。family 特定的细节(锦上添花的参数)在跨 family 时丢失,但不影响核心对话连续性。<strong>实践</strong>:回退后前几轮可能'重新适应'(模型要理解转换后的上下文),但通常能继续。<strong>这是跨 family 回退的固有代价</strong>,接受它以换取 provider 容错能力(第⑭篇)。" },
+  { round:"第 5 题 · 本地 vs 云", q:"用户接了本地 Ollama(本地模型)和云 OpenAI。它们的 family、认证、延迟、成本都不同。系统怎么同时支持?路由时怎么选?",
+    a:"<strong>Ollama 通常兼容 openai-completions 家族(或自己的 family),作为另一个 provider 注册</strong>。机制:1)<strong>Ollama provider 插件</strong>——声明它的模型 family(通常 openai-completions 兼容或专用)、baseUrl(localhost)、认证(本地通常无)、模型目录(本地拉的模型);2)<strong>统一注册</strong>——Ollama 和 OpenAI 在同一个 provider 注册表里,各自有模型;3)<strong>路由选择</strong>:① <strong>用户显式指定</strong>——"这个任务用本地 llama"(隐私敏感、不想发云);② <strong>配置默认</strong>——agent 配置默认 provider;③ <strong>能力路由</strong>——某任务需要大模型(用云 gpt-5),某任务简单(用本地 llama 省钱);4)<strong>差异处理</strong>:① 延迟——本地零网络延迟但推理慢(看硬件),云网络延迟但推理快;② 成本——本地免费(电费),云按 token;③ 隐私——本地数据不出门,云数据上云;④ 能力——本地小模型能力弱,云大模型强。<strong>关键</strong>:family 抽象让本地和云<strong>统一对待</strong>——都是 provider,都注册模型,都按 family 路由。用户按需求(隐私/成本/能力)选,系统透明处理差异。<strong>这是 family 抽象的延伸价值:不仅支持多厂商,还支持本地/云混合。</strong>" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>🎉 全部 19 篇完成!</strong>你已读完整个 Agent 框架设计精解系列。<br><br>回顾:Part A 智能核心(9篇)+ Part B 协作可靠性(5篇)+ Part C 身份自主(2篇)+ Part D 平台支撑(3篇)。共 95 道递进追问。<br><br>建议:回到 <a href="learning-plan.html">学习计划</a> 或 <a href="index.html">总索引</a> 复习,或挑薄弱篇目重做测验。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

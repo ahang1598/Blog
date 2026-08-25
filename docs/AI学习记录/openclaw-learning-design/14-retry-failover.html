@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑭ 重试、回退与故障容忍设计</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑭ 重试、回退与故障容忍设计
+  <span class="sub">阶段 3 · 协作可靠性 · attempt/run 边界与不该重试的操作</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:失败不可避免,重试不是万能</a></li>
+  <li><a href="#design">分层设计:三层故障容忍</a></li>
+  <li><a href="#why">为何这么设计:边界、轮转、不该重试</a></li>
+  <li><a href="#example">完整示例:凭据耗尽的回退链</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:失败不可避免,重试不是万能</h2>
+
+<p>生产环境故障是常态:网络抖、限流、凭据过期、模型超载、provider 宕机。demo 级做法:失败就重试,重试 N 次还不行就报错。听起来简单,但有两个致命问题:</p>
+
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li><strong>不是所有失败都该重试</strong>:发邮件失败重试 = 发两封;支付失败重试 = 扣两次。非幂等操作的重试是<strong>生产事故源</strong>。</li>
+  <li><strong>无差别重试浪费资源</strong>:模型不兼容(永远失败)还重试 N 次,白等白花钱。瞬态故障(一次就好)和永久故障(永远不行)要区分。</li>
+  <li><strong>没有回退只能硬死</strong>:只用一个 provider,它宕了整个 agent 就瘫。生产需要多 provider/凭据回退。</li>
+  <li><strong>重试风暴</strong>:所有客户端同时重试(如 provider 短暂宕机恢复瞬间)打爆它。</li>
+</ul>
+</div>
+
+<p>故障容忍不是"加重试",而是<strong>一套分层的、有判断的、有回退的、有节流的系统</strong>。</p>
+
+<h2 id="design">二 · 分层设计:三层故障容忍</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                故障容忍 · 三层设计(呼应第②篇三层循环)                  │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[层 1] attempt 级重试(瞬态故障)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 同一候选(模型+凭据)内的重试                               │
+  │ · 触发:网络抖、限流(429)、临时超载(503)               │
+  │ · 策略:指数退避 + 抖动(防重试风暴)                       │
+  │ · 上限:N 次(如 3 次),耗尽上抛                          │
+  │ · 不重试:非幂等副作用操作、永久错误(400 Bad Request)    │
+  └──────────────────────────────────────────────────────────┘
+                              │ attempt 耗尽
+                              ▼
+  <span class="stage-label">[层 2] run 级回退(换候选)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 换一个候选重试整个 run                                    │
+  │ · 候选列表:多凭据轮转 + 多模型/provider 回退              │
+  │ · 触发:凭据耗尽、模型不兼容、provider 宕机               │
+  │ · 策略:按候选优先级依次试                                 │
+  │ · 上限:候选耗尽 → 终端 failed                            │
+  └──────────────────────────────────────────────────────────┘
+                              │ 仍失败
+                              ▼
+  <span class="stage-label">[层 3] 故障降级(用户体验)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 全部失败后的用户侧处理                                     │
+  │ · 明确告知"暂时不可用"(非含混报错)                      │
+  │ · 保留已完成的中间结果(不丢)                             │
+  │ · 提供重试入口(用户主动)                                 │
+  │ · 告警运维(provider 级故障)                              │
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>故障分类与对应策略</h3>
+<table>
+<thead><tr><th>故障类型</th><th>例子</th><th>该重试?</th><th>在哪层处理</th></tr></thead>
+<tbody>
+<tr><td>瞬态网络</td><td>超时、连接重置</td><td>是(退避)</td><td>attempt</td></tr>
+<tr><td>限流</td><td>429 Too Many Requests</td><td>是(尊重 Retry-After)</td><td>attempt</td></tr>
+<tr><td>凭据过期</td><td>401 token 失效</td><td>刷新后重试</td><td>attempt(刷新)/ run(换凭据)</td></tr>
+<tr><td>永久错误</td><td>400 参数错、404 不存在</td><td><strong>否</strong></td><td>立即失败</td></tr>
+<tr><td>模型不兼容</td><td>不支持工具格式</td><td><strong>否(同候选)</strong></td><td>run(换模型)</td></tr>
+<tr><td>非幂等副作用</td><td>发邮件、支付</td><td><strong>否(自动)</strong></td><td>问用户</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么 attempt 和 run 重试边界要分开</h3>
+<p>呼应第②篇三层循环。<strong>attempt 重试</strong>是"同候选内的瞬态故障重试"——便宜(同模型同凭据),但要限制次数(防永久故障白等)。<strong>run 回退</strong>是"换候选重试整个 run"——贵(换模型/凭据,可能丢上下文要重建),但能救永久故障。边界在"同候选是否还有希望":有(瞬态)→ attempt 重试;没(永久/耗尽)→ run 换候选。<strong>这个边界让重试成本可控</strong>——不会一个 400 错误也触发换模型的昂贵回退。</p>
+
+<h3>决策 2:为什么凭据要轮转(多 auth profile)</h3>
+<p>单凭据的致命问题:<strong>限流/过期就死</strong>。生产中,provider 限流是按 API key 的(每个 key 每分钟 N 次)。单 key 撞限流整个 agent 瘫。多凭据轮转:① <strong>分散限流</strong>——多个 key 轮流用,整体吞吐 N 倍;② <strong>容错</strong>——一个 key 过期/被禁,自动换下一个;③ <strong>多账户</strong>——不同账户配额独立。attempt 重试时如果遇 401(凭据失效),先尝试刷新 token;刷新失败上抛 run 层,run 换下一个 auth profile。<strong>这是"不要把鸡蛋放一个篮子"在凭据上的体现。</strong></p>
+
+<h3>决策 3:为什么非幂等操作绝不自动重试</h3>
+<p>这是<strong>安全事故的红线</strong>。发邮件、支付、下单、发消息这类操作有<strong>外部副作用且不可撤销</strong>。自动重试的判断逻辑("这次失败是真的没发,还是发了但响应丢了")<strong>无法在客户端可靠判断</strong>——网络超时可能是"请求没到服务器"(重试安全)也可能是"服务器处理了但响应丢了"(重试=重复操作)。这种<strong>不确定性</strong>意味着自动重试有重复风险。<strong>正确做法</strong>:非幂等操作失败时,① <strong>不自动重试</strong>,返回失败给模型/用户;② 提供<strong>幂等键</strong>(idempotency key)让服务器端去重(带了相同 key 的请求服务器只处理一次);③ 让模型/用户决定是否手动重试。呼应第④篇的工具幂等性声明。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:分层故障容忍带来<strong>故障分类、退避算法、候选管理、幂等性建模</strong>的复杂度,换来的是<strong>瞬态故障自动恢复、永久故障优雅降级、副作用安全</strong>。替代方案(无差别重试)的失败模式是"重复扣款/发邮件、永久故障白等、单点故障全瘫"。<strong>接受复杂度,因为在生产中'失败处理'比'成功路径'更能决定产品可靠性——demo 只测成功,生产全在测失败。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:凭据耗尽的回退链</h2>
+
+<p>用户用 agent,主凭据是 OpenAI 的 key-A,备选 key-B 和 claude。请求过程中 key-A 限流了:</p>
+
+<div class="flow-diagram"><span class="stage-label">[RUN 启动]</span> 候选列表:[(gpt-5, key-A), (gpt-5, key-B), (claude, key-C)]
+  · 选候选 1:(gpt-5, key-A)
+<span class="stage-label">[ATTEMPT 1 · key-A]</span>
+  · 调模型 → 429(限流)
+  · attempt 重试:退避 1s → 重试 → 又 429
+  · 退避 2s → 重试 → 429(限流持续)
+  · attempt 上限(3次)耗尽 → 上抛
+<span class="stage-label">[RUN 回退]</span> 判定:key-A 限流,换候选
+  · 选候选 2:(gpt-5, key-B)
+<span class="stage-label">[ATTEMPT 1 · key-B]</span>
+  · 调模型 → 200 成功 ✅
+  · run 完成
+<span class="stage-label">[如果 key-B 也失败]</span>
+  · 选候选 3:(claude, key-C)—— 跨 provider 回退
+  · 重试整个 run(重建上下文适配 claude)
+<span class="stage-label">[如果全部失败]</span>
+  · 终端 failed
+  · 告知用户"所有 provider 暂时不可用"
+  · 告警运维(provider 级故障)</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:用户感受到的只是"agent 正常工作了",背后的 key-A 限流被 attempt 重试+run 回退<strong>静默吞掉</strong>。这是故障容忍的目标——<strong>对用户透明</strong>。多凭据轮转 + 多 provider 回退让单点故障不致命。同时退避+抖动避免所有用户同时重试打爆 provider。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"失败就重试 N 次"</td><td>"没考虑幂等性和故障分类"</td></tr>
+<tr><td>知道有退避和分类</td><td>"有意识但没分层"</td></tr>
+<tr><td>能说 attempt/run 边界 + 多凭据</td><td>"及格"</td></tr>
+<tr><td>能谈幂等性红线、退避防风暴、跨 provider 回退、用户透明</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点本质</strong>:"故障容忍不是'加重试',是分层、有判断、有回退、有节流的系统。重试不是万能——非幂等操作重试是事故源。"</li>
+<li><strong>给三层</strong>:"attempt 级(瞬态,退避重试)、run 级(永久,换候选回退)、用户级(全失败,降级告知)。边界在'同候选是否还有希望'。"</li>
+<li><strong>主动谈故障分类</strong>:"瞬态(网络/限流)→ 重试;凭据过期 → 刷新;永久错误(400)→ 不重试;模型不兼容 → 换模型。分类决定策略。"</li>
+<li><strong>主动谈凭据轮转</strong>:"多 auth profile,限流/过期自动换。分散限流、容错、多账户。"</li>
+<li><strong>主动谈幂等红线</strong>:"非幂等操作(发邮件/支付)绝不自动重试——客户端无法可靠判断'发了没'。用幂等键让服务端去重,或问用户。"</li>
+<li><strong>主动谈防风暴</strong>:"退避+随机抖动,防所有客户端同时重试打爆 provider。"</li>
+<li><strong>收口在透明</strong>:"目标是故障对用户透明——静默恢复。生产全在测失败路径。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从退避到幂等红线层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="13-concurrency-lanes.html">← ⑬ 并发模型</a>
+<a href="15-identity-bootstrap.html">⑮ Agent 身份与冷启动 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑭ 重试与故障容忍 · 阶段 3 协作可靠性(完)<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 退避与抖动", q:"重试用指数退避(1s, 2s, 4s...)。为什么还要加随机抖动(jitter)?只退避不够吗?",
+    a:"<strong>只退避会导致重试风暴(thundering herd)</strong>。场景:provider 短暂宕机,所有客户端的请求都失败。如果都用相同的指数退避(1s, 2s, 4s),那么 1s 后<strong>所有客户端同时重试</strong>,瞬间打爆刚恢复的 provider,再次宕机,循环。<strong>加随机抖动</strong>:每个客户端的退避时间加随机偏移(如 1s + rand(0, 0.5s)),让重试<strong>分散开</strong>——不同客户端在不同时刻重试,平滑负载。<strong>这是分布式系统的常识</strong>:任何'多个客户端同时失败后重试'的场景都必须抖动,否则重试本身变成 DoS。<strong>只退避解决了'别太频繁',抖动解决了'别太同步'</strong>。两者缺一不可。" },
+  { round:"第 2 题 · 永久 vs 瞬态", q:"怎么判断一个失败是瞬态(该重试)还是永久(不该重试)?模型返回 500 是瞬态还是永久?500 和 400 的处理差别?",
+    a:"<strong>按 HTTP 语义和业务上下文判断</strong>。<strong>5xx(500/502/503/504)</strong>:服务器端错误——通常是瞬态(服务器超载/网关抖/维护中),<strong>该重试</strong>(带退避)。503 往往带 Retry-After 头,尊重它。<strong>4xx(400/401/403/404)</strong>:客户端错误——通常是永久(参数错/没权限/不存在),<strong>不该重试</strong>(重试还是错)。401 凭据过期是例外(刷新 token 后可重试)。<strong>模型 500</strong>:大概率服务器超载,瞬态,重试。<strong>模型 400</strong>:参数错或请求格式不对,永久(同请求重试还是 400),不重试,直接失败或上抛换模型。<strong>关键</strong>:重试前要分类错误码,无差别重试会让永久错误白等 N 次退避(浪费时间)还可能触发限流。<strong>例外处理</strong>:有些 provider 用 200 返回业务错误(如'too many tokens'),要解析响应体判断,不能只看状态码。" },
+  { round:"第 3 题 · 跨 provider 回退", q:"主 provider 是 OpenAI,回退到 Claude 时,模型换了。原来给 gpt-5 的 prompt 和工具格式,Claude 可能不兼容。跨 provider 回退要做哪些适配?",
+    a:"<strong>跨 provider 回退不是简单换 endpoint,要做格式和契约适配</strong>。1)<strong>消息格式转换</strong>:OpenAI 和 Claude 的 messages 结构、role 体系、tool_call 格式都不同(第⑲篇),回退时要把已积累的上下文转换成目标 provider 的格式;2)<strong>工具 schema 适配</strong>:不同 provider 对 tool schema 的要求不同(有的不支持 anyOf、有的要 flat enum),回退时转换工具定义;3)<strong>能力差异</strong>:Claude 可能不支持 gpt-5 的某些功能(如特定 reasoning 参数),回退时要降级或剥离不兼容的部分;4)<strong>上下文重建</strong>:如果原 run 已跑了几个 turn,换 provider 后这些 turn 的历史要重新适配(可能丢一些 provider-specific 字段);5)<strong>thinking 处理</strong>:两家 thinking 格式不同,要归一化(第⑧篇)。<strong>关键</strong>:这些适配是'provider 路由按 API family 抽象'(第⑲篇)的价值——如果框架按 API family 归一化,回退时大部分适配自动完成,只剩 family 特定差异要处理。" },
+  { round:"第 4 题 · 非幂等红线", q:"'发邮件'工具失败了。客户端无法判断是'请求没到服务器'(重试安全)还是'服务器处理了响应丢了'(重试=重复发)。为什么这个不确定性不可解决?幂等键怎么缓解?",
+    a:"<strong>不可解决是因为它本质是网络的不确定性</strong>。在不可靠网络上,'请求发出后超时'有两种可能:① 请求没到服务器(或服务器处理前崩了)→ 重试安全;② 请求到了、服务器处理了(发了邮件)、但响应在返回路上丢了 → 重试=重复操作。<strong>客户端在超时后无法区分这两种情况</strong>——它只知道自己没收到响应,不知道服务器到底处理了没。任何自动重试逻辑都面临这个不确定性:重试可能安全(情况①),可能重复(情况②)。<strong>幂等键缓解</strong>:客户端生成唯一 idempotency key 随请求发送,服务器记录这个 key。重试时带相同 key,服务器识别'这个 key 的请求我处理过了',直接返回上次的结果而不重复执行。<strong>这样即使重试也不会重复操作</strong>。但前提是<strong>服务器端实现幂等</strong>——如果服务器不理会 key,客户端的幂等键没用。所以非幂等操作的真正安全需要<strong>端到端幂等设计</strong>,不是客户端单方面能保证的。" },
+  { round:"第 5 题 · 重试与预算", q:"重试是要花钱的(每次重试都消耗 token/费用)。如果一个 run 因为 provider 问题反复重试,可能把用户的预算烧光。怎么防止重试变成预算黑洞?",
+    a:"<strong>需要预算感知的重试控制</strong>。设计:1)<strong>总预算上限</strong>——run 级设 token/费用预算,重试消耗也算进预算,超了就停(进入终端状态 budget_exceeded);2)<strong>重试成本估算</strong>——重试前估算这次重试大概花多少(基于 prompt 大小×单价),如果剩余预算不够,不重试直接失败;3)<strong>重试次数 × 成本上限</strong>——不只是次数上限,而是'重试累计花费'上限(防止每次重试都很贵的情况);4)<strong>用户感知</strong>——预算接近耗尽时告知用户'重试消耗预算,是否继续?',把控制权交给用户;5)<strong>区分 retry 和 fresh</strong>——重试(同请求)和重新开始(新请求)的预算归属要清晰。<strong>关键洞察</strong>:重试不是免费的——它消耗 token、费用、时间、用户耐心。生产必须把重试纳入预算管理,否则一个 provider 故障能让用户账单爆炸。<strong>这是为什么 attempt 重试要有次数上限</strong>——不只是防永久故障白等,也是防预算黑洞。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了退避抖动、永久vs瞬态、跨 provider 回退、非幂等红线、预算控制。<br><br>Part B 协作可靠性 5 篇全部完成!接下来进入 <a href="15-identity-bootstrap.html">Part C 身份与自主性</a>。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

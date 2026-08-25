@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑪ Hooks:Agent 生命周期扩展点</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .hook { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:14px 18px; margin:12px 0; }
+  .hook .name { color:var(--purple); font-weight:700; font-family:"SFMono-Regular",Consolas,monospace; font-size:13px; }
+  .hook .type { float:right; font-size:11px; padding:2px 8px; border-radius:10px; }
+  .hook .type.block { background:#2a1414; color:var(--red); }
+  .hook .type.observe { background:#0d1f12; color:var(--green); }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑪ Hooks:Agent 生命周期扩展点
+  <span class="sub">阶段 3 · 协作与可靠性 · 阻塞型 vs 观察型 · 决策语义</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:核心流程怎么被扩展</a></li>
+  <li><a href="#design">分层设计:各阶段钩子点</a></li>
+  <li><a href="#why">为何这么设计:阻塞 vs 观察、终止语义</a></li>
+  <li><a href="#example">完整示例:安全审计 hook 拦截危险工具</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:核心流程怎么被扩展</h2>
+
+<p>Agent 的核心流程(解析模型→拼 prompt→调工具→回复→结束)是固定的。但生产中,各种定制需求都想往这个流程里"插一脚":</p>
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li><strong>安全审计</strong>:工具调用前检查是否危险,危险就拦。</li>
+  <li><strong>日志/监控</strong>:记录每次模型调用、工具执行,供分析。</li>
+  <li><strong>权限控制</strong>:某些用户/场景禁用某些工具。</li>
+  <li><strong>定制 prompt</strong>:在系统 prompt 前后加自己的内容。</li>
+  <li><strong>结果改写</strong>:工具结果回来后做脱敏/转换。</li>
+  <li><strong>会话事件</strong>:会话开始/结束时做初始化/清理。</li>
+</ul>
+</div>
+
+<p>如果这些定制都<strong>写死在核心流程里</strong>,核心会变成打满 if/else 的怪兽,且每个用户/部署要改核心代码才能定制。<strong>不可维护,也不可扩展。</strong></p>
+
+<p>demo 级做法:在核心里散落调用点 <code>if (config.enableAudit) auditLog(...)</code>。生产中这会爆炸:每加个定制加个 if,核心越来越乱,且不同定制的执行顺序、错误处理、相互影响无法管理。</p>
+
+<h2 id="design">二 · 分层设计:各阶段钩子点</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│          Agent 生命周期 · 各阶段钩子点                                   │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[会话级]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ session_start ─→ (会话进行) ─→ session_end                │
+  └──────────────────────────────────────────────────────────┘
+
+        │ 每个 turn(第②篇的 turn 循环):
+        ▼
+  <span class="stage-label">[turn 级钩子链]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ ① before_model_resolve   "用哪个模型"之前(可改模型)       │
+  │       ↓                                                   │
+  │ ② before_prompt_build    拼 prompt 之前/之后(可改 prompt) │
+  │       ↓                                                   │
+  │ ③ [调模型 · stream]                                      │
+  │       ↓                                                   │
+  │ ④ before_tool_call       工具执行前(可拦截/改参数)  🔒阻塞 │
+  │       ↓                                                   │
+  │ ⑤ [执行工具]                                             │
+  │       ↓                                                   │
+  │ ⑥ after_tool_call        工具结果回来(可改结果/脱敏) 🔒阻塞 │
+  │       ↓                                                   │
+  │ ⑦ before_agent_reply     给用户回复前(可改回复)           │
+  │       ↓                                                   │
+  │ ⑧ turn_end / agent_end   回合/任务结束(观察/清理)         │
+  └──────────────────────────────────────────────────────────┘
+
+  🔒阻塞 = hook 可阻止后续流程(如拦截工具)
+  👁观察 = hook 只看不能改(如日志)</div>
+
+<h3>两类 hook 的本质区别</h3>
+<div class="hook">
+<span class="name">阻塞型(blocking)</span><span class="type block">可终止流程</span>
+<p>能<strong>阻止</strong>后续动作。典型:before_tool_call 可拦截危险工具,before_prompt_build 可改 prompt。返回"终止"决策让核心停下或改变行为。这是<strong>决策权</strong>——hook 参与流程控制。</p>
+</div>
+<div class="hook">
+<span class="name">观察型(observing)</span><span class="type observe">只读不改</span>
+<p>只<strong>观察</strong>不改变流程。典型:turn_end 记日志,agent_end 做统计。这是<strong>旁路</strong>——hook 不影响核心,只消费事件。</p>
+</div>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么区分阻塞型和观察型</h3>
+<p>如果所有 hook 都能改流程,会出现:① <strong>顺序依赖混乱</strong>——多个 hook 都改 prompt,谁后改谁覆盖,结果不确定;② <strong>性能损耗</strong>——观察型(日志)本不需等,却要串行过 hook 链;③ <strong>核心不可预测</strong>——核心不知道哪些 hook 会改东西,难以推理自身行为。区分后:<strong>阻塞型</strong>明确声明"我要参与决策",按注册顺序串行执行,每个都能看到前一个的结果;<strong>观察型</strong>只读,可并行/异步,不影响核心。这让核心的行为<strong>可推理</strong>(只有阻塞型 hook 影响它),且性能可控。</p>
+
+<h3>决策 2:为什么阻塞型 hook 的决策要有"终止语义"</h3>
+<p>阻塞型 hook 返回的不该是布尔值(true/false),而是<strong>有语义的决策</strong>:</p>
+<table>
+<thead><tr><th>决策</th><th>含义</th><th>典型场景</th></tr></thead>
+<tbody>
+<tr><td><code>proceed</code></td><td>继续(可能带修改)</td><td>正常,或改了参数后继续</td></tr>
+<tr><td><code>block</code></td><td>阻止此动作</td><td>危险工具被拦截</td></tr>
+<tr><td><code>cancel</code></td><td>取消整个 turn/run</td><td>严重违规,中止任务</td></tr>
+<tr><td><code>modify</code></td><td>修改后继续</td><td>参数脱敏、prompt 注入</td></tr>
+</tbody>
+</table>
+<p>为什么不是简单 true/false?因为"阻止这个工具"和"取消整个任务"是<strong>不同力度</strong>的干预,核心需要对每种决策有明确响应。布尔值表达不了"阻止但继续 turn"vs"取消整个 run"的区别。<strong>终止语义让 hook 的干预力度可表达、可组合、可推理。</strong></p>
+
+<h3>决策 3:为什么 hook 按注册顺序串行(阻塞型)</h3>
+<p>多个阻塞型 hook 都想改 prompt(如安全过滤 + 内容注入)。如果并行执行,谁的结果算数不确定。<strong>串行 + 顺序</strong>让结果确定:hook A 改完,hook B 基于 A 的结果改,可预测。注册顺序就是优先级(后注册的覆盖先注册的,或反之,要明确)。这是<strong>确定性优先于性能</strong>——hook 链的可预测性比并行快重要。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:hook 系统带来<strong>执行顺序管理、决策语义、错误传播</strong>的复杂度,换来的是<strong>核心流程保持纯净、定制可插拔、行为可推理</strong>。替代方案(if 散落)的失败模式是"核心打满特判,每个定制要改核心,行为不可预测"。<strong>接受 hook 链管理的复杂度,因为它是核心保持 plugin-agnostic(第⑱篇)的关键机制——没有 hook,所有定制都会侵蚀核心。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:安全审计 hook 拦截危险工具</h2>
+
+<p>部署一个企业 agent,要求 exec 工具调用前必须经过安全审计。注册一个 before_tool_call 阻塞型 hook:</p>
+
+<div class="flow-diagram"><span class="stage-label">[turn N · 模型决定调用 exec("rm -rf /tmp/old")]</span>
+  ↓
+<span class="stage-label">[before_tool_call hook 触发]</span>
+  · hook: SecurityAuditHook
+  · 类型: 阻塞型
+  · 输入: toolName=exec, params={cmd: "rm -rf /tmp/old"}
+  · 审计逻辑: 检测到 "rm -rf" 高危模式
+  · 决策: <strong>block</strong>(返回"阻止此工具调用,原因:高危命令")
+  ↓
+<span class="stage-label">[核心响应 block 决策]</span>
+  · 不执行 exec
+  · 合成 tool_result: "工具调用被安全策略阻止:高危命令"
+  · 喂回模型,模型据此换方案
+  ↓
+<span class="stage-label">[模型推理]</span> "rm 被拦了,我换个安全的清理方式..."
+  ↓
+<span class="stage-label">[turn 继续]</span> 模型改用安全命令,通过审计,执行成功</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:安全审计 hook <strong>没改核心代码</strong>就实现了拦截。核心只负责"调 hook、响应决策",具体审计逻辑在 hook 里。换企业、换策略,只换 hook 不动核心。这就是 hook 的价值——<strong>核心保持纯净,定制通过组合 hook 实现</strong>。同时 block 决策不是简单拒绝,而是合成失败结果喂回模型,让模型自己换方案(而非任务崩)。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"核心里加 if 判断"</td><td>"没扩展性意识"</td></tr>
+<tr><td>知道有 hook/中间件</td><td>"有意识但没考虑语义"</td></tr>
+<tr><td>能说各阶段 hook + 阻塞/观察</td><td>"及格"</td></tr>
+<tr><td>能谈终止语义、串行确定性、核心纯净性</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点需求</strong>:"核心流程固定,但定制需求多(安全/日志/权限/改写)。写死在核心会变怪兽且不可扩展。"</li>
+<li><strong>给 hook 系统</strong>:"在各阶段暴露钩子:before_model/before_prompt/before_tool/after_tool/before_reply/end。hook 注册进来,核心在对应点调用。"</li>
+<li><strong>主动谈两类</strong>:"分阻塞型和观察型。阻塞型可终止/改流程(如拦截工具),观察型只读(如日志)。这让核心行为可推理(只有阻塞型影响它)。"</li>
+<li><strong>主动谈终止语义</strong>:"阻塞型返回有语义的决策(proceed/block/cancel/modify),不是布尔。表达不同干预力度。"</li>
+<li><strong>主动谈串行确定性</strong>:"阻塞型按注册顺序串行,结果可预测。确定性优先于性能。"</li>
+<li><strong>收口在核心纯净</strong>:"hook 是核心保持 plugin-agnostic 的关键——定制通过组合 hook,不动核心。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-info">5 题,从阻塞/观察到 hook 失败层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="10-subagent-delegation.html">← ⑩ 子 Agent</a>
+<a href="12-interruption-terminal.html">⑫ 中断与终端状态 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑪ Hooks 生命周期扩展点 · 阶段 3 协作可靠性<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 阻塞 vs 观察", q:"为什么要把 hook 分成阻塞型和观察型?如果所有 hook 都能改流程(都是阻塞型),会发生什么?",
+    a:"<strong>三个问题</strong>:1)<strong>顺序依赖混乱</strong>——多个 hook 都改 prompt,谁后改谁覆盖,结果不确定,且 hook 之间可能有隐式依赖(A 依赖 B 先跑),并行或乱序会出错;2)<strong>性能损耗</strong>——观察型 hook(如日志、统计)本不需等待核心,如果都要串行过 hook 链,每个 turn 多出大量同步开销;3)<strong>核心不可预测</strong>——核心不知道哪些 hook 会改东西,难以推理自身行为(比如核心以为 prompt 是 X,但被某 hook 改成了 Y,调试困难)。<strong>区分后</strong>:阻塞型明确声明'我要参与决策',按顺序串行,核心知道只有这些会影响它;观察型只读,可异步并行,不拖累核心。这让核心行为<strong>可推理</strong>(只需关注阻塞型),且性能可控(观察型不阻塞)。" },
+  { round:"第 2 题 · 终止语义", q:"阻塞型 hook 你说返回'有语义的决策'而非布尔值。block(阻止此动作)和 cancel(取消整个 run)有什么实际区别?为什么这个区别重要?",
+    a:"<strong>block 是局部阻止,cancel 是全局中止</strong>。<strong>block</strong>:阻止当前这个动作(如这次工具调用),但 turn/run 继续——核心合成失败结果喂回模型,模型换方案继续任务。这是'这个不行,换个方式'。<strong>cancel</strong>:取消整个 turn 甚至 run——因为发现了严重问题(如用户没有权限做这类操作的任何变体,或检测到恶意意图),不只是这个工具不行,而是整个任务不该继续。<strong>区别重要性</strong>:如果只有布尔(阻止/不阻止),表达不了'阻止这个但继续'vs'彻底取消'的力度差异。安全审计拦截一个危险命令是 block(换个命令可能 OK),发现用户试图越权访问整个数据库是 cancel(任何变体都不该做)。核心对这两种决策的响应完全不同——block 合成失败结果继续,cancel 进入终止流程。<strong>终止语义让 hook 的干预力度精确表达</strong>。" },
+  { round:"第 3 题 · hook 顺序", q:"两个阻塞型 hook 都改 prompt:HookA 注入安全规则,HookB 注入用户偏好。注册顺序不同会导致 prompt 不同吗?怎么决定谁先谁后?",
+    a:"<strong>会不同,顺序是显式的设计决策</strong>。如果 A 先 B 后,prompt 是 [安全规则 + 用户偏好];如果 B 先 A 后,是 [用户偏好 + 安全规则]——顺序不同,且如果两者改的是同一段(都改系统指令开头),后改的覆盖先改的。<strong>怎么决定顺序</strong>:1)<strong>优先级声明</strong>——hook 注册时声明优先级(数字或层级),系统按优先级排序执行;2)<strong>语义分层</strong>——通常安全/合规类 hook 最高优先级(先跑,确保基础约束),业务定制次之,用户偏好最后(可被覆盖);3)<strong>文档约定</strong>——明确告诉 hook 作者'你的 hook 会在 X 类 hook 之后跑'。<strong>关键原则</strong>:顺序必须<strong>确定且可预测</strong>——不能依赖注册时间或哈希顺序(那会让 prompt 字节级不同,缓存失效,见第③篇)。生产中通常用显式优先级 + 同优先级内确定性排序(如按 hook 名字典序)。" },
+  { round:"第 4 题 · hook 失败", q:"一个阻塞型 hook 执行时抛异常了(比如安全审计服务挂了)。核心该怎么做?继续执行(忽略 hook)?还是阻止(保守)?不同选择的后果?",
+    a:"<strong>这是个关键的安全策略决策,通常默认'失败关闭'(fail-closed,保守阻止)</strong>。<strong>继续执行(忽略失败 hook)</strong>:后果——如果失败的是安全审计 hook,危险工具调用不被拦截就执行了,安全事故。这在安全敏感场景不可接受。<strong>阻止(保守)</strong>:后果——hook 挂了导致所有相关动作都被拦,agent 可能瘫痪,但<strong>至少不会发生安全事故</strong>。<strong>生产推荐</strong>:1)安全/合规类 hook 默认 fail-closed(挂了就拦,宁可瘫痪不可漏检);2)非关键 hook(如日志)fail-open(挂了就跳过,不影响主流程);3)hook 声明自己的失败策略(关键 or 非关键);4)失败要告警(让运维知道 hook 挂了),不能静默。<strong>核心洞察</strong>:hook 的失败处理本身是安全设计的一部分——'hook 不可用时系统该多保守'取决于 hook 的职责。安全类必须 fail-closed,这是不可妥协的。" },
+  { round:"第 5 题 · hook 与子 agent", q:"父 agent 注册了一个 before_tool_call hook(安全审计)。父派出的子 agent,这个 hook 生效吗?子 agent 的工具调用也被同一个 hook 审计吗?",
+    a:"<strong>通常应该生效,但要明确策略传递</strong>。设计上:1)<strong>hook 是 agent 级配置</strong>——属于 agent 的安全策略,父 agent 注册的 hook 默认对它的所有子 agent 也生效(因为子 agent 继承父的策略,见第⑩篇);2)<strong>实现上</strong>——子 agent 创建时继承父的 hook 注册(或继承 hook 配置源),在子 agent 的工具调用前同样触发;3)<strong>可选择性收紧</strong>——子 agent 可以有更严的 hook(父没有的审计子加上),但不能绕过父的 hook(权限单调性:子不能取消父的安全审计)。<strong>为什么必须生效</strong>:否则安全形同虚设——父禁了危险操作,派个子 agent 绕过审计执行,漏洞。<strong>关键</strong>:hook 作为策略的一部分,和工具策略一样遵循'继承 + 收紧不放宽'的单调性。这保证了安全策略沿父子树一致,没有逃逸路径。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了阻塞vs观察、终止语义、hook 顺序、hook 失败、hook 与子 agent。<br><br>下一篇 <a href="12-interruption-terminal.html">⑫ 中断与终端状态优先级格</a> 讲为什么终端状态要闭式优先级格。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

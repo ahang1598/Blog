@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑧ 推理模型与思维链处理</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .msg-block { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:14px 18px; margin:12px 0; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.6; }
+  .msg-block .role { color:var(--accent); font-weight:700; }
+  .msg-block .thinking { color:var(--purple); font-style:italic; }
+  .msg-block .text { color:var(--text); }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑧ 推理模型与思维链处理
+  <span class="sub">阶段 2 · 智能核心主线 · thinking block 为何不能当普通文本</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:思维链不是普通文本</a></li>
+  <li><a href="#design">分层设计:thinking 作为一等公民</a></li>
+  <li><a href="#why">为何这么设计:预算、透传、压缩、剥离</a></li>
+  <li><a href="#example">完整示例:一次推理的消息结构</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:思维链不是普通文本</h2>
+
+<p>新一代推理模型(o1/Claude thinking/GPT-5 reasoning)会输出<strong>思维链</strong>:在给最终答案前,先输出一段"思考过程"(分析问题、考虑方案、自我纠错)。这段思考是模型推理质量的关键。</p>
+
+<p>demo 级做法:把 thinking 当普通文本处理——和最终答案一起塞进消息,存历史,下次请求带回去。听起来自然,但生产中引发一堆问题:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li><strong>预算爆炸</strong>:thinking 可能比最终答案长 10 倍(模型要想很久)。全保留 = 上下文瞬间被 thinking 吃光。</li>
+  <li><strong>缓存命中差</strong>:thinking 是模型每次重新生成的,内容不稳定,塞进历史会让 prompt 缓存难以命中。</li>
+  <li><strong>不该回传给模型</strong>:上一轮的 thinking 通常是"中间过程",回传给下一轮的模型可能干扰它(让它沿旧思路走而非重新想)。</li>
+  <li><strong>跨 provider 不一致</strong>:不同 provider 的 thinking 格式/语义不同(有的有独立字段,有的混在文本里),不归一化没法通用。</li>
+  <li><strong>用户可见性</strong>:thinking 有时要给用户看(显示推理过程增加信任),有时要隐藏(内部推理不该暴露),需要可控。</li>
+</ul>
+</div>
+
+<h2 id="design">二 · 分层设计:thinking 作为一等公民</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                thinking block · 一等公民处理                            │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[1] 模型输出归一化</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 不管哪个 provider,模型的 turn 输出归一成:                │
+  │   AssistantMessage = {                                     │
+  │     thinking: ThinkingBlock[]   ← 独立字段,非混在文本里  │
+  │     text:      TextBlock[]                                 │
+  │     toolCalls: ToolCallBlock[]                             │
+  │   }                                                        │
+  │ → thinking 是结构化的一等字段,有独立生命周期              │
+  └──────────────────────────────────────────────────────────┘
+                              │
+  <span class="stage-label">[2] 透传策略 · 跨 turn 如何处理上轮 thinking</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 选项 A:不透传(默认)                                     │
+  │   · 上轮 thinking 不放回下次请求 prompt                    │
+  │   · 让模型每轮重新想(避免沿旧思路)                       │
+  │ 选项 B:选择性透传                                         │
+  │   · 只在特定场景(如多步推理连贯性需要)才带上              │
+  │   · 由 provider 契约决定(provider 支持才透传)             │
+  └──────────────────────────────────────────────────────────┘
+                              │
+  <span class="stage-label">[3] 压缩策略 · thinking 在压缩中怎么处理</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 压缩时(第⑤篇)thinking 优先丢弃:                         │
+  │   · thinking 是"过程",最终答案已含"结论"                  │
+  │   · 保留 text/toolCalls 即可保留任务进展                   │
+  │   · 个别 provider 要求 thinking 必须和 text 成对保留       │
+  │     → 压缩逻辑要理解 provider 契约                         │
+  └──────────────────────────────────────────────────────────┘
+                              │
+  <span class="stage-label">[4] 预算控制 · thinking token 上限</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 给 thinking 设独立预算(不能让它无限想):                  │
+  │   · reasoning_effort: low/medium/high                     │
+  │   · max thinking tokens                                   │
+  │ → 高预算=想得深但贵慢,低预算=快但浅                       │
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>thinking 的四个生产关注点</h3>
+<table>
+<thead><tr><th>关注点</th><th>核心问题</th><th>设计响应</th></tr></thead>
+<tbody>
+<tr><td>预算</td><td>thinking 可能无限长,吃光上下文</td><td>独立预算 + reasoning_effort 分级</td></tr>
+<tr><td>透传</td><td>上轮 thinking 该不该回传下轮</td><td>默认不透传,provider 契约决定例外</td></tr>
+<tr><td>压缩</td><td>压缩时 thinking 怎么处理</td><td>优先丢弃,保留 text/toolCalls</td></tr>
+<tr><td>归一化</td><td>跨 provider 格式不一致</td><td>归一成独立 ThinkingBlock 字段</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:四个核心决策</h2>
+
+<h3>决策 1:为什么 thinking 要独立字段而非混在文本</h3>
+<p>如果 thinking 混在最终文本里:① <strong>无法分别处理</strong>(不能"只丢 thinking 保答案");② <strong>用户可见性不可控</strong>(无法选择性显示);③ <strong>跨 provider 无法归一</strong>(格式各异)。独立字段让 thinking 成为<strong>有独立生命周期的对象</strong>——可以单独预算、单独压缩、单独控制可见性、单独归一化。这是后续所有策略的前提。</p>
+
+<h3>决策 2:为什么默认不透传上轮 thinking</h3>
+<p>thinking 是"得到答案的中间过程"。如果回传给下一轮模型,模型可能<strong>沿旧思路走而非重新评估</strong>——比如上轮 thinking 排除了方案 X,下轮遇到新信息本该重新考虑 X,但因为旧 thinking 还在,它继续排除 X。<strong>默认不透传让模型每轮基于当前完整上下文重新思考</strong>,避免被历史推理锁死。例外:某些多步推理任务确实需要连贯性,这时按 provider 契约选择性透传。这个"默认不传"是反直觉但正确的——直觉是"多给模型信息更好",但对 thinking 而言,多给反而可能误导。</p>
+
+<h3>决策 3:为什么压缩时优先丢 thinking</h3>
+<p>thinking 是<strong>过程</strong>,最终 text 和 toolCalls 是<strong>结论</strong>。压缩的目标是保留任务进展,而进展在结论里。thinking 的价值在它被生成的那一轮(帮模型得出好答案),一旦答案得出,thinking 的使命就完成了。所以压缩时优先丢 thinking 保 text/toolCalls,能在不损失任务信息的前提下大幅省 token。<strong>但要尊重 provider 契约</strong>——个别 provider 要求同一消息的 thinking 和 text 必须成对存在,丢 thinking 就要连 text 一起处理,不能只丢一半。这要求压缩逻辑理解 provider 的配对契约(类似第④篇的 tool_use/result 配对)。</p>
+
+<h3>决策 4:为什么不能为省 token 直接全剥离</h3>
+<p>thinking 虽然可以丢,但<strong>不能在生产管道的早期就全剥离</strong>。原因:① <strong>用户可能要看</strong>——显示推理过程增加信任(尤其重要决策如医疗/法律);② <strong>调试需要</strong>——出问题时,thinking 是理解模型为何这么答的关键;③ <strong>某些下游消费</strong>——比如提取 thinking 做质量评估或训练数据。所以 thinking 要<strong>保留到足够晚的阶段</strong>(至少存进 transcript),只在确实不需要时(如压缩、回传 prompt)才丢。<strong>"可丢"不等于"尽早丢"</strong>——保留它的可观测价值。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:thinking 作为一等公民带来<strong>消息结构的复杂度</strong>(独立字段、独立预算、独立压缩策略、provider 契约对齐),换来的是<strong>预算可控、缓存友好、推理质量不被旧思路锁死、可观测可调试</strong>。替代方案(当普通文本)的失败模式是"预算爆炸 + 缓存失效 + 模型沿旧思路走 + 跨 provider 不通用"。<strong>接受复杂度,因为推理模型是当前主流,thinking 处理不当直接决定产品能用与否。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:一次推理的消息结构</h2>
+
+<p>用户问"这个函数有 bug 吗"。推理模型(high reasoning)的一轮输出,归一化后的结构:</p>
+
+<div class="msg-block"><span class="role">[AssistantMessage · turn 1]</span>
+
+<span class="thinking">[ThinkingBlock]
+"用户给了个函数让我找 bug。先看签名:接受 array 返回 number。
+ 看逻辑:遍历 array 累加。但没检查 array 是否为 null...
+ 等等,如果 array 是 undefined 会抛 TypeError。这是 bug。
+ 还有什么?返回值如果 array 为空返回 0,合理。
+ 结论:主要 bug 是没做空值检查。"</span>
+
+<span class="text">[TextBlock]
+"这个函数有一个潜在 bug:没有对入参做空值检查。
+如果传入 null 或 undefined,for 循环会抛 TypeError。
+建议在函数开头加:if (!array) return 0;"</span>
+
+<span class="text">(无 ToolCallBlock,纯文本回答)</span>
+</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:thinking(紫色斜体)和最终 text 是<strong>独立字段</strong>。下次请求时,默认<strong>只回传 text 不回传 thinking</strong>(让模型基于答案重新思考,而非被上轮思考锁死)。压缩时优先丢 thinking 保 text。但 thinking <strong>存进了 transcript</strong>——用户要"看模型怎么想的"或开发者调试时,可以回放。<strong>这就是"一等公民":有独立结构、独立策略、独立保留价值,而非混在文本里随波逐流。</strong>
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"thinking 就是模型多输出的文字"</td><td>"没理解推理模型的特殊性"</td></tr>
+<tr><td>知道 thinking 占 token 要省</td><td>"有意识但没系统设计"</td></tr>
+<tr><td>能说独立字段 + 透传策略</td><td>"及格"</td></tr>
+<tr><td>能谈预算分级、默认不透传、压缩优先丢、provider 契约对齐</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<p>这题是<strong>考察你是否跟上了推理模型时代</strong>。还在用"文本统一处理"思路答的,说明对当前主流模型的生产特性没经验。</p>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点特殊性</strong>:"推理模型的 thinking 不是普通文本——它可能比答案长 10 倍、不稳定、不该简单回传。要当一等公民处理。"</li>
+<li><strong>给独立字段</strong>:"thinking 归一成独立的 ThinkingBlock 字段,有独立生命周期。这样能分别预算、分别压缩、分别控制可见性、跨 provider 归一。"</li>
+<li><strong>主动谈透传</strong>:"默认不透传上轮 thinking——避免模型沿旧思路走。让它每轮基于完整上下文重新想。这是反直觉但正确的。"</li>
+<li><strong>主动谈压缩</strong>:"压缩时优先丢 thinking 保 text/toolCalls——过程已凝结成结论,过程可丢。但要尊重 provider 契约(有些要求 thinking 和 text 成对)。"</li>
+<li><strong>主动谈预算</strong>:"给 thinking 独立预算和 reasoning_effort 分级——不能让它无限想吃光上下文。"</li>
+<li><strong>收口在'可丢不等于尽早丢'</strong>:"thinking 要保留到足够晚(至少进 transcript),因为用户要看、调试要查、下游要消费。只在确实不需要时才丢。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从归一化到剥离时机层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="07-skills-system.html">← ⑦ Skills 系统</a>
+<a href="09-streaming-design.html">⑨ 流式架构设计 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑧ 推理模型与思维链处理 · 阶段 2 智能核心<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 为什么独立字段", q:"thinking 混在最终文本里看起来也'能用'。把它单独拎出来做成独立 ThinkingBlock 字段,具体解决了哪四个问题?",
+    a:"<strong>四个问题</strong>:1)<strong>无法分别处理</strong>——混在文本里就不能'只丢 thinking 保答案'或'只给用户看 thinking';2)<strong>用户可见性不可控</strong>——无法选择性显示推理过程(有时要展示增加信任,有时要隐藏内部推理);3)<strong>跨 provider 无法归一</strong>——不同 provider 格式各异(有的独立字段有的混文本),不归一没法通用;4)<strong>无法独立预算</strong>——不能单独限制 thinking token。独立字段让 thinking 成为'有独立生命周期的对象',这是后续所有策略(透传、压缩、预算、可见性)的前提。混在文本里等于没有这些策略的抓手。" },
+  { round:"第 2 题 · 默认不透传", q:"你说默认不把上轮 thinking 回传给下轮模型。但'多给模型信息通常更好'这个直觉在这里为什么错了?什么场景下才该透传?",
+    a:"<strong>直觉错在'thinking 是过程不是信息'</strong>。给模型上轮的最终答案是'给结论让它继续',给上轮 thinking 是'给它上轮的推理路径'——这会<strong>诱导它沿旧思路走而非重新评估</strong>。比如上轮 thinking 排除了方案 X(基于当时信息),下轮遇到新信息本该重新考虑 X,但旧 thinking 还在,模型继续排除 X。<strong>该透传的场景</strong>:多步推理任务,步骤间有强逻辑连贯性(如数学证明的中间步骤、复杂规划的连贯推演),这时跳过中间思考会让模型'忘记上一步怎么推的'。<strong>判断标准</strong>:thinking 是'已废的过程'(默认丢)还是'必需的中间状态'(透传),取决于任务结构。且必须 provider 契约支持——有些 provider 根本不接受历史 thinking。" },
+  { round:"第 3 题 · 压缩时的契约", q:"压缩时你说'优先丢 thinking 保 text'。但有些 provider 要求同一消息的 thinking 和 text 必须成对存在。压缩逻辑怎么处理这个矛盾?",
+    a:"<strong>这要求压缩逻辑理解 provider 的配对契约</strong>,类似第④篇的 tool_use/result 配对。<strong>处理方式</strong>:1)<strong>查询当前 provider 的 thinking 契约</strong>——是否要求 thinking/text 成对;2)<strong>若要求成对</strong>:压缩时不能只丢 thinking 留 text,要么整条消息(含 thinking+text)进摘要/被处理,要么都保留——不能切开;3)<strong>若不要求成对</strong>:可以只丢 thinking 保 text。这个'按 provider 契约差异化处理'是 thinking 压缩比普通文本压缩复杂的地方——<strong>同一套压缩逻辑要适配多种 provider 约束</strong>。实现上通常把 provider 契约抽象成'消息完整性规则',压缩时调用对应 provider 的规则判断哪些能切哪些不能。漏了这步会导致某些 provider 下压缩后请求报错。" },
+  { round:"第 4 题 · 预算控制", q:"reasoning_effort 设成 high,模型可能想很久,token 消耗和延迟都大。设成 low 又怕推理质量差。这个分级在实际产品里怎么选?有没有动态调整的设计?",
+    a:"<strong>产品里通常按任务类型默认 + 用户/系统可调</strong>。<strong>默认策略</strong>:简单任务(改个 typo、查个信息)用 low(快省);复杂任务(架构设计、debug 复杂问题、代码审查)用 high(深准)。<strong>动态调整设计</strong>:1)<strong>任务难度路由</strong>——系统先判断任务复杂度(基于用户消息特征或一次 cheap 预分类),自动选 effort;2)<strong>渐进升级</strong>——先用 low 试,如果模型自己'不确定'(返回低置信或反复改答案)自动升级到 high 重试;3)<strong>用户显式</strong>——让用户标'仔细想想'强制 high。<strong>取舍</strong>:动态调整省成本但增加复杂度和不确定性(预分类可能错)。很多产品先从'按任务类型静态默认'做起,验证后再上动态。<strong>关键洞察</strong>:effort 不是越高越好——对简单任务用 high 是浪费且可能让模型过度思考反而出错。" },
+  { round:"第 5 题 · 剥离时机", q:"既然 thinking 可以丢(压缩时丢、不透传),为什么不在管道早期就全剥离掉,省得后续都要带着它?保留它的代价是什么?",
+    a:"<strong>早期全剥离会损失三个价值</strong>:1)<strong>用户可见性</strong>——重要决策(医疗/法律/金融)用户要看推理过程才信任,剥了就没了;2)<strong>调试</strong>——模型答错了,thinking 是理解'它为什么这么答'的关键证据,剥了就无法追溯;3)<strong>下游消费</strong>——thinking 可用于质量评估、训练数据提取、行为审计。<strong>保留代价</strong>:存储成本(transcript 变大)和管道复杂度(各阶段都要'知道 thinking 存在但可能不传')。<strong>正确做法</strong>:thinking <strong>保留进 transcript</strong>(可观测可回放),但在<strong>确实不需要的关口选择性丢</strong>(回传 prompt 时默认不传、压缩时优先丢)。<strong>'可丢'不等于'尽早丢'</strong>——保留它的可观测价值,只在传输/预算约束处才丢。这是'保留信息'和'控制成本'的平衡,生产系统通常选择保留到 transcript,消费侧按需读取。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了独立字段、默认不透传、压缩契约、预算分级、剥离时机。<br><br>下一篇 <a href="09-streaming-design.html">⑨ 流式架构设计</a> 讲为什么模型 token 流不能直送聊天协议。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

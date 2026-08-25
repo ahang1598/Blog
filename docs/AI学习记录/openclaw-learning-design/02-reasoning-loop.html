@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>② 推理循环:三层嵌套设计</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .loop-layer { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 20px; margin:14px 0; }
+  .loop-layer h4 { margin-top:0; }
+  .loop-layer.turn { border-left:4px solid var(--accent); }
+  .loop-layer.attempt { border-left:4px solid var(--orange); }
+  .loop-layer.run { border-left:4px solid var(--green); }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>② 推理循环:三层嵌套设计
+  <span class="sub">阶段 2 · 智能核心主线 · turn / attempt / run 各 owns 什么</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:单层循环为何在生产中崩</a></li>
+  <li><a href="#design">分层设计:三层循环的职责切分</a></li>
+  <li><a href="#why">为何这么设计:每层 owns 什么故障</a></li>
+  <li><a href="#example">完整示例:一次"工具失败 → 重试 → 成功"穿越三层</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:单层循环为何在生产中崩</h2>
+
+<p>demo 级 Agent 的循环很简单:<code>while 没完成: 调模型 → 模型要工具? → 调工具 → 把结果塞回去</code>。一个 <code>while</code> 搞定一切。跑起来没问题。</p>
+
+<p>但生产中,这一个循环要同时处理<strong>三类完全不同的"再来一次"</strong>:</p>
+
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li><strong>turn 级别再来</strong>:模型这一轮用了工具,要把工具结果喂回去让它继续——这是<strong>正常循环</strong>,不是错误。</li>
+  <li><strong>attempt 级别再来</strong>:模型这次调用整体失败了(认证过期、网络抖动、返回了无法解析的格式)——这是<strong>同一次尝试内部的重试</strong>。</li>
+  <li><strong>run 级别再来</strong>:连重试都救不回来,要换模型/换凭据重新跑整个任务——这是<strong>执行实例级的兜底</strong>。</li>
+</ul>
+</div>
+
+<p>如果用单层循环处理这三类:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li>"模型要工具"和"模型认证失败"会被混进同一个 retry 计数器——工具调用次数限制了你的故障重试次数。</li>
+  <li>"换模型重试"必须清空整个对话状态,但单层循环没有"执行实例"概念,无处重置。</li>
+  <li>超时、取消、空闲等不同来源的"该停了"无法分层判定,互相覆盖。</li>
+  <li>每个故障都得加 <code>if</code> 特判,循环体迅速变成不可维护的状态怪兽。</li>
+</ul>
+</div>
+
+<h2 id="design">二 · 分层设计:三层循环的职责切分</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                       推理循环 · 三层嵌套                                │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">外层 · RUN 循环(执行实例级)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ while 还有可用的模型/凭据候选:                              │  ← owns:模型回退、凭据轮转、
+  │   ├─ 选一个 (model, authProfile) 候选                       │     run 级超时、最终终端状态
+  │   ├─ <span class="stage-label">中层 · ATTEMPT 循环(可重试尝试级)</span>            │
+  │   │  while 重试次数未耗尽 且 未达硬约束:                    │  ← owns:网络重试、认证刷新、
+  │   │    ├─ 准备这一轮 prompt + 工具 + 上下文                  │     格式错误重试、空回复重试、
+  │   │    ├─ <span class="stage-label">内层 · TURN 循环(单步推理级)</span>           │     attempt 级空闲超时
+  │   │    │  while 模型还在用工具(未到终点):                 │
+  │   │    │    ├─ 调模型(stream token)                       │  ← owns:工具调用循环、
+  │   │    │    ├─ 模型要工具? → 执行工具 → 喂结果回去          │     turn 级中断、工具失败、
+  │   │    │    └─ 模型说"完成"或"继续用工具"                  │     软性停止决策
+  │   │    ├─ 这一次 attempt 跑完了 → 看结果                    │
+  │   │    └─ 失败? → 判断该重试(attempt)还是上抛(run)       │
+  │   ├─ attempt 全失败 → 看能否换候选(run)                   │
+  │ └─ 候选耗尽 → 终端状态(completed/failed/timeout/cancelled)│
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>三层各自 owns 什么</h3>
+<table>
+<thead><tr><th>层</th><th>owns 的"再来一次"</th><th>owns 的故障类型</th><th>owns 的停止决策</th></tr></thead>
+<tbody>
+<tr><td><strong>Turn(内层)</strong></td><td>模型用工具后继续(正常推进)</td><td>单个工具执行失败、模型空回复</td><td>软性:模型说完成/不再用工具</td></tr>
+<tr><td><strong>Attempt(中层)</strong></td><td>同一次尝试的重试</td><td>网络抖动、认证过期、格式错误、空闲</td><td>中等:attempt 重试上限、attempt 超时</td></tr>
+<tr><td><strong>Run(外层)</strong></td><td>换模型/凭据的兜底</td><td>所有 attempt 耗尽、模型不兼容</td><td>硬性:run 级硬超时、用户取消、预算耗尽</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:每层 owns 什么故障</h2>
+
+<div class="loop-layer turn">
+<h4>Turn 层 · 为什么单独拎出来</h4>
+<p>"模型决定用工具,把工具结果喂回去继续"是<strong>正常工作流,不是错误</strong>。如果把它和"模型失败了要重试"混在同一个 while,你会用工具调用次数耗尽来误判任务失败。Turn 层独立后,工具循环是纯粹的"模型-工具乒乓",工具失败只是这一步的事,模型可以自行决定重试还是换方案。</p>
+</div>
+
+<div class="loop-layer attempt">
+<h4>Attempt 层 · 为什么需要"可重试的尝试"这个粒度</h4>
+<p>一次模型调用可能因为<strong>瞬态故障</strong>(网络抖、限流、认证 token 过期)失败,这些值得重试但<strong>不该影响整个任务</strong>。Attempt 层封装"一次完整的推理尝试 + 它的本地重试"。重试上限耗尽才上抛到 Run 层。这样,大多数瞬态故障被吞在 attempt 层,Run 层只看到"这次尝试彻底没救了"。</p>
+</div>
+
+<div class="loop-layer run">
+<h4>Run 层 · 为什么需要执行实例级兜底</h4>
+<p>当所有 attempt 都失败,可能不是运气差,而是<strong>模型本身不兼容</strong>(这个 provider 不支持某工具格式)或<strong>凭据整体失效</strong>。Run 层拥有"候选列表"(备选模型、轮转凭据),可以换一个候选重新跑。Run 层还 owns 硬约束:用户取消、总预算耗尽、硬超时——这些是<strong>不可重试的停止信号</strong>,必须高于重试逻辑。</p>
+</div>
+
+<div class="card key">
+<strong>核心取舍</strong>:三层带来调试和心智复杂度(出问题时要先定位是哪层),换来的是<strong>每类故障有清晰归属和上限</strong>。替代方案(单层)的失败模式是"重试逻辑和正常循环纠缠,某个 if 漏判就死循环或误终止"。生产中前者可维护,后者不可维护。<strong>接受这个嵌套,因为它让故障处理从"到处特判"变成"分层归责"。</strong>
+</div>
+
+<h3>备选方案对比</h3>
+<table>
+<thead><tr><th>方案</th><th>demo 能跑</th><th>生产崩点</th></tr></thead>
+<tbody>
+<tr><td>单层 while(所有重试混一起)</td><td>能</td><td>工具调用计数 = 故障重试计数;无法换模型重置;特判爆炸</td></tr>
+<tr><td>两层(turn + retry)</td><td>能</td><td>换模型无处重置;硬超时/取消无处归属;终端状态撕裂</td></tr>
+<tr><td><strong>三层(turn/attempt/run)</strong></td><td>能</td><td>边界清晰,每类故障有上限和归属</td></tr>
+</tbody>
+</table>
+
+<h2 id="example">四 · 完整示例:一次"工具失败 → 重试 → 成功"穿越三层</h2>
+
+<p>用户让 agent "读取远程 API 并总结"。我们追踪这个请求如何穿越三层循环:</p>
+
+<div class="flow-diagram"><span class="stage-label">[RUN 层启动]</span> 选定候选:模型=gpt-5,凭据=profile-A
+  │
+  ▼
+<span class="stage-label">[ATTEMPT 1 启动]</span>
+  │
+  ├─ <span class="stage-label">[Turn 1]</span> 模型:"我要调 fetch_api 工具"
+  │    ├─ 执行 fetch_api → 网络超时 ❌
+  │    ├─ 工具失败,结果喂回模型:"fetch 超时了"
+  │    └─ 模型:继续(决定重试 fetch)
+  │
+  ├─ <span class="stage-label">[Turn 2]</span> 模型:"再试一次 fetch_api"
+  │    ├─ 执行 fetch_api → 认证 401 ❌(token 过期)
+  │    ├─ 工具失败喂回
+  │    └─ 模型:放弃这个 API,换思路总结
+  │
+  ├─ <span class="stage-label">[Turn 3]</span> 模型调用 stream → 返回了畸形 JSON ❌❌
+  │    └─ <strong>attempt 级故障</strong>:模型返回无法解析
+  │
+  ▼ <span class="stage-label">[ATTEMPT 1 判定]</span> 畸形返回 = 可重试的瞬态?
+  │   是 → 重试(同 attempt 内)
+  │
+<span class="stage-label">[ATTEMPT 2 启动]</span>(仍在 RUN 内,同候选)
+  │
+  ├─ <span class="stage-label">[Turn 1]</span> 重新组装 prompt → 调模型
+  │    ├─ 模型:"调 fetch_api"(这次带刷新后的 token)
+  │    ├─ 执行 → 成功 ✅ 数据返回
+  │    └─ 模型:基于数据继续
+  │
+  ├─ <span class="stage-label">[Turn 2]</span> 模型输出总结文本,不再要工具
+  │    └─ <strong>软性停止</strong>:模型说完成
+  │
+  ▼ <span class="stage-label">[ATTEMPT 2 完成]</span> → 上抛给 RUN
+  │
+<span class="stage-label">[RUN 判定]</span> attempt 成功 → 终端状态 = completed ✅</div>
+
+<div class="card note">
+<strong>关键观察</strong>:工具超时和 401 是 <strong>Turn 层</strong>吞掉的(模型自己决定换思路);畸形 JSON 是 <strong>Attempt 层</strong>重试的(同候选内);整个任务从头到尾没动 <strong>Run 层</strong>(没换模型)。如果畸形 JSON 重试两次还不行,才会上抛到 Run 层考虑换候选。三层各司其职,故障被<strong>就近吞掉</strong>,不会一个网络抖动就毁掉整个任务。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"就是一个 while 循环,调模型调工具"</td><td>"只做过 demo"</td></tr>
+<tr><td>"有重试,失败就重试"</td><td>"没区分重试的种类,生产会出乱子"</td></tr>
+<tr><td>能说出 turn/attempt/run 三层及各自 owns 什么</td><td>"有架构意识,及格"</td></tr>
+<tr><td>能说清"工具循环不是错误""瞬态故障 attempt 吞""模型不兼容 run 换"的归责逻辑</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<p>这题是<strong>核心架构题</strong>。答得浅,面试官会判断你对后续的压缩、并发、终端状态都答不深;答得深,面试官知道可以放心往这些深水区问。</p>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点明三层</strong>:"我会把推理循环拆成 turn(单步)、attempt(可重试尝试)、run(执行实例)三层嵌套。"</li>
+<li><strong>立刻给归责逻辑</strong>:"这样拆的核心是让<strong>不同性质的'再来一次'有清晰归属</strong>——工具循环是正常推进(turn),瞬态故障是同次重试(attempt),模型不兼容是兜底(run)。"</li>
+<li><strong>主动举故障场景</strong>:"比如网络抖动,我希望它在 attempt 层被吞掉重试,不要因为一次 502 就放弃整个任务;但如果是模型根本不支持某个工具格式,attempt 重试多少次都没用,要上抛到 run 层换模型。"</li>
+<li><strong>主动谈停止决策</strong>:"停止信号也要分层——软性停止(模型说完成)在 turn 层;attempt 重试上限和 attempt 超时在中层;用户取消、硬超时、预算耗尽这些不可重试的硬信号在 run 层最高优先级。"</li>
+<li><strong>收口在取舍</strong>:"代价是调试时要先定位是哪层出问题,但换来的是故障处理可维护、有上限、不互相覆盖。"</li>
+</ol>
+
+<div class="card warn">
+<strong>主动展现的生产洞察</strong>:
+<ul style="margin-bottom:0">
+  <li>工具调用循环(turn)是<strong>正常工作流</strong>,不要和错误重试混计数</li>
+  <li>attempt 重试有上限,不能无限重试瞬态故障(否则用户等到天荒地老)</li>
+  <li>run 层 owns 硬约束(取消/预算/硬超时),这些信号<strong>压过</strong>所有重试逻辑</li>
+</ul>
+</div>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,层层下钻到生产取舍层面。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="01-agent-concepts.html">← ① 三概念辨析</a>
+<a href="03-prompt-assembly.html">③ Prompt 拼接设计 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ② 推理循环三层嵌套 · 阶段 2 智能核心<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 为什么不是单层", q:"为什么不直接写一个 while 循环把所有逻辑塞进去?用单层循环的生产 Agent 会出什么具体问题?",
+    a:"单层循环会把<strong>三种性质完全不同的'再来一次'</strong>混在一起:工具循环(正常推进)、瞬态故障重试(网络抖)、模型不兼容兜底(换模型)。混在一起的后果:1)<strong>计数器污染</strong>——工具调用次数耗尽会误判为'故障重试上限';2)<strong>无处重置</strong>——换模型需要清空状态重新跑,单层没有'执行实例'概念;3)<strong>停止信号互相覆盖</strong>——硬超时、取消、空闲、模型完成混在同一个判定里,特判爆炸。生产中某个 if 漏判就死循环或误终止。" },
+  { round:"第 2 题 · 工具循环的归属", q:"模型这一轮决定调用工具,执行完把结果喂回去让模型继续。这个'再来一次'属于哪一层?为什么不能算作'重试'?",
+    a:"属于 <strong>Turn 层(单步推理)</strong>。<strong>不能算重试</strong>,因为它是<strong>正常工作流</strong>——模型用工具是为了获取信息继续推理,不是失败后的补救。如果把工具循环混进重试计数器,会出现:用户问个复杂问题需要调 10 次工具,但你的'重试上限'设了 5,任务就误判失败了。Turn 层独立后,工具循环是纯粹的'模型-工具乒乓',工具失败也只是在 turn 内喂回结果,模型自己决定换方案还是重试,不消耗上层重试预算。" },
+  { round:"第 3 题 · attempt vs run 边界", q:"模型调用返回了无法解析的畸形响应。这个故障应该 attempt 层重试,还是直接上抛 run 层换模型?判断依据是什么?",
+    a:"<strong>先 attempt 层重试</strong>,重试上限耗尽才上抛 run。判断依据是<strong>故障的瞬态性</strong>:畸形响应<strong>可能是</strong>网络抖动/限流/采样偶然导致的瞬态问题,值得同候选内重试(便宜)。但如果重试 N 次还畸形,说明<strong>不是运气差而是模型不兼容</strong>(这个 provider 不支持这个工具格式),attempt 层重试无意义,上抛 run 层换候选(贵但必要)。这个'先便宜后贵'的分层是控制成本的关键——不能一个 502 就换模型(浪费),也不能模型不兼容还死磕(无解)。" },
+  { round:"第 4 题 · 硬停止信号", q:"用户点了'停止',或者总预算耗尽了。这些信号应该在哪一层处理?如果此刻 attempt 正在重试中,该不该等它重试完?",
+    a:"<strong>Run 层最高优先级,立即生效,不等任何重试</strong>。用户取消和预算耗尽是<strong>不可重试的硬信号</strong>,压过所有 attempt 重试逻辑。如果允许'等 attempt 重试完再停',用户点停止后还要等几十秒(重试间隔+超时),体验灾难,而且预算已经超了还在烧钱。设计上,硬信号通过 AbortSignal <strong>穿透所有层立即中断</strong>当前操作(包括正在进行的模型流),attempt 被强制终止,run 直接进入 cancelled/budget_exceeded 终端状态。这正是终端状态要有'优先级格'的原因(见第⑫篇)——硬信号 sticky,后续清理不能降级。" },
+  { round:"第 5 题 · attempt 重试陷阱", q:"attempt 层重试有个隐蔽陷阱:如果模型每次都返回'空回复'或'只有思考没有输出',重试会无限循环吗?怎么设计才不卡死?",
+    a:"<strong>会卡死,如果不设专门约束</strong>。空回复/纯思考这类'模型没真正失败但也没产出'的情况,网络层看是 200 成功,attempt 默认重试逻辑会把它们当成'正常但未完成'无限重试。生产设计需要<strong>专门的'空/纯推理回复'重试计数器</strong>,与瞬态故障重试分开:连续 N 次空回复就判定为'模型陷入了无效循环',上抛(换模型或终止),而不是无限重试。还要加<strong>空闲超时</strong>(idle timeout)——如果一段时间没有实质性 token 产出也终止。这两道保险防止'看似在跑实则空转'的隐性死循环,是生产必须的兜底。"
+  }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。这覆盖了三层循环的归责逻辑、工具循环为何不是重试、attempt/run 边界、硬停止穿透、空回复陷阱。<br><br>下一篇 <a href="03-prompt-assembly.html">③ Prompt 拼接</a> 讲 turn 内部第一步——prompt 是怎么拼起来的,以及为什么稳定前缀值钱。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

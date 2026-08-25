@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑮ Agent 身份、人格与冷启动</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .file-list { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:16px 20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.7; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑮ Agent 身份、人格与冷启动
+  <span class="sub">阶段 4 · 身份与自主性 · bootstrap 文件与稳定身份</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:agent 第一次启动时"是谁"</a></li>
+  <li><a href="#design">分层设计:bootstrap 文件栈</a></li>
+  <li><a href="#why">为何这么设计:分层、限额、稳定性张力</a></li>
+  <li><a href="#example">完整示例:一次冷启动的身份组装</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:agent 第一次启动时"是谁"</h2>
+
+<p>一个新部署的 agent,没有任何对话历史。它第一次接到用户消息时,必须<strong>立刻知道自己是谁</strong>:叫什么名字、什么人格、能做什么不能做什么、用户是谁、项目背景、工作纪律。否则它就是个"失忆的通用 LLM",每次都从零开始,行为不可预测。</p>
+
+<p>这些"身份信息"从哪来?demo 级做法:硬编码在系统 prompt 里。但生产中:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li><strong>不同用户/项目身份不同</strong>:你给 Alice 的 agent 和给 Bob 的 agent,人格、偏好、项目都不同。硬编码一套不行。</li>
+  <li><strong>身份要可演化</strong>:用户说"以后别用 any 类型",这个偏好要<strong>持续影响</strong>身份,不能下次对话又忘了。</li>
+  <li><strong>身份可能很大</strong>:详细的工作纪律、用户档案、项目规范,加起来可能几万字。全塞 prompt 爆。</li>
+  <li><strong>身份要稳定</strong>:同一 agent 跨对话人格要一致,不能这次严谨下次随意(见第③篇缓存也依赖此)。</li>
+  <li><strong>多源拼装</strong>:身份来自多处——项目级指令、用户级偏好、agent 人格、记忆种子。要有序拼装。</li>
+</ul>
+</div>
+
+<h2 id="design">二 · 分层设计:bootstrap 文件栈</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                身份冷启动 · bootstrap 文件栈                            │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[启动时扫描身份文件 · 按优先级和限额注入]</span>
+
+  ┌──────────────────────────────────────────────────────────┐
+  │ AGENTS.md / CLAUDE.md     ← 项目级工作纪律、编码规范       │  <span class="stage-label">最高优先</span>
+  │   "提交前跑测试、用 pnpm、不要 any"                        │
+  └──────────────────────────────────────────────────────────┘
+  ┌──────────────────────────────────────────────────────────┐
+  │ SOUL.md                   ← agent 人格定义                  │
+  │   "你是 Molty,严谨、直接、爱用比喻"                       │
+  └──────────────────────────────────────────────────────────┘
+  ┌──────────────────────────────────────────────────────────┐
+  │ USER.md                   ← 用户档案                        │
+  │   "用户是 Alice,资深前端,偏好 TypeScript/React"          │
+  └──────────────────────────────────────────────────────────┘
+  ┌──────────────────────────────────────────────────────────┐
+  │ MEMORY.md                 ← 长期记忆种子(第⑥篇)           │
+  │   "用户上次说过不喜欢任何、项目根目录在..."                 │
+  └──────────────────────────────────────────────────────────┘
+  ┌──────────────────────────────────────────────────────────┐
+  │ IDENTITY.md / TOOLS.md / HEARTBEAT.md / BOOTSTRAP.md      │  <span class="stage-label">辅助</span>
+  │   身份细节、工具指引、主动任务、额外启动指令                │
+  └──────────────────────────────────────────────────────────┘
+
+         ↓ 按优先级 + per-file 限额 + 总限额 注入
+  <span class="stage-label">[冷启动组装]</span>
+  → 这些文件内容进入 system prompt 的<strong>稳定前缀</strong>(第③篇)
+  → 跨对话稳定 → 缓存命中 + 身份一致</div>
+
+<h3>三层限额机制</h3>
+<table>
+<thead><tr><th>限额</th><th>作用</th><th>典型值</th></tr></thead>
+<tbody>
+<tr><td>per-file 限额</td><td>单个文件不能太大</td><td>~20000 字符</td></tr>
+<tr><td>总限额</td><td>所有 bootstrap 加起来有上限</td><td>~60000 字符</td></tr>
+<tr><td>截断标记</td><td>超出时明确告知"已截断"</td><td>"[本文件已截断 N%]"</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么用文件而非配置/数据库</h3>
+<p>身份信息用<strong>文件</strong>(AGENTS.md 等)而非数据库或 config,因为:① <strong>可读可编辑</strong>——用户/开发者直接看改,版本控制跟随项目;② <strong>项目级 vs 用户级分离</strong>——AGENTS.md 跟项目走(团队共享),USER.md 跟用户走(个人偏好);③ <strong>启动时加载</strong>——文件是静态的,启动扫描即可,无需运行时查询;④ <strong>可演化</strong>——agent 可以写回这些文件(如更新 MEMORY.md)实现身份演化。<strong>文件 = 身份的可读、可版本、可演化的载体。</strong></p>
+
+<h3>决策 2:为什么分层 + 限额</h3>
+<p>身份信息来源多(项目/人格/用户/记忆),且总量可能很大。<strong>分层</strong>让每类身份有明确归属(AGENTS 管纪律、SOUL 管人格、USER 管档案、MEMORY 管记忆),便于独立维护和优先级排序。<strong>限额</strong>防止某个文件(如超详细的 AGENTS.md)吃光整个 prompt 预算。per-file 限额 + 总限额 + 截断标记,把身份注入约束在可控范围。<strong>取舍</strong>:截断会丢部分身份信息(模型不知道截断的内容),但比撑爆上下文窗口强。优先级排序保证最重要的(纪律、人格)先注入,辅助的(详细记忆)满了可截。</p>
+
+<h3>决策 3:截断与稳定身份的张力</h3>
+<p>这是个微妙的矛盾:身份要<strong>稳定</strong>(缓存命中),但截断会让身份"部分不稳定"——如果 AGENTS.md 内容变化导致截断点变了,注入的部分也变了,破坏缓存。<strong>缓解</strong>:① <strong>稳定前缀策略</strong>——按优先级注入,高优先级的不太可能被截(给足限额),低优先级的截断变化只影响尾部;② <strong>截断点确定性</strong>——截断按字符数硬切(不依赖内容分析),同一文件同样大小截同样位置;③ <strong>bootstrap 钩子</strong>——允许运行时动态调整哪些文件入选(适配场景),但调整要受控。<strong>这个张力不可完全消除</strong>,只能用限额 + 优先级把不稳定约束在尾部。这是身份系统的一个固有取舍。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:bootstrap 文件栈带来<strong>文件管理、限额计算、截断处理</strong>的复杂度,换来的是<strong>身份可读可演化、多源有序拼装、跨对话稳定</strong>。替代方案(硬编码/数据库)的失败模式是"不可定制/不可演化/启动查询开销/身份漂移"。<strong>接受复杂度,因为'agent 是谁'是产品差异化的核心——一个有稳定身份的 agent 比通用 LLM 有价值得多。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:一次冷启动的身份组装</h2>
+
+<p>新部署的 agent 给用户 Alice(前端工程师,项目 myproject)。第一次接到消息时,冷启动组装身份:</p>
+
+<div class="file-list"><span class="stage-label">[启动扫描]</span> 在工作区和用户目录找身份文件
+  发现:
+  · /Users/alice/myproject/AGENTS.md (项目纪律, 8000 字符)
+  · /Users/alice/myproject/SOUL.md (agent 人格, 2000 字符)
+  · ~/.openclaw/agents/agent-1/USER.md (用户档案, 3000 字符)
+  · ~/.openclaw/agents/agent-1/MEMORY.md (长期记忆, 5000 字符)
+
+<span class="stage-label">[限额检查]</span>
+  per-file 都 < 20000 ✓
+  总量 = 8000+2000+3000+5000 = 18000 < 60000 ✓
+  无需截断
+
+<span class="stage-label">[按优先级注入 system prompt 稳定前缀]</span>
+  [SOUL.md]   "你是 Molty,严谨直接,爱用比喻..."
+  [AGENTS.md] "工作纪律:提交前跑测试,用 pnpm,禁 any..."
+  [USER.md]   "用户 Alice,资深前端,偏好 TS/React..."
+  [MEMORY.md] "用户上次说不喜欢 any,项目用 vitest..."
+
+<span class="stage-label">[结果]</span>
+  · agent 立刻"知道自己是谁、为谁服务、怎么工作"
+  · 这段跨对话稳定 → prompt 缓存命中 + 身份一致
+  · 用户说"以后代码加注释" → agent 更新 MEMORY.md → 下次启动身份演化</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:冷启动让 agent 从"失忆通用 LLM"变成"有身份、有记忆、有纪律的专属助手"。整个过程是<strong>文件扫描 + 限额 + 优先级注入</strong>,无数据库查询开销。且因为身份在文件里,用户/开发者可读可改可版本控制。<strong>agent 写回 MEMORY.md 实现身份演化——这次对话学到的偏好,下次启动就生效。</strong>
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"系统 prompt 写死身份"</td><td>"没考虑多用户/演化"</td></tr>
+<tr><td>知道要存用户偏好</td><td>"有意识但没系统"</td></tr>
+<tr><td>能说分层文件 + 注入</td><td>"及格"</td></tr>
+<tr><td>能谈限额、截断张力、文件可演化、缓存稳定性</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点需求</strong>:"新 agent 启动必须立刻知道'我是谁、为谁服务、怎么工作',否则是失忆通用 LLM。"</li>
+<li><strong>给文件栈</strong>:"用 bootstrap 文件——AGENTS(纪律)、SOUL(人格)、USER(档案)、MEMORY(记忆种子)。启动扫描,按优先级注入 system prompt 稳定前缀。"</li>
+<li><strong>主动谈为何文件</strong>:"文件可读可编辑、版本控制、项目级vs用户级分离、agent 可写回实现演化。比数据库轻、比硬编码灵活。"</li>
+<li><strong>主动谈限额</strong>:"per-file + 总限额 + 截断标记,防某个文件吃光预算。优先级保证最重要的先注入。"</li>
+<li><strong>主动谈张力</strong>:"截断与稳定身份有张力——截断点变会破坏缓存。用稳定前缀 + 确定性截断把不稳定约束在尾部。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从文件选择到身份演化层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="14-retry-failover.html">← ⑭ 重试与故障容忍</a>
+<a href="16-autonomy-proactive.html">⑯ 自主性 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑮ Agent 身份与冷启动 · 阶段 4 身份自主性<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 为什么文件", q:"身份信息为什么用文件(AGENTS.md 等)而非数据库表?数据库能查询、索引、事务,看起来更'专业'。文件方案放弃了什么?",
+    a:"<strong>文件方案的四个优势压倒数据库的'专业性'</strong>:1)<strong>可读可编辑</strong>——用户/开发者用任何编辑器看改,无门槛;数据库要 SQL 客户端,普通用户难用;2)<strong>版本控制</strong>——AGENTS.md 跟项目走,git 版本化,团队共享且可追溯变更;数据库身份不进 git,难共享难追溯;3)<strong>项目级vs用户级天然分离</strong>——AGENTS.md 在项目目录(团队共享),USER.md 在用户目录(个人),文件系统层级天然表达归属;数据库要加 owner 字段模拟;4)<strong>启动加载零开销</strong>——文件启动扫描即可,无连接/查询/事务开销。<strong>放弃了</strong>:① 查询能力(身份不需要复杂查询,启动全量加载即可);② 并发写控制(身份写不频繁,文件锁足够);③ 结构化(身份是文本为主,不需要严格 schema)。<strong>核心</strong>:身份是'低频写、启动全量读、需可读可版本'的数据,文件比数据库更契合。数据库适合'高频随机查询'的数据,身份不是。" },
+  { round:"第 2 题 · 优先级冲突", q:"AGENTS.md(项目纪律)说'用 Jest 测试',USER.md(用户偏好)说'我喜欢 vitest'。两个都注入了,冲突。agent 该听谁的?优先级怎么定?",
+    a:"<strong>这需要明确的优先级规则</strong>。设计选项:1)<strong>按文件类型固定优先级</strong>——通常 AGENTS.md(项目纪律,团队共享) > USER.md(个人偏好),理由:项目纪律是团队契约,个人偏好不应违背团队规范;2)<strong>用户显式覆盖</strong>——允许用户在 USER.md 标注'我知道项目用 Jest,但我的模块用 vitest',显式声明覆盖;3)<strong>上下文敏感</strong>——agent 根据当前任务在哪(整个项目 vs 用户个人模块)动态判断该听谁;4)<strong>询问用户</strong>——冲突明显时直接问'项目用 Jest 你用 vitest,用哪个?'。<strong>生产推荐</strong>:固定优先级(项目 > 用户)+ 显式覆盖机制。核心原则:<strong>项目级契约默认高于个人偏好,但允许显式声明例外</strong>。这避免了'用户偏好凌驾团队规范'的混乱,又保留了合理例外。<strong>关键</strong>:优先级规则要文档化,让用户知道'我写的东西什么时候会被项目规范覆盖'。" },
+  { round:"第 3 题 · 身份演化", q:"用户这次对话说'以后代码都加详细注释'。这个偏好怎么'记住'?是马上写进 USER.md 吗?如果每次对话 agent 都往 USER.md 写,文件会爆炸吗?",
+    a:"<strong>不能马上写,要有置信度筛选</strong>。问题:① 用户随口一句不一定是要长期记的(可能只是这次任务的临时要求);② 如果每句偏好都写 USER.md,文件爆炸且充斥噪声。<strong>正确做法</strong>(呼应第⑥篇记忆):1)<strong>短期落地</strong>——这次对话的偏好先进短期记忆/Active Memory,本次会话内生效;2)<strong>后台巩固</strong>——dreaming 时判断这条偏好是否反复被使用/确认,达到置信度才晋升;3)<strong>晋升才写文件</strong>——只有高置信度的偏好才写进 USER.md/MEMORY.md 长期身份;4)<strong>用户确认</strong>——敏感偏好(影响 agent 行为的)可显式问用户'要长期记住吗?',确认后才写;5)<strong>去重合并</strong>——写之前检查是否已有类似条目,合并而非追加。<strong>核心</strong>:身份文件不是'垃圾场',只放经过筛选的高价值长期偏好。'记住我喜欢 TS' 这种反复确认的才写,随口一句不写。这让 USER.md 保持精炼有效。" },
+  { round:"第 4 题 · 多 agent 身份", q:"同一个用户有多个 agent(工作 agent、生活 agent、学习 agent)。它们的身份文件怎么分?USER.md 是共享一份还是每个 agent 一份?",
+    a:"<strong>分层归属</strong>:1)<strong>用户级共享</strong>——USER.md(用户档案:叫什么、职业、基本偏好)可跨 agent 共享(放在用户目录,所有 agent 读同一份),因为'用户是 Alice'对所有 agent 都成立;2)<strong>agent 级独立</strong>——SOUL.md(人格)、AGENTS.md(工作纪律)、MEMORY.md(记忆)每个 agent 独立(放在各自 agent 目录),因为工作 agent 和生活 agent 人格不同、纪律不同、记忆不同;3)<strong>项目级</strong>——AGENTS.md 还可按项目分(不同项目不同纪律)。<strong>读取顺序</strong>:启动时先读用户级共享(USER.md),再读 agent 级独立(SOUL/AGENTS/MEMORY),按优先级拼装。<strong>冲突</strong>:如果用户级 USER.md 说'喜欢简洁',agent 级 SOUL 说'详细解释',agent 级优先(它更具体)。<strong>关键洞察</strong>:身份文件按'共享度'分层——越通用的越共享(用户级),越专属的越独立(agent级/项目级)。这避免了重复维护,又保证各 agent 个性。" },
+  { round:"第 5 题 · 身份安全", q:"身份文件里可能有敏感信息(用户真实姓名、公司项目细节、API 配置)。这些文件如果泄露(如不小心提交到公开 git 仓库),后果严重。怎么处理身份文件的安全?",
+    a:"<strong>分层隔离 + 默认不入库</strong>:1)<strong>项目级 vs 个人级分离</strong>——AGENTS.md(项目纪律)可入项目 git(团队共享,不含个人敏感);USER.md/MEMORY.md(个人档案/记忆)放用户私有目录(~/.openclaw/),默认不入任何 git;2)<strong>.gitignore 兜底</strong>——个人身份目录默认进 .gitignore,防止误提交;3)<strong>敏感信息分级</strong>——API key、密码绝不进身份文件(走 credentials 系统,第⑲篇),身份文件只放'行为偏好'不放'机密';4)<strong>审查工具</strong>——提供扫描工具检测身份文件里的敏感模式(如 email、电话、key 格式),告警;5)<strong>模板分离</strong>——项目提供 AGENTS.template.md(可入库的范例),实际 AGENTS.md(可能含本地定制)不入库。<strong>核心原则</strong>:身份文件设计上就要区分'可共享的(项目纪律)'和'必须私有的(个人档案/机密)',物理隔离(不同目录)+ 默认不入库 + 敏感扫描三层防御。<strong>绝对不</strong>把 API key 或个人隐私写进会被 git 追踪的文件。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了文件vs数据库、优先级冲突、身份演化、多 agent 身份、身份安全。<br><br>下一篇 <a href="16-autonomy-proactive.html">⑯ 自主性</a> 讲 agent 如何不被问才动。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑬ 并发模型:lanes 与会话串行化</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .race { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:16px 20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.7; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑬ 并发模型:lanes 与会话串行化
+  <span class="sub">阶段 3 · 协作可靠性 · 防止 tool/session race</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:并发会让 agent 状态撕裂</a></li>
+  <li><a href="#design">分层设计:session-key 维度的 lanes</a></li>
+  <li><a href="#why">为何这么设计:串行化、跨进程锁、子 agent lane</a></li>
+  <li><a href="#example">完整示例:同会话并发请求的排队</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:并发会让 agent 状态撕裂</h2>
+
+<p>生产中,同一个 agent 会面临<strong>并发</strong>:</p>
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li>用户连发两条消息(第二条在第一条还没跑完时到达)</li>
+  <li>用户在手机和电脑同时发消息(同一 session 或不同 session)</li>
+  <li>子 agent 正在跑,父 agent 又接到新消息</li>
+  <li>多个定时任务(cron)同时触发同一 agent</li>
+</ul>
+</div>
+
+<p>demo 级做法:无并发控制,每个请求各跑各的。生产中这会<strong>撕裂状态</strong>:</p>
+
+<div class="race"><span class="stage-label">[Race 场景 · 同 session 并发两个 run]</span>
+  Run A (消息1): 读 config.ts → 看到 version=1
+  Run B (消息2): 同时读 config.ts → 看到 version=1
+  Run A: 改成 version=2 → 写入
+  Run B: 改成 version=3(基于它读到的 version=1)→ 写入
+  结果:version=3,Run A 的修改被覆盖丢失 ❌
+
+<span class="stage-label">[更糟:transcript 撕裂]</span>
+  Run A 和 Run B 都往同一 session 的 transcript 追加消息
+  → 历史顺序错乱,模型下次看到的是交错的对话
+  → 上下文不一致,推理质量崩</div>
+
+<div class="card danger">
+<p>并发不是性能优化问题,是<strong>正确性问题</strong>。无控制的并发会让 agent 的状态(文件、transcript、会话上下文)撕裂,产生不可恢复的不一致。</p>
+</div>
+
+<h2 id="design">二 · 分层设计:session-key 维度的 lanes</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                并发模型 · lanes(串行化通道)                            │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[核心原则] 按 session-key 串行化</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 同一 session 的 run <strong>必须串行</strong>(一个跑完再跑下一个)   │
+  │ 不同 session 的 run <strong>可并行</strong>(互不影响)             │
+  │ → 串行化粒度 = session-key(会话标识)                      │
+  └──────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[lane 类型]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ · session lane:按 session-key 串行(默认,防 race)       │
+  │ · global lane:全局串行(必要时,如跨 session 共享资源)   │
+  │ · subagent lane:子 agent 独立 lane(不阻塞父)            │
+  └──────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[跨进程保护]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ session 写锁(文件锁):                                    │
+  │ · 跨进程互斥(防多进程/多设备同时改同一 session)           │
+  │ · acquire 超时(默认 60s,避免无限等)                      │
+  │ · 写 transcript 必须持有锁                                │
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>三层并发控制</h3>
+<table>
+<thead><tr><th>层</th><th>保护什么</th><th>机制</th></tr></thead>
+<tbody>
+<tr><td>session lane(进程内)</td><td>同 session 的 run 顺序</td><td>内存队列,按 session-key 串行</td></tr>
+<tr><td>session 写锁(跨进程)</td><td>transcript 文件写入</td><td>文件锁,acquire 超时</td></tr>
+<tr><td>子 agent lane</td><td>子 agent 不阻塞父</td><td>独立 lane 隔离</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么按 session-key 而非 agent-id 串行</h3>
+<p>如果按 agent-id 串行(整个 agent 一次只跑一个 run),那子 agent(第⑩篇)会阻塞父 agent,多 session 用户排队等。粒度太粗。<strong>按 session-key 串行</strong>是精确的:同一 session 的 run 会改同一 transcript/上下文,必须串行;不同 session 互不影响,可并行。这是<strong>最小串行化原则</strong>——只在必须串行的地方串行(共享同一 session 状态),其他都并行。</p>
+
+<h3>决策 2:为什么需要跨进程写锁</h3>
+<p>session lane 只保护<strong>进程内</strong>并发。但生产中,同一 session 可能被<strong>不同进程</strong>访问:多设备同步、gateway 重启、水平扩展的多实例。内存队列管不到跨进程。所以需要<strong>文件级的写锁</strong>——任何进程写 transcript 前必须 acquire 锁。这保证了即使两个进程同时想写同一 session,也会排队而非撕裂文件。<strong>acquire 超时</strong>避免死锁(某进程持锁崩溃,其他进程不会无限等)。</p>
+
+<h3>决策 3:为什么子 agent 用独立 lane</h3>
+<p>父 agent 派出子 agent(第⑩篇)。如果子和父在同一 lane,子 agent 跑的时候父被阻塞——这就失去了委派的并行价值。所以子 agent 用<strong>独立 lane</strong>,父子并行跑。但注意:父子可能共享工作树(同一项目文件),这时文件写锁(决策 2)兜底——子写文件时如果父也在写,锁让他们排队,不撕裂。<strong>lane 隔离的是 session 级顺序,文件锁保护的是共享资源</strong>,两者互补。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:lanes + 跨进程锁带来<strong>队列管理、锁超时、死锁预防</strong>的复杂度,换来的是<strong>并发下的状态一致性</strong>。替代方案(无并发控制)的失败模式是"文件覆盖丢失、transcript 撕裂、上下文不一致"——这些都是<strong>静默的数据损坏</strong>,比崩溃更可怕(崩溃能发现,损坏藏得深)。<strong>接受串行化的延迟代价(同 session 请求排队),因为不一致是不可恢复的,延迟是可接受的。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:同会话并发请求的排队</h2>
+
+<p>用户在 CLI 连发两条消息(消息2 在消息1 跑到一半时发):</p>
+
+<div class="flow-diagram"><span class="stage-label">[t0]</span> 用户发消息1 "读 package.json"
+  · 进入 session lane(S1),acquire 成功
+  · Run A 开始跑
+<span class="stage-label">[t3]</span> 用户发消息2 "读 README.md"(Run A 还在跑)
+  · 进入 session lane(S1),发现被 Run A 占用
+  · <strong>排队等待</strong>(不并行跑)
+<span class="stage-label">[t8]</span> Run A 完成,释放 session lane
+  · Run B(消息2)acquire 成功,开始跑
+  · 看到的是 Run A 已更新的 transcript(一致状态)
+<span class="stage-label">[t12]</span> Run B 完成
+
+<span class="stage-label">[对比:不同 session 并行]</span>
+  用户在另一 session(S2)同时发消息
+  · S2 的 run 不受 S1 阻塞,并行跑(不同 transcript,互不影响)</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:消息2 <strong>等</strong>消息1 跑完才开始(同 session 串行),保证 Run B 看到的是 Run A 完成后的一致状态,而非 Race。同时另一 session 的 run <strong>不等</strong>,并行跑(最大化吞吐)。这是"正确性 + 吞吐"的平衡——只在必要时(同 session)串行。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"加个锁就行"</td><td>"没考虑粒度和跨进程"</td></tr>
+<tr><td>知道要串行化</td><td>"有意识但粒度可能太粗"</td></tr>
+<tr><td>能说按 session-key 串行 + 跨进程锁</td><td>"及格"</td></tr>
+<tr><td>能谈最小串行化、子 agent 独立 lane、文件写锁兜底、acquire 超时</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点正确性</strong>:"并发不是性能问题是正确性问题——无控制的并发会撕裂 transcript、覆盖文件、上下文不一致。"</li>
+<li><strong>给 lane 模型</strong>:"按 session-key 串行化——同 session 的 run 排队(共享 transcript 必须串行),不同 session 并行(互不影响)。最小串行化。"</li>
+<li><strong>主动谈跨进程</strong>:"session lane 只管进程内,跨进程(多设备/多实例)靠文件写锁。写 transcript 必须 acquire 锁,有超时避免死锁。"</li>
+<li><strong>主动谈子 agent</strong>:"子 agent 用独立 lane,不阻塞父(保并行价值)。父子共享工作树时,文件锁兜底防撕裂。"</li>
+<li><strong>收口在取舍</strong>:"代价是同 session 请求排队(延迟),但不一致不可恢复,延迟可接受。这是正确性的硬要求。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从串行粒度到死锁预防层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="12-interruption-terminal.html">← ⑫ 中断与终端状态</a>
+<a href="14-retry-failover.html">⑭ 重试与故障容忍 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑬ 并发模型 lanes · 阶段 3 协作可靠性<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 串行粒度", q:"为什么按 session-key 串行,而不是按 agent-id(整个 agent 一次一个 run)?或者干脆全局串行(一次只跑一个 run)?粒度选择的权衡是什么?",
+    a:"<strong>权衡是正确性 vs 吞吐</strong>。<strong>全局串行</strong>(一次一个):正确性最强但吞吐最差——整个系统一次只服务一个用户,完全失去并发能力,不可用。<strong>按 agent-id 串行</strong>:同一 agent 的所有 session 串行——但不同 session 用不同 transcript/上下文,根本不共享状态,串行它们毫无必要,白白降低吞吐(用户在 session A 聊时 session B 得等)。<strong>按 session-key 串行</strong>:同 session 共享 transcript 必须串行(防 race),不同 session 不共享状态可并行——这是<strong>最小串行化原则</strong>,只在状态真正共享的地方串行。<strong>粒度选择标准</strong>:串行化粒度 = 状态共享的粒度。session 内状态共享,所以 session 级串行;session 间不共享,所以并行。过粗(全局/agent)牺牲吞吐,过细(无串行)牺牲正确性,session-key 是精确平衡点。" },
+  { round:"第 2 题 · 跨进程", q:"session lane 是内存队列,只保护单进程内的并发。如果 gateway 有多个进程实例(水平扩展),同一 session 被两个进程同时处理,内存队列管不到。怎么办?",
+    a:"<strong>需要跨进程的文件写锁兜底</strong>。机制:1)<strong>文件锁</strong>——基于文件系统的锁(如 flock 或 lockfile),任何进程写 transcript 前必须 acquire;2)<strong>跨进程互斥</strong>——进程 A 持锁时,进程 B acquire 失败,等待或重试;3)<strong>两层防御</strong>:进程内 session lane 防同进程并发(快,内存级),跨进程文件锁防多进程并发(慢但必要)。<strong>为什么两层</strong>:文件锁开销大(系统调用),如果同进程的并发也用文件锁会慢。内存 lane 处理同进程并发(99% 情况),文件锁只在跨进程时(少数)触发。<strong>关键</strong>:transcript 写入路径必须两层都过——先 acquire session lane(进程内),再 acquire 文件锁(跨进程),保证任何维度的并发都不撕裂。" },
+  { round:"第 3 题 · acquire 超时", q:"session 写锁设了 acquire 超时(如 60s)。如果某进程持锁后崩溃了(没释放),其他进程要等 60s 才能继续?这个 60s 怎么定?太长太短各有什么问题?",
+    a:"<strong>这是死锁预防的关键参数</strong>。<strong>太长(如 10 分钟)</strong>:持锁进程崩溃后,其他进程等 10 分钟才能写——用户在这期间看到 agent 卡死,体验灾难,且积压的请求堆积。<strong>太短(如 5 秒)</strong>:正常的长时间操作(如大文件压缩、复杂工具执行)会被误判为'持锁进程死了',强制抢锁,导致两个进程同时写(transcript 撕裂,正是锁要防的)。<strong>60s 的依据</strong>:覆盖 99% 正常操作的时长(大多数工具/turn 在 60s 内完成),同时崩溃后 60s 恢复可接受(用户感受到一次卡顿但能恢复)。<strong>改进设计</strong>:1)<strong>心跳</strong>——持锁进程定期发心跳,其他进程检测到心跳停了(进程死)就抢锁,不必等满超时;2)<strong>锁内容记 PID + 时间戳</strong>——抢锁前检查持锁进程是否还活着(pid 存活检测),活着就继续等,死了立刻抢。这能把超时从'盲等'变成'智能检测',大幅缩短崩溃恢复时间。" },
+  { round:"第 4 题 · 子 agent 共享工作树", q:"父 agent 和子 agent 共享同一代码工作树(同一项目)。两个子 agent 并行,都想改同一文件。session lane 管不到(不同 session),文件锁怎么保护?",
+    a:"<strong>文件锁按文件粒度(或工作树粒度)保护</strong>,不按 session。机制:1)<strong>文件级写锁</strong>——写某个文件前 acquire 该文件的锁,子 A 写 src/x.ts 时持锁,子 B 想写 src/x.ts 必须等;2)<strong>不同文件不互斥</strong>——子 A 写 src/x.ts,子 B 同时写 src/y.ts,两把不同的锁,并行不冲突;3)<strong>同文件排队</strong>——两个子都要改 src/x.ts,锁让他们排队,后写的基于前写的结果(或检测冲突)。<strong>但这只防撕裂,不解决语义冲突</strong>:子 A 和子 B 都基于'原始文件'各自改了一处,合并后可能逻辑冲突(如都改了同一函数不同行)。运行时锁防不了这种语义冲突,需要:① 任务划分时避免(父派任务明确分工到不同文件);② 父在汇总时检测并处理(见第⑩篇)。<strong>核心</strong>:文件锁是'防撕裂'的最低保障,语义正确性要靠任务设计 + 父协调,不是锁能解决的。" },
+  { round:"第 5 题 · 全局 lane", q:"除了 session lane,还有 global lane(全局串行)。什么时候需要全局串行?这不是性能瓶颈吗?有什么场景必须牺牲吞吐?",
+    a:"<strong>当资源是全局唯一且不可并行时,必须 global lane</strong>。场景:1)<strong>全局配置写入</strong>——改 agent 配置(如换模型、改权限)如果和 run 并发,run 可能读到半改的配置,必须全局串行配置变更;2)<strong>跨 session 的共享资源</strong>——如某个外部 API 有全局速率限制(每分钟 100 次),多 session 并发调用会超限,需要 global lane 限流;3)<strong>启动/关闭</strong>——agent 启动(初始化)或关闭(清理)时不能和 run 并发(状态未就绪或正在销毁);4)<strong>危险的独占操作</strong>——如数据库 schema 迁移,必须独占不能和任何 run 并发。<strong>性能取舍</strong>:global lane 确实是瓶颈(所有 session 排队),所以<strong>必须最小化使用</strong>——只在真正全局唯一的资源上用,且临界区尽量短(快速完成释放)。生产中 global lane 是少数特例,默认用 session lane。滥用 global lane 等于退回全局串行,失去并发能力。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了串行粒度、跨进程锁、acquire 超时、子 agent 共享工作树、全局 lane。<br><br>下一篇 <a href="14-retry-failover.html">⑭ 重试与故障容忍</a> 讲 attempt/run 边界与不该重试的操作。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑫ 中断、中止与终端状态优先级格</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .lattice { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:13px; line-height:1.7; }
+  .lattice .top { color:var(--red); } .lattice .mid { color:var(--orange); } .lattice .low { color:var(--green); }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑫ 中断、中止与终端状态优先级格
+  <span class="sub">阶段 3 · 协作可靠性 · 为什么终端状态要闭式优先级格</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:"这次 run 到底怎么结束的"</a></li>
+  <li><a href="#design">分层设计:终端状态优先级格</a></li>
+  <li><a href="#why">为何这么设计:sticky、单一真相源、证据优先</a></li>
+  <li><a href="#example">完整示例:并发多取消源的合并</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:"这次 run 到底怎么结束的"</h2>
+
+<p>一个 run(第①篇)可能因为多种原因结束:</p>
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li><strong>正常完成</strong>:模型说任务做完了。</li>
+  <li><strong>用户取消</strong>:用户点了停止。</li>
+  <li><strong>超时</strong>:硬超时(run 级)或空闲超时。</li>
+  <li><strong>失败</strong>:模型连续失败、凭据耗尽。</li>
+  <li><strong>预算耗尽</strong>:token/费用预算用完。</li>
+  <li><strong>外部中止</strong>:系统关机、父 agent 取消子。</li>
+</ul>
+</div>
+
+<p>demo 级做法:用几个布尔字段记录——<code>aborted</code>、<code>timedOut</code>、<code>failed</code>、<code>completed</code>。听起来够用,但生产中这些<strong>会同时为真</strong>:</p>
+<div class="card danger">
+<p>用户在 run 快完成时点了取消,但取消信号还没传到,run 已经完成了——<code>completed</code> 和 <code>aborted</code> 都可能为真。到底算完成还是取消?</p>
+<p>硬超时触发的同时,attempt 因为网络失败——<code>timedOut</code> 和 <code>failed</code> 都为真。算超时还是失败?</p>
+</div>
+
+<p>更糟的是,这些字段会被<strong>不同代码路径并发设置</strong>:取消信号处理设置 aborted,超时定时器设置 timedOut,attempt 循环设置 failed。每个调用点各自判断"该设哪个",必然不一致。<strong>"这次 run 怎么结束的"这个本该确定的问题,变成了一团乱麻。</strong></p>
+
+<h2 id="design">二 · 分层设计:终端状态优先级格</h2>
+
+<p>核心设计:把终端状态建模成<strong>闭式优先级格(lattice)</strong>,而非一组布尔字段。</p>
+
+<div class="lattice"><span class="top">高优先级(主导,sticky)</span>
+   ╔══════════════════════════════════════╗
+   ║ hard_timeout(硬超时)                 ║   ← run 级硬约束,不可恢复
+   ║ cancelled(用户/外部取消)             ║   ← sticky,后续不能降级
+   ╚══════════════════════════════════════╝
+                    ▲ 合并时高的覆盖低的
+   ╔══════════════════════════════════════╗
+   ║ aborted(中止,如清理 yield)          ║   <span class="mid">中优先级</span>
+   ╚══════════════════════════════════════╝
+                    ▲
+   ╔══════════════════════════════════════╗
+   ║ failed(失败)                        ║
+   ║ blocked(阻塞,如缺凭据)              ║   <span class="mid">中低</span>
+   ║ abandoned(放弃)                      ║
+   ╚══════════════════════════════════════╝
+                    ▲
+   ╔══════════════════════════════════════╗
+   ║ completed(正常完成)                  ║   <span class="low">低优先级(默认)</span>
+   ╚══════════════════════════════════════╝
+
+  <strong>合并规则</strong>:多个状态并存时,取优先级最高的。
+  <strong>sticky</strong>:cancelled / hard_timeout 一旦设定,后续事件不能降级它们。
+  <strong>例外</strong>:completedBeforeOrAtTimeout(完成证据早于超时时间戳 → 完成优先)</div>
+
+<h3>三个关键性质</h3>
+<table>
+<thead><tr><th>性质</th><th>含义</th><th>为什么</th></tr></thead>
+<tbody>
+<tr><td><strong>闭式</strong></td><td>状态是有限集合(联合类型),非任意布尔组合</td><td>让"可能的终端状态"可枚举、可推理</td></tr>
+<tr><td><strong>优先级</strong></td><td>状态有全序,合并取最高</td><td>并发多源设置时结果确定</td></tr>
+<tr><td><strong>sticky</strong></td><td>高优先级状态不被后续降级</td><td>取消/硬超时是"终局决定",不被清理事件覆盖</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么用优先级格而非 if/else 链</h3>
+<p>如果每个调用点自己判断"现在是 completed 还是 cancelled",会出现<strong>判断不一致</strong>——取消处理代码觉得是 cancelled,完成处理代码觉得是 completed,同一个 run 在不同地方状态不同。<strong>优先级格把这些判断集中成一个合并函数</strong>:所有状态变更都经过它,按格的规则合并,结果<strong>全局唯一确定</strong>。这是<strong>单一真相源</strong>——"run 怎么结束的"只有一个权威答案,各处引用它而非自己推。</p>
+
+<h3>决策 2:为什么 cancelled / hard_timeout 要 sticky</h3>
+<p>用户取消是一个<strong>终局决定</strong>——"我不想再等了"。即使取消信号到达前 run 碰巧完成了,从用户语义看,这个结果也是<strong>不可信的</strong>(用户已经放弃,不该被当作成功交付)。如果允许"完成事件覆盖取消",会出现:用户取消后还收到完成通知,困惑。sticky 保证:一旦 cancelled,后续任何事件(完成、失败、清理 abort)都不能把它降级成 completed/failed。<strong>取消是用户意图,凌驾于系统状态之上。</strong></p>
+
+<p>同理 hard_timeout:硬超时意味着"这个 run 超出可接受时间,必须终止",这是运维约束,不该被"刚好在超时后完成了"覆盖——否则硬超时形同虚设。</p>
+
+<h3>决策 3:为什么有 completedBeforeOrAtTimeout 例外</h3>
+<p>这是 sticky 规则的<strong>精确例外</strong>:如果<strong>有证据证明 run 在超时时间戳之前就完成了</strong>(完成事件的时间戳 ≤ 超时触发时间戳),那么完成优先。<strong>为什么</strong>:这种情况下"完成"是真实发生的(在超时前就成功了),只是完成通知和超时通知因为并发而同时到达。忽略完成会让用户看到一个"明明成功却被判超时"的 run,体验灾难且可能重试造成副作用。<strong>证据优先于时间戳</strong>——这是为了避免假阴性(把成功的当失败的)。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:优先级格带来<strong>状态建模的抽象成本</strong>(要定义状态集、优先级、合并规则、sticky、例外),换来的是<strong>并发多源终止的一致性和可推理性</strong>。替代方案(布尔字段)的失败模式是"状态不一致、各处判断不同、取消/超时被误覆盖"。<strong>接受抽象成本,因为在并发+重试+多取消源的系统里,'run 怎么结束的'必须有唯一确定的答案——这不是优化,是正确性的硬要求。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:并发多取消源的合并</h2>
+
+<p>一个 run 经历了这些事件(时间顺序):</p>
+
+<div class="flow-diagram"><span class="stage-label">[t0]</span> run 启动,状态 = running
+<span class="stage-label">[t5]</span> 模型连续失败 3 次,attempt 设置 failed
+   · 合并:running + failed → failed
+<span class="stage-label">[t8]</span> 用户点取消,取消处理设置 cancelled
+   · 合并:failed + cancelled → <strong>cancelled</strong>(优先级高,覆盖 failed)
+   · sticky:cancelled 锁定,后续不能降级
+<span class="stage-label">[t9]</span> 超时定时器触发,设置 hard_timeout
+   · 合并:cancelled + hard_timeout → <strong>hard_timeout</strong>(更高优先级)
+   · 注意:此时 hard_timeout 主导
+<span class="stage-label">[t10]</span> 清理代码尝试设置 aborted(yield cleanup)
+   · 合并:hard_timeout + aborted → <strong>hard_timeout</strong>(sticky,不被降级)
+   · aborted 被忽略
+<span class="stage-label">[最终]</span> 终端状态 = hard_timeout
+   · 单一真相源:所有引用处看到同一个答案
+   · 用户看到"超时",运维看到"超时",日志记录"超时"</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:尽管 failed/cancelled/hard_timeout/aborted 四个事件都发生了,最终状态<strong>唯一确定 = hard_timeout</strong>。没有任何调用点需要自己判断"这么多状态哪个算数"——合并函数按格规则统一决定。这就是单一真相源的价值。<strong>如果用布尔字段,这四个字段会都为 true,每个消费者自己解释,必然不一致。</strong>
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"用 aborted/timedOut 布尔字段"</td><td>"没考虑并发一致性"</td></tr>
+<tr><td>知道要排序,if/else 判断优先级</td><td>"有意识但分散,易错"</td></tr>
+<tr><td>能说集中合并 + 优先级</td><td>"及格"</td></tr>
+<tr><td>能谈闭式联合、sticky、单一真相源、证据例外</td><td><strong>"生产经验扎实,有状态机设计深度"</strong></td></tr>
+</tbody>
+</table>
+
+<p>这题是<strong>区分"写过并发代码"和"设计过并发状态机"</strong>的分水岭。前者会用布尔字段加锁,后者知道布尔字段在多源并发下根本不对。</p>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点问题</strong>:"run 可能因完成/取消/超时/失败多种原因结束,且这些会并发同时发生。布尔字段会让多个为真,各处判断不一致。"</li>
+<li><strong>给优先级格</strong>:"把终端状态建模成闭式优先级格——有限状态集(completed/failed/aborted/cancelled/hard_timeout)+ 全序优先级 + 合并函数。多状态并存取最高。"</li>
+<li><strong>主动谈 sticky</strong>:"cancelled 和 hard_timeout 是 sticky——一旦设定不被后续降级。因为取消是用户终局意图,硬超时是运维硬约束,都不该被'刚好完成了'覆盖。"</li>
+<li><strong>主动谈单一真相源</strong>:"所有状态变更经过合并函数,结果全局唯一。各消费者引用它而非自己推,避免不一致。"</li>
+<li><strong>主动谈证据例外</strong>:"completedBeforeOrAtTimeout:有证据证明完成早于超时,完成优先。避免把成功的当失败的(假阴性)。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从布尔字段崩点到证据例外层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="11-lifecycle-hooks.html">← ⑪ Hooks</a>
+<a href="13-concurrency-lanes.html">⑬ 并发模型 lanes →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑫ 中断与终端状态优先级格 · 阶段 3 协作可靠性<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 布尔字段崩点", q:"用 aborted/timedOut/completed 几个布尔字段记录 run 终端状态,加锁保护写入。在'用户取消的同时 run 刚好完成'场景下,具体哪里会出问题?",
+    a:"<strong>三个问题</strong>:1)<strong>字段都为真,语义未定</strong>——completed=true 且 aborted=true,到底是完成还是取消?布尔字段表达不了'谁优先'。代码各处读这些字段自己判断,取消处理读 aborted 觉得是取消,完成处理读 completed 觉得是完成,<strong>同一 run 在不同代码路径里状态不同</strong>;2)<strong>锁只保证写入原子,不保证语义一致</strong>——加锁让单次写不会撕裂,但解决不了'两个字段都为真该怎么解释';3)<strong>覆盖顺序不确定</strong>——如果取消先写 aborted=true 再完成写 completed=true,vs 完成先写再取消写,结果可能不同(谁后写谁覆盖),依赖事件到达顺序,不可预测。<strong>优先级格解决</strong>:状态是闭式联合(一次只有一个),合并函数按优先级决定,无论事件到达顺序如何,结果唯一确定。" },
+  { round:"第 2 题 · sticky 的必要性", q:"你说 cancelled 是 sticky——一旦设定,后续完成事件不能降级它。但如果 run 实际上完成了(模型输出了完整答案),把它判成 cancelled 不是浪费了吗?为什么要忽略完成?",
+    a:"<strong>因为'用户取消'是不可撤销的意图声明</strong>。用户点停止的语义是'我不再想要这个结果了,无论它是否完成'。即使 run 碰巧在取消信号到达前完成:1)<strong>结果可能不可信</strong>——用户已经放弃,可能在别处重新提问或换方案,这时再交付一个'迟到的完成'会造成混乱(用户以为取消了却收到结果);2)<strong>副作用风险</strong>——如果 run 完成时执行了副作用(发邮件、改文件),用户取消后这些副作用可能不该发生,把它们当成功交付会误导;3)<strong>语义清晰</strong>——'cancelled'明确告诉用户'你的取消生效了',而非'取消了但其实完成了'的含混。<strong>浪费</strong>:是的,完成的计算被丢弃了,但这是用户选择取消的代价,由用户承担。<strong>例外</strong>:如果系统能证明完成在取消意图之前(完成事件时间戳 < 用户点击时间戳),那不是'取消后完成'而是'完成后用户误点取消',这时完成优先——这就是 completedBeforeOrAtTimeout 的精神。" },
+  { round:"第 3 题 · hard_timeout vs cancelled", q:"hard_timeout 和 cancelled 谁优先级更高?用户取消了一个 run,然后触发了硬超时(或反之)。最终状态该是什么?",
+    a:"<strong>通常 hard_timeout 优先级最高</strong>。理由:hard_timeout 是<strong>系统级硬约束</strong>('这个 run 超出绝对可接受时间,必须终止'),代表'资源/安全底线';cancelled 是<strong>用户意图</strong>('我不想等了')。当两者冲突(用户取消了但 run 之前已硬超时,或硬超时触发时用户也点了取消):1)<strong>hard_timeout 主导</strong>——因为硬超时是物理约束(可能 run 已经卡死,取消信号都进不去),它的发生本身就说明系统出了大问题,需要运维关注,不只是用户放弃;2)<strong>运维语义</strong>:hard_timeout 触发要告警/排查(为什么超时),cancelled 只是用户行为不需排查。<strong>反之(先硬超时后取消)</strong>:硬超时已经定了,用户再取消是冗余动作,状态保持 hard_timeout。<strong>但</strong>:如果用户取消明显在硬超时之前(时间戳证据),且取消本应让 run 停下却因故没生效,可能判 cancelled(取消意图在前)。具体优先级取决于系统设计,但关键是有明确规则,不是临时判断。" },
+  { round:"第 4 题 · 单一真相源", q:"你说'所有状态变更经过合并函数,结果全局唯一'。但如果取消处理代码和超时定时器并发调用合并函数,合并函数本身怎么保证线程安全?会不会两个并发合并互相覆盖?",
+    a:"<strong>合并函数本身必须原子化</strong>。设计:1)<strong>合并是原子操作</strong>——读当前状态 + 计算新状态 + 写回,这一序列加锁或用 CAS(compare-and-swap)原子完成。两个并发合并不会互相覆盖,而是串行化(一个先合并完,另一个基于结果再合并);2)<strong>合并是可交换的</strong>——合并(合并(S, A), B) == 合并(合并(S, B), A),因为优先级格的偏序关系不依赖合并顺序(A 和 B 谁先合并,最终结果都取最高优先级的);3)<strong>实现上</strong>:用互斥锁保护状态变量,或用无锁原子原语。合并函数很短(就是查格规则),锁竞争极低。<strong>关键洞察</strong>:优先级格的数学性质(偏序、可交换)让并发合并不需要复杂同步——无论什么顺序合并,结果都唯一。这是<strong>为什么用格而非任意状态机</strong>——格的代数性质天然适合并发合并,不需要额外协调。" },
+  { round:"第 5 题 · 中断后清理", q:"run 被取消了,但此刻正在执行一个工具(如 exec 跑了个长命令)。中断后这个工具执行怎么处理?直接杀进程?等它完成?合成失败结果?",
+    a:"<strong>不能简单杀或等,要分情况</strong>。处理:1)<strong>通过 AbortSignal 通知工具'该停了'</strong>——工具收到信号后自己决定如何干净停止(如发 SIGTERM 给子进程,等它清理,而非 SIGKILL 暴力杀);2)<strong>给工具有限的清理时间</strong>——不是无限等,而是给个宽限期(如 5 秒)让工具清理资源(关文件句柄、回滚部分写入);3)<strong>超时后强制</strong>——宽限期过了工具还没停,强制终止(SIGKILL),避免无限挂起;4)<strong>合成失败 tool_result</strong>——无论工具是干净停还是被强杀,都合成一个'被中断'的 tool_result 喂回(满足配对不变量,第④篇),不让悬空 tool_use;5)<strong>记录中断状态</strong>——工具是被中断而非正常完成,要记录,避免误当作成功结果。<strong>关键</strong>:中断要尊重工具的清理需求(给宽限期)但不无限等(硬约束)。这是'快速响应取消'和'干净清理'的平衡。粗暴杀进程会留下半成品文件/锁;无限等会让取消按钮形同虚设。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了布尔字段崩点、sticky 必要性、timeout vs cancelled、单一真相源、中断后清理。<br><br>下一篇 <a href="13-concurrency-lanes.html">⑬ 并发模型 lanes</a> 讲会话串行化与防止 race。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

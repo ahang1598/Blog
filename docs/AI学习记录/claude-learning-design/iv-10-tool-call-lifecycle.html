@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · 工具调用全生命周期 · opencode 面试视角</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+  :root{--bg:#0d1117;--bg-soft:#161b22;--bg-card:#1c2230;--border:#30363d;--text:#e6edf3;--text-dim:#9da7b3;--c1:#58a6ff;--c2:#3fb950;--c3:#d29922;--c4:#f778ba;--c5:#a371f7;--c6:#ff7b72;--code-bg:#0a0e14;--shadow:0 8px 32px rgba(0,0,0,0.4)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}code{font-family:"SFMono-Regular","JetBrains Mono",Consolas,monospace}
+  .hero{padding:56px 24px 40px;border-bottom:1px solid var(--border);background:radial-gradient(ellipse at top,rgba(247,120,186,0.12),transparent 60%)}
+  .hero .wrap{max-width:1140px;margin:0 auto}
+  .hero .crumb{font-size:12px;color:var(--text-dim);margin-bottom:14px}.hero .crumb a{color:var(--c6)}
+  .hero .series{display:inline-block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--c4);background:rgba(247,120,186,0.10);border:1px solid rgba(247,120,186,0.3);padding:5px 12px;border-radius:20px;margin-bottom:14px}
+  .hero h1{font-size:33px;font-weight:800;line-height:1.2;letter-spacing:-0.4px;margin-bottom:10px}
+  .hero .lead{font-size:16px;color:var(--text-dim);max-width:820px}.hero .lead b{color:var(--text)}
+  .toc{position:sticky;top:0;z-index:50;background:rgba(13,17,23,0.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .toc-inner{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;gap:6px;flex-wrap:wrap}
+  .toc a{font-size:12px;color:var(--text-dim);padding:5px 11px;border-radius:6px;transition:.12s}.toc a:hover{background:rgba(247,120,186,0.10);color:var(--c4)}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  section{padding:46px 0;border-bottom:1px solid var(--border)}
+  h2{font-size:23px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:11px}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--c4),var(--c5));color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+  h2 .star{background:linear-gradient(135deg,var(--c4),var(--c6))}
+  h3{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--text)}
+  h4{font-size:14.5px;font-weight:700;margin:14px 0 6px;color:var(--c5)}
+  .lead{color:var(--text-dim);font-size:16px;margin-bottom:22px;max-width:880px}
+  p{margin-bottom:12px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:18px 0}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.card h4{margin-top:0}
+  .card.bad{border-color:rgba(210,153,34,0.4)}.card.bad h4{color:var(--c3)}
+  .card.good{border-color:rgba(63,185,80,0.4)}.card.good h4{color:var(--c2)}
+  .card p{color:var(--text-dim);font-size:13.5px;margin-bottom:6px}
+  .card ul{padding-left:18px;color:var(--text-dim);font-size:13.5px}.card li{margin-bottom:4px}
+  .callout{border-left:3px solid var(--c6);background:rgba(255,123,98,0.06);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}.callout .t{font-weight:700;margin-bottom:4px}.callout p{color:var(--text-dim);font-size:14px;margin:0}
+  .callout.warn{border-left-color:var(--c3);background:rgba(210,153,34,0.08)}.callout.ok{border-left-color:var(--c2);background:rgba(63,185,80,0.08)}.callout.key{border-left-color:var(--c4);background:rgba(247,120,186,0.07)}.callout.synth{border-left-color:var(--c5);background:rgba(163,113,247,0.10)}
+  .diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px;margin:18px 0;overflow-x:auto}.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+  .dual{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .pane{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.pane.iv{border-top:3px solid var(--c4)}.pane.cand{border-top:3px solid var(--c2)}
+  .pane h4{margin-top:0;font-size:15px}.pane.iv h4{color:var(--c4)}.pane.cand h4{color:var(--c2)}
+  .pane ol{padding-left:20px;color:var(--text-dim);font-size:13.5px}.pane li{margin-bottom:6px}.pane li b{color:var(--text)}
+  a.file{color:var(--c3);font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;border-bottom:1px dotted var(--c3)}
+  /* timeline */
+  .timeline{position:relative;padding-left:30px;margin:18px 0}
+  .timeline::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,var(--c4),var(--c5))}
+  .tl{position:relative;margin-bottom:16px}
+  .tl::before{content:"";position:absolute;left:-26px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--c4)}
+  .tl.tool::before{border-color:var(--c3)}
+  .tl.evt::before{border-color:var(--c2)}
+  .tl.crash::before{border-color:var(--c6)}
+  .tl .tt{font-weight:700;font-size:14px}.tl .tb{font-size:13px;color:var(--text-dim);margin-top:3px}
+  /* rendered */
+  .rendered{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;font-family:"SFMono-Regular","JetBrains Mono",Consolas,monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:var(--text);margin:14px 0;overflow:auto;max-height:580px}
+  .rendered .model{color:#ff7b72}
+  .rendered .stream{color:#f778ba}
+  .rendered .evt{color:#3fb950}
+  .rendered .tool{color:#d29922}
+  .rendered .hist{color:#58a6ff}
+  .rendered .cmt{color:#8b949e;font-style:italic}
+  .rendered .key{color:#79c0ff}
+  .rendered .str{color:#a5d6ff}
+  .rendered .sep{color:#6e7681}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:14px 0 0;font-size:12.5px;color:var(--text-dim)}
+  .legend .chip{display:inline-flex;align-items:center;gap:6px}
+  .legend .dot{width:11px;height:11px;border-radius:3px}
+  .drill{background:linear-gradient(180deg,rgba(247,120,186,0.04),transparent);border-top:2px solid rgba(247,120,186,0.25)}
+  .progress{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .progress .bar{flex:1;min-width:200px;height:9px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .progress .fill{height:100%;background:linear-gradient(90deg,var(--c4),var(--c6));width:0;transition:width .3s}
+  .progress .pct{font-size:13px;color:var(--text-dim);font-family:"SFMono-Regular",Consolas,monospace}
+  .btn-reset{font-size:12px;color:var(--text-dim);background:var(--bg-card);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer;transition:.12s}.btn-reset:hover{border-color:var(--c3);color:var(--c3)}
+  .thread{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:0;margin-bottom:16px;overflow:hidden}
+  .thread-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .thread-head .ic{font-size:16px}.thread-head .title{font-weight:700;font-size:15px;flex:1}
+  .thread-head .layer-tag{font-size:11px;color:var(--c4);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(247,120,186,0.10);padding:3px 8px;border-radius:5px}
+  .step{padding:18px 20px;border-bottom:1px solid var(--border)}.step:last-child{border-bottom:none}.step.locked{display:none}.step.done{opacity:0.65}
+  .q{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+  .q .lvl{display:inline-block;font-size:10.5px;color:var(--c5);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(163,113,247,0.10);padding:2px 7px;border-radius:4px;margin-right:8px;vertical-align:middle}
+  .hint{font-size:13px;color:var(--text-dim);margin-bottom:12px}
+  .reveal-btn{font-size:13px;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.35);padding:7px 15px;border-radius:7px;cursor:pointer;transition:.12s}.reveal-btn:hover{background:rgba(255,123,98,0.20)}
+  .answer{display:none;margin-top:14px;padding:14px 16px;background:rgba(63,185,80,0.05);border:1px solid rgba(63,185,80,0.25);border-radius:9px}.answer.show{display:block}
+  .answer .at{font-size:11.5px;color:var(--c2);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+  .answer ul{padding-left:20px;color:var(--text-dim);font-size:13.5px}.answer li{margin-bottom:7px}.answer li b{color:var(--text)}
+  .answer .ref{margin-top:10px;font-size:12px;color:var(--text-dim)}
+  .rating{display:none;margin-top:14px;align-items:center;gap:8px;flex-wrap:wrap}.rating.show{display:flex}
+  .rating .lbl{font-size:12.5px;color:var(--text-dim);margin-right:4px}
+  .rate-btn{font-size:12.5px;padding:6px 13px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg-soft);color:var(--text-dim);transition:.12s}.rate-btn:hover{color:var(--text)}
+  .rate-btn.sel.ok{background:rgba(63,185,80,0.15);border-color:var(--c2);color:var(--c2)}
+  .rate-btn.sel.mid{background:rgba(210,153,34,0.15);border-color:var(--c3);color:var(--c3)}
+  .rate-btn.sel.no{background:rgba(255,123,98,0.15);border-color:var(--c6);color:var(--c6)}
+  .next-btn{display:none;margin-top:14px;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--c4),var(--c6));border:none;padding:8px 16px;border-radius:7px;cursor:pointer;transition:.12s}.next-btn.show{display:inline-block}.next-btn:hover{opacity:0.9}
+  .finish{display:none;padding:16px 20px;background:rgba(63,185,80,0.06);color:var(--c2);font-weight:600;font-size:14px;text-align:center}.finish.show{display:block}
+  .nav-foot{display:flex;justify-content:space-between;padding:24px 0;gap:12px}
+  .nav-foot a{font-size:13px;padding:9px 16px;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);transition:.12s}.nav-foot a:hover{border-color:var(--c6);color:var(--c6)}.nav-foot .next{margin-left:auto}
+  footer{padding:34px 24px;text-align:center;color:var(--text-dim);font-size:13px;border-top:1px solid var(--border)}footer a{color:var(--c6)}
+  @media(max-width:820px){.grid-2,.grid-3,.dual{grid-template-columns:1fr}.hero h1{font-size:27px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="iv-00-index.html">← 总索引</a> · <a href="iv-09-subagent-orchestration.html">← 第 9 篇</a></div>
+    <span class="series">Chapter 10 · 智能体与工具（3/4）</span>
+    <h1>工具调用全生命周期：一次完整往返</h1>
+    <p class="lead">模型说"我要读 README.md"——这句话怎么变成 durable 事件、怎么被执行、结果怎么进下一轮历史？这条链路里藏着两个关键设计：<b>① 工具调用在执行<b>之前</b>就先写进 durable log</b>（崩溃可审计）；<b>② 多个工具调用在 stream 期间就并发结算</b>（eager，不等 stream 结束）。再加上 <code>failUnsettledTools</code> 兜底——任何崩溃路径都把悬挂的工具调用 fail-closed 关掉，保证 log 永远是可重放的。</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#position">① 定位</a>
+    <a href="#problem">② 问题先于方案</a>
+    <a href="#design">③ 设计拆解</a>
+    <a href="#tradeoff">④ 生产级取舍</a>
+    <a href="#example">★ 完整示例</a>
+    <a href="#dual">⑤ 双视角</a>
+    <a href="#drill">🎯 面试追问</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<section id="position">
+  <h2><span class="num">1</span>一句话定位</h2>
+  <p class="lead">一次工具调用往返 = <b>模型在 stream 里 emit tool-call → 立刻写成 durable 的 Tool.Called 事件（执行前）→ 并发 settle（执行 + 产出结果）→ 写成 Tool.Success/Failed 事件 → 下一轮历史里看到 Message.tool(call+result)</b>。两阶段持久化（先记调用、再记结果）+ eager 并发结算 + fail-closed 兜底，保证 log 永远自洽、可重放。</p>
+  <div class="callout key">
+    <div class="t">🔑 一句话</div>
+    <p>工具调用不是"调用一个函数"，是<b>两个 durable 事件（Called + Success/Failed）的原子对</b>。崩溃在任何点，log 都能告诉你"调用发了、执行没完成"，并把它 fail 掉。</p>
+  </div>
+</section>
+
+<section id="problem">
+  <h2><span class="num">2</span>问题先于方案</h2>
+  <p class="lead">如果工具调用只在内存里执行、结果直接塞回消息数组，生产里会怎样？</p>
+  <div class="grid-2">
+    <div class="card bad">
+      <h4>痛点 A · 悬挂调用（永远 pending）</h4>
+      <p>模型 emit 了 tool-call，工具正在执行，进程崩了。log 里只有"模型要调用"，没有"结果"。下一轮重放时<b>这个调用永远 pending</b>，模型看到一个悬挂请求，要么盲目重试要么投影逻辑崩。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 B · 串行结算慢</h4>
+      <p>模型一条消息里 emit 了 5 个 read。如果在 stream 结束后串行执行，总延迟 = 5 个 read 之和。<b>本可并发的 IO 被强行串行化</b>，体验卡顿。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 C · 崩溃不可审计</h4>
+      <p>调用没写进 log 就执行。崩溃后无法知道"模型当时想调什么、执行到哪了"。<b>没有审计线索</b>，难以诊断"为什么仓库被改了"。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 D · 工具崩了炸 stream</h4>
+      <p>工具执行抛异常，直接打断整个 stream。<b>一个工具失败 = 整轮失败</b>，已流出的内容白费。</p>
+    </div>
+  </div>
+  <div class="callout warn">
+    <div class="t">⚠ 共同病根</div>
+    <p>把"工具调用"当成"一次函数调用"，而不是"<b>两个 durable 事件的原子对 + 可恢复的执行</b>"。前者不可审计、不可恢复、不可并发；后者全可以。</p>
+  </div>
+</section>
+
+<section id="design">
+  <h2><span class="num">3</span>设计拆解</h2>
+  <p class="lead">一次往返的时间线：先记调用、并发执行、再记结果，任何崩溃都有兜底。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,sans-serif">
+      <defs>
+        <marker id="a10" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#9da7b3"/></marker>
+      </defs>
+      <line x1="40" y1="200" x2="780" y2="200" stroke="#30363d" stroke-width="2"/>
+      <text x="40" y="40" fill="#9da7b3" font-size="12" font-weight="700">stream 进行中（llm.stream 在跑）</text>
+      <text x="40" y="240" fill="#9da7b3" font-size="12" font-weight="700">stream 结束后</text>
+
+      <!-- T1 model emits -->
+      <circle cx="120" cy="200" r="8" fill="#ff7b72"/>
+      <text x="120" y="178" text-anchor="middle" fill="#ff7b72" font-size="11" font-weight="700">T1</text>
+      <text x="120" y="166" text-anchor="middle" fill="#9da7b3" font-size="10">模型 emit</text>
+      <text x="120" y="154" text-anchor="middle" fill="#9da7b3" font-size="10">tool-call</text>
+
+      <!-- T2 write called event -->
+      <circle cx="260" cy="200" r="8" fill="#3fb950"/>
+      <text x="260" y="178" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="700">T2</text>
+      <text x="260" y="166" text-anchor="middle" fill="#9da7b3" font-size="10">写 Tool.Called</text>
+      <text x="260" y="154" text-anchor="middle" fill="#9da7b3" font-size="10">（执行前！）</text>
+
+      <!-- T3 fork settle -->
+      <circle cx="420" cy="200" r="8" fill="#d29922"/>
+      <text x="420" y="178" text-anchor="middle" fill="#d29922" font-size="11" font-weight="700">T3</text>
+      <text x="420" y="166" text-anchor="middle" fill="#9da7b3" font-size="10">fork 进 FiberSet</text>
+      <text x="420" y="154" text-anchor="middle" fill="#9da7b3" font-size="10">eager 并发执行</text>
+
+      <!-- parallel tools -->
+      <rect x="380" y="280" width="80" height="26" rx="5" fill="#161b22" stroke="#d29922" stroke-width="1"/><text x="420" y="297" text-anchor="middle" fill="#d29922" font-size="10">read a</text>
+      <rect x="470" y="280" width="80" height="26" rx="5" fill="#161b22" stroke="#d29922" stroke-width="1"/><text x="510" y="297" text-anchor="middle" fill="#d29922" font-size="10">read b</text>
+      <rect x="560" y="280" width="80" height="26" rx="5" fill="#161b22" stroke="#d29922" stroke-width="1"/><text x="600" y="297" text-anchor="middle" fill="#d29922" font-size="10">read c</text>
+      <text x="510" y="334" text-anchor="middle" fill="#9da7b3" font-size="10">N 个工具并发，不等 stream</text>
+      <line x1="420" y1="208" x2="420" y2="278" stroke="#d29922" stroke-width="1.2" marker-end="url(#a10)" stroke-dasharray="3 2"/>
+      <line x1="430" y1="208" x2="500" y2="278" stroke="#d29922" stroke-width="1.2" marker-end="url(#a10)" stroke-dasharray="3 2"/>
+      <line x1="440" y1="208" x2="580" y2="278" stroke="#d29922" stroke-width="1.2" marker-end="url(#a10)" stroke-dasharray="3 2"/>
+
+      <!-- T4 stream ends -->
+      <circle cx="660" cy="200" r="8" fill="#f778ba"/>
+      <text x="660" y="178" text-anchor="middle" fill="#f778ba" font-size="11" font-weight="700">T4</text>
+      <text x="660" y="166" text-anchor="middle" fill="#9da7b3" font-size="10">stream 结束</text>
+      <text x="660" y="154" text-anchor="middle" fill="#9da7b3" font-size="10">await FiberSet</text>
+
+      <!-- T5 write result -->
+      <circle cx="760" cy="280" r="8" fill="#3fb950"/>
+      <text x="760" y="258" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="700">T5</text>
+      <text x="760" y="246" text-anchor="middle" fill="#9da7b3" font-size="10">写 Tool.Success</text>
+      <text x="760" y="234" text-anchor="middle" fill="#9da7b3" font-size="10">/ Failed</text>
+      <line x1="640" y1="294" x2="752" y2="284" stroke="#3fb950" stroke-width="1.2" marker-end="url(#a10)"/>
+
+      <!-- arrows on main line -->
+      <line x1="128" y1="200" x2="252" y2="200" stroke="#9da7b3" stroke-width="1.4" marker-end="url(#a10)"/>
+      <line x1="268" y1="200" x2="412" y2="200" stroke="#9da7b3" stroke-width="1.4" marker-end="url(#a10)"/>
+      <line x1="428" y1="200" x2="652" y2="200" stroke="#9da7b3" stroke-width="1.4" marker-end="url(#a10)"/>
+
+      <!-- crash branch -->
+      <text x="260" y="334" text-anchor="middle" fill="#ff7b72" font-size="10.5" font-weight="600">💥 任何点崩 → failUnsettledTools 把 pending 调用 fail 掉</text>
+    </svg>
+  </div>
+
+  <h3>三个关键设计</h3>
+  <div class="grid-3">
+    <div class="card good">
+      <h4>① 执行前先记 Called</h4>
+      <p>模型 emit tool-call，<b>立刻</b>写 Tool.Called 事件（带名字、输入），然后才执行。崩溃后 log 知道"模型想调什么"，可审计。</p>
+    </div>
+    <div class="card good">
+      <h4>② eager 并发结算</h4>
+      <p>调用 fork 进 FiberSet，<b>在 stream 期间就并发执行</b>，不等 stream 结束。N 个 read 并发，总延迟≈最慢的一个。</p>
+    </div>
+    <div class="card good">
+      <h4>③ fail-closed 兜底</h4>
+      <p>任何崩溃/中断路径，<code>failUnsettledTools</code> 把所有未结算的调用写成 Tool.Failed。<b>log 永远没有悬挂调用</b>，可重放。</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="t">📌 settle 的契约：永远返回结果（成功或错误）</div>
+    <p><code>settle(input)</code> 返回 <code>{ result, output?, outputPaths? }</code>。工具抛异常会被捕获转成 <code>{type:"error"}</code>——<b>工具崩不了 stream</b>，只会产生一个失败的 ToolResult。这是"工具失败 ≠ 整轮失败"的保证。</p>
+  </div>
+</section>
+
+<section id="tradeoff">
+  <h2><span class="num">4</span>生产级取舍</h2>
+  <p class="lead">两阶段持久化 + eager 结算有开销，但换来可审计、可恢复、可并发。</p>
+  <div class="grid-2">
+    <div class="card good">
+      <h4>选择：执行前先记 Called + fail-closed</h4>
+      <ul>
+        <li>崩溃可审计：log 知道想调什么</li>
+        <li>悬挂调用被 fail，log 自洽</li>
+        <li>下一轮重放必然一致</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>只在内存执行的代价</h4>
+      <ul>
+        <li>悬挂调用永远 pending</li>
+        <li>崩溃不可审计</li>
+        <li>重放时投影逻辑崩</li>
+      </ul>
+    </div>
+    <div class="card good">
+      <h4>选择：eager 并发结算</h4>
+      <ul>
+        <li>N 个工具并发，延迟≈最慢的</li>
+        <li>stream 结束后 join（有屏障）</li>
+        <li>工具失败不炸 stream（转 error 结果）</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>串行结算的代价</h4>
+      <ul>
+        <li>5 个 read 串行，延迟=5 倍</li>
+        <li>本可并发的 IO 被串行化</li>
+        <li>体验卡顿</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout key">
+    <div class="t">🔑 本质</div>
+    <p>工具调用是<b>两个 durable 事件的原子对</b>，不是函数调用。这个模型让"调用"变成可审计、可恢复、可并发的一等公民——和 iv-02/iv-05 的"durable log 是唯一真相源"一脉相承。</p>
+  </div>
+</section>
+
+<section id="example">
+  <h2><span class="num">★</span>完整示例：一次 read 调用的全旅程</h2>
+  <p class="lead">用户说"读下 README"。从模型决策到下一轮历史，每一步都列出来。颜色对应阶段。</p>
+  <div class="legend">
+    <span class="chip"><span class="dot" style="background:#ff7b72"></span>模型决策/stream</span>
+    <span class="chip"><span class="dot" style="background:#3fb950"></span>durable 事件</span>
+    <span class="chip"><span class="dot" style="background:#d29922"></span>工具执行</span>
+    <span class="chip"><span class="dot" style="background:#58a6ff"></span>下一轮历史</span>
+    <span class="chip"><span class="dot" style="background:#8b949e"></span>注释</span>
+  </div>
+
+  <div class="timeline">
+    <div class="tl"><div class="tt">T1 · 模型在 stream 里决定调用</div><div class="tb">模型 emit 一个 tool-call 事件（name=read, input={path:"README.md"}）。这是 <b>LLMEvent.tool-call</b>，在 llm.stream 的 runForEach 里被接收。</div></div>
+    <div class="tl evt"><div class="tt">T2 · 立刻写 Tool.Called（执行前！）</div><div class="tb">publisher 把这个调用写成 durable 的 <b>SessionEvent.Tool.Called</b>（callID、name、input）。<b>此刻还没执行</b>——先记下来。崩溃后 log 知道"模型想读 README"。</div></div>
+    <div class="tl tool"><div class="tt">T3 · fork 进 FiberSet，eager 执行</div><div class="tb">runner 调 <code>toolMaterialization.settle(...)</code>，包在 uninterruptibleMask 里，fork 进 FiberSet。read 工具开始执行：解码 input、调 execute（读文件）、编码 output、过 ToolOutputStore（超限落盘+预览，见 iv-07）。<b>stream 还在继续流</b>。</div></div>
+    <div class="tl"><div class="tt">T4 · stream 结束，await FiberSet</div><div class="tb">llm.stream 流完，runner join 所有工具 fiber。settle 返回 <code>{ result, output, outputPaths? }</code>。工具抛异常会被捕获转成 <code>{type:"error"}</code>——<b>崩不了 stream</b>。</div></div>
+    <div class="tl evt"><div class="tt">T5 · 写 Tool.Success / Failed</div><div class="tb">结算完成，写成 durable 的 <b>SessionEvent.Tool.Success</b>（带结构化 content + provider metadata）。失败写 Tool.Failed。<b>Tool.Called + Tool.Success/Failed 是原子对</b>。</div></div>
+    <div class="tl hist"><div class="tt">T6 · 下一轮历史里看到它</div><div class="tb">continuation 重投影历史（iv-05）。to-llm-message 把这对事件投影成 <b>Message.tool({ id, name, result })</b>。下一轮的模型看到"我上轮读了 README，内容是 X"，基于结果继续。</div></div>
+    <div class="tl crash"><div class="tt">💥 崩溃兜底</div><div class="tb">若 T3 执行中进程崩了，log 里只有 Tool.Called 没 Tool.Success。重启 drain 时 <b>failInterruptedTools</b> 把它写成 Tool.Failed（"interrupted"）。下一轮模型看到"上次读 README 失败了"，可决定重试。<b>log 永远自洽</b>。</div></div>
+  </div>
+
+  <h4>durable log 里实际长什么样（事件序列）</h4>
+<div class="rendered"><span class="cmt">// 一条 read 调用在 durable log 里产生的事件对：</span>
+
+<span class="evt">SessionEvent.Tool.Called {
+  callID: "call_abc123",
+  name:    <span class="str">"read"</span>,
+  input:   { path: <span class="str">"README.md"</span> },
+  assistantMessageID: <span class="str">"msg_001"</span>
+}</span>                                          <span class="cmt">// ← T2 执行前先记</span>
+
+<span class="tool">  ... read 工具执行（FiberSet 并发）...</span>
+
+<span class="evt">SessionEvent.Tool.Success {
+  callID:  <span class="str">"call_abc123"</span>,                <span class="cmt">// ← 与 Called 配对</span>
+  result:  { content: <span class="str">"# My Project\n..."</span> },
+  outputPaths: [],                              <span class="cmt">// 小文件不必落盘</span>
+}</span>                                          <span class="cmt">// ← T5 结算后记</span>
+
+
+<span class="cmt">// ─── 下一轮 continuation 重投影（iv-05）───</span>
+<span class="hist">messages: [
+  Message.user({ text: <span class="str">"读下 README"</span> }),
+  Message.assistant({ text: <span class="str">"我来读 README.md"</span> }),
+  Message.tool({                          <span class="cmt">// ← Called+Success 投影成一条</span>
+    id:     <span class="str">"call_abc123"</span>,
+    name:   <span class="str">"read"</span>,
+    result: { content: <span class="str">"# My Project\n..."</span> }
+  })
+  <span class="cmt">// 下一轮模型看到这对，基于内容继续</span>
+]</span>
+
+
+<span class="cmt">// ─── 崩溃场景：T3 执行中崩了 ───</span>
+<span class="cmt">// log 里只有 Called，没 Success。重启 drain：</span>
+<span class="evt">failInterruptedTools → SessionEvent.Tool.Failed {
+  callID: <span class="str">"call_abc123"</span>,
+  error:  <span class="str">"interrupted"</span>                      <span class="cmt">// ← 兜底关掉</span>
+}</span>
+<span class="cmt">// 下一轮模型看到"读失败了"，自洽。log 永远可重放。</span>
+</div>
+
+  <div class="callout synth">
+    <div class="t">🎓 这个示例串起了 iv-02/05/07</div>
+    <p>Tool.Called 在执行前写进 durable log（<b>iv-02 的两阶段持久化</b>）；continuation 从 log 重投影这对事件成 Message.tool（<b>iv-05 的纯函数历史</b>）；超大 read 结果被 ToolOutputStore 落盘+预览（<b>iv-07 的输出有界</b>）。一次工具调用，三篇设计都在守护它。</p>
+  </div>
+</section>
+
+<section id="dual">
+  <h2><span class="num">5</span>面试双视角</h2>
+  <p class="lead">这题考的是<b>分布式系统直觉 + 不变式思维</b>——你能不能识别"工具调用是事件对，不是函数调用"。</p>
+  <div class="dual">
+    <div class="pane iv">
+      <h4>🎙️ 面试官为何问这题</h4>
+      <ol>
+        <li><b>探事件溯源直觉</b>——工具调用该不该先记再执行？崩溃怎么办？</li>
+        <li><b>探并发设计</b>——多个工具调用串行还是并发？join 在哪？</li>
+        <li><b>探容错</b>——工具崩了炸不炸 stream？悬挂调用怎么处理？</li>
+        <li><b>埋雷</b>：很多人答"调用函数拿返回值"。追问"执行中崩了呢？"——看你能不能答出"两阶段持久化 + fail-closed"。</li>
+      </ol>
+    </div>
+    <div class="pane cand">
+      <h4>🧑‍💻 面试者拆解（五段式）</h4>
+      <ol>
+        <li><b>抽象定位</b>：工具调用是两个 durable 事件的原子对（Called + Success/Failed），不是函数调用。</li>
+        <li><b>讲约束</b>：执行前先记 Called；eager fork 进 FiberSet 并发；stream 结束 join；任何崩溃走 failUnsettledTools。</li>
+        <li><b>讲收益</b>：可审计（log 知道想调什么）；可恢复（fail-closed 让 log 自洽）；可并发（延迟≈最慢工具）；工具崩不了 stream。</li>
+        <li><b>主动讲代价</b>：两阶段持久化多一次写；FiberSet 并发有调度开销。但远小于"悬挂/串行/不可审计"的代价。</li>
+        <li><b>给未来演化</b>：settle 是 ToolRegistry 的扩展点——加 provider-executed 工具（web search）只需跳过本地 settle，复用同一事件契约（见 iv-11）。</li>
+      </ol>
+    </div>
+  </div>
+  <div class="callout ok">
+    <div class="t">✅ 加分项</div>
+    <p>主动联系数据库/消息队列："这和 WAL（write-ahead log）、两阶段提交、saga 模式是同一思想——<b>先记意图再执行</b>，崩溃后靠 log 决定是重做还是补偿（这里是 fail）。能把这个 LLM 工具调用和经典分布式事务模式挂钩，是高级信号。"</p>
+  </div>
+</section>
+
+</div>
+
+<section id="drill" class="drill">
+  <div class="wrap">
+    <h2><span class="num">🎯</span>面试追问 · 模拟面试官深挖</h2>
+    <p class="lead">为何执行前先记？eager 并发 vs 串行？崩溃后悬挂调用怎么办？追到答不出。</p>
+    <div class="progress">
+      <span class="pct" id="pct">进度 0%</span>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <button class="btn-reset" onclick="IV.reset()">重置本页进度</button>
+    </div>
+    <div id="threads"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="nav-foot">
+    <a href="iv-09-subagent-orchestration.html">← 第 9 篇 子智能体</a>
+    <a class="next" href="iv-11-tool-design-permission.html">下一章：工具契约与权限门 →</a>
+  </div>
+</div>
+
+<footer>opencode 面试视角 · 第 10/11 篇 · 工具调用全生命周期 · <a href="iv-00-index.html">返回总索引</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+<script>
+const IV = (() => {
+  const KEY = "iv-drill-10";
+  const data = [
+    {
+      title: "为何执行前先记 Called？",
+      icon: "📝",
+      steps: [
+        { q: "根问题：模型 emit 了 tool-call，为什么不直接执行，非要先写一个 Tool.Called 事件？执行完一起写不行吗？",
+          hint: "执行中崩了怎么办？log 里该有什么？",
+          a: [
+            "<b>崩溃审计</b>：执行中进程崩了。如果执行完才写，log 里<b>什么都没有</b>——没人知道模型当时想调什么、执行到哪了。",
+            "<b>先记 Called</b>：崩溃后 log 里有'模型想读 README.md'，至少能审计'这个调用被请求过'。",
+            "<b>fail-closed 的前提</b>：failUnsettledTools 要能把悬挂调用 fail 掉，<b>前提是 log 里有 Called 记录</b>。没 Called 就找不到该 fail 谁。",
+            "<b>本质</b>：先记意图（Called）再执行，是 WAL/saga 思想——意图和执行分开记，崩溃后靠意图决定补偿。"
+          ],
+          ref: "publish-llm-event.ts — Tool.Called 在 settle 之前发；failUnsettledTools 遍历 tools map 找 settled=false 的。"
+        },
+        { q: "追问 1：那 Called 和 Success/Failed 之间有时间差，这期间 log 是'不一致'的吗？",
+          hint: "什么叫一致？调用正在进行是合法状态吗？",
+          a: [
+            "<b>不是不一致，是'进行中'状态</b>。Called 记录了'调用已请求'，Success/Failed 还没来——这合法，工具正在跑。",
+            "<b>一致的底线</b>是'每个 Called 最终都有 Success/Failed 配对'。进行中是过渡态，不是永久态。",
+            "<b>fail-closed 保证终止</b>：即使崩溃中断，failUnsettledTools 也会把过渡态推进到 Failed，让每个 Called 都有配对。",
+            "<b>所以不变式</b>不是'随时一致'，而是'最终每个 Called 都有终态'（Success 或 Failed）。进行中是允许的中间态。"
+          ],
+          ref: "这是 eventual consistency + fail-closed 的组合：过渡态合法，但保证终止。"
+        }
+      ]
+    },
+    {
+      title: "eager 并发 vs 串行结算",
+      icon: "⚡",
+      steps: [
+        { q: "根问题：模型一条消息里 emit 了 5 个 read。为什么要 eager（stream 期间并发）执行，而不是 stream 结束后串行执行？",
+          hint: "5 个独立 read 的总延迟，并发 vs 串行差多少？",
+          a: [
+            "<b>延迟</b>：5 个独立 read，串行总延迟=5 个之和；并发总延迟≈最慢的那个。<b>差 5 倍</b>。",
+            "<b>stream 还在流</b>：eager 意味着工具执行和 stream 的尾部<b>重叠</b>——stream 流最后几个 token 时，read 已经在跑了。",
+            "<b>join 屏障</b>：stream 结束后 await FiberSet，保证所有工具结算完才 continuation。<b>并发但不失控</b>。",
+            "<b>本质</b>：模型经常批量 emit 工具调用（读多个文件、并行搜索）。eager 让这种天然并发性被利用，而不是被串行化浪费。"
+          ],
+          ref: "llm.ts — settle fork 进 FiberSet（uninterruptibleMask），stream 结束后 awaitToolFibers。"
+        }
+      ]
+    },
+    {
+      title: "崩溃后悬挂调用怎么办？",
+      icon: "💥",
+      steps: [
+        { q: "根问题：工具执行到一半进程崩了。log 里有 Called 没 Success。下一轮重放会怎样？怎么修？",
+          hint: "下一轮投影历史时，看到只有 Called 的调用会怎样？",
+          a: [
+            "<b>问题</b>：下一轮 to-llm-message 投影历史时，看到一个只有 Called、没配对结果的工具调用。投影逻辑假设每个调用有终态，<b>遇到悬挂调用会崩或卡住</b>。",
+            "<b>模型困惑</b>：如果投影勉强通过，模型看到一个'我调了 read 但没结果'的悬挂请求，不知道该重试还是放弃。",
+            "<b>修复 1（运行时）</b>：failUnsettledTools 在每个失败/continuation 边界遍历，把 settled=false 的写成 Tool.Failed。",
+            "<b>修复 2（重启）</b>：failInterruptedTools 在每次 run 开始时，把上一轮 crashed 留下的 pending/running 工具 fail 掉。<b>双保险</b>。"
+          ],
+          ref: "publish-llm-event.ts failUnsettledTools（边界处）+ llm.ts failInterruptedTools（run 开始）。"
+        },
+        { q: "追问 1：为什么不'重试'悬挂调用，而是直接 fail？",
+          hint: "重试安全吗？工具可能有副作用吗？",
+          a: [
+            "<b>不安全重试</b>。很多工具有副作用：write 已经写了一半、bash 已经执行了命令、task 已经派生了子 agent。",
+            "<b>重试=可能重复执行副作用</b>：write 写两次、bash 跑两次。结果不可预测，可能破坏性。",
+            "<b>fail 更安全</b>：标记为失败，让模型在下一轮<b>看到失败后自己决定</b>是否重试（它知道上下文，能判断安全性）。",
+            "<b>原则</b>：副作用操作不能自动重试。系统负责让 log 自洽（fail），模型负责决定下一步（重试与否）。职责分明。"
+          ],
+          ref: "这是'at-least-once vs at-most-once'的经典权衡——副作用操作选 at-most-once（fail 不重试），幂等操作才可重试。"
+        }
+      ]
+    }
+  ];
+  let state = JSON.parse(localStorage.getItem(KEY) || "{}");
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+  function pct(){ let total=0,done=0; data.forEach((t,ti)=>{total+=t.steps.length;done+=Math.min(state[ti]||0,t.steps.length);}); return Math.round(done/total*100); }
+  function render(){
+    const root = document.getElementById("threads"); root.innerHTML = "";
+    data.forEach((t,ti)=>{
+      const cur = state[ti]||0; const finished = cur>=t.steps.length;
+      const div = document.createElement("div"); div.className="thread";
+      div.innerHTML = `<div class="thread-head"><span class="ic">${t.icon}</span><span class="title">${t.title}</span><span class="layer-tag">${finished?"✓ 完成":"第 "+(cur+1)+"/"+t.steps.length+" 层"}</span></div>`;
+      t.steps.forEach((s,si)=>{
+        const unlocked = si<=cur; const stepDone = si<cur;
+        const step = document.createElement("div"); step.className="step"+(unlocked?"":" locked")+(stepDone?" done":""); step.dataset.ti=ti; step.dataset.si=si;
+        step.innerHTML = `<div class="q"><span class="lvl">L${si+1}</span>${s.q}</div>${s.hint?`<div class="hint">💡 ${s.hint}</div>`:""}${!stepDone?`<button class="reveal-btn" data-act="reveal">查看参考答案</button>`:""}<div class="answer"><div class="at">参考答案要点</div><ul>${s.a.map(x=>`<li>${x}</li>`).join("")}</ul>${s.ref?`<div class="ref">📌 ${s.ref}</div>`:""}</div>${!stepDone?`<div class="rating"><span class="lbl">自评（诚实最重要）：</span><button class="rate-btn" data-rate="ok">✓ 答得好</button><button class="rate-btn" data-rate="mid">△ 部分懂</button><button class="rate-btn" data-rate="no">✗ 没答出</button></div>${si<t.steps.length-1?`<button class="next-btn" data-act="next">解锁下一层追问 →</button>`:""}`:""}${stepDone&&si===t.steps.length-1?`<div class="finish show">🎉 本线索完成 · 你已答到最深一层</div>`:""}`;
+        div.appendChild(step);
+      });
+      root.appendChild(div);
+    });
+    root.querySelectorAll(".step").forEach(step=>{
+      const ti=+step.dataset.ti, si=+step.dataset.si;
+      const rb=step.querySelector('[data-act="reveal"]');
+      if(rb) rb.addEventListener("click",()=>{step.querySelector(".answer").classList.add("show");step.querySelector(".rating").classList.add("show");rb.style.display="none";});
+      step.querySelectorAll(".rate-btn").forEach(b=>b.addEventListener("click",()=>{step.querySelectorAll(".rate-btn").forEach(x=>x.classList.remove("sel","ok","mid","no"));b.classList.add("sel",b.dataset.rate);const nb=step.querySelector(".next-btn");if(nb)nb.classList.add("show");}));
+      const nb=step.querySelector('[data-act="next"]');
+      if(nb) nb.addEventListener("click",()=>{state[ti]=Math.max(state[ti]||0,si+2);save();render();updatePct();});
+    });
+    updatePct();
+  }
+  function updatePct(){const p=pct();document.getElementById("fill").style.width=p+"%";document.getElementById("pct").textContent="进度 "+p+"%";}
+  function reset(){state={};save();render();}
+  return {render,reset};
+})();
+document.querySelectorAll("pre code").forEach(el=>hljs.highlightElement(el));
+IV.render();
+</script>
+</body>
+</html>

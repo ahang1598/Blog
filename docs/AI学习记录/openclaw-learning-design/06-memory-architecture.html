@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑥ 多层记忆架构</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .layer { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:14px 0; }
+  .layer h4 { margin-top:0; }
+  .layer.l1 { border-left:4px solid var(--accent); }
+  .layer.l2 { border-left:4px solid var(--orange); }
+  .layer.l3 { border-left:4px solid var(--green); }
+  .layer.l4 { border-left:4px solid var(--purple); }
+  .lifecycle { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:16px 20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.7; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑥ 多层记忆架构
+  <span class="sub">阶段 2 · 智能核心主线 · 记忆 vs 压缩 · dreaming 短期→长期巩固</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:记忆不是压缩,也不是数据库</a></li>
+  <li><a href="#design">分层设计:四层栈 + 离线巩固</a></li>
+  <li><a href="#why">为何这么设计:本质区别、检索而非全量、离线巩固</a></li>
+  <li><a href="#example">完整示例:"记住我喜欢 TypeScript"的全生命周期</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:记忆不是压缩,也不是数据库</h2>
+
+<p>很多人把"agent 记住东西"理解成三件事之一,但都错了:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li><strong>"记忆 = 压缩"</strong>:压缩是会话内的(第⑤篇),记忆要跨会话——你关掉对话重开,agent 还该记得你。</li>
+  <li><strong>"记忆 = 数据库"</strong>:数据库是精确查询(查用户 ID=123),记忆是<strong>语义召回</strong>("用户上次提过喜欢 TS,这次相关")——不是查,是联想。</li>
+  <li><strong>"记忆 = 把所有对话存起来"</strong>:存了不等于记得——下次要用时,如果不主动召回,存了等于没存;全量塞 prompt 又会爆。</li>
+</ul>
+</div>
+
+<p>生产中"记忆"要同时满足这些互相打架的需求:</p>
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li><strong>跨会话存活</strong>:这次对话说的,下次(甚至下周)还该影响 agent。</li>
+  <li><strong>不爆 prompt</strong>:不能把所有历史塞进 system prompt。</li>
+  <li><strong>语义召回</strong>:用户没明说时,agent 该联想相关记忆("你之前说过用 pnpm")。</li>
+  <li><strong>区分重要度</strong>:不是所有信息都值得长期记(随口一句 vs 明确偏好)。</li>
+  <li><strong>不污染</strong>:这次讨论的临时 bug,不该让 agent 永久记住这个 bug。</li>
+</ul>
+</div>
+
+<h2 id="design">二 · 分层设计:四层栈 + 离线巩固</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                    多层记忆架构 · 四层栈                                  │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[L1] 文件记忆(种子层 · 最稳定)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ MEMORY.md:用户/项目级显式记忆文件                          │
+  │ · 人写的或 agent 显式写的长期偏好                          │
+  │ · 每次启动注入 system prompt 稳定前缀                      │
+  │ · 优先级最高,但容量小                                     │
+  └──────────────────────────────────────────────────────────┘
+                              │
+  <span class="stage-label">[L2] 检索记忆(语料层 · 跨会话)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 混合检索 store(vector + FTS):                            │
+  │ · 索引"memory 文件" + "历史会话 transcript"               │
+  │ · chunked + embedded                                      │
+  │ · 运行时按当前 query 检索 top-k 相关片段注入 prompt        │
+  │ · 不是全量塞,是按需召回                                   │
+  └──────────────────────────────────────────────────────────┘
+                              │
+  <span class="stage-label">[L3] 插件记忆(扩展层)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 第三方记忆插件(如 wiki、知识库、CRM)                     │
+  │ · 通过统一契约接入                                        │
+  │ · 各自 own 存储/检索逻辑                                  │
+  └──────────────────────────────────────────────────────────┘
+                              │
+  <span class="stage-label">[L4] Active Memory(工作集 · 短期)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 当前任务相关的活跃记忆条目                                 │
+  │ · 高优先级,显式注入 prompt                               │
+  │ · 任务结束可清理或晋升到长期                              │
+  └──────────────────────────────────────────────────────────┘
+
+  ════════════ 离线巩固管道 ════════════
+  <span class="stage-label">Dreaming(定时后台批处理)</span>
+    把短期/低置信的 L4/L2 条目,按召回频率和置信度,
+    <strong>晋升</strong>(promote)到长期稳定记忆
+    三阶段:light(去重) → deep(高置信晋升) → rem(模式提炼)</div>
+
+<h3>记忆 vs 压缩(关键对比)</h3>
+<table>
+<thead><tr><th>维度</th><th>压缩(第⑤篇)</th><th>记忆(本篇)</th></tr></thead>
+<tbody>
+<tr><td>作用域</td><td>会话内(单 Session)</td><td>跨会话(整个 Agent)</td></tr>
+<tr><td>触发</td><td>token 接近上限</td><td>显式写 / 召回 / 后台巩固</td></tr>
+<tr><td>存活</td><td>Session 结束就丢</td><td>Agent 存在就活</td></tr>
+<tr><td>形态</td><td>结构化摘要(替换历史)</td><td>独立语料(不替换历史)</td></tr>
+<tr><td>注入</td><td>成为对话历史一部分</td><td>按需检索注入或种子注入</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么不抄经典 episodic/semantic 记忆图</h3>
+<p>学术上的记忆架构是 episodic(事件记忆)+ semantic(语义知识)的图结构。看起来优雅,但生产中:</p>
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li>图结构<strong>维护成本高</strong>:节点/边/类型要人工或复杂逻辑维护。</li>
+  <li><strong>召回不可靠</strong>:图遍历召回容易漏(查不全)或泛(查太多)。</li>
+  <li><strong>与 LLM 不匹配</strong>:LLM 擅长处理自然语言片段,不擅长图查询。</li>
+</ul>
+</div>
+<p>生产选择<strong>混合检索 store</strong>(vector + 全文检索)——把记忆当成"可检索的文本片段语料",而非图。这和 RAG 思路一致:简单、召回可靠、和 LLM 天然契合。<strong>接受放弃了图的表达力,换取工程可靠性和与 LLM 的兼容。</strong></p>
+
+<h3>决策 2:为什么是检索召回而非全量注入</h3>
+<p>记忆越多,全量塞 prompt 越不现实。生产选择<strong>按需召回</strong>:运行时用当前 query(用户消息+上下文)去检索 top-k 最相关的记忆片段,只注入这几条。这要求:1)<strong>embedding 索引</strong>(语义相似);2)<strong>混合排序</strong>(vector 相似度 + 全文匹配 + 时间衰减);3)<strong>MMR 去冗余</strong>(避免召回 k 条说同一件事的)。<strong>代价是可能漏召回</strong>(相关记忆没被检索到),用 L1 种子记忆(关键偏好强制注入)兜底。</p>
+
+<h3>决策 3:为什么 dreaming 是离线批处理</h3>
+<p>短期记忆→长期记忆的"晋升"判断(这条值不值得长期记)是<strong>计算密集且不急</strong>的:要算置信度、召回频率、去重。如果实时做,拖慢对话;不做,短期记忆堆积无序。生产借鉴<strong>睡眠/梦</strong>的机制——定时后台批处理:</p>
+<div class="lifecycle"><span class="stage-label">light dreaming(频繁,如每天)</span>:去重(相似度 > 0.9 的合并)
+   ↓
+<span class="stage-label">deep dreaming(定期)</span>:高置信条目(召回 ≥3 次、跨多查询)晋升长期
+   · 带 recency decay(14 天半衰期,旧记忆降权)
+   · 有恢复模式(低于健康阈值时重新晋升)
+   ↓
+<span class="stage-label">rem dreaming(深度)</span>:模式提炼(高频模式提升为强记忆)</div>
+
+<div class="card key">
+<strong>核心取舍</strong>:四层栈 + 检索召回 + 离线巩固带来<strong>显著的工程复杂度</strong>(embedding 索引、混合排序、定时任务、晋升逻辑),换来的是<strong>跨会话、不爆 prompt、语义召回、区分重要度</strong>全部满足。替代方案(全量塞 / 简单数据库 / 图结构)都在某个维度崩:全量爆 prompt,数据库无语义召回,图不可靠。<strong>接受复杂度,因为没有更简单的方案能同时满足这五个需求。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:"记住我喜欢 TypeScript"的全生命周期</h2>
+
+<p>用户在某个对话里说了句"我喜欢 TypeScript,别用 JavaScript"。我们追踪这条信息如何流过记忆系统:</p>
+
+<div class="lifecycle"><span class="stage-label">[T0 · 对话中]</span> 用户说"我喜欢 TypeScript"
+   ↓
+<span class="stage-label">[短期落地]</span> 进入当前 Session 的 transcript(L2 语料被增量索引)
+   · 同时可能进 L4 Active Memory(当前任务相关)
+   ↓
+<span class="stage-label">[T1 · 同会话后续 turn]</span> 用户问"帮我写个脚本"
+   · 检索召回:query="写脚本" → 召回"用户喜欢 TS" → 注入 prompt
+   · agent 用 TS 写(无需用户再说)
+   ↓
+<span class="stage-label">[T2 · 跨会话(次日新对话)]</span>
+   · 新 Session 启动,L1 MEMORY.md 若已记录则种子注入
+   · 若未显式记录,下次相关 query 时 L2 检索召回
+   · 但若召回频率低,可能"忘"(未召回)
+   ↓
+<span class="stage-label">[T3 · 后台 dreaming(夜间)]</span>
+   · light:去重(用户多次说类似话,合并)
+   · deep:这条被召回 ≥3 次、跨多查询 → 高置信 → 晋升长期记忆
+   · 写入 L1 MEMORY.md 或标记为长期条目
+   ↓
+<span class="stage-label">[T4 · 之后所有会话]</span>
+   · 这条已是长期记忆,稳定注入或高频召回
+   · agent 永久"记住"用户喜欢 TS(除非用户明确说改)</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:一条信息从"随口一提"到"agent 永久记住"经过了<strong>置信度筛选</strong>——不是说了就记,而是<strong>被反复召回使用</strong>(说明真有用)才晋升长期。这模拟了人类记忆:听过的很多,记住的是反复用到的。这避免了"随口一句临时 bug 被永久记住"的污染问题。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"记忆就是存数据库,查的时候拿出来"</td><td>"没理解语义召回"</td></tr>
+<tr><td>"用 RAG,vector 检索"</td><td>"有意识但单层,没考虑重要度/巩固"</td></tr>
+<tr><td>能说检索召回 + 种子记忆 + 跨会话</td><td>"及格"</td></tr>
+<tr><td>能谈四层栈、为什么不抄图、dreaming 巩固、置信度筛选</td><td><strong>"生产经验扎实,有系统设计深度"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先划清边界</strong>:"记忆和压缩完全不同——压缩是会话内的(替换历史),记忆是跨会话的(独立语料,按需召回)。"</li>
+<li><strong>给四层栈</strong>:"我用四层:L1 文件种子(强制注入关键偏好)、L2 检索语料(vector+FTS)、L3 插件扩展、L4 Active 工作集。"</li>
+<li><strong>主动谈为什么不抄图</strong>:"不抄经典 episodic/semantic 图,因为图维护成本高、召回不可靠、和 LLM 不匹配。用混合检索 store 更可靠。"</li>
+<li><strong>主动谈检索而非全量</strong>:"不全量塞 prompt,按当前 query 检索 top-k 注入。混合排序:vector 相似 + 全文 + 时间衰减 + MMR 去冗余。"</li>
+<li><strong>主动谈 dreaming</strong>:"短期→长期晋升靠离线批处理 dreaming,模拟睡眠。light 去重→deep 高置信晋升→rem 模式提炼。带 recency decay。"</li>
+<li><strong>收口在置信度</strong>:"不是说了就记,是被反复召回使用才晋升长期——这避免了临时信息污染长期记忆。"</li>
+</ol>
+
+<div class="card warn">
+<strong>主动展现的生产洞察</strong>:
+<ul style="margin-bottom:0">
+  <li>记忆注入要防<strong>跨 run 泄漏</strong>(用 AsyncLocalStorage 隔离 run-scoped 快照)</li>
+  <li>embedding 索引要<strong>增量更新</strong>(压缩后强制重索引)</li>
+  <li>召回漏了用 L1 种子兜底;召回了错的用置信度过滤</li>
+</ul>
+</div>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从本质区别到巩固机制层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="05-context-compaction.html">← ⑤ 上下文压缩</a>
+<a href="07-skills-system.html">⑦ Skills 动态能力系统 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑥ 多层记忆架构 · 阶段 2 智能核心<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 本质区别", q:"记忆和压缩(第⑤篇)都是'处理历史信息',为什么不把它们合成一个子系统?它们在作用域、触发、形态上的本质区别是什么?",
+    a:"<strong>因为它们的生命周期和目标完全不同</strong>。<strong>作用域</strong>:压缩是会话内(单 Session),记忆是跨会话(整个 Agent)。<strong>触发</strong>:压缩是 token 接近上限被动触发,记忆是显式写/召回/后台巩固。<strong>存活</strong>:压缩产物随 Session 结束丢弃,记忆随 Agent 存在。<strong>形态</strong>:压缩是结构化摘要<strong>替换</strong>对话历史(成为历史一部分),记忆是<strong>独立语料</strong>不替换历史(按需注入)。<strong>合成一个会导致</strong>:Session 结束时压缩产物被丢,跨会话信息全丢;或为了跨会话保留压缩产物,把会话局部信息污染进 Agent 长期身份。两者职责正交,必须分开。" },
+  { round:"第 2 题 · 不抄图结构", q:"学术界记忆架构常用 episodic/semantic 的图结构(节点+边+类型)。你为什么选混合检索 store 而不抄图?放弃了什么?",
+    a:"<strong>因为图在生产中不可靠且与 LLM 不匹配</strong>。<strong>图的问题</strong>:1)维护成本高——节点/边/类型要人工或复杂逻辑维护,容易腐化;2)召回不可靠——图遍历容易漏(查不全)或泛(查太多),调参困难;3)与 LLM 不匹配——LLM 擅长处理自然语言片段,不擅长图查询,图结果还要转文本才能用。<strong>混合检索 store</strong>(vector+FTS):简单、召回可靠、和 LLM 天然契合(直接返回文本片段)。<strong>放弃了图的表达力</strong>——比如'事件 A 因果导致事件 B'这种结构化关系,store 表达不了。但生产中这种结构化关系的价值远不如召回可靠性,所以接受放弃。如果某场景真需要强结构化关系,再上知识图谱,但那是特例不是默认。" },
+  { round:"第 3 题 · 检索漏召回", q:"按需检索召回意味着可能漏——某条相关记忆没被 top-k 检索到,agent 就'忘了'。怎么缓解这个不可避免的失败模式?",
+    a:"<strong>三层缓解</strong>:1)<strong>L1 种子记忆兜底</strong>——关键偏好(用户喜欢 TS、项目用 pnpm)强制写进 MEMORY.md,每次启动注入 system prompt,不依赖检索。这样最关键的信息永远不会'漏召回';2)<strong>混合排序提升召回率</strong>——不只 vector 相似,还结合全文匹配(防 vector 漏了精确关键词)、时间衰减(近期记忆优先)、MMR 去冗余(让 top-k 多样化覆盖更多相关记忆);3)<strong>接受非关键记忆可能漏</strong>——这是检索系统的固有特性,top-k 不可能完美。核心洞察:<strong>区分'绝对不能忘'和'忘了也行'两类</strong>——前者进 L1 种子强制注入,后者靠检索尽力召回,漏了可接受。这比试图'召回所有相关记忆'(不现实)更工程化。" },
+  { round:"第 4 题 · dreaming 时机", q:"你说 dreaming(短期→长期晋升)是离线批处理。为什么不实时做(用户说完就判断这条值不值得长期记)?实时做有什么坏处?",
+    a:"<strong>实时做有三个坏处</strong>:1)<strong>拖慢对话</strong>——晋升判断要算置信度、召回频率、去重、和已有记忆比较,这些计算密集,放请求路径会让用户多等几秒;2)<strong>判断不准</strong>——刚说完时,这条信息的'长期价值'还没体现(还没被反复召回使用),实时判断容易误判(把临时信息当长期,或漏掉真有价值的);3)<strong>资源争用</strong>——晋升要写索引、可能触发重排,和正在进行的对话抢资源。<strong>离线批处理</strong>把这些都解决:在低峰期(如夜间)统一跑,不抢对话资源;积累一段时间后置信度信号更充分(这条被召回几次了),判断更准;还能批量优化(去重、合并)。代价是<strong>有延迟</strong>(今晚说的明天才巩固),但记忆巩固本来就不是实时的需求,接受这个延迟。" },
+  { round:"第 5 题 · 污染与遗忘", q:"用户某次随口讨论了一个临时 bug,agent 把它记进记忆了。这个临时信息会不会污染所有后续对话?怎么让 agent 该忘的能忘?",
+    a:"<strong>这是记忆系统的核心挑战——区分'该记'和'该忘'</strong>。设计上的多层防御:1)<strong>置信度晋升门槛</strong>——临时 bug 不会被 dreaming 晋升长期,因为它召回频率低(就那一次讨论)、跨查询数少,达不到 deep dreaming 的 minRecallCount/minUniqueQueries 阈值,会留在短期或被清理;2)<strong>recency decay</strong>——14 天半衰期,旧记忆自动降权,很久没用过的临时信息自然衰减;3)<strong>显式遗忘指令</strong>——用户可说'忘掉刚才那个 bug'或'别记这个',触发删除;4)<strong>记忆清理</strong>——light dreaming 去重时,低价值、低召回的条目可能被清理。核心洞察:<strong>记忆系统默认倾向遗忘</strong>——只有反复被证明有用的才晋升长期。这模拟了人类记忆的'用进废退',避免了'记了就永远不忘'的污染。用户随口一句没被反复使用,自然就忘了。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了记忆 vs 压缩、不抄图结构、漏召回缓解、dreaming 时机、污染与遗忘。<br><br>下一篇 <a href="07-skills-system.html">⑦ Skills 动态能力系统</a> 讲 agent 运行时如何获得新能力而不撑爆 prompt。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑨ 流式架构设计</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .layers { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  .layers > div { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:14px 16px; }
+  .layers h5 { margin:0 0 8px; font-size:13px; border-bottom:1px solid var(--border); padding-bottom:6px; }
+  .layers .m h5 { color:var(--accent); } .layers .c h5 { color:var(--orange); }
+  .layers p { font-size:13px; }
+  @media (max-width:760px){ .layers { grid-template-columns:1fr; } }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑨ 流式架构设计
+  <span class="sub">阶段 2 · 智能核心主线 · 双层流与 block chunker</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:为什么不能 token 流直送</a></li>
+  <li><a href="#design">分层设计:模型流 vs channel 流</a></li>
+  <li><a href="#why">为何这么设计:协议错配、block 边界、preview</a></li>
+  <li><a href="#example">完整示例:一次回答的双层流时间线</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:为什么不能 token 流直送</h2>
+
+<p>模型 API 支持 SSE 流式输出:生成一个 token 就推一个 token。直觉做法:收到 token 就立即转发给聊天 channel(Telegram/Discord/CLI),让用户实时看到字一个一个蹦出来。</p>
+
+<p>听起来自然,但<strong>聊天协议不是 token 协议</strong>。直送会引发:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li><strong>API 限流</strong>:Telegram/Discord 的消息编辑 API 有速率限制(每秒几次),token 流每秒几十上百个,直送瞬间被封号。</li>
+  <li><strong>协议错配</strong>:聊天协议是"发一条消息 + 可选编辑",不是"推一个字符"。token 流要硬塞进消息编辑模型,极别扭。</li>
+  <li><strong>无法成块</strong>:token 是碎片(半个词、半个 markdown 标记),直送用户看到的是乱码般的碎片,不是可读文本。</li>
+  <li><strong>代码块撕裂</strong>:模型输出代码块时,token 流可能在 ```` ``` ```` 中间被切断,channel 端渲染出错。</li>
+  <li><strong>工具调用混乱</strong>:thinking/text/toolcall 三种 block 的 token 混在一起,直送无法区分。</li>
+</ul>
+</div>
+
+<p>本质矛盾:<strong>模型流是 token 粒度的连续流,channel 是消息粒度的离散协议</strong>。两者粒度和语义都错配。</p>
+
+<h2 id="design">二 · 分层设计:模型流 vs channel 流</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                流式架构 · 两层独立流                                    │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[层 1] 模型流 · token 粒度(内部)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 模型 SSE → 归一化事件流:                                   │
+  │   text_start/delta/end                                     │
+  │   thinking_start/delta/end                                 │
+  │   toolcall_start/delta/end                                 │
+  │   done / error                                             │
+  │ · 内部消费,用于:                                          │
+  │   - 折叠(fold)成 AssistantMessage                         │
+  │   - 驱动 block chunker                                     │
+  │   - preview 流(可选,见下)                                │
+  └──────────────────────────────────────────────────────────┘
+                              │ block chunker 缓冲+切分
+                              ▼
+  <span class="stage-label">[层 2] channel 流 · block 粒度(对外)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ block chunker 把 token 流聚合成"完成的块":                 │
+  │   · 最小/最大字符边界(minChars/maxChars)                 │
+  │   · 切分优先级链:段落 → 换行 → 句子 → 空格 → 硬切         │
+  │   · 永不在代码块中间切(切了要重开 ``` 标记)              │
+  │   · 受 channel 文本上限钳制(如 Telegram 4096)             │
+  │ → 每个 block 成为一条 channel 消息(发送或编辑)            │
+  └──────────────────────────────────────────────────────────┘
+                              │ 可选
+                              ▼
+  <span class="stage-label">[层 3] preview 流(用户体验)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 生成过程中,用一条"预览消息"实时更新:                      │
+  │   · 发一条草稿消息,随生成不断 edit                         │
+  │   · 模式:off / partial / block / progress                 │
+  │   · progress 模式显示工具进度,完成后替换为最终答案         │
+  │ → 用户看到"正在思考..."的实时反馈,不被速率限制打爆        │
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>两层流的职责</h3>
+<div class="layers">
+<div class="m">
+<h5>模型流(内部)</h5>
+<p>• 粒度:token</p>
+<p>• 消费者:agent loop(fold 成消息)、chunker、preview</p>
+<p>• 协议:SSE / 异步迭代器</p>
+<p>• 关注:正确折叠、block 类型区分</p>
+</div>
+<div class="c">
+<h5>channel 流(外部)</h5>
+<p>• 粒度:block(一段完整文本)</p>
+<p>• 消费者:聊天协议(Telegram 等)</p>
+<p>• 协议:发消息 / 编辑消息</p>
+<p>• 关注:速率限制、可读性、不撕裂</p>
+</div>
+</div>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么两层分离</h3>
+<p>模型流和 channel 流的<strong>粒度、协议、消费者、关注点都不同</strong>。混在一起(直送 token)必然在某一边崩——要么模型流被 channel 速率限制拖死,要么 channel 被模型流碎片淹没。分离后,模型流专注"正确折叠消息",channel 流专注"合规且可读地呈现",各跑各的节奏。中间的 block chunker 是<strong>适配器</strong>,把 token 粒度转成 block 粒度。</p>
+
+<h3>决策 2:为什么 block chunker 要切分优先级链</h3>
+<p>不能等模型全部生成完再发(用户等太久),也不能每 token 发(限流)。要在"足够长才发"(可读、省 API 调用)和"足够快发"(用户看到进展)间平衡。切分优先级链<strong>段落 → 换行 → 句子 → 空格 → 硬切</strong>让 chunker 优先在自然边界切(用户看到完整段落/句子),只有凑不够最小长度才退到下一级。这是<strong>用户体验工程</strong>:在自然边界切让阅读流畅,硬切让文本支离破碎。</p>
+
+<h3>决策 3:为什么永不在代码块中间切</h3>
+<p>代码块被 ```` ``` ```` 包裹。如果 chunker 在代码块中间切(发了前半,后半在下个 block),channel 端的 markdown 渲染会把前半当代码、后半当普通文本,显示混乱。所以 chunker 必须<strong>识别代码块边界</strong>,要么等代码块完整再发,要么切了之后在下个 block 重新打开 ```` ``` ```` 标记(告诉 channel"这是代码块的继续")。这是<strong>对 channel 渲染语义的尊重</strong>——不能只管发不管对方怎么显示。</p>
+
+<h3>preview 流的取舍</h3>
+<p>preview(草稿消息实时更新)给用户"正在生成"的反馈,但:① 占用 channel 编辑 API(有速率限制);② 完成后要替换/删除草稿(多一次操作);③ 不同 channel 支持度不同(有的不能编辑,有的有限制)。所以 preview 是<strong>可选的</strong>,按 channel 能力和用户偏好开关。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:双层流 + chunker 带来<strong>适配层的复杂度</strong>(切分逻辑、代码块识别、速率钳制、preview 协调),换来的是<strong>模型流和 channel 流解耦、用户体验流畅、不被限流封号、渲染不撕裂</strong>。替代方案(token 直送)的失败模式是"API 被封 + 用户看到碎片 + 代码块撕裂"。<strong>接受复杂度,因为 token 直送在生产中根本跑不起来——这是协议错配的硬约束,不是优化项。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:一次回答的双层流时间线</h2>
+
+<p>模型生成一段含代码块的回答。双层流如何处理:</p>
+
+<div class="flow-diagram"><span class="stage-label">[模型流 · token 粒度]</span>
+  t0  text_delta: "这个函数有个 bug。"
+  t1  text_delta: "问题在于空值检查。"
+  t2  text_delta: "修复如下:"
+  t3  text_delta: "```typescript\nfunction f(x) {"
+  t4  text_delta: "  if (!x) return 0;"
+  t5  text_delta: "  return x.length;"
+  t6  text_delta: "}\n```"
+  t7  done
+        │ block chunker 缓冲 + 切分
+        ▼
+<span class="stage-label">[channel 流 · block 粒度]</span>
+  b0  [段落边界] "这个函数有个 bug。问题在于空值检查。修复如下:"
+       → 达到 minChars 且在段落边界 → 发送(第 1 条消息)
+  b1  [代码块完整] "```typescript\nfunction f(x) {...}\n```"
+       → 检测到代码块,等完整再发 → 发送(第 2 条消息)
+        │ 可选 preview 同时进行
+        ▼
+<span class="stage-label">[preview 流 · 用户看到的]</span>
+  生成中:草稿消息"正在思考..." → "这个函数..."(随 edit 更新)
+  完成:草稿替换为最终答案 / 删除草稿发正式消息</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:模型流是 7 个 token delta,channel 流只有 2 个 block。chunker 把 7 个碎片聚合成 2 个可读块,在自然边界(段落、代码块)切分。用户看到的是 2 条流畅消息,不是 7 个碎片。同时 API 调用从 7 次(token 直送会被限流)降到 2 次(合规)。<strong>这就是双层流的价值:粒度适配 + 体验 + 合规。</strong>
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"模型支持流式,直接转发就行"</td><td>"没考虑 channel 协议"</td></tr>
+<tr><td>知道要缓冲,但不能说清为什么</td><td>"有意识但浅"</td></tr>
+<tr><td>能说双层流 + chunker 切分</td><td>"及格"</td></tr>
+<tr><td>能谈切分优先级链、代码块不撕裂、速率钳制、preview 取舍</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点协议错配</strong>:"模型流是 token 粒度,channel 是消息粒度,直送会被限流封号 + 用户看碎片 + 代码块撕裂。"</li>
+<li><strong>给双层方案</strong>:"分两层——模型流(内部 token,用于 fold 成消息)、channel 流(外部 block,发给聊天协议)。中间 block chunker 适配。"</li>
+<li><strong>主动谈切分</strong>:"chunker 用切分优先级链:段落 → 换行 → 句子 → 空格 → 硬切,优先自然边界。永不在代码块中间切(切了要重开 ``` 标记)。"</li>
+<li><strong>主动谈速率钳制</strong>:"block 受 channel 文本上限钳制(如 Telegram 4096),超长自动拆多条但保持可读性。"</li>
+<li><strong>主动谈 preview</strong>:"可选的 preview 流用草稿消息实时更新给用户反馈,完成后替换/删除。按 channel 能力开关。"</li>
+<li><strong>收口在解耦</strong>:"两层分离让模型流专注正确性,channel 流专注合规体验,各跑各节奏。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从协议错配到 preview 取舍层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="08-reasoning-models.html">← ⑧ 推理模型</a>
+<a href="10-subagent-delegation.html">⑩ 子 Agent 与任务委派 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑨ 流式架构设计 · 阶段 2 智能核心(完)<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 协议错配", q:"模型 SSE 流每秒能推上百个 token,Telegram 消息编辑 API 每秒只允许几次。如果直接把 token delta 转发给 Telegram,具体会发生什么?",
+    a:"<strong>瞬间触发速率限制,账号被封禁或限流</strong>。Telegram 的 editMessage 严格限频(约每秒 1 次,30 次/分钟量级),token 流每秒上百 delta 直接打爆。后果:1)API 返回 429 Too Many Requests;2)持续违规触发账号级封禁(几小时到永久);3)即使没封,大部分 delta 因限流被丢弃,用户看到的支离破碎。<strong>这就是 token 直送跑不起来的根本原因</strong>——不是性能问题,是<strong>协议粒度错配的硬约束</strong>。模型流是连续 token 流,channel 是离散消息协议,中间必须有 chunker 做粒度适配,把上百 token 聚合成少数几个 block,把 API 调用频率降到 channel 容忍范围内。" },
+  { round:"第 2 题 · 切分优先级", q:"block chunker 的切分优先级链是 段落→换行→句子→空格→硬切。为什么不直接按固定长度切(比如每 500 字符一个 block)?优先级链解决了什么?",
+    a:"<strong>固定长度切会让文本在任意位置断开,用户体验差</strong>。比如切在句子中间('这个函数有'|'个 bug'),用户看到两条语义不完整的消息。优先级链解决的是<strong>在自然语义边界切</strong>:1)优先段落(双换行)——最自然;2)退而求其次换行——还行;3)再退句子(句号)——可读;4)空格——至少不切断词;5)硬切——最后手段,只在凑不够 minChars 时。<strong>本质是用户体验工程</strong>:让用户看到的每个 block 是语义完整的单元。固定长度切虽然实现简单,但会让阅读支离破碎,在长回答里尤其难受。优先级链的代价是实现复杂(要检测各种边界),但相比用户体验的收益值得。" },
+  { round:"第 3 题 · 代码块不撕裂", q:"模型输出一个 50 行的代码块。chunker 如果在代码块中间切了(发了前 25 行,后 25 行在下个 block),channel 端会怎样?怎么避免?",
+    a:"<strong>channel 端 markdown 渲染会混乱</strong>:前 25 行被 ```` ```typescript ```` 开标记包着,channel 渲染成代码;但开标记没对应的闭标记 ```` ``` ````,channel 可能:1)把后续所有文本当代码(直到遇到下一个 ```);2)渲染出错显示乱码;3)语法高亮断裂。<strong>避免方法</strong>:chunker 必须<strong>识别代码块边界</strong>(跟踪 ``` 的开闭计数):1)<strong>首选</strong>:等代码块完整再发(不切)——简单可靠,但长代码块让用户等久;2)<strong>退而求其次</strong>:切了之后在下个 block 开头重新打开 ``` 标记(并标注'代码继续')——让 channel 知道这是延续。生产中通常结合:短代码块等完整,长代码块(超过 maxChars)切了重开标记。<strong>核心是尊重 channel 的渲染语义</strong>,不能只管发不管对方怎么显示。" },
+  { round:"第 4 题 · preview 取舍", q:"preview 流(草稿消息实时更新)给用户'正在生成'的反馈。但你说它是可选的。什么情况下该开 preview,什么情况下不该开?代价是什么?",
+    a:"<strong>该开的情况</strong>:1)长回答(用户要等 10 秒以上,preview 缓解焦虑);2)重要决策(用户想看推理进展增加信任);3)channel 支持消息编辑且限频宽松。<strong>不该开的情况</strong>:1)channel 不支持编辑(如某些 webhook 模式只能发不能改);2)channel 限频严格(preview 的频繁 edit 也可能触发);3)短回答(几秒就完,preview 反而是多余操作);4)用户偏好关掉(有人觉得跳动的字烦)。<strong>代价</strong>:1)占 channel 编辑 API 配额(和正式发送抢);2)完成后要替换/删除草稿(多一次操作,可能失败留残);3)实现复杂(要协调草稿和最终消息的生命周期)。<strong>所以 preview 是可选优化</strong>,按 channel 能力 + 场景 + 用户偏好三维度决定,不是默认必开。" },
+  { round:"第 5 题 · 工具调用流", q:"模型这一轮不是输出文本,而是输出 tool_call(要调工具)。这个 tool_call 也是流式的(参数逐字生成)。tool_call 的流和文本流该怎么区分处理?",
+    a:"<strong>必须区分,因为消费方式完全不同</strong>。<strong>文本流</strong>给用户看(经 chunker 发 channel);<strong>tool_call 流</strong>给系统执行(不发给 channel,或只发'正在调用 X 工具'的进度提示)。处理差异:1)<strong>折叠时机</strong>——text delta 可以实时 fold 成可见文本;tool_call delta 要等完整(参数 JSON 全生成完)才能执行,半截 JSON 没法调工具;2)<strong>可见性</strong>——text 流给用户;tool_call 流主要内部消费,可选地通过 preview 流显示'正在执行 X'(progress 模式);3)<strong>错误处理</strong>——text 流断了丢几个字影响小;tool_call 流断了参数 JSON 不完整,要等重试或合成失败。<strong>归一化</strong>:模型流事件区分 text_delta / toolcall_delta / thinking_delta 三种,各自有 start/delta/end,折叠成 AssistantMessage 的不同 block 字段。混在一起处理会导致 tool_call 参数碎片被误当文本发给用户——这是严重 bug。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了协议错配、切分优先级、代码块不撕裂、preview 取舍、工具调用流。<br><br>Part A 智能核心 9 篇全部完成!接下来进入 <a href="10-subagent-delegation.html">Part B 协作与可靠性</a>,先讲子 Agent 与任务委派。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

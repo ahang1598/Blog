@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8 · 智能体架构 · opencode 面试视角</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+  :root{--bg:#0d1117;--bg-soft:#161b22;--bg-card:#1c2230;--border:#30363d;--text:#e6edf3;--text-dim:#9da7b3;--c1:#58a6ff;--c2:#3fb950;--c3:#d29922;--c4:#f778ba;--c5:#a371f7;--c6:#ff7b72;--code-bg:#0a0e14;--shadow:0 8px 32px rgba(0,0,0,0.4)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}code{font-family:"SFMono-Regular","JetBrains Mono",Consolas,monospace}
+  .hero{padding:56px 24px 40px;border-bottom:1px solid var(--border);background:radial-gradient(ellipse at top,rgba(247,120,186,0.12),transparent 60%)}
+  .hero .wrap{max-width:1140px;margin:0 auto}
+  .hero .crumb{font-size:12px;color:var(--text-dim);margin-bottom:14px}.hero .crumb a{color:var(--c6)}
+  .hero .series{display:inline-block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--c4);background:rgba(247,120,186,0.10);border:1px solid rgba(247,120,186,0.3);padding:5px 12px;border-radius:20px;margin-bottom:14px}
+  .hero h1{font-size:33px;font-weight:800;line-height:1.2;letter-spacing:-0.4px;margin-bottom:10px}
+  .hero .lead{font-size:16px;color:var(--text-dim);max-width:820px}.hero .lead b{color:var(--text)}
+  .toc{position:sticky;top:0;z-index:50;background:rgba(13,17,23,0.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .toc-inner{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;gap:6px;flex-wrap:wrap}
+  .toc a{font-size:12px;color:var(--text-dim);padding:5px 11px;border-radius:6px;transition:.12s}.toc a:hover{background:rgba(247,120,186,0.10);color:var(--c4)}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  section{padding:46px 0;border-bottom:1px solid var(--border)}
+  h2{font-size:23px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:11px}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--c4),var(--c5));color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+  h3{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--text)}
+  h4{font-size:14.5px;font-weight:700;margin:14px 0 6px;color:var(--c5)}
+  .lead{color:var(--text-dim);font-size:16px;margin-bottom:22px;max-width:880px}
+  p{margin-bottom:12px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:18px 0}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.card h4{margin-top:0}
+  .card.bad{border-color:rgba(210,153,34,0.4)}.card.bad h4{color:var(--c3)}
+  .card.good{border-color:rgba(63,185,80,0.4)}.card.good h4{color:var(--c2)}
+  .card p{color:var(--text-dim);font-size:13.5px;margin-bottom:6px}
+  .card ul{padding-left:18px;color:var(--text-dim);font-size:13.5px}.card li{margin-bottom:4px}
+  .callout{border-left:3px solid var(--c6);background:rgba(255,123,98,0.06);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}.callout .t{font-weight:700;margin-bottom:4px}.callout p{color:var(--text-dim);font-size:14px;margin:0}
+  .callout.warn{border-left-color:var(--c3);background:rgba(210,153,34,0.08)}.callout.ok{border-left-color:var(--c2);background:rgba(63,185,80,0.08)}.callout.key{border-left-color:var(--c4);background:rgba(247,120,186,0.07)}
+  .diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px;margin:18px 0;overflow-x:auto}.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+  .dual{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .pane{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.pane.iv{border-top:3px solid var(--c4)}.pane.cand{border-top:3px solid var(--c2)}
+  .pane h4{margin-top:0;font-size:15px}.pane.iv h4{color:var(--c4)}.pane.cand h4{color:var(--c2)}
+  .pane ol{padding-left:20px;color:var(--text-dim);font-size:13.5px}.pane li{margin-bottom:6px}.pane li b{color:var(--text)}
+  a.file{color:var(--c3);font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;border-bottom:1px dotted var(--c3)}
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:13.5px}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);background:var(--bg-soft)}
+  td b{color:var(--c4)}
+  td .pri{color:var(--c2)}.td .sub{color:var(--c5)}
+  .drill{background:linear-gradient(180deg,rgba(247,120,186,0.04),transparent);border-top:2px solid rgba(247,120,186,0.25)}
+  .progress{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .progress .bar{flex:1;min-width:200px;height:9px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .progress .fill{height:100%;background:linear-gradient(90deg,var(--c4),var(--c6));width:0;transition:width .3s}
+  .progress .pct{font-size:13px;color:var(--text-dim);font-family:"SFMono-Regular",Consolas,monospace}
+  .btn-reset{font-size:12px;color:var(--text-dim);background:var(--bg-card);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer;transition:.12s}.btn-reset:hover{border-color:var(--c3);color:var(--c3)}
+  .thread{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:0;margin-bottom:16px;overflow:hidden}
+  .thread-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .thread-head .ic{font-size:16px}.thread-head .title{font-weight:700;font-size:15px;flex:1}
+  .thread-head .layer-tag{font-size:11px;color:var(--c4);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(247,120,186,0.10);padding:3px 8px;border-radius:5px}
+  .step{padding:18px 20px;border-bottom:1px solid var(--border)}.step:last-child{border-bottom:none}.step.locked{display:none}.step.done{opacity:0.65}
+  .q{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+  .q .lvl{display:inline-block;font-size:10.5px;color:var(--c5);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(163,113,247,0.10);padding:2px 7px;border-radius:4px;margin-right:8px;vertical-align:middle}
+  .hint{font-size:13px;color:var(--text-dim);margin-bottom:12px}
+  .reveal-btn{font-size:13px;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.35);padding:7px 15px;border-radius:7px;cursor:pointer;transition:.12s}.reveal-btn:hover{background:rgba(255,123,98,0.20)}
+  .answer{display:none;margin-top:14px;padding:14px 16px;background:rgba(63,185,80,0.05);border:1px solid rgba(63,185,80,0.25);border-radius:9px}.answer.show{display:block}
+  .answer .at{font-size:11.5px;color:var(--c2);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+  .answer ul{padding-left:20px;color:var(--text-dim);font-size:13.5px}.answer li{margin-bottom:7px}.answer li b{color:var(--text)}
+  .answer .ref{margin-top:10px;font-size:12px;color:var(--text-dim)}
+  .rating{display:none;margin-top:14px;align-items:center;gap:8px;flex-wrap:wrap}.rating.show{display:flex}
+  .rating .lbl{font-size:12.5px;color:var(--text-dim);margin-right:4px}
+  .rate-btn{font-size:12.5px;padding:6px 13px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg-soft);color:var(--text-dim);transition:.12s}.rate-btn:hover{color:var(--text)}
+  .rate-btn.sel.ok{background:rgba(63,185,80,0.15);border-color:var(--c2);color:var(--c2)}
+  .rate-btn.sel.mid{background:rgba(210,153,34,0.15);border-color:var(--c3);color:var(--c3)}
+  .rate-btn.sel.no{background:rgba(255,123,98,0.15);border-color:var(--c6);color:var(--c6)}
+  .next-btn{display:none;margin-top:14px;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--c4),var(--c6));border:none;padding:8px 16px;border-radius:7px;cursor:pointer;transition:.12s}.next-btn.show{display:inline-block}.next-btn:hover{opacity:0.9}
+  .finish{display:none;padding:16px 20px;background:rgba(63,185,80,0.06);color:var(--c2);font-weight:600;font-size:14px;text-align:center}.finish.show{display:block}
+  .nav-foot{display:flex;justify-content:space-between;padding:24px 0;gap:12px}
+  .nav-foot a{font-size:13px;padding:9px 16px;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);transition:.12s}.nav-foot a:hover{border-color:var(--c6);color:var(--c6)}.nav-foot .next{margin-left:auto}
+  footer{padding:34px 24px;text-align:center;color:var(--text-dim);font-size:13px;border-top:1px solid var(--border)}footer a{color:var(--c6)}
+  @media(max-width:820px){.grid-2,.grid-3,.dual{grid-template-columns:1fr}.hero h1{font-size:27px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="iv-00-index.html">← 总索引</a> · <a href="iv-07-location-and-bounding.html">← 第 7 篇</a></div>
+    <span class="series">Chapter 8 · 智能体与工具（1/4）</span>
+    <h1>智能体架构：把约束打成一个人格</h1>
+    <p class="lead">在 opencode 里，"智能体（agent）"不是一个有行为的类，而是一个<b>命名的正交约束包</b>：系统提示 + 权限 + 模型 + 采样参数 + 步数预算，五者焊成一个可点名的人格。这个设计不是图整洁——它让"只读探索者""规划者""通用助手"成为<b>可审查、可复用、可委派</b>的整体，而不是用户用一堆散件临时拼出的危险拼装。</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#position">① 定位</a>
+    <a href="#problem">② 问题先于方案</a>
+    <a href="#design">③ 设计拆解</a>
+    <a href="#tradeoff">④ 生产级取舍</a>
+    <a href="#dual">⑤ 双视角</a>
+    <a href="#drill">🎯 面试追问</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<section id="position">
+  <h2><span class="num">1</span>一句话定位</h2>
+  <p class="lead">agent = 一个名字 + 五个绑死的正交维度：<b>prompt（系统提示）、permission（权限规则集）、model+variant（模型与变体）、sampling（temperature/topP）、steps（步数预算）</b>。选中一个 agent，就一次性提交了这一轮的整个请求形状（system prompt、工具集、模型、温度、上限）。</p>
+  <div class="callout key">
+    <div class="t">🔑 一句话</div>
+    <p>agent 把"该用什么人格干活"做成<b>一个 token 就能选定的整体</b>（父 agent 调 <code>task(subagent_type="explore")</code>），而不是让调用方每次手动拼温度+权限+提示。约束的不可分性 = 人格的连贯性。</p>
+  </div>
+</section>
+
+<section id="problem">
+  <h2><span class="num">2</span>问题先于方案</h2>
+  <p class="lead">如果把 prompt、permission、model、temperature 拆成几个独立的配置轴，让用户自由组合，生产里会出什么事？</p>
+  <div class="grid-2">
+    <div class="card bad">
+      <h4>痛点 A · 危险的拼装</h4>
+      <p>用户能配出"<b>高温 + 能写文件 + 探索者提示</b>"这种自相矛盾的人格：提示说"只搜索"，权限却允许 bash/write。模型一旦幻觉出写命令，就直接改了仓库。<b>人格不自洽 = 安全缺口</b>。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 B · 不可复用</h4>
+      <p>没有命名人格，每次委派"只读搜索"都得重新拼一套（提示+权限+只读工具集）。<b>能力无法被点名复用</b>，父 agent 没法 <code>task(explore)</code> 一个 token 就拿到只读探索。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 C · 不可审查</h4>
+      <p>散件配置下，"这个会话到底有什么权限、跑在什么模型上"得翻多个文件拼出来。<b>没有单一可审查的整体</b>，安全审计和回归测试都难做。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 D · 默认值缺失</h4>
+      <p>新 session 没指定 agent，系统不知道该用哪个提示、哪个模型、哪些工具。<b>冷启动无法构造第一个请求</b>。</p>
+    </div>
+  </div>
+  <div class="callout warn">
+    <div class="t">⚠ 共同病根</div>
+    <p>把<b>本应作为整体起作用的约束</b>拆成独立旋钮。可组合 ≠ 该组合——某些维度组合是危险的、不自洽的，必须焊死成预审过的人格。</p>
+  </div>
+</section>
+
+<section id="design">
+  <h2><span class="num">3</span>设计拆解</h2>
+  <p class="lead">agent 是五个维度的<b>命名打包</b>。选中它 = 一次性提交整轮请求的形状。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,sans-serif">
+      <defs>
+        <marker id="a8" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#9da7b3"/></marker>
+      </defs>
+      <!-- agent core -->
+      <rect x="280" y="40" width="260" height="220" rx="14" fill="rgba(247,120,186,0.06)" stroke="#f778ba" stroke-width="1.6"/>
+      <text x="410" y="68" text-anchor="middle" fill="#f778ba" font-size="14" font-weight="700">agent = 约束包</text>
+      <text x="410" y="86" text-anchor="middle" fill="#9da7b3" font-size="11">（命名的、可点名的整体）</text>
+
+      <rect x="300" y="105" width="220" height="30" rx="6" fill="#161b22" stroke="#ff7b72" stroke-width="1.2"/><text x="410" y="124" text-anchor="middle" fill="#ff7b72" font-size="11.5" font-weight="600">① prompt（系统提示）</text>
+      <rect x="300" y="142" width="220" height="30" rx="6" fill="#161b22" stroke="#3fb950" stroke-width="1.2"/><text x="410" y="161" text-anchor="middle" fill="#3fb950" font-size="11.5" font-weight="600">② permission（权限规则集）</text>
+      <rect x="300" y="179" width="220" height="30" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="1.2"/><text x="410" y="198" text-anchor="middle" fill="#58a6ff" font-size="11.5" font-weight="600">③ model + variant + sampling</text>
+      <rect x="300" y="216" width="220" height="30" rx="6" fill="#161b22" stroke="#d29922" stroke-width="1.2"/><text x="410" y="235" text-anchor="middle" fill="#d29922" font-size="11.5" font-weight="600">④ steps（步数预算上限）</text>
+
+      <!-- selecting commits -->
+      <text x="40" y="70" fill="#9da7b3" font-size="12" font-weight="700">选中 agent →</text>
+      <text x="40" y="90" fill="#9da7b3" font-size="11">一次性提交整轮请求</text>
+      <line x1="150" y1="150" x2="298" y2="150" stroke="#9da7b3" stroke-width="1.4" marker-end="url(#a8)"/>
+
+      <!-- outputs -->
+      <text x="640" y="70" fill="#9da7b3" font-size="12" font-weight="700">提交了什么</text>
+      <line x1="520" y1="120" x2="618" y2="120" stroke="#9da7b3" stroke-width="1.4" marker-end="url(#a8)"/>
+      <text x="630" y="100" fill="#ff7b72" font-size="11">→ system prompt</text>
+      <text x="630" y="124" fill="#3fb950" font-size="11">→ materialize(权限) 的工具集</text>
+      <text x="630" y="148" fill="#58a6ff" font-size="11">→ 模型 + 温度</text>
+      <text x="630" y="172" fill="#d29922" font-size="11">→ 步数上限（iv-05 的 turn 循环边界）</text>
+
+      <!-- modes -->
+      <rect x="60" y="280" width="700" height="80" rx="10" fill="rgba(163,113,247,0.06)" stroke="#a371f7" stroke-width="1.3"/>
+      <text x="80" y="304" fill="#a371f7" font-size="12" font-weight="700">mode：谁能调用这个 agent</text>
+      <text x="120" y="328" fill="#3fb950" font-size="11.5"><tspan font-weight="700">primary</tspan> — 用户直接驱动（build, plan）</text>
+      <text x="370" y="328" fill="#a371f7" font-size="11.5"><tspan font-weight="700">subagent</tspan> — 父 agent 通过 task 工具调用（explore, general）</text>
+      <text x="120" y="350" fill="#d29922" font-size="11.5"><tspan font-weight="700">all</tspan> — 两边都能用（用户自定义的默认值）</text>
+      <text x="370" y="350" fill="#9da7b3" font-size="11">selectable = mode≠subagent 且 非 hidden（用户可选的）</text>
+    </svg>
+  </div>
+
+  <h3>默认 agent 目录（命名的、预审过的人格）</h3>
+  <table>
+    <thead><tr><th>agent</th><th>mode</th><th>hidden</th><th>特征</th></tr></thead>
+    <tbody>
+      <tr><td><b>build</b></td><td class="pri" style="color:var(--c2)">primary</td><td>否</td><td>原生默认。全权限 + question/plan_enter。<b>通用编码 agent</b>。</td></tr>
+      <tr><td><b>plan</b></td><td class="pri" style="color:var(--c2)">primary</td><td>否</td><td>只读规划：除 <code>.opencode/plans/*.md</code> 外禁止 edit/write。<b>只能写自己的计划文件</b>。</td></tr>
+      <tr><td><b>general</b></td><td style="color:var(--c5)">subagent</td><td>否</td><td>并行多步工作的通用子 agent（仅禁 todowrite）。</td></tr>
+      <tr><td><b>explore</b></td><td style="color:var(--c5)">subagent</td><td>否</td><td><b>只读探索者</b>：全禁，只允许 grep/glob/list/bash(只读)/webfetch/websearch/read。</td></tr>
+      <tr><td><b>compaction</b></td><td class="pri" style="color:var(--c2)">primary</td><td style="color:var(--c3)">是</td><td>上下文压缩助手（全禁工具，自定义提示，从不面向用户）。</td></tr>
+      <tr><td><b>title / summary</b></td><td class="pri" style="color:var(--c2)">primary</td><td style="color:var(--c3)">是</td><td>生成标题/摘要（全禁，title 用 temperature:0.5 求确定）。</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="t">📌 默认选择链（保证冷启动不崩）</div>
+    <p>未指定 agent 时的回退链：<b>①</b> 配置的 default（若可选）→ <b>②</b> build → <b>③</b> 第一个可选的 agent。每条都保证非 subagent 且非 hidden。<b>没有这条链，新 session 无法构造第一个请求</b>。</p>
+  </div>
+</section>
+
+<section id="tradeoff">
+  <h2><span class="num">4</span>生产级取舍</h2>
+  <p class="lead">"约束打包"牺牲了灵活性（不能任意组合维度），换来安全性和可复用性。</p>
+  <div class="grid-2">
+    <div class="card good">
+      <h4>选择：约束焊死成命名人格</h4>
+      <ul>
+        <li>人格自洽：探索者<b>物理上</b>不能写</li>
+        <li>可点名复用：task(explore) 一个 token</li>
+        <li>可审查：一个 agent = 一个整体</li>
+        <li>默认链保证冷启动</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>散件自由组合的代价</h4>
+      <ul>
+        <li>危险拼装（高温+写权限+探索提示）</li>
+        <li>能力无法复用，每次重拼</li>
+        <li>不可审查，审计难</li>
+        <li>冷启动无默认，崩</li>
+      </ul>
+    </div>
+    <div class="card good">
+      <h4>选择：mode 区分调用者</h4>
+      <ul>
+        <li>hidden 助手不进用户菜单</li>
+        <li>subagent 不被用户直选</li>
+        <li>all 给自定义 agent 合理默认</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>无 mode 区分的代价</h4>
+      <ul>
+        <li>compaction 进用户菜单（混乱）</li>
+        <li>模型能 spawn compaction（无意义）</li>
+        <li>自定义 agent 要显式声明才能见</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout key">
+    <div class="t">🔑 本质</div>
+    <p>agent 设计的核心是<b>把"权限"从运行时检查提升为编译期身份</b>。不是"运行时判断能不能写"，而是"这个人格压根不存在写的维度"。安全从动态防护变成静态属性。</p>
+  </div>
+</section>
+
+<section id="dual">
+  <h2><span class="num">5</span>面试双视角</h2>
+  <p class="lead">这题考的是<b>系统设计成熟度 + 安全建模</b>——你懂不懂"能力（capability）"应该是一等公民，而不是散件配置。</p>
+  <div class="dual">
+    <div class="pane iv">
+      <h4>🎙️ 面试官为何问这题</h4>
+      <ol>
+        <li><b>探你的安全直觉</b>——知不知道"提示说只读"和"物理上不能写"是两件事。</li>
+        <li><b>探抽象能力</b>——能不能看出 agent 是"约束包"而非"行为类"。</li>
+        <li><b>探默认值思维</b>——冷启动怎么不崩？默认链如何保证可选。</li>
+        <li><b>埋雷</b>：很多人答"用配置文件定义 agent"。追问"那用户能配出高温+写权限+探索提示吗？"——看你能不能答出"约束应焊死成预审人格"。</li>
+      </ol>
+    </div>
+    <div class="pane cand">
+      <h4>🧑‍💻 面试者拆解（五段式）</h4>
+      <ol>
+        <li><b>抽象定位</b>：agent 是命名的正交约束包（prompt+permission+model+sampling+steps），不是行为类。</li>
+        <li><b>讲约束</b>：五维度焊死；选中即提交整轮请求形状；mode 区分调用者；默认链保冷启动。</li>
+        <li><b>讲收益</b>：人格自洽（安全）；可点名复用；可审查；冷启动不崩。</li>
+        <li><b>主动讲代价</b>：牺牲维度自由组合的灵活性。但远小于"危险拼装/不可复用"的代价。</li>
+        <li><b>给未来演化</b>：agent 是注册的（registry）——加新人格（如"测试专家""重构专家"）只需定义约束包注册，不动 runner。</li>
+      </ol>
+    </div>
+  </div>
+  <div class="callout ok">
+    <div class="t">✅ 加分项</div>
+    <p>主动联系安全设计："这和 OS 的 capability-based security 是一个思想——<b>权限不是运行时查询，而是身份的一部分</b>。一个进程没有 'write' capability，就不存在 write 的代码路径；一个 explore agent 没有 write 维度，模型连尝试的入口都没有。" 能把 agent 设计和经典安全模型挂钩，是高级信号。</p>
+  </div>
+</section>
+
+</div>
+
+<section id="drill" class="drill">
+  <div class="wrap">
+    <h2><span class="num">🎯</span>面试追问 · 模拟面试官深挖</h2>
+    <p class="lead">为什么约束要焊死？selectable 怎么定？给 agent 配 opencode.json 会发生什么？追到答不出。</p>
+    <div class="progress">
+      <span class="pct" id="pct">进度 0%</span>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <button class="btn-reset" onclick="IV.reset()">重置本页进度</button>
+    </div>
+    <div id="threads"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="nav-foot">
+    <a href="iv-07-location-and-bounding.html">← 第 7 篇 Location</a>
+    <a class="next" href="iv-09-subagent-orchestration.html">下一章：子智能体编排 →</a>
+  </div>
+</div>
+
+<footer>opencode 面试视角 · 第 8/11 篇 · 智能体架构 · <a href="iv-00-index.html">返回总索引</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+<script>
+const IV = (() => {
+  const KEY = "iv-drill-08";
+  const data = [
+    {
+      title: "为什么约束要焊死成命名人格？",
+      icon: "🧩",
+      steps: [
+        { q: "根问题：prompt、permission、model、temperature 拆成独立配置轴让用户自由组合，不是更灵活吗？为什么 opencode 偏要把它们焊成一个 agent？",
+          hint: "用户能配出什么危险组合？",
+          a: [
+            "<b>会配出自相矛盾的危险人格</b>：高温 + 能写文件 + 探索者提示。提示说'只搜索'，权限却允许 bash/write。",
+            "模型一旦幻觉出写命令（探索者本该只读），就直接改了仓库。<b>人格不自洽 = 安全缺口</b>。",
+            "<b>焊死的好处</b>：每个命名 agent 是预审过的整体（explore 物理上没 write 维度），不可能配出危险组合。",
+            "<b>本质</b>：可组合 ≠ 该组合。某些维度组合是危险的、不自洽的，必须焊死成预审人格。"
+          ],
+          ref: "packages/opencode/src/agent/agent.ts — Info schema 把 prompt/permission/model/temperature/steps 打包；explore 的权限是 *:deny + 只读白名单。"
+        },
+        { q: "追问 1：那 'all' 模式呢？它不是既能当 primary 又能当 subagent 吗？这和'焊死'矛盾吗？",
+          hint: "all 是关于'谁能调用'，不是'约束可组合'。",
+          a: [
+            "<b>不矛盾</b>。mode（primary/subagent/all）回答的是'谁能调用这个 agent'，不是'约束可以自由组合'。",
+            "all 模式的 agent <b>本身仍是一个焊死的约束包</b>——它的 prompt/permission/model 是固定的，只是既允许用户直选、也允许父 agent 委派。",
+            "用户自定义 agent 不指定 mode 时默认 all，是为了<b>让自定义 agent 在两个表面都可见</b>，而不是让约束变松。",
+            "区分：'调用入口灵活'（all）≠ '约束可任意组合'（永远焊死）。"
+          ],
+          ref: "schema/src/agent.ts — Info.empty 默认 mode='all'；selectable 只看 mode≠subagent && !hidden。"
+        }
+      ]
+    },
+    {
+      title: "selectable 与默认链",
+      icon: "🎯",
+      steps: [
+        { q: "根问题：用户跑 opencode 不带任何 agent 参数。系统怎么知道该用哪个 agent 构造第一个请求？",
+          hint: "有没有一条保证不崩的回退链？",
+          a: [
+            "<b>默认选择链</b>：① 配置的 default_agent（若可选）→ ② build → ③ 第一个可选的 agent。",
+            "<b>selectable</b> = mode≠subagent 且 非 hidden。所以 subagent（explore）和 hidden 助手（compaction）永远不会被误选为用户入口。",
+            "defaultInfo 还会校验：配置的 default 若是 subagent 或 hidden，<b>直接抛错</b>（程序员错误，不是静默回退）。",
+            "<b>没有这条链</b>：新 session 没有 system prompt / model / permission，第一个 turn 无法构造，冷启动崩。"
+          ],
+          ref: "packages/core/src/agent.ts — selectedDefault() 链；selectable 守卫。"
+        },
+        { q: "追问 1：为什么 hidden 助手（compaction/title/summary）必须是 hidden？不 hidden 会怎样？",
+          hint: "它们是干嘛的？面向谁？",
+          a: [
+            "<b>它们是内部辅助 agent</b>：compaction 做上下文压缩、title 生成标题、summary 生成摘要。它们的 prompt 是面向'内部任务'的，不是面向用户对话的。",
+            "<b>不 hidden 的后果</b>：它们会出现在用户的 agent 选择菜单里。用户选了 compaction，会话跑的是压缩提示——<b>体验完全错乱</b>。",
+            "同样，模型也可能通过 task 工具 spawn 一个 compaction 子 agent（无意义，压缩不该被委派）。",
+            "hidden + mode=primary 让它们既不进用户菜单，也不进模型的子 agent 菜单——只在内部被显式调用。"
+          ],
+          ref: "compaction/title/summary 都是 hidden + primary；只有内部 runner 在需要时显式选用它们。"
+        }
+      ]
+    },
+    {
+      title: "agent↔model 绑定",
+      icon: "🔗",
+      steps: [
+        { q: "根问题：为什么 model 和 variant 要绑在 agent 里，而不是单独配置？",
+          hint: "不同人格适合什么模型？换个模型人格还成立吗？",
+          a: [
+            "<b>不同人格适合不同模型</b>：title 需要小而快的模型（成本）；build 需要强推理模型（质量）。模型是人格的一部分。",
+            "<b>variant 同理</b>：同模型的'推理强度'变体也该跟人格走（plan 可能要更强推理）。",
+            "如果 model 单独配置，会出现'给 title 配了 opus'这种成本错配，或'给 build 配了弱模型'这种质量错配——<b>人格和模型脱钩</b>。",
+            "绑在 agent 里：选 build 就是选了 build 的模型；换模型=换人格，是显式决定。"
+          ],
+          ref: "Info 的 model{providerID,modelID} + variant 字段；title 用 temperature:0.5 也是同理（确定人格需要确定采样）。"
+        },
+        { q: "追问 1：那用户临时想给某个 agent 换个模型呢？比如这次 build 用 opus，下次 build 用 sonnet？",
+          hint: "切换是改 agent 还是 session 级覆盖？",
+          a: [
+            "<b>session 级覆盖</b>。opencode 支持 switchModel——在 session 里临时换模型，<b>不改 agent 定义</b>。",
+            "这保留了灵活性：agent 定义是稳定的人格基线（默认模型），session 可以临时覆盖（这次用便宜点的）。",
+            "<b>关键区别</b>：覆盖是 session 范围的临时决定，不是全局改 agent。下次新 session 还是 agent 的默认模型。",
+            "这体现了'稳定基线 + 临时覆盖'的设计——人格稳定，但允许一次性偏离。"
+          ],
+          ref: "SessionV2.switchModel 是 session 级覆盖；agent.info.model 是稳定基线。"
+        }
+      ]
+    }
+  ];
+  let state = JSON.parse(localStorage.getItem(KEY) || "{}");
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+  function pct(){ let total=0,done=0; data.forEach((t,ti)=>{total+=t.steps.length;done+=Math.min(state[ti]||0,t.steps.length);}); return Math.round(done/total*100); }
+  function render(){
+    const root = document.getElementById("threads"); root.innerHTML = "";
+    data.forEach((t,ti)=>{
+      const cur = state[ti]||0; const finished = cur>=t.steps.length;
+      const div = document.createElement("div"); div.className="thread";
+      div.innerHTML = `<div class="thread-head"><span class="ic">${t.icon}</span><span class="title">${t.title}</span><span class="layer-tag">${finished?"✓ 完成":"第 "+(cur+1)+"/"+t.steps.length+" 层"}</span></div>`;
+      t.steps.forEach((s,si)=>{
+        const unlocked = si<=cur; const stepDone = si<cur;
+        const step = document.createElement("div"); step.className="step"+(unlocked?"":" locked")+(stepDone?" done":""); step.dataset.ti=ti; step.dataset.si=si;
+        step.innerHTML = `<div class="q"><span class="lvl">L${si+1}</span>${s.q}</div>${s.hint?`<div class="hint">💡 ${s.hint}</div>`:""}${!stepDone?`<button class="reveal-btn" data-act="reveal">查看参考答案</button>`:""}<div class="answer"><div class="at">参考答案要点</div><ul>${s.a.map(x=>`<li>${x}</li>`).join("")}</ul>${s.ref?`<div class="ref">📌 ${s.ref}</div>`:""}</div>${!stepDone?`<div class="rating"><span class="lbl">自评（诚实最重要）：</span><button class="rate-btn" data-rate="ok">✓ 答得好</button><button class="rate-btn" data-rate="mid">△ 部分懂</button><button class="rate-btn" data-rate="no">✗ 没答出</button></div>${si<t.steps.length-1?`<button class="next-btn" data-act="next">解锁下一层追问 →</button>`:""}`:""}${stepDone&&si===t.steps.length-1?`<div class="finish show">🎉 本线索完成 · 你已答到最深一层</div>`:""}`;
+        div.appendChild(step);
+      });
+      root.appendChild(div);
+    });
+    root.querySelectorAll(".step").forEach(step=>{
+      const ti=+step.dataset.ti, si=+step.dataset.si;
+      const rb=step.querySelector('[data-act="reveal"]');
+      if(rb) rb.addEventListener("click",()=>{step.querySelector(".answer").classList.add("show");step.querySelector(".rating").classList.add("show");rb.style.display="none";});
+      step.querySelectorAll(".rate-btn").forEach(b=>b.addEventListener("click",()=>{step.querySelectorAll(".rate-btn").forEach(x=>x.classList.remove("sel","ok","mid","no"));b.classList.add("sel",b.dataset.rate);const nb=step.querySelector(".next-btn");if(nb)nb.classList.add("show");}));
+      const nb=step.querySelector('[data-act="next"]');
+      if(nb) nb.addEventListener("click",()=>{state[ti]=Math.max(state[ti]||0,si+2);save();render();updatePct();});
+    });
+    updatePct();
+  }
+  function updatePct(){const p=pct();document.getElementById("fill").style.width=p+"%";document.getElementById("pct").textContent="进度 "+p+"%";}
+  function reset(){state={};save();render();}
+  return {render,reset};
+})();
+document.querySelectorAll("pre code").forEach(el=>hljs.highlightElement(el));
+IV.render();
+</script>
+</body>
+</html>

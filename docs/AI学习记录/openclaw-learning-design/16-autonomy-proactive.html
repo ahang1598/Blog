@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑯ 自主性:heartbeat、主动委派、后台巩固</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑯ 自主性:heartbeat、主动委派、后台巩固
+  <span class="sub">阶段 4 · 身份与自主性 · agent 如何不被问才动 + 安全边界</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:被动 agent 不够用</a></li>
+  <li><a href="#design">分层设计:三种自主机制</a></li>
+  <li><a href="#why">为何这么设计:heartbeat、proactive、dreaming + 安全边界</a></li>
+  <li><a href="#example">完整示例:定时巡检发现并修复问题</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:被动 agent 不够用</h2>
+
+<p>前面 15 篇讲的 agent 都是<strong>被动</strong>的——用户发消息,它才动。这在很多场景不够:</p>
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li><strong>定时巡检</strong>:agent 该定期检查项目健康(测试是否通过、依赖是否有漏洞),不等用户问。</li>
+  <li><strong>主动汇报</strong>:长任务跑完了,agent 该主动通知用户,而非等用户来查。</li>
+  <li><strong>后台巩固</strong>:记忆整理(第⑥篇 dreaming)该在后台定期跑,不占用对话。</li>
+  <li><strong>环境感知</strong>:检测到重要事件(如 CI 挂了、PR 被评论),主动告知/处理。</li>
+  <li><strong>持续任务</strong>:监控某网站价格、跟踪某 issue 状态,长期跑。</li>
+</ul>
+</div>
+
+<p>被动 agent 只能做"问答",做不了"助理"。生产级 agent 需要<strong>主动能力</strong>。但主动性又是<strong>危险的</strong>——一个会自己发消息、自己执行操作的 agent,如果失控(误判、幻觉、被恶意指令注入),后果比被动 agent 严重得多。<strong>自主性的核心矛盾:要有主动性,又要有严格的安全边界。</strong></p>
+
+<h2 id="design">二 · 分层设计:三种自主机制</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                自主性 · 三种机制 + 安全边界                              │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[机制 1] Heartbeat · 心跳驱动</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 定时(如每 5 分钟)给 agent 一个"心跳"消息               │
+  │   · agent 收到后自行决定:有该做的吗?                    │
+  │   · 有 → 执行巡检/汇报/跟进                              │
+  │   · 无 → 静默,不打扰用户                                │
+  │ · 把"被动响应"变成"周期性自检"                            │
+  └──────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[机制 2] Cron · 定时任务</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 用户/系统配置 cron 表达式触发 agent                       │
+  │   · "每天早 9 点检查依赖漏洞"                             │
+  │   · "每周一生成上周总结"                                  │
+  │ · 适合周期性明确任务                                       │
+  └──────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[机制 3] Dreaming · 后台巩固(第⑥篇)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 离线批处理:短期记忆→长期记忆巩固                          │
+  │   · light(去重)→ deep(高置信晋升)→ rem(模式提炼)   │
+  │ · 不占对话,夜间/低峰跑                                   │
+  └──────────────────────────────────────────────────────────┘
+
+  ════════════ 安全边界(贯穿所有自主行为)════════════
+  <span class="stage-label">[主动行为必须受限]</span>
+  · 默认只读/低危:巡检、汇报、记忆整理(无副作用)
+  · 高危需授权:发消息、改文件、调外部 API(需用户预授权或确认)
+  · 可审计:所有自主行为留日志,可追溯
+  · 可中止:用户能随时暂停/关闭自主性</div>
+
+<h3>自主行为的权限分级</h3>
+<table>
+<thead><tr><th>级别</th><th>例子</th><th>需授权?</th></tr></thead>
+<tbody>
+<tr><td>只读/内部</td><td>巡检、记忆巩固、状态检查</td><td>默认允许</td></tr>
+<tr><td>低危外部</td><td>给用户发通知消息</td><td>预授权</td></tr>
+<tr><td>高危外部</td><td>改文件、提交代码、调支付 API</td><td>必须显式确认</td></tr>
+<tr><td>不可逆</td><td>删除数据、发送不可撤回消息</td><td>禁止自主,只被动</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么 heartbeat + cron 分开</h3>
+<p><strong>heartbeat</strong> 是"周期性给 agent 一个自检机会"——间隔短(分钟级),agent 自己判断有没有该做的。适合<strong>环境感知</strong>(检测事件、跟进任务)。<strong>cron</strong> 是"定时执行特定任务"——时间明确(每天 9 点),任务明确。适合<strong>周期性固定任务</strong>(每日报告、每周总结)。分开是因为:heartbeat 灵活(agent 决定做啥)但可能空转(没该做的),cron 确定但要预定义任务。<strong>两者互补</strong>:heartbeat 处理"可能有事",cron 处理"确定有事"。</p>
+
+<h3>决策 2:为什么 dreaming 必须离线后台</h3>
+<p>呼应第⑥篇。记忆巩固(短期→长期)是<strong>计算密集且不紧急</strong>的:要算 embedding、算置信度、去重、合并。如果放对话路径(实时),用户每次对话都等多余计算;且刚说完时置信度信号不足(还没反复使用),判断不准。<strong>离线后台</strong>:低峰期统一跑,不抢对话资源,积累足够信号后判断更准,可批量优化。<strong>这是把"记忆巩固"从"实时负担"变成"离线资产"</strong>——用户感知不到,但 agent 的记忆质量持续提升。</p>
+
+<h3>决策 3:为什么主动行为必须分级授权</h3>
+<p>这是<strong>自主性的安全基石</strong>。一个能自主发消息、改文件的 agent,如果误判(幻觉说"用户让我提交代码"实际没有)或被注入(恶意指令"删除所有文件"),后果灾难。<strong>分级授权</strong>把风险约束在可控范围:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li><strong>只读默认允许</strong>:巡检不产生副作用,即使误判也不伤。</li>
+  <li><strong>低危需预授权</strong>:发通知类操作,用户提前授权过(允许 agent 主动汇报)。</li>
+  <li><strong>高危必须显式确认</strong>:改文件/提交/外部调用,每次都要用户确认(防误判和注入)。</li>
+  <li><strong>不可逆禁止</strong>:删数据、发不可撤回消息,永远不自主,只被动。</li>
+</ul>
+</div>
+<p><strong>核心原则:自主权限遵循"可逆性"——越不可逆的操作,自主性越受限制。</strong>可逆的(只读、可撤回消息)可自主;不可逆的(删除、永久发送)绝不自主。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:自主性带来<strong>调度系统、权限分级、审计日志、安全护栏</strong>的显著复杂度,换来的是<strong>agent 从问答工具变成主动助理</strong>。替代方案(纯被动)的局限是"做不到定时巡检、主动汇报、后台巩固"。<strong>接受复杂度和安全负担,因为主动性是 agent 价值跃迁的关键——但必须用严格的权限分级和可中止性约束它,否则自主 agent 是定时炸弹。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:定时巡检发现并修复问题</h2>
+
+<p>agent 配置了每日早 9 点 cron 巡检项目健康。某天发现了问题:</p>
+
+<div class="flow-diagram"><span class="stage-label">[cron 触发 · 早 9 点]</span> "检查项目健康"
+  ↓
+<span class="stage-label">[agent 自主执行 · 只读巡检]</span>
+  · 跑测试 → 发现 2 个测试失败 ❌
+  · 检查依赖 → 发现 lodash 有已知漏洞 ⚠️
+  · 检查 CI → 最近一次构建失败 ❌
+  ↓ (发现多个问题,决定汇报 + 部分修复)
+<span class="stage-label">[主动汇报 · 低危,预授权]</span>
+  · 给用户发消息:"早,巡检发现 3 个问题:测试失败×2、lodash 漏洞、CI 挂了"
+  · 这是预授权的(用户允许 agent 主动汇报)
+  ↓
+<span class="stage-label">[尝试自主修复 · 高危,需确认]</span>
+  · agent 想自动升级 lodash 修漏洞
+  · 但"改文件 + 提交"是高危操作
+  · <strong>不自主执行</strong>,而是问用户:"要我升级 lodash 修复漏洞吗?(会改 package.json)"
+  · 等待用户确认
+  ↓
+<span class="stage-label">[用户确认后]</span>
+  · agent 执行升级 + 跑测试验证 + 提交
+  · 全程留日志(审计)
+  ↓
+<span class="stage-label">[记忆巩固 · 离线]</span>
+  · 夜间 dreaming 把"用户项目用 lodash,曾因漏洞升级"巩固进记忆
+  · 下次相关场景 agent 记得这个上下文</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:整个自主流程<strong>分级授权</strong>——巡检(只读)自主跑、汇报(低危)预授权自主、改文件提交(高危)必须用户确认。agent 主动发现了问题(不等用户问),但危险操作不擅自做。<strong>这就是安全自主:主动性 + 可控性</strong>。用户感受到的是一个"会主动关心项目、但不越权的助理",而非"乱改东西的隐患"。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"加个定时器跑任务"</td><td>"没考虑安全和分级"</td></tr>
+<tr><td>知道要 heartbeat/cron</td><td>"有意识但没安全边界"</td></tr>
+<tr><td>能说自主 + 权限分级</td><td>"及格"</td></tr>
+<tr><td>能谈可逆性分级、预授权、审计、可中止、注入风险</td><td><strong>"生产经验扎实,有安全思维"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点需求</strong>:"被动 agent 只能问答,做不了助理。生产需要定时巡检、主动汇报、后台巩固。但自主性危险,必须配安全边界。"</li>
+<li><strong>给三机制</strong>:"heartbeat(周期自检)、cron(定时任务)、dreaming(离线记忆巩固)。各有适用场景。"</li>
+<li><strong>主动谈分级</strong>:"自主权限按可逆性分级——只读默认允许、低危预授权、高危必须确认、不可逆禁止自主。"</li>
+<li><strong>主动谈安全</strong>:"防误判(幻觉'用户让我做')、防注入(恶意指令)、可审计(留日志)、可中止(用户能关)。"</li>
+<li><strong>收口在矛盾</strong>:"自主性的核心矛盾是要主动又要安全。解法是把权限约束在可逆操作,高危永远要人确认。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从自主机制到安全边界层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="15-identity-bootstrap.html">← ⑮ 身份与冷启动</a>
+<a href="17-architecture-layering.html">⑰ 整体分层 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑯ 自主性 · 阶段 4 身份自主性(完)<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · heartbeat 频率", q:"heartbeat 设多久一次合适?太频繁(如每秒)和太稀疏(如每天)各有什么问题?",
+    a:"<strong>太频繁(每秒/每分钟)</strong>:① 浪费资源——agent 每次心跳都要推理'有该做的吗',消耗 token/费用,大多数时候结论是'没事';② 干扰用户——如果心跳触发 agent 发消息,用户被刷屏;③ 状态抖动——频繁检查可能把瞬态问题当真(如网络抖一秒被当成故障告警)。<strong>太稀疏(每天)</strong>:① 响应迟钝——发生事件(如 CI 挂了)要等到下次心跳才发现,延迟数小时;② 失去实时性——heartbeat 的价值是'近实时感知',太稀疏退化成 cron。<strong>合理频率</strong>:取决于场景——环境感知类(如监控 CI)分钟级(5-15分钟);巡检类(依赖漏洞)小时级;汇报类定时点(早 9 点)。<strong>关键</strong>:heartbeat 频率要匹配'事件的时效要求'——多久发现一次问题可接受。且 agent 收到心跳后要能判断'没事就静默',避免空转打扰。" },
+  { round:"第 2 题 · 注入风险", q:"agent 在 heartbeat 巡检时,读了某个 issue 的内容。issue 里被恶意注入了指令(假装是用户命令)'删除所有文件'。agent 会执行吗?怎么防?",
+    a:"<strong>不能执行,这是 prompt injection 的经典攻击</strong>。机制:1)<strong>内容来源隔离</strong>——agent 知道'issue 内容是外部数据,不是用户指令',在 prompt 里用结构化标记区分(如把 issue 内容放进 user 消息的工具结果,而非 system/user 指令位置),让模型理解这是'要分析的数据'不是'要执行的命令';2)<strong>权限分级兜底</strong>——即使模型被骗了想执行'删除文件',这是高危操作,必须用户显式确认,不会自主执行;3)<strong>指令验证</strong>——执行危险操作前验证指令来源(这个'删除'指令真的来自授权用户吗?issue 内容不是授权源);4)<strong>沙箱</strong>——巡检类操作在受限环境跑,即使被注入也只能影响沙箱内。<strong>核心防御</strong>:① 数据/指令分离(结构化标记);② 权限分级(高危必确认);③ 来源验证(指令必须来自授权通道)。三层防御,即使一层被突破(模型被骗),后两层(权限、来源)兜底。<strong>绝对不能</strong>让 agent 把任意读到的外部内容当指令执行——这是自主 agent 的红线。" },
+  { round:"第 3 题 · 错误汇报", q:"agent 自主巡检后,误判了——把正常状态当成问题,主动给用户发了'项目挂了'的告警。用户被误导。怎么处理这种自主行为的错误?",
+    a:"<strong>三步:预防 + 可撤回 + 复盘</strong>。<strong>预防</strong>:① 汇报前置信度过滤——agent 对自己的判断给置信度,低置信度的不汇报或标'疑似';② 多源验证——不只依赖单一信号(如 CI 失败可能是 CI 自身问题,检查代码是否真改了);③ 汇报措辞谨慎——用'可能''疑似'而非绝对断言。<strong>可撤回</strong>:① 汇报类消息设计成可编辑/可撤回(发出去后能更正);② 发现误判后主动发更正('刚才的告警是误报,实际正常');③ 提供反馈机制(用户标'这是误报',agent 学习调整阈值)。<strong>复盘</strong>:① 记录误报事件;② 分析原因(阈值过严?信号不全?);③ 调整巡检逻辑。<strong>关键洞察</strong>:自主行为必然有误判率,设计上要① 降低误判(置信度+多源)、② 误判可恢复(撤回/更正)、③ 从误判学习(反馈+调整)。不能追求零误判(不可能),要追求'误判可被发现和纠正'。汇报类操作因此被归为'低危'(可撤回),而非'高危'。" },
+  { round:"第 4 题 · 自主发消息回滚", q:"你提到 agent 自主发消息出错要能回滚。但消息一旦发出去(如发到 Telegram 群、发邮件),技术上可能撤不回(邮件已收到、群消息已读)。这种不可撤回的自主消息怎么办?",
+    a:"<strong>不可撤回的消息必须升级到更高授权级别</strong>。处理:1)<strong>重新分级</strong>——发 Telegram/邮件这类'一旦送达不可撤回'的消息,从'低危预授权'升级到'高危需确认',每次都要用户确认才发;2)<strong>延迟发送</strong>——敏感消息先进入'待发队列',等一个宽限期(如 1 分钟),期间用户可取消,过了才真发,给误判留缓冲;3)<strong>草稿模式</strong>——agent 把要发的内容生成草稿,需用户点'确认发送'才真发,而非 agent 直接发;4)<strong>限频</strong>——即使授权了,也限制自主发消息的频率(如每小时最多 1 条),防止失控刷屏;5)<strong>审计+告警</strong>——所有自主外发消息留日志,异常频率/内容告警。<strong>核心原则</strong>:消息的'可撤回性'决定它的自主权限级别——可撤回的(如可编辑的 channel 消息)可低危自主;不可撤回的(邮件、已读群消息)必须高危确认或延迟发送。<strong>宁可少自主,不可乱发不可撤回的消息</strong>——这是自主 agent 的声誉和信任底线。" },
+  { round:"第 5 题 · 自主与成本", q:"agent 频繁自主跑(heartbeat 巡检、dreaming 巩固、proactive 派子 agent),每个都消耗 token/费用。如果不控制,自主性可能让成本失控。怎么管?",
+    a:"<strong>自主行为必须有独立的预算和节流</strong>。设计:1)<strong>自主预算池</strong>——给自主行为(heartbeat/dreaming/proactive)单独的 token/费用预算,与被动对话预算分开,自主超了不影响用户主动请求;2)<strong>任务级预算</strong>——每次自主任务(一次巡检、一次巩固)有预算上限,超了中断,防单次任务失控;3)<strong>价值过滤</strong>——dreaming 这种计算密集的,只在'有足够新记忆值得巩固'时跑(增量阈值),而非空跑;4)<strong>频率节流</strong>——heartbeat 频率可动态调整(忙时降频,闲时正常);5)<strong>用户可见+可控</strong>——自主消耗的预算对用户可见,且用户能设上限/关闭自主性。<strong>关键洞察</strong>:自主性不是免费的,它持续消耗资源。生产必须把自主纳入预算管理——给自主一个'零花钱'(独立预算),花完就停或问用户追加。<strong>否则一个配置不当的自主 agent 能在夜里烧光用户预算</strong>(如 heartbeat 太频繁、dreaming 太重)。这是自主设计的成本纪律,和功能设计同等重要。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了 heartbeat 频率、注入风险、错误汇报、不可撤回消息、自主成本。<br><br>Part C 身份与自主性完成!接下来 <a href="17-architecture-layering.html">Part D 平台支撑</a>(3 篇)收尾。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

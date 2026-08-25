@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4 · 投递语义 steer vs queue · opencode 面试视角</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+  :root{--bg:#0d1117;--bg-soft:#161b22;--bg-card:#1c2230;--border:#30363d;--text:#e6edf3;--text-dim:#9da7b3;--c1:#58a6ff;--c2:#3fb950;--c3:#d29922;--c4:#f778ba;--c5:#a371f7;--c6:#ff7b72;--code-bg:#0a0e14;--shadow:0 8px 32px rgba(0,0,0,0.4)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}code{font-family:"SFMono-Regular","JetBrains Mono",Consolas,monospace}
+  .hero{padding:56px 24px 40px;border-bottom:1px solid var(--border);background:radial-gradient(ellipse at top,rgba(255,123,98,0.10),transparent 60%)}
+  .hero .wrap{max-width:1140px;margin:0 auto}
+  .hero .crumb{font-size:12px;color:var(--text-dim);margin-bottom:14px}.hero .crumb a{color:var(--c6)}
+  .hero .series{display:inline-block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.3);padding:5px 12px;border-radius:20px;margin-bottom:14px}
+  .hero h1{font-size:33px;font-weight:800;line-height:1.2;letter-spacing:-0.4px;margin-bottom:10px}
+  .hero .lead{font-size:16px;color:var(--text-dim);max-width:820px}.hero .lead b{color:var(--text)}
+  .toc{position:sticky;top:0;z-index:50;background:rgba(13,17,23,0.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .toc-inner{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;gap:6px;flex-wrap:wrap}
+  .toc a{font-size:12px;color:var(--text-dim);padding:5px 11px;border-radius:6px;transition:.12s}.toc a:hover{background:rgba(255,123,98,0.10);color:var(--c6)}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  section{padding:46px 0;border-bottom:1px solid var(--border)}
+  h2{font-size:23px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:11px}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--c6),#ff584d);color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+  h3{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--text)}
+  h4{font-size:14.5px;font-weight:700;margin:14px 0 6px;color:var(--c5)}
+  .lead{color:var(--text-dim);font-size:16px;margin-bottom:22px;max-width:880px}
+  p{margin-bottom:12px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:18px 0}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.card h4{margin-top:0}
+  .card.bad{border-color:rgba(210,153,34,0.4)}.card.bad h4{color:var(--c3)}
+  .card.good{border-color:rgba(63,185,80,0.4)}.card.good h4{color:var(--c2)}
+  .card.steer{border-top:3px solid var(--c4)}
+  .card.queue{border-top:3px solid var(--c5)}
+  .card.steer h4{color:var(--c4)}
+  .card.queue h4{color:var(--c5)}
+  .card p{color:var(--text-dim);font-size:13.5px;margin-bottom:6px}
+  .card ul{padding-left:18px;color:var(--text-dim);font-size:13.5px}.card li{margin-bottom:4px}
+  .callout{border-left:3px solid var(--c6);background:rgba(255,123,98,0.06);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}.callout .t{font-weight:700;margin-bottom:4px}.callout p{color:var(--text-dim);font-size:14px;margin:0}
+  .callout.warn{border-left-color:var(--c3);background:rgba(210,153,34,0.08)}.callout.ok{border-left-color:var(--c2);background:rgba(63,185,80,0.08)}.callout.key{border-left-color:var(--c4);background:rgba(247,120,186,0.07)}
+  .diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px;margin:18px 0;overflow-x:auto}.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+  .dual{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .pane{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}.pane.iv{border-top:3px solid var(--c4)}.pane.cand{border-top:3px solid var(--c2)}
+  .pane h4{margin-top:0;font-size:15px}.pane.iv h4{color:var(--c4)}.pane.cand h4{color:var(--c2)}
+  .pane ol{padding-left:20px;color:var(--text-dim);font-size:13.5px}.pane li{margin-bottom:6px}.pane li b{color:var(--text)}
+  a.file{color:var(--c3);font-family:"SFMono-Regular",Consolas,monospace;font-size:12.5px;border-bottom:1px dotted var(--c3)}
+  .drill{background:linear-gradient(180deg,rgba(247,120,186,0.04),transparent);border-top:2px solid rgba(247,120,186,0.25)}
+  .progress{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .progress .bar{flex:1;min-width:200px;height:9px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .progress .fill{height:100%;background:linear-gradient(90deg,var(--c4),var(--c6));width:0;transition:width .3s}
+  .progress .pct{font-size:13px;color:var(--text-dim);font-family:"SFMono-Regular",Consolas,monospace}
+  .btn-reset{font-size:12px;color:var(--text-dim);background:var(--bg-card);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer;transition:.12s}.btn-reset:hover{border-color:var(--c3);color:var(--c3)}
+  .thread{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:0;margin-bottom:16px;overflow:hidden}
+  .thread-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .thread-head .ic{font-size:16px}.thread-head .title{font-weight:700;font-size:15px;flex:1}
+  .thread-head .layer-tag{font-size:11px;color:var(--c4);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(247,120,186,0.10);padding:3px 8px;border-radius:5px}
+  .step{padding:18px 20px;border-bottom:1px solid var(--border)}.step:last-child{border-bottom:none}.step.locked{display:none}.step.done{opacity:0.65}
+  .q{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+  .q .lvl{display:inline-block;font-size:10.5px;color:var(--c5);font-family:"SFMono-Regular",Consolas,monospace;background:rgba(163,113,247,0.10);padding:2px 7px;border-radius:4px;margin-right:8px;vertical-align:middle}
+  .hint{font-size:13px;color:var(--text-dim);margin-bottom:12px}
+  .reveal-btn{font-size:13px;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.35);padding:7px 15px;border-radius:7px;cursor:pointer;transition:.12s}.reveal-btn:hover{background:rgba(255,123,98,0.20)}
+  .answer{display:none;margin-top:14px;padding:14px 16px;background:rgba(63,185,80,0.05);border:1px solid rgba(63,185,80,0.25);border-radius:9px}.answer.show{display:block}
+  .answer .at{font-size:11.5px;color:var(--c2);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+  .answer ul{padding-left:20px;color:var(--text-dim);font-size:13.5px}.answer li{margin-bottom:7px}.answer li b{color:var(--text)}
+  .answer .ref{margin-top:10px;font-size:12px;color:var(--text-dim)}
+  .rating{display:none;margin-top:14px;align-items:center;gap:8px;flex-wrap:wrap}.rating.show{display:flex}
+  .rating .lbl{font-size:12.5px;color:var(--text-dim);margin-right:4px}
+  .rate-btn{font-size:12.5px;padding:6px 13px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg-soft);color:var(--text-dim);transition:.12s}.rate-btn:hover{color:var(--text)}
+  .rate-btn.sel.ok{background:rgba(63,185,80,0.15);border-color:var(--c2);color:var(--c2)}
+  .rate-btn.sel.mid{background:rgba(210,153,34,0.15);border-color:var(--c3);color:var(--c3)}
+  .rate-btn.sel.no{background:rgba(255,123,98,0.15);border-color:var(--c6);color:var(--c6)}
+  .next-btn{display:none;margin-top:14px;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--c4),var(--c6));border:none;padding:8px 16px;border-radius:7px;cursor:pointer;transition:.12s}.next-btn.show{display:inline-block}.next-btn:hover{opacity:0.9}
+  .finish{display:none;padding:16px 20px;background:rgba(63,185,80,0.06);color:var(--c2);font-weight:600;font-size:14px;text-align:center}.finish.show{display:block}
+  .nav-foot{display:flex;justify-content:space-between;padding:24px 0;gap:12px}
+  .nav-foot a{font-size:13px;padding:9px 16px;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);transition:.12s}.nav-foot a:hover{border-color:var(--c6);color:var(--c6)}.nav-foot .next{margin-left:auto}
+  footer{padding:34px 24px;text-align:center;color:var(--text-dim);font-size:13px;border-top:1px solid var(--border)}footer a{color:var(--c6)}
+  @media(max-width:820px){.grid-2,.grid-3,.dual{grid-template-columns:1fr}.hero h1{font-size:27px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="iv-00-index.html">← 总索引</a></div>
+    <span class="series">Chapter 4 · 面试视角（4/7）</span>
+    <h1>投递语义：steer vs queue</h1>
+    <p class="lead">用户在 agent 跑到一半时打字，有两种截然不同的意图："等下，<b>改成用 Python</b>"（要立刻影响当前任务）vs "做完那个后<b>顺便也跑下测试</b>"（不该打断当前任务）。如果只有一种"插入消息"机制，前者会过早打断、后者会 hijack 当前流。opencode 用两个 <b>delivery 标签</b>+ 两个不同的 <b>promote 边界</b>精确区分这两种意图。</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#position">① 定位</a>
+    <a href="#problem">② 问题先于方案</a>
+    <a href="#design">③ 设计拆解</a>
+    <a href="#tradeoff">④ 生产级取舍</a>
+    <a href="#dual">⑤ 双视角</a>
+    <a href="#drill">🎯 面试追问</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<section id="position">
+  <h2><span class="num">1</span>一句话定位</h2>
+  <p class="lead">每条被 admit 的输入带一个 <code>delivery</code> 标签。<b>steer</b>（默认）在<b>当前 drain 仍需继续时</b>，于<b>下一个安全的 provider-turn 边界</b>被 promote 成真正的用户消息；<b>queue</b> 则<b>一直挂着，直到 session 本来就要 idle 了</b>才 promote 成"下一轮独立对话"。两个标签，两个 promote 时机。</p>
+  <div class="callout key">
+    <div class="t">🔑 一句话</div>
+    <p>steer = "改当前任务的方向"，骑在当前 drain 上；queue = "排队等下一轮"，绝不 hijack 在途任务。区别只在<b>promote 发生在哪个边界</b>。</p>
+  </div>
+</section>
+
+<section id="problem">
+  <h2><span class="num">2</span>问题先于方案</h2>
+  <p class="lead">如果只有"插入一条用户消息"这一个机制，用户中途打字会发生什么？</p>
+  <div class="grid-2">
+    <div class="card bad">
+      <h4>痛点 A · 过早打断</h4>
+      <p>用户想"改成 Python"，但当前流正写到一半。如果插入消息会立刻 abort/restart 当前 turn——已经算的内容白费，还得重算。<b>体验卡顿、成本翻倍</b>。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 B · hijack 当前任务</h4>
+      <p>用户其实想说"做完那个顺便也跑测试"。结果消息一插入，agent 把当前任务丢了去跑测试——<b>用户根本没想让它停下</b>。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 C · 边界混乱</h4>
+      <p>工具正跑、stream 正流——什么时候插入"安全"？没有明确的 promote 时机定义，<b>插入可能破坏 turn 的原子性</b>（iv-05 的不变式）。</p>
+    </div>
+    <div class="card bad">
+      <h4>痛点 D · 用户被迫自己排队</h4>
+      <p>想"等它做完再说"的用户只能干等到 idle 再发，体验差。<b>系统不区分意图，把排队的负担甩给用户</b>。</p>
+    </div>
+  </div>
+  <div class="callout warn">
+    <div class="t">⚠ 共同病根</div>
+    <p>用一个机制处理两种本质不同的意图。<b>"立刻影响当前任务"和"不打扰当前任务"</b>是矛盾的，必须用两个边界分开表达。</p>
+  </div>
+</section>
+
+<section id="design">
+  <h2><span class="num">3</span>设计拆解</h2>
+  <p class="lead">两个 delivery 标签，两个 promote 时机。关键是"promote 边界"——消息什么时候从"挂起"变成"真正进入历史"。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 820 400" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,sans-serif">
+      <defs>
+        <marker id="a4s" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#f778ba"/></marker>
+        <marker id="a4q" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#a371f7"/></marker>
+      </defs>
+      <!-- turn boundary track -->
+      <text x="40" y="40" fill="#9da7b3" font-size="12" font-weight="700" letter-spacing="1">一个 drain 内的 turn 边界</text>
+      <line x1="40" y1="80" x2="780" y2="80" stroke="#30363d" stroke-width="2"/>
+      <!-- turn marks -->
+      <g font-size="11" fill="#9da7b3">
+        <line x1="120" y1="74" x2="120" y2="86" stroke="#9da7b3" stroke-width="2"/><text x="120" y="68" text-anchor="middle">turn1 入口</text>
+        <line x1="300" y1="74" x2="300" y2="86" stroke="#9da7b3" stroke-width="2"/><text x="300" y="68" text-anchor="middle">turn1 结束 / turn2 入口</text>
+        <line x1="480" y1="74" x2="480" y2="86" stroke="#9da7b3" stroke-width="2"/><text x="480" y="68" text-anchor="middle">turn2 结束 / turn3 入口</text>
+        <line x1="660" y1="74" x2="660" y2="86" stroke="#9da7b3" stroke-width="2"/><text x="660" y="68" text-anchor="middle">turn3 结束 → idle</text>
+      </g>
+
+      <!-- steer lane -->
+      <text x="40" y="130" fill="#f778ba" font-size="12" font-weight="700">steer（改方向）</text>
+      <rect x="180" y="115" width="14" height="14" fill="#f778ba"/><text x="202" y="127" fill="#9da7b3" font-size="11">t=turn1 中途 admit (seq≤cutoff)</text>
+      <line x1="187" y1="135" x2="296" y2="155" stroke="#f778ba" stroke-width="1.6" marker-end="url(#a4s)" stroke-dasharray="4 3"/>
+      <text x="240" y="150" fill="#f778ba" font-size="10.5">promoteSteers at boundary</text>
+      <circle cx="300" cy="160" r="7" fill="#f778ba"/><text x="315" y="164" fill="#f778ba" font-size="11" font-weight="600">→ turn2 看得到</text>
+
+      <rect x="370" y="115" width="14" height="14" fill="#f778ba" opacity="0.4"/><text x="392" y="127" fill="#9da7b3" font-size="11">t=turn2 入口后 admit (seq&gt;cutoff)</text>
+      <line x1="377" y1="135" x2="476" y2="155" stroke="#f778ba" stroke-width="1.6" marker-end="url(#a4s)" stroke-dasharray="4 3" opacity="0.6"/>
+      <circle cx="480" cy="160" r="7" fill="#f778ba" opacity="0.6"/><text x="495" y="164" fill="#f778ba" font-size="11">等下个边界</text>
+
+      <!-- queue lane -->
+      <text x="40" y="230" fill="#a371f7" font-size="12" font-weight="700">queue（排队等下轮）</text>
+      <rect x="180" y="215" width="14" height="14" fill="#a371f7"/><text x="202" y="227" fill="#9da7b3" font-size="11">t=turn1 中途 admit</text>
+      <rect x="370" y="215" width="14" height="14" fill="#a371f7"/><text x="392" y="227" fill="#9da7b3" font-size="11">继续挂着…</text>
+      <rect x="540" y="215" width="14" height="14" fill="#a371f7"/><text x="562" y="227" fill="#9da7b3" font-size="11">继续挂着…</text>
+      <line x1="554" y1="235" x2="656" y2="255" stroke="#a371f7" stroke-width="1.8" marker-end="url(#a4q)"/>
+      <text x="600" y="250" fill="#a371f7" font-size="10.5" font-weight="600">idle 时才 promote</text>
+      <circle cx="660" cy="260" r="7" fill="#a371f7"/><text x="675" y="264" fill="#a371f7" font-size="11" font-weight="600">→ 下一轮独立 turn</text>
+
+      <!-- step reset -->
+      <text x="40" y="320" fill="#d29922" font-size="12" font-weight="700">step 重置规则</text>
+      <rect x="40" y="340" width="720" height="44" rx="8" fill="rgba(210,153,34,0.08)" stroke="#d29922" stroke-width="1.3"/>
+      <text x="400" y="362" text-anchor="middle" fill="#d29922" font-size="12.5" font-weight="600">promote 任意新用户输入 → step 重置为 1</text>
+      <text x="400" y="378" text-anchor="middle" fill="#9da7b3" font-size="11">但一批 steer 同时 admit → 只重置一次（视为一次"改方向"事件）</text>
+    </svg>
+  </div>
+
+  <h3>两条 promote 路径</h3>
+  <div class="grid-2">
+    <div class="card steer">
+      <h4>steer 的 promote</h4>
+      <ul>
+        <li>在 <b>runTurn 入口</b>调用 promoteSteers(cutoff)</li>
+        <li>只 promote <b>seq ≤ cutoff</b>（turn 入口时的序号）的 steer</li>
+        <li>seq &gt; cutoff 的 steer 等<b>下一轮边界</b></li>
+        <li><b>不打断在途 stream</b>——只在 turn 之间的缝隙 promote</li>
+      </ul>
+    </div>
+    <div class="card queue">
+      <h4>queue 的 promote</h4>
+      <ul>
+        <li>只在 <b>外层 run 循环、continuation 退出后</b>（session 本要 idle）调 promoteNextQueued</li>
+        <li>一次只 promote <b>一条</b>，promote 后先重新评估 continuation</li>
+        <li><b>绝不骑在 continuation 上</b>——它是"下一轮独立对话"</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="t">📌 cutoff 是关键</div>
+    <p>turn 入口时记录一个 seq 作为 cutoff。只有<b>早于这个时刻</b> admit 的 steer 才能进当前轮——这避免了"边 promote 边新 steer 进来"的无限循环。晚到的等下一轮边界，公平且终止。</p>
+  </div>
+</section>
+
+<section id="tradeoff">
+  <h2><span class="num">4</span>生产级取舍</h2>
+  <p class="lead">两个 delivery 模式不是过度设计——它们对应两种真实的用户行为。合并它们会牺牲其中一种。</p>
+  <div class="grid-2">
+    <div class="card good">
+      <h4>选择：steer + queue 两个边界</h4>
+      <ul>
+        <li>"改方向"骑当前 drain，不打断 stream</li>
+        <li>"排队"不 hijack，等 idle 成下一轮</li>
+        <li>cutoff 防 promote 风暴，保证终止</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>合并成一个"插入消息"的代价</h4>
+      <ul>
+        <li>过早打断：每个中途消息 abort/restart turn</li>
+        <li>或反过来：所有消息都得等 idle，无法 steer</li>
+        <li>没有边界定义 → turn 原子性被破坏</li>
+      </ul>
+    </div>
+    <div class="card good">
+      <h4>选择：promote 任意输入重置 step，但批量 steer 只重置一次</h4>
+      <ul>
+        <li>用户改方向 → agent 步数预算刷新</li>
+        <li>快速连发多条 → 视为一次改方向事件</li>
+        <li>防 fast-typing 用户意外给无限步数</li>
+      </ul>
+    </div>
+    <div class="card bad">
+      <h4>每条 steer 独立重置的代价</h4>
+      <ul>
+        <li>连发 5 条 steer → step 重置 5 次</li>
+        <li>agent 在一次"改方向"上获得 5 倍步数</li>
+        <li>成本失控，意图被夸大</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout key">
+    <div class="t">🔑 本质</div>
+    <p>delivery 词汇是<b>把用户意图编码进类型系统</b>。不是运行时猜"用户想不想打断"，而是 admit 时就让意图显式。意图显式=行为可推理、可测试、可解释。</p>
+  </div>
+</section>
+
+<section id="dual">
+  <h2><span class="num">5</span>面试双视角</h2>
+  <p class="lead">这题考的是<b>并发与一致性直觉 + 用户体验建模</b>——你能不能把模糊的"用户中途打字"拆成精确的两个语义。</p>
+  <div class="dual">
+    <div class="pane iv">
+      <h4>🎙️ 面试官为何问这题</h4>
+      <ol>
+        <li><b>探你区分"用户意图"</b>——知不知道"改方向"和"排队"是两件事。</li>
+        <li><b>探并发直觉</b>——边 stream 边来消息怎么处理？什么时候 promote 安全？</li>
+        <li><b>探终止性思维</b>——promote 会不会无限循环？cutoff 怎么保证终止？</li>
+        <li><b>埋雷</b>：很多人答"用队列"。追问"队列里的消息什么时候进？"——看你能不能答出"两个不同的 promote 边界"。</li>
+      </ol>
+    </div>
+    <div class="pane cand">
+      <h4>🧑‍💻 面试者拆解（五段式）</h4>
+      <ol>
+        <li><b>抽象定位</b>：把用户中途输入的两种意图（改方向 vs 排队）编码成两个 delivery 标签，各自一个 promote 边界。</li>
+        <li><b>讲约束</b>：steer 在 turn 边界 promote（seq≤cutoff），不打断 stream；queue 在 idle 时 promote，一次一条。</li>
+        <li><b>讲收益</b>：两种意图各自正确；turn 原子性保住；cutoff 保证 promote 终止。</li>
+        <li><b>主动讲代价</b>：用户/客户端要选 delivery 标签（认知负担）；两个边界逻辑更复杂。但比"猜意图"或"无法 steer"都好。</li>
+        <li><b>给未来演化</b>：delivery 是可扩展词汇——未来加"优先级""截止时间"等也是新标签，不动 promote 主流程。</li>
+      </ol>
+    </div>
+  </div>
+  <div class="callout ok">
+    <div class="t">✅ 加分项</div>
+    <p>主动联系 iv-02 和 iv-05："steer 不能打断 stream" 和 iv-05 的"一轮一次 stream 是硬不变式"是<b>同一件事</b>——promote 只发生在 turn 边界，正是为了不破坏那个不变式。能把并发设计（iv-02）、不变式（iv-05）、意图建模（iv-04）串起来，是高级信号。</p>
+  </div>
+</section>
+
+</div>
+
+<section id="drill" class="drill">
+  <div class="wrap">
+    <h2><span class="num">🎯</span>面试追问 · 模拟面试官深挖</h2>
+    <p class="lead">steer 能打断在途 stream 吗？批量 steer 为何只重置一次 step？合并两模式会怎样？追到答不出。</p>
+    <div class="progress">
+      <span class="pct" id="pct">进度 0%</span>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <button class="btn-reset" onclick="IV.reset()">重置本页进度</button>
+    </div>
+    <div id="threads"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="nav-foot">
+    <a href="iv-03-system-context.html">← 第 3 篇 SystemContext</a>
+    <a class="next" href="iv-05-one-stream-per-turn.html">下一章：一轮一次 stream →</a>
+  </div>
+</div>
+
+<footer>opencode 面试视角 · 第 4/7 篇 · 投递语义 · <a href="iv-00-index.html">返回总索引</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+<script>
+const IV = (() => {
+  const KEY = "iv-drill-04";
+  const data = [
+    {
+      title: "steer 能打断在途 stream 吗？",
+      icon: "✋",
+      steps: [
+        { q: "根问题：agent 正在流式输出（llm.stream 在跑），用户这时发了条 steer '改成用 Python'。这条 steer 会立刻打断当前 stream 吗？",
+          hint: "promote 发生在什么时刻？stream 在跑时能 promote 吗？",
+          a: [
+            "<b>不会打断</b>。steer 的 promote 只发生在<b> turn 边界</b>（runTurn 入口），而 stream 在跑时正是'turn 内部'，不在边界。",
+            "当前 turn 会<b>正常流完</b>（包括它正在做的工具调用），然后工具结算、turn 结束。",
+            "在<b>下一个 turn 的入口</b>，promoteSteers 把这条 steer 提升成真正的用户消息，注入历史。",
+            "所以模型是'做完手头这批，下一轮才看到用户的改方向请求'——安全、不浪费已算的内容。"
+          ],
+          ref: "packages/core/src/session/runner/llm.ts — runTurnAttempt 入口处 promoteSteers(cutoff)。"
+        },
+        { q: "追问 1：那如果 steer 是在 turn 入口之后、stream 还没开始时 admit 的呢？seq 比 cutoff 大。它能进当前轮吗？",
+          hint: "cutoff 是干什么的？",
+          a: [
+            "<b>不能进当前轮</b>。cutoff 是 turn 入口时记录的 seq，只有 seq ≤ cutoff 的 steer 才被 promote。",
+            "这条 steer 的 seq > cutoff，所以它<b>等下一个 turn 边界</b>。",
+            "这避免了'边 promote 边有新 steer 进来'的无限循环——如果允许新 admit 的立刻进，promote 永远结束不了。",
+            "代价：这条 steer 多等一个 turn。收益：promote 阶段<b>有限、可终止</b>。这是终止性的关键设计。"
+          ],
+          ref: "cutoff 保证 promote 阶段有限：只处理已 admit 的固定集合，不受新 admit 影响。"
+        }
+      ]
+    },
+    {
+      title: "批量 steer 为何只重置一次 step？",
+      icon: "🔢",
+      steps: [
+        { q: "根问题：用户在 turn1 期间快速连发了 3 条 steer。每条 steer 都该把 agent 的 step 预算重置为 1 吗？",
+          hint: "从用户视角，这是几次'改方向'事件？",
+          a: [
+            "<b>从用户视角是一次改方向</b>——他只是在快速补充'用 Python、加类型注解、跑测试'，本质是同一个意图的细化。",
+            "如果每条独立重置 step，agent 在这一次改方向上获得 <b>3 倍步数预算</b>——成本失控，意图被夸大。",
+            "opencode 的设计：<b>promote 任意新用户输入会重置 step 为 1，但一批 steer（同一 turn admit 的）只重置一次</b>。",
+            "所以 3 条 steer 合并成一次 step=1 重置。用户改了一次方向，agent 拿一次新的步数预算。"
+          ],
+          ref: "runTurnAttempt 中：若 promoted > 0 则 currentStep = 1，按批次计一次而非按条计。"
+        },
+        { q: "追问 1：那 queue 的 promote 会重置 step 吗？为什么？",
+          hint: "queue 是新的一轮独立对话还是当前任务的延续？",
+          a: [
+            "<b>会重置</b>。queue promote 出来的是<b>下一轮独立对话</b>，不是当前任务的延续——它本身就是新任务，当然要新的步数预算。",
+            "steer 重置是因为'用户改了当前任务方向'；queue 重置是因为'开始了新任务'。两个理由，同一个动作。",
+            "区别在<b>时机</b>：steer 在 turn 边界重置（骑当前 drain）；queue 在 idle 边界重置（开新 drain）。",
+            "共同点：任何 promote 出的新用户输入都重置 step——保证 agent 不会因历史步数耗尽而卡在新意图上。"
+          ],
+          ref: "AGENTS.md V2 — \"Promoting any new user input resets the selected agent's provider-turn allowance\"。"
+        }
+      ]
+    },
+    {
+      title: "合并 steer 和 queue 会怎样？",
+      icon: "🔀",
+      steps: [
+        { q: "根问题：嫌两个模式太复杂，合并成一个'插入用户消息'。具体会出什么故障？",
+          hint: "对'改方向'用户和'排队'用户分别会发生什么？",
+          a: [
+            "<b>故障 1（对改方向用户）</b>：如果合并模式 = 立刻插入，会打断在途 stream，已算内容白费，重算成本翻倍。或如果合并模式 = 等 idle，用户根本无法 steer。",
+            "<b>故障 2（对排队用户）</b>：如果合并模式 = 立刻插入，用户'做完顺便跑测试'的请求会 hijack 当前任务，agent 丢下当前活去跑测试。",
+            "<b>故障 3（边界）</b>：没有明确的 promote 时机，插入可能发生在 stream 中间、工具调用中间，破坏 turn 原子性（iv-05 的不变式）。",
+            "<b>本质</b>：两种意图<b>本质矛盾</b>（一个要立刻影响、一个要绝对不打扰），一个机制不可能同时满足。必须两个边界。"
+          ],
+          ref: "这是'用类型编码意图'的典型例子——合并等于丢失语义维度。"
+        }
+      ]
+    }
+  ];
+  let state = JSON.parse(localStorage.getItem(KEY) || "{}");
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+  function pct(){ let total=0,done=0; data.forEach((t,ti)=>{total+=t.steps.length;done+=Math.min(state[ti]||0,t.steps.length);}); return Math.round(done/total*100); }
+  function render(){
+    const root = document.getElementById("threads"); root.innerHTML = "";
+    data.forEach((t,ti)=>{
+      const cur = state[ti]||0; const finished = cur>=t.steps.length;
+      const div = document.createElement("div"); div.className="thread";
+      div.innerHTML = `<div class="thread-head"><span class="ic">${t.icon}</span><span class="title">${t.title}</span><span class="layer-tag">${finished?"✓ 完成":"第 "+(cur+1)+"/"+t.steps.length+" 层"}</span></div>`;
+      t.steps.forEach((s,si)=>{
+        const unlocked = si<=cur; const stepDone = si<cur;
+        const step = document.createElement("div"); step.className="step"+(unlocked?"":" locked")+(stepDone?" done":""); step.dataset.ti=ti; step.dataset.si=si;
+        step.innerHTML = `<div class="q"><span class="lvl">L${si+1}</span>${s.q}</div>${s.hint?`<div class="hint">💡 ${s.hint}</div>`:""}${!stepDone?`<button class="reveal-btn" data-act="reveal">查看参考答案</button>`:""}<div class="answer"><div class="at">参考答案要点</div><ul>${s.a.map(x=>`<li>${x}</li>`).join("")}</ul>${s.ref?`<div class="ref">📌 ${s.ref}</div>`:""}</div>${!stepDone?`<div class="rating"><span class="lbl">自评（诚实最重要）：</span><button class="rate-btn" data-rate="ok">✓ 答得好</button><button class="rate-btn" data-rate="mid">△ 部分懂</button><button class="rate-btn" data-rate="no">✗ 没答出</button></div>${si<t.steps.length-1?`<button class="next-btn" data-act="next">解锁下一层追问 →</button>`:""}`:""}${stepDone&&si===t.steps.length-1?`<div class="finish show">🎉 本线索完成 · 你已答到最深一层</div>`:""}`;
+        div.appendChild(step);
+      });
+      root.appendChild(div);
+    });
+    root.querySelectorAll(".step").forEach(step=>{
+      const ti=+step.dataset.ti, si=+step.dataset.si;
+      const rb=step.querySelector('[data-act="reveal"]');
+      if(rb) rb.addEventListener("click",()=>{step.querySelector(".answer").classList.add("show");step.querySelector(".rating").classList.add("show");rb.style.display="none";});
+      step.querySelectorAll(".rate-btn").forEach(b=>b.addEventListener("click",()=>{step.querySelectorAll(".rate-btn").forEach(x=>x.classList.remove("sel","ok","mid","no"));b.classList.add("sel",b.dataset.rate);const nb=step.querySelector(".next-btn");if(nb)nb.classList.add("show");}));
+      const nb=step.querySelector('[data-act="next"]');
+      if(nb) nb.addEventListener("click",()=>{state[ti]=Math.max(state[ti]||0,si+2);save();render();updatePct();});
+    });
+    updatePct();
+  }
+  function updatePct(){const p=pct();document.getElementById("fill").style.width=p+"%";document.getElementById("pct").textContent="进度 "+p+"%";}
+  function reset(){state={};save();render();}
+  return {render,reset};
+})();
+document.querySelectorAll("pre code").forEach(el=>hljs.highlightElement(el));
+IV.render();
+</script>
+</body>
+</html>

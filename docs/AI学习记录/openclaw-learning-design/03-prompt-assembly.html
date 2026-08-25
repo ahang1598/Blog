@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>③ Prompt 拼接设计</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .prompt-stack { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:0; overflow:hidden; margin:16px 0; }
+  .prompt-section { padding:12px 18px; border-bottom:1px solid var(--border); font-family:"SFMono-Regular",Consolas,monospace; font-size:13px; line-height:1.55; }
+  .prompt-section:last-child { border-bottom:none; }
+  .prompt-section .label { font-size:11px; font-weight:700; letter-spacing:0.5px; margin-bottom:4px; display:block; }
+  .prompt-section .content { color:var(--muted); }
+  .prompt-section.stable { background:rgba(63,185,80,0.06); }
+  .prompt-section.stable .label { color:var(--green); }
+  .prompt-section.volatile { background:rgba(210,153,34,0.06); }
+  .prompt-section.volatile .label { color:var(--orange); }
+  .prompt-section.identity { background:rgba(88,166,255,0.06); }
+  .prompt-section.identity .label { color:var(--accent); }
+  .cache-boundary { background:#2a1414; padding:6px 18px; text-align:center; color:var(--red); font-size:11px; font-weight:700; letter-spacing:1px; font-family:"SFMono-Regular",Consolas,monospace; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>③ Prompt 拼接设计
+  <span class="sub">阶段 2 · 智能核心主线 · 缓存经济学与稳定前缀</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:Prompt 拼接不是字符串相加</a></li>
+  <li><a href="#design">分层设计:稳定前缀 vs 易变后缀</a></li>
+  <li><a href="#why">为何这么设计:缓存边界为何值钱</a></li>
+  <li><a href="#example">完整示例:一次完整拼接的概念产物</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:Prompt 拼接不是字符串相加</h2>
+
+<p>demo 级 Prompt 拼接就是字符串拼接:<code>system = 指令 + 工具描述 + 用户档案 + 当前时间 + ...</code>。能跑就行。</p>
+
+<p>但生产中,Prompt 拼接是<strong>整条推理链路最贵的操作之一</strong>,因为现代模型 API 有<strong>提示词缓存(prompt cache)</strong>:如果两次请求的 Prompt 前缀完全相同,后端可以复用已计算的注意力,跳过那一大段的重复计费和延迟。一个 Agent 在长对话中要发几十上百次请求,如果每次前缀都变了,缓存永远 miss,成本和延迟翻几倍。</p>
+
+<div class="card warn">
+<p><strong>缓存命中是按字节的前缀匹配</strong>:只要前缀有一个 token 不同,后面全部 miss。所以"什么内容放前面、什么内容放后面"不是排版问题,是<strong>经济学问题</strong>。</p>
+</div>
+
+<p>同时,Prompt 还要满足一堆互相打架的需求:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li>身份/指令要<strong>稳定</strong>(跨 turn 不变,享受缓存)</li>
+  <li>当前时间/工具进度/用户消息要<strong>实时</strong>(每 turn 都变)</li>
+  <li>不同 provider 要能注入<strong>自己的调优</strong>(语气、工具调用风格)但不能污染核心指令</li>
+  <li>插件/skills/记忆要能<strong>动态注入</strong>但不能无序(无序=缓存爆)</li>
+  <li>截断(内容太长)与<strong>保持身份稳定</strong>冲突</li>
+</ul>
+</div>
+
+<h2 id="design">二 · 分层设计:稳定前缀 vs 易变后缀</h2>
+
+<p>核心设计原则:<strong>把 Prompt 切成两段,用一条明确的缓存边界分开</strong>。边界以上是跨 turn 几乎不变的内容(享受缓存),边界以下是每 turn 必变的内容(认了 miss)。</p>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                      最终 Prompt 的概念结构                             │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">┌─ 稳定前缀(STABLE · 缓存命中区)────────────────────────┐</span>
+  │  · 核心身份/人格("你是 X,一个 coding agent")
+  │  · 工作区上下文(项目根目录、技术栈、AGENTS 指令)
+  │  · 工具清单(name + 一句话摘要,按字典序排序)
+  │  · Skills 元数据清单(只放名字+版本,不放全文)
+  │  · 长期记忆种子(MEMORY.md 内容)
+  │  → 这些跨 turn 几乎不变,provider 可缓存整段
+  <span class="stage-label">└──────────────────────────────────────────────────────┘</span>
+  ════════════ <span class="stage-label">【缓存边界 CACHE BOUNDARY】</span> ════════════
+  <span class="stage-label">┌─ 易变后缀(VOLATILE · 每 turn 必变)────────────────────┐</span>
+  │  · 当前时间/时区(精确到秒,每次都不同)
+  │  · 运行时环境(活跃进程、节点状态、当前通道)
+  │  · 本轮的工具进度/heartbeat 提示
+  │  · 模型身份行(用哪个模型,通常放这里以保前缀稳定)
+  │  · Provider 注入的动态后缀(语气调优等)
+  │  → 接受 miss,但体量小、改动可预测
+  <span class="stage-label">└──────────────────────────────────────────────────────┘</span>
+
+        ↓ 之后是 messages 数组(对话历史 + 本轮用户消息)
+           历史本身也可能有独立缓存策略(见第⑤篇)</div>
+
+<h3>三个关键切分决策</h3>
+<table>
+<thead><tr><th>决策</th><th>放哪</th><th>为什么</th></tr></thead>
+<tbody>
+<tr><td>核心身份/人格/工作区指令</td><td>稳定前缀</td><td>跨 turn 不变,缓存价值最大</td></tr>
+<tr><td>工具清单 + Skills 元数据</td><td>稳定前缀(且排序)</td><td>不排序则顺序漂移致缓存 miss</td></tr>
+<tr><td>模型身份("你是 gpt-5")</td><td>易变后缀(边界下)</td><td>换模型很频繁,放前面会让整段缓存失效</td></tr>
+<tr><td>当前时间</td><td>易变后缀</td><td>每秒都变,放前面 = 缓存永远死</td></tr>
+<tr><td>Provider 私有调优</td><td>通过<strong>具名 section 注入</strong></td><td>不污染核心,可替换三个固定 section</td></tr>
+</tbody>
+</table>
+
+<h2 id="why">三 · 为何这么设计:缓存边界为何值钱</h2>
+
+<h3>动机 1:经济学</h3>
+<p>大模型推理的<strong>预填充(prefill)成本</strong>和 Prompt 长度近似线性。一个 Agent 的稳定前缀如果有 8000 token,缓存命中后这 8000 token 几乎免费(折扣可达 10x);如果因为某个易变内容放错位置导致前缀崩了,每个 turn 都要重新预填充这 8000 token。长对话 100 turn,差距是 100 倍的预填充成本。<strong>缓存边界的位置直接决定产品能不能挣钱。</strong></p>
+
+<h3>动机 2:延迟</h3>
+<p>预填充也是延迟的主要来源(首 token 时间 TTFT)。缓存命中能让 TTFT 从秒级降到百毫秒级,用户体验天差地别。</p>
+
+<h3>动机 3:Provider 注入不污染核心</h3>
+<p>不同 provider(OpenAI/Anthropic/Google)对"怎么调优模型表现"有不同偏好(语气、工具调用风格、执行偏好)。如果这些散落在核心 Prompt 各处,核心就<code>provider-specific</code> 了,失去通用性。设计上用<strong>三个具名 section</strong>(如 interaction_style / tool_call_style / execution_bias)让 provider <strong>替换或追加固定位置</strong>,核心只声明 section 槽位,不写 provider 内容。这样核心保持纯净,provider 调优隔离可替换。</p>
+
+<h3>动机 4:确定性排序</h3>
+<p>工具列表、skills 列表、记忆条目——这些<strong>必须排序</strong>再序列化。如果用哈希表遍历顺序(语言 runtime 不保证),同一组内容两次序列化顺序不同,字节级前缀就不同,缓存 miss。生产设计强制<strong>确定性的排序</strong>(字典序、版本序)。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:严格的前缀切分让 Prompt 拼接从"字符串相加"变成"缓存优化的数据结构",代价是<strong>任何想加入前缀的内容都要论证它确实跨 turn 稳定</strong>。这个论证负担是值得的——它逼着你把"易变"和"稳定"分开建模,避免某个随手加的"当前时间"毁了整个对话的缓存。接受这个纪律,因为替代方案(随意拼接)的成本是不可控的。
+</div>
+
+<h3>备选方案对比</h3>
+<table>
+<thead><tr><th>方案</th><th>demo 能跑</th><th>生产崩点</th></tr></thead>
+<tbody>
+<tr><td>字符串拼接,顺序随意</td><td>能</td><td>缓存永远 miss;成本和延迟翻数倍</td></tr>
+<tr><td>分两段但不强制排序</td><td>能</td><td>哈希顺序漂移致前缀字节不同,缓存偶尔 miss 难排查</td></tr>
+<tr><td><strong>严格切分 + 确定性排序 + 具名 section 注入</strong></td><td>能</td><td>缓存稳定命中,成本可控,核心纯净</td></tr>
+</tbody>
+</table>
+
+<h2 id="example">四 · 完整示例:一次完整拼接的概念产物</h2>
+
+<p>下面是一个 coding agent 某次请求最终拼接出的<strong>系统 Prompt 概念结构</strong>(只展示形态,不展示具体措辞):</p>
+
+<div class="prompt-stack">
+  <div class="prompt-section stable">
+    <span class="label">[STABLE] 核心身份</span>
+    <span class="content">"你是 OpenClaw,一个专注于编程协作的 agent。你的工作方式是..."(人格 + 工作纪律,跨 turn 不变)</span>
+  </div>
+  <div class="prompt-section stable">
+    <span class="label">[STABLE] 工作区上下文</span>
+    <span class="content">仓库:/Users/alice/myproject · 技术栈:TypeScript + React · AGENTS.md 指令(项目编码规范、提交流程)</span>
+  </div>
+  <div class="prompt-section stable">
+    <span class="label">[STABLE] 工具清单(字典序)</span>
+    <span class="content">read · write · exec · web_search · ...(每个工具一行:名字 + 一句话摘要 + 参数 schema 引用)</span>
+  </div>
+  <div class="prompt-section stable">
+    <span class="label">[STABLE] Skills 元数据(只放索引)</span>
+    <span class="content">code-review(v1, sha256:abc...) · git-helper(v2, sha256:def...) · doc-summary(v1, sha256:ghi...)
+    → 告诉模型"需要时 read 完整定义",不塞全文(见第⑦篇)</span>
+  </div>
+  <div class="prompt-section stable">
+    <span class="label">[STABLE] 长期记忆种子</span>
+    <span class="content">MEMORY.md 内容:"用户偏好 TypeScript、用 pnpm、不喜欢 any 类型..."</span>
+  </div>
+  <div class="cache-boundary">══════ 缓存边界 · 以上跨 turn 稳定,以下每 turn 变 ══════</div>
+  <div class="prompt-section volatile">
+    <span class="label">[VOLATILE] 当前时间</span>
+    <span class="content">2026-08-02 14:23:07 UTC+8(精确到秒)</span>
+  </div>
+  <div class="prompt-section volatile">
+    <span class="label">[VOLATILE] 运行时环境</span>
+    <span class="content">活跃进程:无 · 节点状态:1 个本地节点在线 · 通道:CLI</span>
+  </div>
+  <div class="prompt-section volatile">
+    <span class="label">[VOLATILE] 模型身份</span>
+    <span class="content">"你当前以 gpt-5 运行"(放这里是为了换模型时不破坏上面的缓存)</span>
+  </div>
+  <div class="prompt-section volatile">
+    <span class="label">[VOLATILE] Provider 注入(gpt-5 family overlay)</span>
+    <span class="content">interaction_style / tool_call_style / execution_bias 三个具名 section 的内容</span>
+  </div>
+</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:换模型只动"模型身份行"和"Provider 注入"——都在缓存边界<strong>以下</strong>。所以同一对话里换 gpt-5 为 claude,稳定前缀(身份/工作区/工具/skills/记忆)的缓存<strong>依然命中</strong>。如果把"模型身份"放最前面,换模型就让整段缓存失效——这是新手最常犯的错。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"就是把指令、工具、用户消息拼一起"</td><td>"只做过 demo,没考虑成本"</td></tr>
+<tr><td>知道有 prompt cache 这回事</td><td>"听过但没生产经验"</td></tr>
+<tr><td>能说"稳定内容放前面,易变放后面"</td><td>"有意识,及格"</td></tr>
+<tr><td>能谈缓存边界、确定性排序、provider 具名 section 注入、模型身份为何放后面</td><td><strong>"生产经验扎实,懂经济学"</strong></td></tr>
+</tbody>
+</table>
+
+<p>这题特别能区分"<strong>调过 API</strong>"和"<strong>做过产品</strong>"。前者只知道拼接能跑,后者知道拼接的位置决定成本和延迟。</p>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点经济学</strong>:"Prompt 拼接不是字符串相加,是<strong>缓存优化问题</strong>。现代 API 有 prompt cache,前缀字节级相同可复用注意力,缓存命中能让成本和延迟降一个数量级。"</li>
+<li><strong>给切分原则</strong>:"所以我把 Prompt 切成稳定前缀和易变后缀,中间一条明确的缓存边界。身份、工作区、工具清单、skills 索引、长期记忆这些跨 turn 不变的放前面;当前时间、运行时状态、模型身份、provider 调优放后面。"</li>
+<li><strong>主动谈确定性排序</strong>:"前缀里的列表(工具、skills、记忆条目)必须<strong>确定性排序</strong>再序列化,否则哈希表遍历顺序漂移会让字节级前缀不同,缓存偶发 miss,极难排查。"</li>
+<li><strong>主动谈 provider 隔离</strong>:"不同 provider 的调优通过<strong>具名 section 注入</strong>(interaction_style 等固定槽位),核心只声明槽位不写 provider 内容,这样核心保持纯净、provider 可替换。"</li>
+<li><strong>主动谈陷阱</strong>:"最常犯的错是把'模型身份'放最前——换模型就让整段缓存失效。正确做法是放缓存边界之后,这样同对话换模型也不破坏前缀缓存。"</li>
+</ol>
+
+<div class="card warn">
+<strong>主动展现的生产洞察</strong>:
+<ul style="margin-bottom:0">
+  <li>缓存是<strong>字节级前缀匹配</strong>,一个 token 差就全 miss</li>
+  <li>排序纪律不只是美观,是<strong>经济学</strong></li>
+  <li>截断(bootstrap 文件太长)与稳定身份有张力,需要 per-file 限额 + 截断标记</li>
+</ul>
+</div>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从经济学到隔离边界层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="02-reasoning-loop.html">← ② 推理循环</a>
+<a href="04-tool-system.html">④ 工具系统设计 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ③ Prompt 拼接设计 · 阶段 2 智能核心<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 经济学", q:"你说 Prompt 拼接是'缓存优化问题'。具体说说:如果一个 Agent 的稳定前缀有 8000 token,长对话 100 turn,缓存命中和缓存全 miss 的成本差多少?为什么?",
+    a:"差近 <strong>100 倍的预填充(prefill)成本</strong>。大模型推理分预填充(Prompt 计算)和解码(生成 token)两阶段,预填充成本和 Prompt 长度近似线性。缓存命中时,前缀那段已经算过的注意力可直接复用,折扣可达 10x 甚至更多。<strong>缓存命中</strong>:100 turn × (前缀几乎免费 + 小后缀)。<strong>缓存全 miss</strong>:100 turn × 全量前缀重新预填充。所以差的是 100 × 8000 token 的预填充,这是产品能否盈利的生死线。延迟同理——首 token 时间(TTFT)从秒级降到百毫秒级。" },
+  { round:"第 2 题 · 字节级匹配", q:"prompt cache 的命中规则是什么?这意味着 Prompt 拼接有哪些隐性的纪律要求?",
+    a:"命中规则是<strong>字节级的前缀完全相同</strong>——只要前缀有一个 token 不同,从那个 token 起后面全部 miss。隐性纪律:1)<strong>列表必须确定性排序</strong>——工具/skills/记忆条目不能依赖哈希表遍历顺序(语言 runtime 不保证),要字典序或版本序排序后再序列化;2)<strong>不能在前缀里放任何时间相关或随机内容</strong>;3)<strong>模型身份行不能放最前</strong>——换模型就废整段;4)<strong>格式化必须稳定</strong>——不能今天用 \\n 明天用 \\n\\n。这些没做好会导致缓存'偶发 miss',极难排查,因为内容看起来一样但字节不同。" },
+  { round:"第 3 题 · 模型身份位置", q:"你提到'模型身份行'要放在缓存边界之后。但如果模型换得很频繁(同对话里 gpt-5 和 claude 来回切),这个位置还有意义吗?有没有更好的设计?",
+    a:"<strong>仍有意义,而且正是为这种场景设计的</strong>。即使频繁换模型,把'模型身份行'放在缓存边界之后,意味着换模型只废<strong>边界以下那一小段</strong>(身份行 + provider 注入),边界以上的<strong>稳定前缀(身份/工作区/工具/skills/记忆)缓存依然命中</strong>。如果不这样做、把模型身份放最前,换模型就让整段前缀缓存失效。<strong>更进一步的优化</strong>:provider 注入的三个具名 section 也放在边界后,这样同 provider 内换型号(如 gpt-5 → gpt-5.5)如果 provider 注入相同,缓存命中范围更大。核心思想是——把<strong>易变性集中在边界后的小窗口</strong>,让前缀尽可能稳定。" },
+  { round:"第 4 题 · Provider 隔离", q:"不同 provider 对'怎么让模型表现好'有不同偏好。如果核心 Prompt 直接写死 OpenAI 的调优,接入 Anthropic 时会怎样?你的具名 section 注入怎么解决这个问题?",
+    a:"<strong>核心被 OpenAI 污染,接 Anthropic 时调优失效甚至起反作用</strong>——比如 OpenAI 偏好的工具调用措辞,Anthropic 模型可能不认。设计上用<strong>具名 section 注入</strong>:核心 Prompt 只声明三个固定的'槽位'(如 interaction_style / tool_call_style / execution_bias),<strong>不写任何 provider 特定内容</strong>。每个 provider 插件提供自己这三个 section 的内容,在拼接时填入对应槽位。这样:1)核心保持纯净,provider 无关;2)接新 provider 只要写它自己的三个 section;3)换 provider 只换那三段,不动核心。<strong>解耦点</strong>在'槽位契约'而非具体措辞,这是让框架能支持多 provider 的关键。" },
+  { round:"第 5 题 · 截断与稳定身份", q:"bootstrap 文件(AGENTS.md / SOUL.md 等身份文件)可能很大,塞进前缀会撑爆。但如果截断,又破坏了'稳定身份'。这个矛盾怎么解?",
+    a:"用<strong>分层限额 + 截断标记 + 优先级</strong>解。设计:1)<strong>per-file 限额</strong>——每个 bootstrap 文件有单独的字符上限(如每个最多 20000 字符);2)<strong>总限额</strong>——所有 bootstrap 加起来有总上限(如 60000);3)<strong>截断标记</strong>——超出时明确标注'本文件已截断,完整内容在 X',让模型知道信息不全;4)<strong>优先级排序</strong>——核心指令(AGENTS.md)优先,辅助文件(USER.md 偏好)次之,满了就截辅助的。关键取舍:截断会让身份'部分不稳定'(截断点变化),但比撑爆上下文窗口强。生产中还配 <code>bootstrap</code> 钩子允许运行时动态调整哪些文件入选,以适配不同场景。这个矛盾本质是<strong>'稳定'与'容量'的权衡</strong>,没有完美解,只能用限额把风险约束在可控范围。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了缓存经济学、字节级纪律、模型身份位置、provider 隔离、截断矛盾。<br><br>下一篇 <a href="04-tool-system.html">④ 工具系统设计</a> 讲工具契约、串行/并行派发、tool_use/tool_result 配对为何是硬不变量。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑦ Skills 动态能力系统</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .compare { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  .compare > div { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:14px 16px; }
+  .compare h5 { margin:0 0 8px; font-size:13px; border-bottom:1px solid var(--border); padding-bottom:6px; }
+  .compare .bad h5 { color:var(--red); } .compare .good h5 { color:var(--green); }
+  .compare p { font-size:13px; }
+  @media (max-width:760px){ .compare { grid-template-columns:1fr; } }
+  .index-block { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:16px 20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.7; }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑦ Skills 动态能力系统
+  <span class="sub">阶段 2 · 智能核心主线 · 运行时获得新能力而不撑爆 prompt</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:能力越多,prompt 越爆</a></li>
+  <li><a href="#design">分层设计:索引注入 + 按需加载</a></li>
+  <li><a href="#why">为何这么设计:按需激活、版本化、发现契约</a></li>
+  <li><a href="#example">完整示例:模型按需激活一个 skill</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:能力越多,prompt 越爆</h2>
+
+<p>Agent 的"能力"= 它能做什么的工具/技能。一个通用 Agent 可能要会:读写文件、执行命令、搜索网页、调用 GitHub API、操作 Notion、画图、跑测试……几十上百个能力。</p>
+
+<p>demo 级做法:把所有能力的<strong>完整说明</strong>塞进 system prompt。能跑,但很快撞墙:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li><strong>Prompt 爆炸</strong>:50 个能力每个 200 字说明 = 1 万字,塞进 system prompt 直接吃掉大量上下文预算。</li>
+  <li><strong>缓存失效</strong>:能力列表是稳定前缀的一部分,但能力一增删,整段前缀缓存全废(见第③篇)。</li>
+  <li><strong>模型困惑</strong>:50 个能力全展开,模型反而难选对——信息过载降低决策质量。</li>
+  <li><strong>无法动态扩展</strong>:运行时想加个新能力(用户刚授权了某个集成),要么重启要么改 prompt。</li>
+</ul>
+</div>
+
+<p>本质矛盾:<strong>能力越多越好(功能强) vs prompt 越短越好(性能/质量)</strong>。全量注入无法两全。</p>
+
+<h2 id="design">二 · 分层设计:索引注入 + 按需加载</h2>
+
+<p>借鉴人类技能的运作方式:你不需要时刻记得每项技能的完整操作手册,只要<strong>知道有哪些技能、什么时候该用</strong>,真要用时再去查手册。Skills 系统就是这个设计。</p>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                    Skills 系统 · 索引 + 按需加载                        │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[1] 能力发现 · skill 是带版本的资源</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 每个 skill = 一个独立资源包:                                │
+  │   · name + version(sha256 内容指纹)                       │
+  │   · 触发条件描述(什么场景该用)                            │
+  │   · 完整定义文件(SKILL.md / 操作指南)                      │
+  │ · 装在某目录,可被扫描发现                                  │
+  │ · 可独立更新(改了版本号就重新发现)                        │
+  └──────────────────────────────────────────────────────────┘
+                              │
+  <span class="stage-label">[2] 索引注入 · system prompt 只放元数据</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ system prompt 的稳定前缀里,只放:                          │
+  │   <available_skills>                                       │
+  │     · code-review (v1)                                     │
+  │     · git-helper (v2)                                      │
+  │     · doc-summary (v1)                                     │
+  │     ...                                                    │
+  │   </available_skills>                                      │
+  │ + 一句话规则:"需要某 skill 时,read 它的定义文件"          │
+  │ → 元数据极小(几十字),不爆 prompt                          │
+  └──────────────────────────────────────────────────────────┘
+                              │ 模型决定用某 skill
+                              ▼
+  <span class="stage-label">[3] 按需加载 · 运行时才读完整定义</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 模型:我要用 git-helper                                    │
+  │   → 调 read 工具加载 git-helper 的 SKILL.md               │
+  │   → 完整定义进入当前上下文(作为工具结果消息)              │
+  │   → 模型据此执行                                           │
+  │ → 只在真用时占上下文,不用就不占                            │
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>三层 vs 全量对比</h3>
+<div class="compare">
+<div class="bad">
+<h5>全量注入(demo)</h5>
+<p>• 50 能力 × 200 字 = 1 万字常驻</p>
+<p>• 增删能力 = 改 prompt = 缓存全废</p>
+<p>• 模型信息过载</p>
+<p>• 无法运行时扩展</p>
+<p>• 适合:能力少(几个)</p>
+</div>
+<div class="good">
+<h5>索引 + 按需加载</h5>
+<p>• 索引常驻(几百字)</p>
+<p>• 增删只改索引段(可缓存)</p>
+<p>• 模型只看相关 skill</p>
+<p>• 运行时动态发现新 skill</p>
+<p>• 适合:能力多(几十上百)</p>
+</div>
+</div>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么按需激活而非全量注入</h3>
+<p>这是 prompt 经济学和模型质量的<strong>双重优化</strong>:① 不用的能力不占上下文预算(省 token、保缓存);② 模型只看到相关能力,决策更聚焦(信息过载会降低模型选择正确工具的概率)。代价是<strong>多一次 read 调用</strong>(加载 skill 定义),但相比常驻 1 万字,这点延迟和成本微不足道。</p>
+
+<h3>决策 2:为什么 skill 要版本化(sha256 指纹)</h3>
+<p>skill 是会更新的资源(改了操作流程、修了 bug)。版本化解决三个问题:① <strong>缓存确定性</strong>——索引里带版本,模型知道用的哪个版本,结果可复现;② <strong>失效检测</strong>——内容变了 sha256 就变,触发重新发现和索引更新;③ <strong>避免歧义</strong>——同名的两个 skill(不同来源)用版本区分。<strong>skill 是"带版本的可发现资源",不是"全局函数表"</strong>——这是它能动态扩展的基础。</p>
+
+<h3>决策 3:为什么要有"触发条件描述"而非只给名字</h3>
+<p>光给 skill 名字,模型不知道<strong>什么时候该用哪个</strong>。所以索引里每个 skill 还要有<strong>一句话触发条件</strong>("当需要做代码审查时用 code-review")。这让模型在不加载完整定义的情况下,就能判断该不该激活。这又是经济学:触发描述极短(一句话),但避免了模型为了判断而频繁加载 skill 定义。</p>
+
+<div class="card key">
+<strong>核心取舍</strong>:索引 + 按需加载带来<strong>多一次工具调用</strong>(加载 skill)的延迟和<strong>发现/版本管理</strong>的复杂度,换来的是<strong>prompt 不爆、缓存稳定、模型聚焦、动态扩展</strong>。替代方案(全量注入)的失败模式是"prompt 爆炸 + 缓存全废 + 模型困惑 + 无法扩展"。<strong>接受延迟和复杂度,因为它把'能力数量'和'prompt 大小'解耦——这是 Agent 能成为通用平台而非单功能工具的关键。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:模型按需激活一个 skill</h2>
+
+<p>用户让 agent "帮我 review 这段代码"。agent 的能力里有 code-review skill。完整流程:</p>
+
+<div class="index-block"><span class="stage-label">[system prompt 里的索引段]</span>
+&lt;available_skills&gt;
+  - code-review (v1): 当需要审查代码质量/找 bug/给改进建议时使用
+  - git-helper (v2): 当需要 git 操作(提交/分支/合并)时使用
+  - doc-summary (v1): 当需要总结文档/提取要点时使用
+&lt;/available_skills&gt;
+规则:需要某 skill 时,先 read 它的定义文件再执行。
+
+<span class="stage-label">[用户消息]</span> "帮我 review 这段代码:[code]"
+
+<span class="stage-label">[模型推理 · turn 1]</span>
+  识别意图 → 匹配 code-review skill 的触发条件
+  → 调 read 工具加载 code-review/SKILL.md
+
+<span class="stage-label">[read 返回]</span> code-review 的完整定义:
+  · 审查维度(正确性/可读性/性能/安全)
+  · 输出格式(分级问题:critical/major/minor)
+  · 常见反模式清单
+  → 作为工具结果消息进入上下文
+
+<span class="stage-label">[模型推理 · turn 2]</span>
+  基于完整 skill 定义 + 代码,执行结构化审查
+  → 输出 review 报告
+
+<span class="stage-label">[结果]</span> code-review skill 只在这次任务占上下文,
+   下次不相关任务时它不占——按需激活。</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:code-review 的完整定义(可能上千字)只在<strong>这次任务</strong>占上下文。如果下一个任务是"提交代码",模型激活 git-helper 而非 code-review——每个 skill 按需进出,互不常驻。这使得 agent 即使有 100 个 skill,prompt 也只比"无 skill"多一个几百字的索引段。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"把所有工具说明写进 prompt"</td><td>"没考虑 prompt 成本"</td></tr>
+<tr><td>知道要分类/精简描述</td><td>"有意识但没解决动态扩展"</td></tr>
+<tr><td>提索引 + 按需加载</td><td>"及格,有架构感"</td></tr>
+<tr><td>能谈版本化、触发条件、缓存稳定性、动态发现契约</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点矛盾</strong>:"能力越多 prompt 越爆,全量注入无法两全——要么砍功能要么爆 prompt。"</li>
+<li><strong>给按需方案</strong>:"借鉴人类技能——只知道有哪些、什么时候用,真用时再查手册。system prompt 只放 skill 索引(名字+版本+触发条件),模型需要时 read 完整定义。"</li>
+<li><strong>主动谈经济学</strong>:"这样不用的 skill 不占上下文(省 token 保缓存),模型只看相关 skill(信息聚焦决策更好)。代价是多一次 read,但相比常驻 1 万字微不足道。"</li>
+<li><strong>主动谈版本化</strong>:"skill 是带版本(sha256)的可发现资源,不是全局函数表。版本化解决缓存确定性、失效检测、同名消歧。"</li>
+<li><strong>主动谈动态扩展</strong>:"运行时新装的 skill 被扫描发现,索引更新即可用,不需重启或改 prompt——这让 agent 能成为通用平台。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从按需加载到冲突裁决层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="06-memory-architecture.html">← ⑥ 多层记忆架构</a>
+<a href="08-reasoning-models.html">⑧ 推理模型与思维链处理 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑦ Skills 动态能力系统 · 阶段 2 智能核心<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 为什么不全量注入", q:"把所有 skill 的完整说明塞进 system prompt,在 demo 里能跑。具体说四个它在生产中引发的问题,而且这些问题之间有没有因果关系?",
+    a:"<strong>四个问题</strong>:1)<strong>prompt 爆炸</strong>——50 个能力 × 200 字 = 1 万字常驻,吃掉大量上下文预算;2)<strong>缓存失效</strong>——能力列表在稳定前缀,增删任一能力整段缓存全废(第③篇);3)<strong>模型困惑</strong>——50 个能力全展开,信息过载降低选对工具的概率;4)<strong>无法动态扩展</strong>——运行时加新能力只能重启或改 prompt。<strong>因果关系</strong>:1 和 2 是 prompt 经济学问题(全量→大→贵且缓存死);3 是模型质量问题(信息多→选不准);4 是工程问题(全量→硬编码→不灵活)。索引+按需加载同时解这四者:索引小(解1)、索引稳定可缓存(解2)、模型只看相关(解3)、运行时发现(解4)。" },
+  { round:"第 2 题 · 按需加载的延迟", q:"你说模型需要 skill 时要 read 一次加载定义,这多了一次工具调用。如果模型在长任务里频繁切换 skill,会不会反复加载同一个 skill 浪费?怎么避免?",
+    a:"<strong>会浪费,需要会话内缓存</strong>。设计:1)<strong>session-scoped skill 缓存</strong>——同一次会话内已加载的 skill 定义保留在上下文里(作为工具结果消息),模型后续引用时不必重新 read,直接用;2)<strong>只在 skill 首次激活时 read</strong>,之后该 session 内复用;3)<strong>跨 session 不共享</strong>(各 session 独立上下文,避免污染)。这样即使长任务里频繁切 skill,每个 skill 只加载一次。极端情况(skill 太多全加载过一遍上下文也满了)退化为压缩(第⑤篇)处理。核心洞察:<strong>按需加载的'按需'是指'按 session 内首次需要',不是'每次用都加载'</strong>——会话内复用是基本优化。" },
+  { round:"第 3 题 · 触发条件描述", q:"skill 索引里除了名字和版本,你还要放'触发条件描述'。为什么不只给名字让模型自己判断?触发描述长度的取舍是什么?",
+    a:"<strong>因为光给名字模型不知道什么时候该用哪个</strong>。比如 'code-review' 和 'doc-summary' 名字都清楚,但'帮我看看这段代码有没有问题'该用哪个?模型可能瞎猜。触发描述('当需要审查代码质量时用 code-review')让模型在不加载完整定义的情况下就能<strong>预判匹配度</strong>。<strong>长度取舍</strong>:太短(只名字)→ 模型判断不准,频繁误激活(加载了不该加载的,浪费);太长(完整说明)→ 又回到全量注入的 prompt 爆炸问题。<strong>一句话</strong>是平衡点:足够区分相邻 skill,又极小不爆 prompt。这本质是<strong>用'一句话描述'换'加载完整定义的成本'</strong>——好的触发描述能避免大部分误加载,值得这几百字的索引投入。" },
+  { round:"第 4 题 · 同名冲突", q:"用户装了两个叫 'code-review' 的 skill,来自不同作者。模型激活时该用哪个?系统怎么裁决这种冲突?",
+    a:"<strong>需要明确的冲突裁决策略</strong>。设计选项:1)<strong>命名空间隔离</strong>——skill 名带来源前缀(如 author-a/code-review vs author-b/code-review),索引里区分,模型显式选;2)<strong>优先级声明</strong>——skill 声明优先级或来源可信度,冲突时高优先级胜出,索引里只暴露胜出的;3)<strong>用户配置</strong>——让用户在配置里指定默认用哪个,系统据此过滤;4)<strong>运行时询问</strong>——冲突时让模型问用户'有两个 code-review,用哪个?'。<strong>生产推荐组合</strong>:命名空间隔离(避免技术冲突)+ 用户配置(明确意图)+ 默认隐藏低优先级(减少模型困惑)。核心是<strong>冲突必须在'索引注入前'解决</strong>,不能把两个同名都塞给模型让它现场选——那会让模型困惑且行为不确定。" },
+  { round:"第 5 题 · skill vs 工具", q:"skill 和工具(tool)有什么区别?为什么不把所有能力都做成工具(走第④篇的工具系统),还要单独搞个 skill 系统?",
+    a:"<strong>本质区别:工具是'原子操作',skill 是'操作流程/知识包'</strong>。<strong>工具</strong>:read/write/exec——单一、原子、参数明确的操作,模型调一次得一个结果,走工具系统(类型 schema、配对、派发)。<strong>Skill</strong>:一组操作流程的<strong>指导说明</strong>(如'怎么做代码审查'含多步、多工具组合、判断逻辑),它本身不是单一函数,而是告诉模型<strong>如何组合工具完成某类任务</strong>。为什么不能都做成工具:1)<strong>流程不是原子操作</strong>——'代码审查'是 read+分析+多轮,不是一次函数调用;2)<strong>知识/判断难封装成函数签名</strong>——'常见反模式清单'是知识,不是参数;3)<strong>工具数量爆炸</strong>——每个流程做成工具会有几百个,工具系统扛不住。<strong>所以两者互补</strong>:工具是腿(能走),skill 是地图(知道往哪走、怎么走)。模型 read skill 获得流程指导,再用工具执行。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了全量注入崩点、按需加载延迟、触发条件、同名冲突、skill vs 工具。<br><br>下一篇 <a href="08-reasoning-models.html">⑧ 推理模型与思维链处理</a> 讲 thinking block 为何不能当普通文本。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>

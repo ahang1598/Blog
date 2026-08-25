@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>opencode 架构与设计 · 面试视角 · 总索引</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+  :root{
+    --bg:#0d1117; --bg-soft:#161b22; --bg-card:#1c2230;
+    --border:#30363d; --text:#e6edf3; --text-dim:#9da7b3;
+    --c1:#58a6ff; --c2:#3fb950; --c3:#d29922; --c4:#f778ba; --c5:#a371f7; --c6:#ff7b72;
+    --code-bg:#0a0e14; --shadow:0 8px 32px rgba(0,0,0,0.4);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .hero{padding:72px 24px 56px;border-bottom:1px solid var(--border);background:radial-gradient(ellipse at top, rgba(255,123,98,0.10), transparent 60%),radial-gradient(ellipse at 80% 0%, rgba(163,113,247,0.08), transparent 55%)}
+  .hero .wrap{max-width:1140px;margin:0 auto}
+  .hero .eyebrow{display:inline-block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--c6);background:rgba(255,123,98,0.10);border:1px solid rgba(255,123,98,0.3);padding:5px 12px;border-radius:20px;margin-bottom:18px}
+  .hero h1{font-size:38px;font-weight:800;line-height:1.2;letter-spacing:-0.5px;background:linear-gradient(120deg,var(--text) 30%,var(--c6) 70%,var(--c5));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:14px}
+  .hero .lead{font-size:16.5px;color:var(--text-dim);max-width:760px}
+  .hero .lead b{color:var(--text);font-weight:600}
+  .hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .hero .pill{font-size:12.5px;color:var(--text-dim);background:var(--bg-card);border:1px solid var(--border);padding:6px 14px;border-radius:20px}
+  .hero .pill b{color:var(--c6);font-weight:700}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  section{padding:54px 0;border-bottom:1px solid var(--border)}
+  section:last-of-type{border-bottom:none}
+  h2{font-size:25px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--c6),#ff584d);color:#fff;font-size:15px;font-weight:800;flex-shrink:0}
+  .lead{color:var(--text-dim);font-size:16px;margin-bottom:24px;max-width:880px}
+  .callout{border-left:3px solid var(--c6);background:rgba(255,123,98,0.06);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0}
+  .callout.key{border-left-color:var(--c4);background:rgba(247,120,186,0.07)}
+  .callout .t{font-weight:700;margin-bottom:4px}
+  .callout p{color:var(--text-dim);font-size:14px}
+  /* diagram */
+  .diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px;margin:22px 0;overflow-x:auto}
+  .diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;justify-content:center;font-size:12.5px;color:var(--text-dim)}
+  .legend .chip{display:inline-flex;align-items:center;gap:6px}
+  .legend .dot{width:11px;height:11px;border-radius:3px}
+  /* stage map */
+  .map{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:8px}
+  .doc{display:block;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color .15s,transform .15s}
+  .doc:hover{border-color:var(--c6);transform:translateY(-2px)}
+  .doc .dh{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .doc .dn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--c6),#ff584d);color:#fff;font-size:13px;font-weight:800;flex-shrink:0}
+  .doc h3{font-size:16.5px;font-weight:700}
+  .doc p{color:var(--text-dim);font-size:13.5px;margin-top:2px}
+  .doc .tag{display:inline-block;margin-top:10px;font-size:11.5px;color:var(--c2);background:rgba(63,185,80,0.10);border:1px solid rgba(63,185,80,0.25);padding:3px 9px;border-radius:5px}
+  .doc.full{grid-column:span 2}
+  /* paths */
+  .paths{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+  .path{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}
+  .path h4{font-size:15px;font-weight:700;margin-bottom:4px;color:var(--c5)}
+  .path p.sub{font-size:12.5px;color:var(--text-dim);margin-bottom:10px}
+  .path ol{padding-left:18px}
+  .path ol li{font-size:13px;color:var(--text-dim);margin-bottom:3px}
+  .path ol li b{color:var(--text)}
+  /* compare table */
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:13.5px}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);background:var(--bg-soft)}
+  td b{color:var(--c6)}
+  td .bad{color:var(--c3)}
+  td .good{color:var(--c2)}
+  footer{padding:42px 24px;text-align:center;color:var(--text-dim);font-size:13px;border-top:1px solid var(--border)}
+  footer a{color:var(--c6)}
+  @media(max-width:860px){.map{grid-template-columns:1fr}.paths{grid-template-columns:1fr}.hero h1{font-size:30px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">opencode · Interview-View 面试视角学习套件</span>
+    <h1>从设计原理读懂 opencode<br>而非从代码行号</h1>
+    <p class="lead">这套文档不讲"代码长什么样"，只讲<b>分层为何这样切、边界为何这样守、不这么设计生产会出什么事</b>。每一篇都从生产级取舍出发，最后给出面试官为何问、面试者怎么答的双向视角，外加可自测的「面试追问」互动。</p>
+    <div class="meta">
+      <span class="pill">共 <b>12</b> 篇</span>
+      <span class="pill">视角：<b>系统设计 / 抗失败 / 成本 / 并发 / 智能体</b></span>
+      <span class="pill">深度：<b>生产级取舍</b>，非 demo</span>
+      <span class="pill">每页含 <b>🎯 面试追问</b> 自测</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 全局架构图 -->
+<section>
+  <h2><span class="num">★</span>全局架构：一条 prompt 的旅程</h2>
+  <p class="lead">把"用户打字"到"模型回话"拆成三层。这张图是全系列的导航——后面 11 篇都在拆这张图的某一段。先建立鸟瞰，再逐层下钻。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1040 460" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,sans-serif">
+      <defs>
+        <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#9da7b3"/></marker>
+        <marker id="arrc2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#3fb950"/></marker>
+        <linearGradient id="gDomain" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c2230"/><stop offset="1" stop-color="#161b22"/></linearGradient>
+      </defs>
+
+      <!-- Layer bands -->
+      <rect x="20" y="20" width="1000" height="120" rx="10" fill="rgba(88,166,255,0.06)" stroke="rgba(88,166,255,0.25)"/>
+      <text x="38" y="42" fill="#58a6ff" font-size="12" font-weight="700" letter-spacing="1">① 入口 / 接纳层  ADMISSION</text>
+      <rect x="20" y="160" width="1000" height="140" rx="10" fill="rgba(255,123,98,0.06)" stroke="rgba(255,123,98,0.25)"/>
+      <text x="38" y="182" fill="#ff7b72" font-size="12" font-weight="700" letter-spacing="1">② 智能核心  INTELLIGENCE CORE</text>
+      <rect x="20" y="320" width="1000" height="120" rx="10" fill="rgba(163,113,247,0.06)" stroke="rgba(163,113,247,0.25)"/>
+      <text x="38" y="342" fill="#a371f7" font-size="12" font-weight="700" letter-spacing="1">③ 协议 / 传输层  PROTOCOL</text>
+
+      <!-- Layer 1: admission -->
+      <rect x="60" y="58" width="200" height="64" rx="8" fill="url(#gDomain)" stroke="#58a6ff" stroke-width="1.3"/>
+      <text x="160" y="86" text-anchor="middle" fill="#e6edf3" font-size="13.5" font-weight="700">用户 / Client</text>
+      <text x="160" y="104" text-anchor="middle" fill="#9da7b3" font-size="11">一条 prompt + delivery</text>
+
+      <rect x="320" y="58" width="220" height="64" rx="8" fill="url(#gDomain)" stroke="#58a6ff" stroke-width="1.3"/>
+      <text x="430" y="86" text-anchor="middle" fill="#e6edf3" font-size="13.5" font-weight="700">SessionV2.prompt</text>
+      <text x="430" y="104" text-anchor="middle" fill="#9da7b3" font-size="11">admit → 写一行事件即返回</text>
+
+      <!-- the durable log -->
+      <rect x="600" y="50" width="240" height="80" rx="8" fill="#0a0e14" stroke="#3fb950" stroke-width="1.6" stroke-dasharray="4 3"/>
+      <text x="720" y="76" text-anchor="middle" fill="#3fb950" font-size="13.5" font-weight="700">Durable Event Log</text>
+      <text x="720" y="94" text-anchor="middle" fill="#9da7b3" font-size="10.5">PromptAdmitted · AssistantPart</text>
+      <text x="720" y="108" text-anchor="middle" fill="#9da7b3" font-size="10.5">ToolCall · ToolResult …</text>
+
+      <line x1="260" y1="90" x2="318" y2="90" stroke="#9da7b3" stroke-width="1.4" marker-end="url(#arr)"/>
+      <line x1="540" y1="90" x2="598" y2="90" stroke="#3fb950" stroke-width="1.6" marker-end="url(#arrc2)"/>
+      <text x="570" y="82" text-anchor="middle" fill="#3fb950" font-size="10.5">写一行</text>
+
+      <!-- wake arrow down into core -->
+      <line x1="430" y1="122" x2="430" y2="198" stroke="#ff7b72" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+      <text x="445" y="165" fill="#ff7b72" font-size="10.5">wake(sessionID)</text>
+
+      <!-- Layer 2: intelligence core -->
+      <rect x="60" y="208" width="170" height="76" rx="8" fill="url(#gDomain)" stroke="#ff7b72" stroke-width="1.3"/>
+      <text x="145" y="232" text-anchor="middle" fill="#e6edf3" font-size="12.5" font-weight="700">SystemContext</text>
+      <text x="145" y="250" text-anchor="middle" fill="#9da7b3" font-size="10.5">代数 · epoch 快照</text>
+      <text x="145" y="266" text-anchor="middle" fill="#9da7b3" font-size="10.5">baseline（缓存前缀）</text>
+
+      <rect x="260" y="208" width="170" height="76" rx="8" fill="url(#gDomain)" stroke="#ff7b72" stroke-width="1.3"/>
+      <text x="345" y="232" text-anchor="middle" fill="#e6edf3" font-size="12.5" font-weight="700">History → Messages</text>
+      <text x="345" y="250" text-anchor="middle" fill="#9da7b3" font-size="10.5">从 log 重投影</text>
+      <text x="345" y="266" text-anchor="middle" fill="#9da7b3" font-size="10.5">（continuation 必须重载）</text>
+
+      <rect x="460" y="208" width="170" height="76" rx="8" fill="url(#gDomain)" stroke="#ff7b72" stroke-width="1.3"/>
+      <text x="545" y="232" text-anchor="middle" fill="#e6edf3" font-size="12.5" font-weight="700">Tool Materialize</text>
+      <text x="545" y="250" text-anchor="middle" fill="#9da7b3" font-size="10.5">定义 + 权限过滤</text>
+      <text x="545" y="266" text-anchor="middle" fill="#9da7b3" font-size="10.5">Location 隔离</text>
+
+      <rect x="660" y="208" width="170" height="76" rx="8" fill="url(#gDomain)" stroke="#ff7b72" stroke-width="1.3"/>
+      <text x="745" y="232" text-anchor="middle" fill="#e6edf3" font-size="12.5" font-weight="700">LLM.request</text>
+      <text x="745" y="250" text-anchor="middle" fill="#9da7b3" font-size="10.5">lenient → strict</text>
+      <text x="745" y="266" text-anchor="middle" fill="#9da7b3" font-size="10.5">+ promptCacheKey</text>
+
+      <rect x="860" y="208" width="140" height="76" rx="8" fill="url(#gDomain)" stroke="#ff7b72" stroke-width="1.6"/>
+      <text x="930" y="236" text-anchor="middle" fill="#ff7b72" font-size="12.5" font-weight="700">★ 一轮一次</text>
+      <text x="930" y="254" text-anchor="middle" fill="#ff7b72" font-size="12.5" font-weight="700">llm.stream</text>
+      <text x="930" y="272" text-anchor="middle" fill="#9da7b3" font-size="10.5">tool 结算后重载</text>
+
+      <!-- arrows within core -->
+      <line x1="230" y1="246" x2="258" y2="246" stroke="#9da7b3" stroke-width="1.2" marker-end="url(#arr)"/>
+      <line x1="430" y1="246" x2="458" y2="246" stroke="#9da7b3" stroke-width="1.2" marker-end="url(#arr)"/>
+      <line x1="630" y1="246" x2="658" y2="246" stroke="#9da7b3" stroke-width="1.2" marker-end="url(#arr)"/>
+      <line x1="830" y1="246" x2="858" y2="246" stroke="#ff7b72" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- stream down into protocol -->
+      <line x1="930" y1="284" x2="930" y2="358" stroke="#a371f7" stroke-width="1.6" marker-end="url(#arr)"/>
+
+      <!-- Layer 3: protocol -->
+      <rect x="380" y="362" width="180" height="64" rx="8" fill="url(#gDomain)" stroke="#a371f7" stroke-width="1.6"/>
+      <text x="470" y="388" text-anchor="middle" fill="#a371f7" font-size="13" font-weight="700">compile 墙</text>
+      <text x="470" y="406" text-anchor="middle" fill="#9da7b3" font-size="10.5">LLMRequest → provider body</text>
+
+      <rect x="620" y="362" width="180" height="64" rx="8" fill="url(#gDomain)" stroke="#a371f7" stroke-width="1.3"/>
+      <text x="710" y="388" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="700">Provider Route</text>
+      <text x="710" y="406" text-anchor="middle" fill="#9da7b3" font-size="10.5">Anthropic / OpenAI / …</text>
+
+      <rect x="840" y="362" width="160" height="64" rx="8" fill="url(#gDomain)" stroke="#a371f7" stroke-width="1.3"/>
+      <text x="920" y="388" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="700">SSE → LLMEvent</text>
+      <text x="920" y="406" text-anchor="middle" fill="#9da7b3" font-size="10.5">回流写 log</text>
+
+      <line x1="560" y1="394" x2="618" y2="394" stroke="#9da7b3" stroke-width="1.2" marker-end="url(#arr)"/>
+      <line x1="800" y1="394" x2="838" y2="394" stroke="#9da7b3" stroke-width="1.2" marker-end="url(#arr)"/>
+
+      <!-- back to log -->
+      <path d="M 920 362 Q 920 130 842 110" stroke="#3fb950" stroke-width="1.4" fill="none" stroke-dasharray="4 3" marker-end="url(#arrc2)"/>
+      <text x="900" y="240" fill="#3fb950" font-size="10" text-anchor="end">回流持久化</text>
+    </svg>
+
+    <div class="legend">
+      <span class="chip"><span class="dot" style="background:#58a6ff"></span>入口/接纳</span>
+      <span class="chip"><span class="dot" style="background:#3fb950"></span>Durable Log（正确性的家）</span>
+      <span class="chip"><span class="dot" style="background:#ff7b72"></span>智能核心（性能的家）</span>
+      <span class="chip"><span class="dot" style="background:#a371f7"></span>协议/传输</span>
+      <span class="chip"><span class="dot" style="background:#9da7b3"></span>虚线 = 异步/触发</span>
+    </div>
+  </div>
+
+  <div class="callout key">
+    <div class="t">🔑 一句话记住整张图</div>
+    <p>正确性住在<b>绿色 durable log</b>里，性能住在<b>橙色智能核心</b>里，两者用 <code>wake</code> 这条虚线解耦——丢一条 wake 不影响正确性，重启扫一遍 log 就能自愈。后面 11 篇全在拆这条原理的不同侧面。</p>
+  </div>
+</section>
+
+<!-- 地图 -->
+<section>
+  <h2><span class="num">🗺</span>11 篇下钻 · 学习地图</h2>
+  <p class="lead">分两组：<b>架构基础（1-7）</b>讲 opencode 怎么把一次推理可靠地跑起来；<b>智能体与工具（8-11）</b>讲 agent 人格、子 agent 委派、工具调用全生命周期与权限门。建议按序读，但每篇独立成章——跳读也没问题。每篇末尾的「🎯 面试追问」是巩固关键。</p>
+
+  <h3 style="color:var(--c6);margin-top:28px">🏗 架构基础（1-7）</h3>
+  <div class="map">
+    <a class="doc" href="iv-01-layering.html">
+      <div class="dh"><span class="dn">1</span><h3>分层与依赖方向</h3></div>
+      <p>Schema → Core/Protocol → Server；Client 只能依赖 Schema/Protocol。为何禁止反向依赖，分层失败的真实代价。</p>
+      <span class="tag">系统设计成熟度</span>
+    </a>
+    <a class="doc" href="iv-02-durable-execution.html">
+      <div class="dh"><span class="dn">2</span><h3>持久化执行：admission vs execution</h3></div>
+      <p>两车道 + 中间一条 durable log。崩溃恢复语义；为何 SessionExecution 进程级且按 ID 寻址；drain 为何"advisory"无持久身份。</p>
+      <span class="tag">抗失败设计</span>
+    </a>
+    <a class="doc" href="iv-03-system-context.html">
+      <div class="dh"><span class="dn">3</span><h3>SystemContext 代数 + epoch 快照</h3></div>
+      <p>initialize/reconcile/replace；为何对照"已 admit 的快照"做 reconcile 而非每轮重建；不带 epoch 会缓存抖动 / 上下文漂移。</p>
+      <span class="tag">成本与缓存</span>
+    </a>
+    <a class="doc" href="iv-04-delivery-vocabulary.html">
+      <div class="dh"><span class="dn">4</span><h3>投递语义：steer vs queue</h3></div>
+      <p>两个 promote 边界；为何 steer 不能打断在途 stream；"any 输入重置 step、批量 steer 只重置一次"的并发理由。</p>
+      <span class="tag">并发与一致性直觉</span>
+    </a>
+    <a class="doc" href="iv-05-one-stream-per-turn.html">
+      <div class="dh"><span class="dn">5</span><h3>每轮一次 stream + 重载历史</h3></div>
+      <p>为何"一轮一次 stream"是硬不变式（计费/取消/缓存/错误）；continuation 为何必须从 DB 重投影而非内存拼接。</p>
+      <span class="tag">抗失败 + 缓存</span>
+    </a>
+    <a class="doc" href="iv-06-request-and-protocol.html">
+      <div class="dh"><span class="dn">6</span><h3>请求双层类型 + compile 墙</h3></div>
+      <p>lenient 输入 vs strict LLMRequest 各自价值；promptCacheKey 省了什么；compile 墙让新增 provider 一文件搞定。含完整 LLMRequest 示例。</p>
+      <span class="tag">成本 + 可扩展</span>
+    </a>
+    <a class="doc" href="iv-07-location-and-bounding.html">
+      <div class="dh"><span class="dn">7</span><h3>Location 隔离 + 工具输出有界</h3></div>
+      <p>Location-scoped 服务买来什么（多工作区/多 worktree/集群接缝/可测）；为何进程单例会锁死未来；工具输出为何必须有界（上下文爆炸 / 缓存失效 / 噪声淹没信号）。</p>
+      <span class="tag">可扩展 + 成本控制</span>
+    </a>
+  </div>
+
+  <h3 style="color:var(--c4);margin-top:32px">🤖 智能体与工具（8-11）<span style="font-size:13px;color:var(--text-dim);font-weight:400"> · 新增</span></h3>
+  <div class="map">
+    <a class="doc" href="iv-08-agent-architecture.html">
+      <div class="dh"><span class="dn" style="background:linear-gradient(135deg,var(--c4),var(--c5))">8</span><h3>智能体架构：把约束打成一个人格</h3></div>
+      <p>agent = prompt + permission + model + sampling + steps 五维度焊死的命名包。为何约束不可分；mode（primary/subagent/all）；默认 agent 目录；selectable 与默认链。</p>
+      <span class="tag">系统设计 + 安全建模</span>
+    </a>
+    <a class="doc" href="iv-09-subagent-orchestration.html">
+      <div class="dh"><span class="dn" style="background:linear-gradient(135deg,var(--c4),var(--c5))">9</span><h3>子智能体编排与权限收窄</h3></div>
+      <p>子 agent 是 task 工具派生的独立 session；权限减法收窄（交集语义）；防递归默认禁；结果 durable 回流而非内存返回；深度限制。</p>
+      <span class="tag">最小权限 + 分布式恢复</span>
+    </a>
+    <a class="doc" href="iv-10-tool-call-lifecycle.html">
+      <div class="dh"><span class="dn" style="background:linear-gradient(135deg,var(--c4),var(--c5))">10</span><h3>工具调用全生命周期</h3></div>
+      <p>执行前先记 Tool.Called；eager 并发结算（FiberSet）；工具崩不了 stream；failUnsettledTools 兜底。含一次 read 调用的完整事件序列示例。</p>
+      <span class="tag">事件溯源 + 容错</span>
+    </a>
+    <a class="doc full" href="iv-11-tool-design-permission.html">
+      <div class="dh"><span class="dn" style="background:linear-gradient(135deg,var(--c4),var(--c5))">11</span><h3>工具契约与双层权限门</h3></div>
+      <p>模型看得到（name/desc/schema）vs 看不到（execute/permission）；layer 1 whollyDisabled 删工具，layer 2 调用时按输入 assert（allow/deny/ask）。deny&gt;ask&gt;allow 单调优先级。</p>
+      <span class="tag">安全建模 + LLM 行为</span>
+    </a>
+  </div>
+</section>
+
+<!-- 这套 vs 代码导览 -->
+<section>
+  <h2><span class="num">⚖</span>本套与"代码导览"的区别</h2>
+  <p class="lead">面试官不会问你"某行代码怎么写"。他会问你"这个设计在并发 / 崩溃 / 成本下为什么不崩"。下表是这套文档刻意做的取舍。</p>
+  <table>
+    <thead><tr><th>维度</th><th>代码导览式文档</th><th>本套（面试视角）</th></tr></thead>
+    <tbody>
+      <tr><td>回答的问题</td><td class="bad">"代码长什么样？在哪个文件？"</td><td class="good">"为何这样设计？不这样会怎样？"</td></tr>
+      <tr><td>抽象层级</td><td class="bad">函数 / 行号 / 类型签名</td><td class="good">分层 / 职责 / 边界 / 不变式</td></tr>
+      <tr><td>示例深度</td><td class="bad">demo 级 toy 例子</td><td class="good">生产级取舍：缓存失效 / 崩溃恢复 / 成本爆炸</td></tr>
+      <tr><td>叙事</td><td class="bad">单向陈述</td><td class="good">面试官追问 ↔ 面试者拆解 双视角</td></tr>
+      <tr><td>巩固方式</td><td class="bad">无</td><td class="good">每页 🎯 面试追问（多层深挖）</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <div class="t">📌 为什么"屏蔽代码"反而学得更深</div>
+    <p>代码是设计的<b>产物</b>，不是<b>原因</b>。盯着产物学，你只能记住"它现在长这样"；盯着原因学，你能推出"换我也会这么设计"。后者才是面试真正要考的<b>系统设计成熟度</b>。</p>
+  </div>
+</section>
+
+<!-- 阅读路径 -->
+<section>
+  <h2><span class="num">🧭</span>三条阅读路径</h2>
+  <p class="lead">按你的目标选路径，不必全读。每条都覆盖核心，侧重不同。</p>
+  <div class="paths">
+    <div class="path">
+      <h4>🚀 速成（2.5 小时）</h4>
+      <p class="sub">面试前一天抢救</p>
+      <ol>
+        <li><b>iv-02</b> 持久化执行（最常考）</li>
+        <li><b>iv-05</b> 一轮一次 stream</li>
+        <li><b>iv-06</b> 双层类型 + cache</li>
+        <li><b>iv-10</b> 工具调用生命周期</li>
+      </ol>
+    </div>
+    <div class="path">
+      <h4>🤖 Agent / 工具岗</h4>
+      <p class="sub">重点：智能体 / 安全 · 新</p>
+      <ol>
+        <li><b>iv-08</b> agent = 约束包</li>
+        <li><b>iv-09</b> 子 agent 权限收窄</li>
+        <li><b>iv-10</b> 工具调用全生命周期</li>
+        <li><b>iv-11</b> 双层权限门</li>
+      </ol>
+    </div>
+    <div class="path">
+      <h4>🎯 系统设计岗</h4>
+      <p class="sub">重点：抗失败 / 可扩展</p>
+      <ol>
+        <li><b>iv-01</b> 分层</li>
+        <li><b>iv-02</b> 持久化执行</li>
+        <li><b>iv-05</b> stream 不变式</li>
+        <li><b>iv-07</b> Location 隔离</li>
+      </ol>
+    </div>
+    <div class="path">
+      <h4>💰 LLM / 成本岗</h4>
+      <p class="sub">重点：成本 / 上下文</p>
+      <ol>
+        <li><b>iv-03</b> SystemContext epoch</li>
+        <li><b>iv-04</b> steer/queue</li>
+        <li><b>iv-06</b> promptCacheKey + compile</li>
+        <li><b>iv-07</b> 输出有界</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 如何用 -->
+<section>
+  <h2><span class="num">🎓</span>如何用这套准备面试</h2>
+  <p class="lead">这套文档的设计目标不是"读完就懂"，而是"被追问到答不出才真懂"。建议这样用。</p>
+  <div class="map">
+    <div class="doc">
+      <div class="dh"><span class="dn">1</span><h3>先读"问题先于方案"</h3></div>
+      <p>每篇第 2 段。先停 30 秒想：换我，没这设计会怎样？带着自己的答案再读方案，对比差距——这比直接读方案深 3 倍。</p>
+    </div>
+    <div class="doc">
+      <div class="dh"><span class="dn">2</span><h3>用"生产级取舍"练反向论证</h3></div>
+      <p>每篇第 4 段的"不这么做的代价"。面试官最爱追问"那如果不这样呢？"——预先练好反向论证，追问就追不倒你。</p>
+    </div>
+    <div class="doc">
+      <div class="dh"><span class="dn">3</span><h3>对着"双视角"练表达</h3></div>
+      <p>第 5 段。面试者拆解那部分是<b>表达模板</b>：抽象定位 → 约束 → 方案 → 代价 → 未来演化。背下这个五段式。</p>
+    </div>
+    <div class="doc">
+      <div class="dh"><span class="dn">4</span><h3>🎯 面试追问必须做完</h3></div>
+      <p>每篇末尾。这是<b>模拟面试官</b>——它会一层层追问到你答不出。答不出说明那里没真懂，回上面重读。评分用自评，诚实最重要。</p>
+    </div>
+  </div>
+  <div class="callout key">
+    <div class="t">🎯 关于"面试追问"组件</div>
+    <p>每条线索是<b>根问题 → 揭示参考答案 → 自评 → 解锁更深一层追问</b>，模拟真实面试官的"打破砂锅问到底"。进度存 localStorage，刷新不丢。这是这套文档区别于一切静态教程的核心。</p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  opencode 架构面试视角学习套件 · 共 12 篇 · 从 <a href="iv-01-layering.html">第 1 篇 分层与依赖方向</a> 开始
+</footer>
+
+</body>
+</html>

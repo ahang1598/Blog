@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>① Agent / Session / Run 三概念辨析</title>
+<style>
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #e6edf3;
+    --muted: #8b949e; --accent: #58a6ff; --green: #3fb950; --orange: #d29922;
+    --red: #f85149; --purple: #bc8cff; --code-bg: #1f2428;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Microsoft YaHei", Helvetica, Arial, sans-serif;
+    line-height: 1.7; font-size: 15px; }
+  .container { max-width: 980px; margin: 0 auto; padding: 40px 28px 80px; }
+  h1 { font-size: 28px; border-bottom: 2px solid var(--border); padding-bottom: 14px; margin-top: 0; }
+  h1 .sub { display: block; font-size: 14px; color: var(--muted); font-weight: 400; margin-top: 6px; }
+  h2 { color: var(--accent); margin-top: 48px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border); font-size: 22px; }
+  h3 { color: var(--purple); margin-top: 30px; font-size: 18px; }
+  h4 { color: var(--green); margin-top: 22px; font-size: 16px; margin-bottom: 6px; }
+  p { margin: 10px 0; }
+  code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    background: var(--code-bg); color: var(--orange); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+  pre code { background: transparent; color: var(--text); padding: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .card.note { border-left: 4px solid var(--accent); }
+  .card.warn { border-left: 4px solid var(--orange); background: #221a0e; }
+  .card.key { border-left: 4px solid var(--green); background: #0d1f12; }
+  .card.danger { border-left: 4px solid var(--red); background: #2a1414; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: #21262d; color: var(--accent); }
+  tr:nth-child(even) td { background: #11161b; }
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px 24px; margin: 24px 0; }
+  .toc ol { margin: 6px 0; padding-left: 22px; }
+  .toc li { margin: 4px 0; }
+  .flow-diagram { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 20px; font-family: "SFMono-Regular", Consolas, monospace; font-size: 12.5px;
+    line-height: 1.5; overflow-x: auto; white-space: pre; color: var(--text); }
+  .stage-label { color: var(--accent); font-weight: 700; }
+  .compare3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .compare3 > div { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .compare3 h5 { margin: 0 0 6px; font-size: 13px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .compare3 .a h5 { color: var(--accent); }
+  .compare3 .s h5 { color: var(--orange); }
+  .compare3 .r h5 { color: var(--green); }
+  .compare3 p { font-size: 13px; margin: 6px 0; }
+  @media (max-width: 820px) { .compare3 { grid-template-columns: 1fr; } }
+  .nav { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  /* quiz */
+  .quiz-section { margin-top: 60px; padding: 28px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+  .quiz-section > h2 { margin-top: 0; border: none; padding: 0; }
+  .quiz-intro { color: var(--muted); font-size: 14px; margin: 8px 0 16px; }
+  .quiz-btn { background: var(--accent); color: var(--bg); border: none; padding: 8px 18px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 0.12s; }
+  .quiz-btn:hover { opacity: 0.86; }
+  .quiz-btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .quiz-stage { margin-top: 18px; }
+  .quiz-round-label { color: var(--orange); font-size: 12px; font-weight: 700; letter-spacing: 0.4px; margin-bottom: 4px; }
+  .quiz-question { color: var(--text); font-size: 16px; font-weight: 500; margin: 6px 0 12px; line-height: 1.55; }
+  .quiz-answer { background: #0d1f12; border-left: 3px solid var(--green); padding: 14px 18px; margin: 12px 0; border-radius: 4px; font-size: 14px; line-height: 1.7; }
+  .quiz-answer strong { color: var(--green); }
+  .quiz-controls { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .quiz-progress { display: flex; gap: 5px; margin: 12px 0; flex-wrap: wrap; }
+  .quiz-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: all 0.15s; }
+  .quiz-dot.done { background: var(--green); }
+  .quiz-dot.current { background: var(--accent); transform: scale(1.35); box-shadow: 0 0 8px var(--accent); }
+  .quiz-hidden { display: none !important; }
+  .quiz-summary { background: #1f3a5f; border-left: 3px solid var(--accent); padding: 18px 22px; border-radius: 4px; margin: 14px 0; font-size: 14px; line-height: 1.7; }
+  .quiz-summary strong { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>① Agent / Session / Run 三概念辨析
+  <span class="sub">阶段 1 · 建立全景 · 一切设计的地基</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:为什么人们总把这三者搅成一团</a></li>
+  <li><a href="#design">分层设计:三个生命周期的边界</a></li>
+  <li><a href="#why">为何这么设计:把"调用 Agent"这件事拆成三层</a></li>
+  <li><a href="#example">完整示例:同一用户的三种"调用"语义</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="problem">一 · 设计问题:为什么人们总把这三者搅成一团</h2>
+
+<p>几乎所有 Agent 框架入门者的第一道坎,就是<strong>把"Agent"这个词当成一个模糊的整体</strong>。问一个新人"你怎么理解 Agent",答案通常是:"就是那个能调工具、能记住上下文、跟用户对话的东西"。</p>
+
+<p>这个答案在 demo 级别没错,但在生产中是<strong>致命的</strong>。因为它把三个生命周期完全不同的东西,塞进了同一个概念里:</p>
+
+<div class="card warn">
+<ul style="margin-bottom:0">
+  <li>用户的<strong>持续身份偏好</strong>(我喜欢 TypeScript、我的项目在哪个目录)——这个应该活很久,跨设备、跨月份。</li>
+  <li>一次<strong>具体对话</strong>(今天下午我们讨论了那个 bug)——这个有头有尾,但应该能被回溯、分叉、压缩。</li>
+  <li>一次<strong>模型推理执行</strong>(模型这一轮决定调用三个工具然后失败了)——这个可能只活几秒,可能要重试,可能被用户中途取消。</li>
+</ul>
+</div>
+
+<p>如果把它们当成一个对象,你会被迫回答这些无解的问题:</p>
+<div class="card danger">
+<ul style="margin-bottom:0">
+  <li>"用户中途取消了"——取消的是身份?是对话?还是这一次推理?三者该一起死吗?</li>
+  <li>"模型超时了要重试"——重试是把整个对话重来?还是只重试这一轮?</li>
+  <li>"同一用户在两个设备同时聊"——是两个 Agent 还是一个 Agent 两次会话?</li>
+  <li>"压缩上下文"——压缩是改了 Agent 的记忆?还是改了对话?还是改了这一轮的输入?</li>
+</ul>
+</div>
+
+<p>demo 里这些问题不存在,因为 demo 只有一个用户、一次对话、一次成功。生产中这三个生命周期错位时,所有"一个对象"的设计都会<strong>状态撕裂</strong>。</p>
+
+<!-- ============ 2 ============ -->
+<h2 id="design">二 · 分层设计:三个生命周期的边界</h2>
+
+<p>正确的做法是把它们建模成<strong>三个独立但相关联的对象</strong>,各自有清晰的生命周期和职责:</p>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                         三个独立生命周期                                │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">AGENT(身份层 · 最长寿命)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ "这个 AI 助手是谁"                                          │
+  │  · 人格/指令(你怎么称呼我、你的语气、你的能力边界)          │
+  │  · 持久身份(跨所有对话都成立:我喜欢 TS、项目根目录)        │
+  │  · 认证/凭据/模型配置(用哪个 API key、默认模型)            │
+  │  · 寿命:数月~永久 · 一个 Agent 可有 N 个 Session           │
+  └──────────────────────────────────────────────────────────┘
+                              │ 拥有
+                              ▼
+  <span class="stage-label">SESSION(会话层 · 中等寿命)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ "我们这次讨论的上下文"                                       │
+  │  · 对话历史(transcript:谁说了什么)                        │
+  │  · 会话内状态(本轮用过的工具、待办事项)                    │
+  │  · 可被压缩/分叉/回溯(树形结构,不是线性列表)              │
+  │  · 寿命:数小时~数天 · 一个 Session 可有 N 个 Run            │
+  └──────────────────────────────────────────────────────────┘
+                              │ 触发
+                              ▼
+  <span class="stage-label">RUN(执行层 · 最短寿命)</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ "模型这一轮推理的执行实例"                                   │
+  │  · 一次完整的推理循环(可能多 turn,直到任务完成)            │
+  │  · 可重试、可超时、可取消                                    │
+  │  · 终端状态机(running → completed/failed/cancelled/timeout)│
+  │  · 寿命:数秒~数分钟 · 失败不影响 Agent/Session 存活         │
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>三者的职责边界(记住这张表)</h3>
+<table>
+<thead><tr><th>维度</th><th>Agent(身份)</th><th>Session(会话)</th><th>Run(执行)</th></tr></thead>
+<tbody>
+<tr><td>回答的问题</td><td>"你是谁"</td><td>"我们在聊什么"</td><td>"这一轮在干什么"</td></tr>
+<tr><td>典型寿命</td><td>数月~永久</td><td>数小时~数天</td><td>数秒~数分钟</td></tr>
+<tr><td>状态内容</td><td>人格、长期偏好、凭据</td><td>对话历史、会话内状态</td><td>推理步骤、工具调用、终端状态</td></tr>
+<tr><td>能否被取消</td><td>极少(删账号)</td><td>能(结束对话)</td><td>能且频繁(用户点停止)</td></tr>
+<tr><td>能否被重试</td><td>不适用</td><td>不适用</td><td>能且必须设计</td></tr>
+<tr><td>失败影响</td><td>整个助手不可用</td><td>这次对话中断</td><td>只这一轮,可重试</td></tr>
+<tr><td>数量关系</td><td>1 Agent → N Sessions</td><td>1 Session → N Runs</td><td>1 Run → N turns</td></tr>
+</tbody>
+</table>
+
+<!-- ============ 3 ============ -->
+<h2 id="why">三 · 为何这么设计:把"调用 Agent"这件事拆成三层</h2>
+
+<h3>动机 1:让"失败"成为局部事件</h3>
+<p>如果三者合一,一次模型超时会带走整个对话上下文(因为"对象"死了)。拆开后,Run 失败只是"这一轮没跑成",Session 完好,用户可以重发消息触发新 Run,前面的讨论一字不丢。这是生产可用性的<strong>最低门槛</strong>。</p>
+
+<h3>动机 2:让"并发"成为可能</h3>
+<p>同一用户在手机和电脑上同时聊,如果是单一对象,两个请求会互相覆盖状态。拆开后,这是<strong>同一 Agent 的两个 Session</strong>,各自独立。更进一步,同一 Session 里如果允许并发 Run,就需要会话级串行化(见第⑬篇),但至少<strong>身份和会话状态不会被并发撕裂</strong>。</p>
+
+<h3>动机 3:让"压缩/分叉/回溯"有归属</h3>
+<p>对话历史是 Session 的属性。压缩改的是 Session 的 transcript(把旧的部分总结掉),不动 Agent 身份。用户想"回到刚才那个分叉点重新讨论"——这是 Session 的树形结构操作,Agent 不需要知道。如果把历史塞进 Agent,每次压缩都在改"Agent 的记忆",跨对话的稳定身份就被破坏了。</p>
+
+<h3>动机 4:让"重试"有清晰边界</h3>
+<p>重试发生在 Run 层(这一轮重新跑),不会是 Session 层(整个对话重来)或 Agent 层(重建身份)。这个边界一旦划清,重试逻辑、超时设计、终端状态机(第⑫篇)才有地方放。</p>
+
+<h3>备选方案对比</h3>
+<table>
+<thead><tr><th>方案</th><th>demo 能跑吗</th><th>生产会崩在哪</th></tr></thead>
+<tbody>
+<tr><td>单一 Agent 对象(三者合一)</td><td>能</td><td>超时=对话丢失;并发=状态撕裂;压缩=身份漂移</td></tr>
+<tr><td>两层(Agent + 对话)</td><td>能</td><td>重试边界模糊;终端状态无处归属;并发对话内推理 race</td></tr>
+<tr><td><strong>三层(Agent/Session/Run)</strong></td><td>能</td><td>概念多但边界清晰,每个失败/并发/重试都有归属</td></tr>
+</tbody>
+</table>
+
+<div class="card key">
+<strong>核心取舍</strong>:三层带来了概念复杂度(用户要理解"我在跟谁聊、聊到哪、这一轮"),换来的是<strong>每个生产故障都有清晰的作用域</strong>——这是 Agent 框架能否上生产的分水岭。接受这个复杂度是值得的,因为替代方案(单层)的失败模式是<strong>数据丢失和状态不一致</strong>,不可恢复。
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="example">四 · 完整示例:同一用户的三种"调用"语义</h2>
+
+<p>用户 Alice 在用她的 coding agent。我们看三个场景,体会"调用 Agent"在不同语境下指代哪一层:</p>
+
+<div class="compare3">
+<div class="a">
+<h5>场景 A:"我把 agent 配置成用 Claude"</h5>
+<p><strong>操作层</strong>:Agent 身份</p>
+<p><strong>改了什么</strong>:这个 AI 助手的默认模型偏好</p>
+<p><strong>影响范围</strong>:Alice 之后<strong>所有</strong>对话都用 Claude</p>
+<p><strong>不动的</strong>:已有的对话历史、当前正在跑的推理</p>
+</div>
+<div class="s">
+<h5>场景 B:"开个新对话聊聊那个 bug"</h5>
+<p><strong>操作层</strong>:Session 会话</p>
+<p><strong>做了什么</strong>:在 Alice 的 Agent 下新建一个 Session</p>
+<p><strong>影响范围</strong>:这个对话有自己的历史,与之前讨论无关</p>
+<p><strong>不动的</strong>:Agent 身份;其他 Session</p>
+</div>
+<div class="r">
+<h5>场景 C:"这次回复太慢,停掉重来"</h5>
+<p><strong>操作层</strong>:Run 执行</p>
+<p><strong>做了什么</strong>:取消当前 Run,新发消息触发新 Run</p>
+<p><strong>影响范围</strong>:只这次推理;前面的对话历史完整保留</p>
+<p><strong>不动的</strong>:Agent;Session;已确认的工具结果</p>
+</div>
+</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:同一个用户操作("点停止""换模型""新对话")落在不同层,语义天差地别。框架必须让<strong>每一层都能独立被操作而不污染其他层</strong>。这就是为什么要拆三层。
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<div class="card note">
+<strong>面试官问"你怎么理解 Agent / Session / Run"时,真正想听的不是定义背诵</strong>,而是想确认你有没有生产经验的<strong>分水岭</strong>:
+</div>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>把三者说成同义词 / 模糊带过</td><td>"没做过生产 Agent,只玩过 demo"</td></tr>
+<tr><td>能背出"Agent 是身份、Session 是对话、Run 是执行"</td><td>"看过文档,但还没遇到真实问题"</td></tr>
+<tr><td>能说清三者<strong>生命周期不同</strong>,并举出"失败该归哪层""并发怎么不撕裂"</td><td>"有生产意识,及格"</td></tr>
+<tr><td>能主动谈到"压缩改的是 Session 不动 Agent""重试只发生在 Run 层""取消的语义取决于取消哪层"</td><td><strong>"做过,深挖有料"</strong></td></tr>
+</tbody>
+</table>
+
+<p>这题是<strong>暖场题也是筛人题</strong>:答得浅,后面的问题会越来越难答出生产味;答得深,面试官知道可以往深问压缩、并发、终端状态这些硬骨头。</p>
+
+<!-- ============ 6 ============ -->
+<h2 id="interviewer">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>(按这个顺序,主动展现深度):
+</div>
+
+<ol>
+<li><strong>先划边界</strong>:"我把这三者理解为三个生命周期不同的对象——Agent 是身份(数月级),Session 是会话(数小时级),Run 是单次推理执行(数秒级)。"</li>
+<li><strong>立刻给生产动机</strong>:"这样拆的核心价值是让<strong>失败成为局部事件</strong>。一次模型超时只是 Run 失败,Session 和 Agent 完好,用户能立刻重试而对话不丢。"</li>
+<li><strong>主动举并发场景</strong>:"同一用户多设备同时聊,是同一 Agent 的两个 Session,各自独立。如果不拆,两个请求会互相覆盖状态。"</li>
+<li><strong>主动举压缩场景</strong>:"压缩改的是 Session 的 transcript,不动 Agent 身份。这样长期偏好(我喜欢 TS)不会被某次对话的压缩影响。"</li>
+<li><strong>收口在取舍</strong>:"代价是概念复杂度,但替代方案(单层)的失败模式是数据丢失和状态不一致,不可恢复,所以这个复杂度是必须接受的。"</li>
+</ol>
+
+<div class="card warn">
+<strong>要主动展现的生产洞察</strong>(不要等问):
+<ul style="margin-bottom:0">
+  <li>"取消"的语义取决于取消哪层——取消 Run vs 取消 Session vs 删 Agent 完全不同</li>
+  <li>重试<strong>只</strong>发生在 Run 层,不会是 Session 或 Agent 层</li>
+  <li>三者关系是树形(1 Agent → N Sessions → N Runs),不是线性</li>
+</ul>
+</div>
+
+<!-- ============ 7 ============ -->
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,每答完一题会出更深的追问。点"开始"后模拟面试场景。想不出可看参考答案。</p>
+
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="learning-plan.html">← 学习计划</a>
+<a href="02-reasoning-loop.html">② 推理循环:三层嵌套设计 →</a>
+</div>
+
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ① Agent/Session/Run 三概念辨析 · 阶段 1 建立全景<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+
+<script>
+const QUIZ = [
+  {
+    round: "第 1 题 · 概念边界",
+    q: "用户在手机和电脑上同时跟同一个 AI 助手聊天。这是几个 Agent?几个 Session?为什么不能只建一个对象?",
+    a: "<strong>同一 Agent 的两个 Session</strong>。Agent 是身份层(数月寿命),持有长期偏好/凭据/人格,两个设备共用一份。Session 是会话层,各自独立的对话历史。<strong>不能只建一个对象</strong>,因为两个请求并发会互相覆盖对话状态(后者覆盖前者的历史),造成状态撕裂。拆开后,身份稳定,会话独立,并发安全。"
+  },
+  {
+    round: "第 2 题 · 失败作用域",
+    q: "模型这一轮推理超时失败了。这次失败会影响 Agent、Session、Run 中的哪几层?用户接下来能立刻做什么?",
+    a: "只影响 <strong>Run 层</strong>。Session(对话历史)和 Agent(身份/偏好)完好无损。用户可以立刻重发消息触发<strong>新 Run</strong>,前面的讨论一字不丢。这正是拆三层的核心价值——<strong>让失败成为局部事件</strong>。如果三者合一,一次超时会带走整个对话上下文。"
+  },
+  {
+    round: "第 3 题 · 压缩归属",
+    q: "对话太长要做上下文压缩(把旧的讨论总结成摘要)。这个压缩操作改了哪一层?为什么不能改 Agent?",
+    a: "改的是 <strong>Session 的 transcript</strong>。<strong>不能改 Agent</strong>,因为 Agent 持有的是跨所有对话的稳定身份(用户偏好、人格、凭据)。如果压缩改了 Agent,等于把'这次对话聊了什么'塞进了长期身份,会污染其他 Session——比如这次对话讨论了个临时 bug,不该让 agent 永久'记住'这个 bug。压缩是会话局部行为,身份是全局稳定契约。"
+  },
+  {
+    round: "第 4 题 · 重试边界",
+    q: "推理失败了,系统决定重试。重试发生在哪一层?为什么不能在 Session 层重试(整个对话重来)?",
+    a: "重试发生在 <strong>Run 层</strong>(重新跑这一轮推理)。<strong>不能在 Session 层重试</strong>,因为:1)整个对话重来意味着丢弃已确认的工具结果(可能已写了文件、发了消息),副作用不可逆;2)成本爆炸——前面几十轮重新调模型;3)用户语义是'重做这步',不是'重新开始整个讨论'。Run 层重试保留了 Session 的所有已确认产物,只重做失败的这一步。"
+  },
+  {
+    round: "第 5 题 · 取消语义",
+    q: "用户点了'停止'。这个'停止'到底取消了什么?如果同一 Session 此刻有多个并发 Run,停止按钮该取消哪一个?",
+    a: "'停止'语义取决于设计,但生产中通常指<strong>取消当前用户可见的那个 Run</strong>(不是 Session,更不是 Agent)。Session 和 Agent 保持存活,用户可以继续聊。<strong>多并发 Run 场景</strong>:需要 Run 有明确归属(哪个 Run 是用户主动触发的可见任务),取消按钮只取消这一个,后台 Run(如子 Agent)按各自取消策略处理。这要求 Run 模型支持'用户可见任务'与'后台执行'的区分,而不是简单'一个 Session 一个 Run'——这也是为什么并发设计(第⑬篇)必须建立在 Run 概念清晰的基础上。"
+  }
+];
+
+let qIdx = 0;
+function startQuiz() {
+  qIdx = 0;
+  document.getElementById('quizStart').classList.add('quiz-hidden');
+  document.getElementById('quizStage').classList.remove('quiz-hidden');
+  document.getElementById('quizRestartBtn').classList.add('quiz-hidden');
+  document.getElementById('quizSummary').classList.add('quiz-hidden');
+  renderQuestion();
+}
+function renderQuestion() {
+  const item = QUIZ[qIdx];
+  document.getElementById('quizRoundLabel').textContent = item.round;
+  document.getElementById('quizQuestion').textContent = item.q;
+  document.getElementById('quizAnswer').innerHTML = item.a;
+  document.getElementById('quizAnswer').classList.add('quiz-hidden');
+  document.getElementById('quizShowBtn').classList.remove('quiz-hidden');
+  document.getElementById('quizNextBtn').classList.toggle('quiz-hidden', qIdx >= QUIZ.length - 1);
+  renderProgress();
+}
+function renderProgress() {
+  const el = document.getElementById('quizProgress');
+  el.innerHTML = '';
+  for (let i = 0; i < QUIZ.length; i++) {
+    const d = document.createElement('span');
+    d.className = 'quiz-dot' + (i < qIdx ? ' done' : (i === qIdx ? ' current' : ''));
+    el.appendChild(d);
+  }
+}
+function showAnswer() {
+  document.getElementById('quizAnswer').classList.remove('quiz-hidden');
+  document.getElementById('quizShowBtn').classList.add('quiz-hidden');
+}
+function nextQuestion() {
+  qIdx++;
+  if (qIdx >= QUIZ.length) { finishQuiz(); return; }
+  document.getElementById('quizShowBtn').classList.remove('quiz-hidden');
+  renderQuestion();
+}
+function finishQuiz() {
+  document.getElementById('quizQuestion').textContent = '';
+  document.getElementById('quizAnswer').classList.add('quiz-hidden');
+  document.getElementById('quizShowBtn').classList.add('quiz-hidden');
+  document.getElementById('quizNextBtn').classList.add('quiz-hidden');
+  document.getElementById('quizRoundLabel').textContent = '✅ 完成';
+  document.getElementById('quizSummary').classList.remove('quiz-hidden');
+  document.getElementById('quizSummary').innerHTML = '<strong>5 题追问完成</strong>。这覆盖了 Agent/Session/Run 的概念边界、失败作用域、压缩归属、重试边界、取消语义——这五个点共同构成"是否理解生产级 Agent 模型"的分水岭。<br><br>如果某题答得吃力,建议回看本文第二、三节的设计图和动机分析,然后继续读 <a href="02-reasoning-loop.html">② 推理循环</a> 看 Run 内部是怎么设计的。';
+  document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');
+}
+function restartQuiz() { startQuiz(); }
+</script>
+
+</body>
+</html>

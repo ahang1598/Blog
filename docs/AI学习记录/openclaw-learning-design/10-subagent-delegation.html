@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⑩ 子 Agent 与任务委派</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --code-bg:#1f2428; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif; line-height:1.7; font-size:15px; }
+  .container { max-width:980px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:28px; border-bottom:2px solid var(--border); padding-bottom:14px; margin-top:0; }
+  h1 .sub { display:block; font-size:14px; color:var(--muted); font-weight:400; margin-top:6px; }
+  h2 { color:var(--accent); margin-top:48px; padding-bottom:8px; border-bottom:1px solid var(--border); font-size:22px; }
+  h3 { color:var(--purple); margin-top:30px; font-size:18px; }
+  h4 { color:var(--green); margin-top:22px; font-size:16px; margin-bottom:6px; }
+  p { margin:10px 0; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; background:var(--code-bg); color:var(--orange); padding:1px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; font-size:13px; line-height:1.55; }
+  pre code { background:transparent; color:var(--text); padding:0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; }
+  .card.note { border-left:4px solid var(--accent); } .card.warn { border-left:4px solid var(--orange); background:#221a0e; }
+  .card.key { border-left:4px solid var(--green); background:#0d1f12; } .card.danger { border-left:4px solid var(--red); background:#2a1414; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; vertical-align:top; }
+  th { background:#21262d; color:var(--accent); } tr:nth-child(even) td { background:#11161b; }
+  .toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; }
+  .toc ol { margin:6px 0; padding-left:22px; } .toc li { margin:4px 0; }
+  .flow-diagram { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:20px; font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; white-space:pre; color:var(--text); }
+  .stage-label { color:var(--accent); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px solid var(--border); }
+  .footer { margin-top:30px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  .compare { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  .compare > div { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:14px 16px; }
+  .compare h5 { margin:0 0 8px; font-size:13px; border-bottom:1px solid var(--border); padding-bottom:6px; }
+  .compare .bad h5 { color:var(--red); } .compare .good h5 { color:var(--green); }
+  .compare p { font-size:13px; }
+  @media (max-width:760px){ .compare { grid-template-columns:1fr; } }
+  .quiz-section { margin-top:60px; padding:28px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .quiz-section > h2 { margin-top:0; border:none; padding:0; }
+  .quiz-intro { color:var(--muted); font-size:14px; margin:8px 0 16px; }
+  .quiz-btn { background:var(--accent); color:var(--bg); border:none; padding:8px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity 0.12s; } .quiz-btn:hover { opacity:0.86; }
+  .quiz-btn.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .quiz-stage { margin-top:18px; }
+  .quiz-round-label { color:var(--orange); font-size:12px; font-weight:700; letter-spacing:0.4px; margin-bottom:4px; }
+  .quiz-question { color:var(--text); font-size:16px; font-weight:500; margin:6px 0 12px; line-height:1.55; }
+  .quiz-answer { background:#0d1f12; border-left:3px solid var(--green); padding:14px 18px; margin:12px 0; border-radius:4px; font-size:14px; line-height:1.7; }
+  .quiz-answer strong { color:var(--green); }
+  .quiz-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .quiz-progress { display:flex; gap:5px; margin:12px 0; flex-wrap:wrap; }
+  .quiz-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.15s; }
+  .quiz-dot.done { background:var(--green); } .quiz-dot.current { background:var(--accent); transform:scale(1.35); box-shadow:0 0 8px var(--accent); }
+  .quiz-hidden { display:none !important; }
+  .quiz-summary { background:#1f3a5f; border-left:3px solid var(--accent); padding:18px 22px; border-radius:4px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .quiz-summary strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>⑩ 子 Agent 与任务委派
+  <span class="sub">阶段 3 · 协作与可靠性 · 递归 session 模型与 push-based 完成</span>
+</h1>
+
+<div class="toc">
+<strong>本文目录</strong>
+<ol>
+  <li><a href="#problem">设计问题:复杂任务一个 agent 干不动</a></li>
+  <li><a href="#design">分层设计:子 agent = 另一个 session</a></li>
+  <li><a href="#why">为何这么设计:递归模型、push 通知、策略继承</a></li>
+  <li><a href="#example">完整示例:父 agent 派发调研任务</a></li>
+  <li><a href="#interviewer">面试官视角:这题在考察什么</a></li>
+  <li><a href="#interviewee">面试者视角:如何答出生产洞察</a></li>
+  <li><a href="#quiz">递进追问测验</a></li>
+</ol>
+</div>
+
+<h2 id="problem">一 · 设计问题:复杂任务一个 agent 干不动</h2>
+
+<p>现实任务往往需要<strong>并行</strong>或<strong>分工</strong>:"调研三个竞品并对比"——一个 agent 串行查三个慢;"写代码同时跑测试"——一个 agent 串行做效率低;"主任务进行中分出一个子任务深挖某个点"——主任务不该被阻塞。</p>
+
+<p>直觉解法 A:<strong>在一个 agent 内并发调工具</strong>。但这只是工具并行(第④篇),不是任务分工——还是同一个 agent、同一份上下文、同一个推理循环,无法让"子任务"有独立的上下文、独立的模型选择、独立的工具策略。</p>
+
+<p>直觉解法 B:<strong>开多个独立 agent 进程</strong>。但这样它们<strong>互不知道彼此</strong>——没有父子关系,无法自动通知完成,无法继承父的策略,无法协调共享资源(同一工作树)。</p>
+
+<div class="card danger">
+<p>生产需求其实是:<strong>一个 agent 能在运行中派生出"另一个 agent 实例"来完成子任务,完成后自动通知,且子 agent 继承父的部分策略但有自己的独立上下文</strong>。</p>
+</div>
+
+<h2 id="design">二 · 分层设计:子 agent = 另一个 session</h2>
+
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────────────────┐
+│                子 Agent · 递归 session 模型                             │
+└──────────────────────────────────────────────────────────────────────┘
+
+  <span class="stage-label">[父 Session · 主任务]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 父 agent 正在跑主任务,决定委派一个子任务                   │
+  │   · 调 sessions_spawn 工具                                 │
+  │   · 参数:子任务描述、可选模型/工具策略/是否等待            │
+  └──────────────────────────────────────────────────────────┘
+                              │ spawn
+                              ▼
+  <span class="stage-label">[子 Session · 独立 agent 实例]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 创建一个<strong>新 Session</strong>(不是更小的运行时!)    │
+  │   · 有自己的 session key、上下文、推理循环                  │
+  │   · 用<strong>完整运行时</strong>(和父一样的能力栈)        │
+  │   · 但 prompt mode = minimal(精简,聚焦子任务)             │
+  │   · 工具策略从父<strong>继承并可收紧</strong>(不能放宽)    │
+  │   · 记录 parentSessionKey + spawnedBy(父子树可查)          │
+  │   · 独立 lane(不阻塞父,见第⑬篇)                          │
+  └──────────────────────────────────────────────────────────┘
+                              │ 完成时
+                              ▼
+  <span class="stage-label">[push-based 完成通知]</span>
+  ┌──────────────────────────────────────────────────────────┐
+  │ 子 agent 完成后 <strong>主动推送</strong>结果给父 session      │
+  │   · 父不需要轮询 sessions_list 等结果                       │
+  │   · 完成事件作为"steering 消息"注入父的下一轮               │
+  │   · 父据此继续主任务                                        │
+  └──────────────────────────────────────────────────────────┘</div>
+
+<h3>两种 spawn 模式</h3>
+<table>
+<thead><tr><th>模式</th><th>语义</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td><code>run</code>(一次性)</td><td>子 agent 跑完即结束,返回结果</td><td>独立子任务("查个东西")</td></tr>
+<tr><td><code>session</code>(持久)</td><td>子 agent 是持久会话,可后续交互</td><td>长期助手(需绑定 thread)</td></tr>
+</tbody>
+</table>
+<p>两种模式都可配 <code>collect=true</code>(父同步等待)或异步(父继续干别的)。</p>
+
+<h2 id="why">三 · 为何这么设计:三个核心决策</h2>
+
+<h3>决策 1:为什么子 agent 是"另一个 session"而非"更小的运行时"</h3>
+<p>这是最关键的设计选择。<strong>把子 agent 实现为完整的 session(用完整运行时),而不是阉割版的迷你 agent</strong>。原因:① <strong>能力对等</strong>——子任务可能和父任务一样复杂(调研某竞品可能比主任务还重),用阉割版会让子任务能力不足;② <strong>递归性</strong>——子 agent 自己也能再派生子 agent(任务的子任务),只有用完整 session 才能无限递归;③ <strong>统一性</strong>——一套运行时代码跑所有层级,不必维护"主 agent 运行时"和"子 agent 运行时"两套。<strong>子 agent 的"精简"体现在 prompt mode(minimal)和工具策略(收紧),而非运行时阉割。</strong></p>
+
+<h3>决策 2:为什么 push-based 完成而非轮询</h3>
+<div class="compare">
+<div class="bad">
+<h5>轮询(直觉做法)</h5>
+<p>父 spawn 后循环查"子好了吗"</p>
+<p>• 浪费父的 turn(每个 turn 查一次)</p>
+<p>• 占父的上下文(查询历史堆积)</p>
+<p>• 延迟高(平均等半个轮询间隔)</p>
+<p>• 父被"看孩子"占住,干不了别的</p>
+</div>
+<div class="good">
+<h5>push-based 完成通知</h5>
+<p>子完成主动推消息给父</p>
+<p>• 父不浪费 turn 查询</p>
+<p>• 父上下文干净(只有结果)</p>
+<p>• 零延迟(完成即通知)</p>
+<p>• 父可并行干别的(异步 spawn)</p>
+</div>
+</div>
+<p>push 的实现:子完成时,把结果作为 <strong>steering 消息</strong>(导向消息)注入父的下一轮推理。父在下一个 turn 自然看到"子任务 X 完成,结果是 Y",据此继续。<strong>这是把"父等子"从同步轮询变成事件驱动</strong>,大幅提升并行效率。</p>
+
+<h3>决策 3:为什么工具策略"只继承可收紧,不能放宽"</h3>
+<p>父 agent 可能被授予了某些工具权限(如 exec 命令)。派生子 agent 时,子<strong>继承父的策略</strong>,但<strong>只能收紧不能放宽</strong>——父能给子更严的限制(禁用某危险工具),但不能给子比自己更宽的权限(父没有的权限不能凭空给子)。</p>
+<div class="card warn">
+<p>这是<strong>权限单调性</strong>:权限只能沿父子树下降或保持,不能上升。原因:① <strong>安全</strong>——防止子 agent 通过派生绕过父的限制(父禁用 exec,子不能给自己开 exec);② <strong>可预测</strong>——父知道子的能力边界是自己的子集,不会失控;③ <strong>责任链清晰</strong>——某子 agent 做了危险操作,能追溯到授权链。</p>
+</div>
+
+<div class="card key">
+<strong>核心取舍</strong>:递归 session + push 通知 + 策略单调继承带来<strong>调度和协调的复杂度</strong>(父子树管理、steering 注入、策略传递),换来的是<strong>真正的任务分工能力</strong>——并行、独立上下文、递归委派、自动通知。<strong>替代方案(单 agent 工具并行)无法提供独立上下文和任务级分工;(多独立进程)无法协调。子 agent 模型让 agent 能像团队一样工作,这是从"工具"到"团队"的跃迁。</strong>
+</div>
+
+<h2 id="example">四 · 完整示例:父 agent 派发调研任务</h2>
+
+<p>用户让主 agent "调研 React、Vue、Svelte 三个框架并对比"。父 agent 决定并行派发三个子 agent:</p>
+
+<div class="flow-diagram"><span class="stage-label">[父 Session · t0]</span> 收到"调研三框架对比"
+  · 推理:这能并行,派 3 个子 agent
+  · spawn(子A: "调研 React", mode=run, collect=false)  ← 异步
+  · spawn(子B: "调研 Vue",  mode=run, collect=false)
+  · spawn(子C: "调研 Svelte",mode=run, collect=false)
+  · 父告诉用户"已派出 3 个子任务,完成后汇总"
+  · 父可以继续干别的(不被阻塞)
+
+<span class="stage-label">[子 Session A · 并行跑]</span>
+  · 独立上下文,跑完整推理循环(查资料、调用工具)
+  · 工具策略 = 父的策略子集(只读,不能 exec 危险命令)
+  · prompt mode = minimal(聚焦"调研 React")
+
+<span class="stage-label">[子 A 完成 · t5]</span>
+  · push 通知父:"子A完成,React 调研结果是..."
+  · 作为 steering 消息注入父下一轮
+
+<span class="stage-label">[子 B 完成 · t6]</span> · push 通知父
+<span class="stage-label">[子 C 完成 · t7]</span> · push 通知父
+
+<span class="stage-label">[父 Session · t8]</span> 三个 steering 消息都到了
+  · 父推理:基于三个结果,生成对比报告
+  · 输出给用户</div>
+
+<div class="card note">
+<strong>关键洞察</strong>:三个子任务<strong>并行</strong>跑(总耗时 ≈ 最慢的一个,而非三个之和),父在此期间<strong>不被阻塞</strong>(可响应用户别的问题),完成后<strong>自动汇总</strong>(steering 消息驱动)。这就是 push-based 委派的效率——相比父串行查三个(耗时 3x)或父轮询等(浪费 turn),这是数量级的提升。
+</div>
+
+<h2 id="interviewer">五 · 面试官视角:这题在考察什么</h2>
+
+<table>
+<thead><tr><th>回答层次</th><th>面试官的判断</th></tr></thead>
+<tbody>
+<tr><td>"开多线程调工具"</td><td>"没理解任务级分工"</td></tr>
+<tr><td>知道要派子 agent,但用轮询</td><td>"有意识但效率差"</td></tr>
+<tr><td>能说独立 session + push 通知</td><td>"及格"</td></tr>
+<tr><td>能谈递归性、完整运行时、策略单调继承、steering 注入</td><td><strong>"生产经验扎实"</strong></td></tr>
+</tbody>
+</table>
+
+<h2 id="interviewee">六 · 面试者视角:如何答出生产洞察</h2>
+
+<div class="card key">
+<strong>结构化作答模板</strong>:
+</div>
+<ol>
+<li><strong>先点需求</strong>:"复杂任务要分工——独立上下文、并行、递归。单 agent 工具并行做不到任务级分工。"</li>
+<li><strong>给递归模型</strong>:"子 agent 实现为另一个 session(完整运行时,不是阉割版),有独立上下文、独立模型、独立推理循环。父子关系记录成树。"</li>
+<li><strong>主动谈 push</strong>:"完成通知用 push 而非轮询——子完成主动推 steering 消息给父下一轮。父不浪费 turn 查询,零延迟,可异步并行干别的。"</li>
+<li><strong>主动谈策略继承</strong>:"工具策略从父继承,只能收紧不能放宽(权限单调性)。安全:子不能通过派生绕过父的限制。"</li>
+<li><strong>主动谈递归性</strong>:"子 agent 用完整运行时,所以自己也能派生子 agent——无限递归。一套代码跑所有层级。"</li>
+</ol>
+
+<h2 id="quiz">七 · 递进追问测验</h2>
+<div class="quiz-section" id="quiz">
+<h2>🎯 模拟面试官递进追问</h2>
+<p class="quiz-intro">5 题,从递归模型到资源竞争层层下钻。</p>
+<button class="quiz-btn" id="quizStart" onclick="startQuiz()">开始追问</button>
+<div class="quiz-stage quiz-hidden" id="quizStage">
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-round-label" id="quizRoundLabel"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="quiz-answer quiz-hidden" id="quizAnswer"></div>
+  <div class="quiz-controls">
+    <button class="quiz-btn secondary" id="quizShowBtn" onclick="showAnswer()">显示参考答案</button>
+    <button class="quiz-btn quiz-hidden" id="quizNextBtn" onclick="nextQuestion()">继续追问 →</button>
+    <button class="quiz-btn quiz-hidden" id="quizRestartBtn" onclick="restartQuiz()">重新开始</button>
+  </div>
+  <div class="quiz-summary quiz-hidden" id="quizSummary"></div>
+</div>
+</div>
+
+<div class="nav">
+<a href="09-streaming-design.html">← ⑨ 流式架构</a>
+<a href="11-lifecycle-hooks.html">⑪ Hooks 生命周期扩展点 →</a>
+</div>
+<div class="footer">
+<strong>Agent 框架设计精解</strong> · ⑩ 子 Agent 与任务委派 · 阶段 3 协作可靠性<br>
+设计级解析,屏蔽代码实现细节 · 面试双视角 + 递进追问自测
+</div>
+
+</div>
+<script>
+const QUIZ = [
+  { round:"第 1 题 · 为什么完整运行时", q:"你说子 agent 用'完整运行时'而非'阉割版迷你 agent'。但子任务通常比父任务小,用阉割版不是更省资源吗?为什么坚持完整运行时?",
+    a:"<strong>三个原因</strong>:1)<strong>能力对等的需求</strong>——子任务不一定比父简单,'调研某竞品'这个子任务可能比父的'对比三框架'还重(要查很多资料、调用很多工具)。阉割版会让子任务能力不足,完不成;2)<strong>递归性</strong>——子 agent 自己也要能再派生子 agent(任务的子任务)。如果子是阉割版,它派生的孙agent更是阉割版,几层下来能力归零。只有完整运行时才能无限递归保持能力;3)<strong>代码统一性</strong>——一套运行时代码跑所有层级,不必维护'主运行时'和'子运行时'两套,减少 bug。<strong>子 agent 的'精简'体现在 prompt mode(minimal,聚焦子任务)和工具策略(收紧,禁用不必要的),而非运行时阉割</strong>。省资源靠的是 minimal prompt 和受限工具,不是阉割推理能力。" },
+  { round:"第 2 题 · push vs 轮询", q:"push-based 完成通知明显优于轮询。但实现 push 比轮询复杂(要有事件注入机制)。具体说 push 在父侧是怎么'被收到'的?父正在跑自己的推理时,子的完成通知怎么进来?",
+    a:"<strong>通过 steering 消息(导向消息)注入父的下一轮推理</strong>。机制:1)<strong>子完成时</strong>,把结果作为一条 steering 消息放入父 session 的待处理队列;2)<strong>父的推理循环在每个 turn 开始时</strong>,检查并注入待处理的 steering 消息——这些消息作为'系统提示'加入父这一轮的上下文(如'子任务 A 完成,结果是...');3)<strong>父据此推理</strong>('三个子都完成了,我来汇总')。<strong>关键</strong>:steering 不是打断父正在进行的推理(那会撕裂状态),而是在 turn 边界安全注入。如果父正在跑一个长 turn,子完成要等父这个 turn 结束才被看到——这是可接受的延迟(通常 turn 很短)。<strong>相比轮询</strong>:轮询是父主动每 turn 查(浪费 turn);push 是事件来了被动注入(零浪费)。父上下文里只有'结果'没有'查询历史',干净得多。" },
+  { round:"第 3 题 · 策略单调性", q:"工具策略'只继承可收紧,不能放宽'。如果父 agent 没有 exec 权限,它派的子 agent 也不能有。但如果某个子任务真的需要 exec 才能完成呢?这个限制是不是太死板?",
+    a:"<strong>不是死板,是安全基石</strong>。如果允许子 agent 拿到父没有的权限:1)<strong>权限绕过</strong>——父被禁 exec(因为安全考量),但它派个子 agent 给自己开 exec,等于绕过了限制,安全形同虚设;2)<strong>不可预测</strong>——父不知道子的能力边界,可能失控('我以为子不能删文件,结果它能');3)<strong>责任链断裂</strong>——子做了危险操作,难追溯授权来源。<strong>子任务真需要 exec 怎么办</strong>:1)<strong>提权要显式且向上</strong>——子任务需要更高权限,应该由父(或用户)显式授权后父先获得该权限,再传给子(权限从源头扩,不是子自己扩);2)<strong>用户介入</strong>——敏感操作触发用户确认,用户授权后系统层面放开,而非子 agent 自己给自己开;3)<strong>任务重新设计</strong>——如果子任务需要父没有的权限,可能任务划分有问题,应该父自己处理那部分。<strong>核心</strong>:权限来源只能是授权链(用户→父→子),不能是 agent 自我授予。" },
+  { round:"第 4 题 · 共享工作树", q:"父 agent 和多个子 agent 共享同一个代码工作树。两个子 agent 同时改同一个文件,谁赢?这种资源竞争怎么处理?",
+    a:"<strong>这是子 agent 并发最棘手的问题</strong>。处理层次:1)<strong>预防(优先)</strong>——任务划分时尽量让不同子 agent 改不同文件(父派任务时明确分工:'子A改 src/a.ts,子B改 src/b.ts');2)<strong>会话级串行化(兜底)</strong>——文件写操作通过共享的写锁串行化(见第⑬篇 lanes),即使两个子 agent 同时尝试写同一文件,锁让它们排队,不会撕裂文件内容;3)<strong>语义层冲突检测</strong>——如果两个子 agent 都改了同一文件的不同部分,可能合并;改了同一部分,后写的覆盖先写的(最后胜出);4)<strong>父的协调责任</strong>——父在汇总 steering 结果时,如果发现子 agent 报告了冲突,父自己决定怎么解决(重做、合并、问用户)。<strong>核心洞察</strong>:子 agent 并发<strong>不消除资源竞争</strong>,而是把它从'隐性的撕裂风险'变成'显性的可检测事件'。预防 + 串行兜底 + 父协调三层防御。完全避免竞争要靠任务划分的智慧,不是运行时能全自动解决的。" },
+  { round:"第 5 题 · 子 agent 失败", q:"派出去的子 agent 失败了(超时/报错/被取消)。父 agent 怎么知道?父应该重试、自己干、还是放弃整个主任务?",
+    a:"<strong>子失败通过 push 通知父(和成功一样,只是带失败状态)</strong>。父收到'子任务 A 失败,原因是...'的 steering 消息。<strong>父的决策不该是框架自动定的,而是父 agent 自己推理决定</strong>:1)<strong>重试</strong>——父判断失败是瞬态的(网络抖),重新 spawn 一个子 agent 重试;2)<strong>自己干</strong>——父判断子任务太难或太关键,自己接手做(降级为串行);3)<strong>部分完成</strong>——父判断'三个里成功两个也够',基于已有结果继续(降级方案);4)<strong>放弃</strong>——父判断子任务是主任务必需,子失败则主任务无法完成,告知用户失败原因。<strong>关键设计</strong>:框架不替父决定,而是<strong>把失败的完整信息(原因、部分结果、是否瞬态)给父</strong>,让父基于业务语义判断。<strong>例外</strong>:如果子失败是系统级(如凭据全失效),框架可能直接终止所有子 agent 并通知父'环境故障',避免无意义重试。" }
+];
+let qIdx=0;
+function startQuiz(){qIdx=0;document.getElementById('quizStart').classList.add('quiz-hidden');document.getElementById('quizStage').classList.remove('quiz-hidden');document.getElementById('quizRestartBtn').classList.add('quiz-hidden');document.getElementById('quizSummary').classList.add('quiz-hidden');renderQuestion();}
+function renderQuestion(){const item=QUIZ[qIdx];document.getElementById('quizRoundLabel').textContent=item.round;document.getElementById('quizQuestion').textContent=item.q;document.getElementById('quizAnswer').innerHTML=item.a;document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.remove('quiz-hidden');document.getElementById('quizNextBtn').classList.toggle('quiz-hidden',qIdx>=QUIZ.length-1);renderProgress();}
+function renderProgress(){const el=document.getElementById('quizProgress');el.innerHTML='';for(let i=0;i<QUIZ.length;i++){const d=document.createElement('span');d.className='quiz-dot'+(i<qIdx?' done':(i===qIdx?' current':''));el.appendChild(d);}}
+function showAnswer(){document.getElementById('quizAnswer').classList.remove('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');}
+function nextQuestion(){qIdx++;if(qIdx>=QUIZ.length){finishQuiz();return;}document.getElementById('quizShowBtn').classList.remove('quiz-hidden');renderQuestion();}
+function finishQuiz(){document.getElementById('quizQuestion').textContent='';document.getElementById('quizAnswer').classList.add('quiz-hidden');document.getElementById('quizShowBtn').classList.add('quiz-hidden');document.getElementById('quizNextBtn').classList.add('quiz-hidden');document.getElementById('quizRoundLabel').textContent='✅ 完成';document.getElementById('quizSummary').classList.remove('quiz-hidden');document.getElementById('quizSummary').innerHTML='<strong>5 题追问完成</strong>。覆盖了完整运行时、push vs 轮询、策略单调性、共享工作树、子 agent 失败。<br><br>下一篇 <a href="11-lifecycle-hooks.html">⑪ Hooks 生命周期扩展点</a> 讲 agent 各阶段如何插入扩展逻辑。';document.getElementById('quizRestartBtn').classList.remove('quiz-hidden');}
+function restartQuiz(){startQuiz();}
+</script>
+</body>
+</html>
