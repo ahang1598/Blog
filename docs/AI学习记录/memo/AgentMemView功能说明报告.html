@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentMemView 功能实现说明报告</title>
+<style>
+:root{
+  --bg:#0b0e14; --bg2:#0f131c; --panel:#131824; --panel2:#181f2e;
+  --line:#232c3f; --line2:#2d3a55;
+  --text:#dbe4f3; --text2:#93a1ba; --text3:#5f6d87;
+  --accent:#5eead4; --accent2:#38bdf8; --amber:#fbbf24; --violet:#c4b5fd;
+  --green:#4ade80; --red:#f87171; --pink:#f472b6;
+  --mono:'Cascadia Code','JetBrains Mono',Consolas,'Courier New',monospace;
+  --sans:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.75;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(56,189,248,.07),transparent),
+  repeating-linear-gradient(0deg,transparent 0 31px,rgba(35,44,63,.16) 31px 32px);}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ===== 布局 ===== */
+.wrap{display:grid;grid-template-columns:250px minmax(0,1fr);max-width:1400px;margin:0 auto}
+nav.toc{position:sticky;top:0;height:100vh;overflow-y:auto;padding:28px 18px;border-right:1px solid var(--line);
+  background:rgba(11,14,20,.85);backdrop-filter:blur(8px);font-size:13px}
+nav.toc::-webkit-scrollbar{width:4px}
+nav.toc::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+nav.toc .brand{font-weight:700;font-size:15px;letter-spacing:.5px;margin-bottom:4px;color:var(--text)}
+nav.toc .brand em{color:var(--accent);font-style:normal}
+nav.toc .sub{color:var(--text3);font-size:11px;margin-bottom:20px;font-family:var(--mono)}
+nav.toc ol{list-style:none;counter-reset:toc}
+nav.toc li{counter-increment:toc;margin:1px 0}
+nav.toc a{display:flex;gap:8px;padding:5px 8px;border-radius:6px;color:var(--text2);line-height:1.4;transition:.15s}
+nav.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);font-size:10px;color:var(--text3);padding-top:2px}
+nav.toc a:hover{background:var(--panel);color:var(--text);text-decoration:none}
+nav.toc a.sub-item{padding-left:26px;font-size:12px}
+nav.toc a.sub-item::before{content:"·"}
+main{padding:40px 48px 120px;min-width:0}
+
+/* ===== 头部 ===== */
+header.hero{padding:56px 0 36px;border-bottom:1px solid var(--line);margin-bottom:44px;position:relative}
+header.hero .kicker{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:14px}
+header.hero h1{font-size:44px;font-weight:800;letter-spacing:-1px;line-height:1.15;
+  background:linear-gradient(105deg,#f0fdfa 20%,var(--accent) 55%,var(--accent2) 90%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+header.hero p.lead{font-size:16.5px;color:var(--text2);max-width:820px}
+header.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{font-family:var(--mono);font-size:11.5px;padding:4px 12px;border:1px solid var(--line2);border-radius:999px;color:var(--text2);background:var(--bg2)}
+.chip b{color:var(--accent);font-weight:600}
+
+/* ===== 章节 ===== */
+section{margin-bottom:64px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:24px}
+.sec-head .no{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid var(--line2);padding:2px 10px;border-radius:6px;background:var(--bg2)}
+.sec-head h2{font-size:27px;font-weight:750;letter-spacing:-.3px}
+.sec-head .tag{margin-left:auto;font-size:12px;color:var(--text3);font-family:var(--mono)}
+h3{font-size:19px;margin:36px 0 14px;padding-left:12px;border-left:3px solid var(--accent);letter-spacing:.2px}
+h3 .path{font-family:var(--mono);font-size:12.5px;color:var(--text3);font-weight:400;margin-left:8px}
+h4{font-size:15.5px;margin:22px 0 10px;color:var(--accent2)}
+p{margin:10px 0;color:var(--text)}
+p.note,p.tip{font-size:13.5px;padding:10px 14px;border-radius:8px;margin:14px 0}
+p.tip{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.25)}
+p.tip::before{content:"◆ ";color:var(--accent)}
+ul.plain{margin:8px 0 8px 22px}
+ul.plain li{margin:5px 0}
+code{font-family:var(--mono);font-size:.88em;background:var(--panel2);border:1px solid var(--line);padding:1px 6px;border-radius:5px;color:var(--accent)}
+strong{color:#f0f6ff}
+
+/* ===== 表格 ===== */
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;display:block;overflow-x:auto}
+th{background:var(--panel2);text-align:left;font-weight:600;color:var(--text);padding:9px 12px;border:1px solid var(--line);white-space:nowrap;font-size:12.5px}
+td{padding:8px 12px;border:1px solid var(--line);color:var(--text2);vertical-align:top}
+td:first-child{color:var(--text)}
+tr:hover td{background:rgba(56,189,248,.03)}
+td code{white-space:nowrap}
+
+/* ===== 代码块 ===== */
+pre{background:#0a0d13;border:1px solid var(--line);border-left:3px solid var(--accent2);border-radius:8px;
+  padding:16px 18px;overflow-x:auto;margin:16px 0;font-family:var(--mono);font-size:12.8px;line-height:1.7;color:#a8c0e0}
+pre .c{color:#586a8a}
+pre .k{color:var(--pink)}
+pre .s{color:#a5d6a7}
+pre .n{color:var(--amber)}
+pre .h{color:var(--accent)}
+
+/* ===== 徽标 ===== */
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
+.b-green{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.35)}
+.b-red{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.35)}
+.b-amber{background:rgba(251,191,36,.12);color:var(--amber);border:1px solid rgba(251,191,36,.35)}
+.b-blue{background:rgba(56,189,248,.12);color:var(--accent2);border:1px solid rgba(56,189,248,.35)}
+.b-violet{background:rgba(196,181,253,.12);color:var(--violet);border:1px solid rgba(196,181,253,.35)}
+.b-gray{background:rgba(147,161,186,.1);color:var(--text2);border:1px solid var(--line2)}
+
+/* ===== 卡片网格 ===== */
+.grid{display:grid;gap:14px;margin:18px 0}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.card h5{font-size:14px;color:var(--text);margin-bottom:6px;font-weight:650}
+.card h5 .badge{margin-left:6px}
+.card p{font-size:13px;color:var(--text2);margin:4px 0}
+.card .kv{font-family:var(--mono);font-size:11.5px;color:var(--accent);margin-top:8px;display:block}
+
+/* ===== 流程图 ===== */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin:20px 0}
+.flow .step{flex:1;min-width:120px;background:var(--panel);border:1px solid var(--line2);border-radius:9px;
+  padding:12px 12px;text-align:center;position:relative;margin-right:26px}
+.flow .step:last-child{margin-right:0}
+.flow .step::after{content:"➔";position:absolute;right:-21px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:14px}
+.flow .step:last-child::after{content:""}
+.flow .step .no{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:1px}
+.flow .step b{display:block;font-size:13px;margin:3px 0;color:var(--text)}
+.flow .step span{font-size:11.5px;color:var(--text3);line-height:1.5;display:block}
+.flow.vertical{flex-direction:column}
+.flow.vertical .step{margin-right:0;margin-bottom:26px;text-align:left;display:flex;gap:14px;align-items:flex-start}
+.flow.vertical .step::after{content:"↓";right:auto;left:50%;top:auto;bottom:-22px;transform:translateX(-50%)}
+.flow.vertical .step:last-child{margin-bottom:0}
+.flow.vertical .step .body{flex:1}
+.stack{border:1px dashed var(--line2);border-radius:10px;padding:18px;margin:18px 0;background:rgba(15,19,28,.6)}
+.stack-title{font-family:var(--mono);font-size:12px;color:var(--accent);margin-bottom:12px;letter-spacing:1px}
+.layer{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:8px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.layer .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.layer b{font-size:14px}
+.layer span{font-size:12.5px;color:var(--text2)}
+.layer .right{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--accent2)}
+.arrow-down{text-align:center;color:var(--accent);font-size:16px;line-height:1;margin:2px 0}
+
+/* ===== 公式 ===== */
+.formula{background:linear-gradient(135deg,rgba(94,234,212,.05),rgba(56,189,248,.05));border:1px solid var(--line2);
+  border-radius:10px;padding:16px 20px;margin:16px 0;text-align:center}
+.formula .f{font-family:var(--mono);font-size:16px;color:var(--accent);letter-spacing:.5px}
+.formula .d{font-size:12.5px;color:var(--text3);margin-top:8px}
+
+footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--text3);font-size:12px;font-family:var(--mono)}
+
+@media (max-width:960px){
+  .wrap{grid-template-columns:1fr}
+  nav.toc{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+  main{padding:28px 18px 80px}
+  header.hero h1{font-size:32px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ================= 目录 ================= -->
+<nav class="toc">
+  <div class="brand">Agent<em>Mem</em>View</div>
+  <div class="sub">功能实现说明报告</div>
+  <ol>
+    <li><a href="#s1">项目概览</a></li>
+    <li><a href="#s2">总体架构</a></li>
+    <li><a href="#s3">数据模型与记忆分层</a></li>
+    <li><a href="#s4">core — 核心引擎</a></li>
+    <li><a href="#s5">六阶段检索管线</a></li>
+    <li><a href="#s6">精炼管线</a></li>
+    <li><a href="#s7">任务队列与能力中心</a></li>
+    <li><a href="#s8">HTTP API 与安全</a></li>
+    <li><a href="#s9">proxy — 透明代理</a></li>
+    <li><a href="#s10">注入纪律与写回</a></li>
+    <li><a href="#s11">mcp — MCP 服务器</a></li>
+    <li><a href="#s12">ui — Dashboard</a></li>
+    <li><a href="#s13">cli — 命令行</a></li>
+    <li><a href="#s14">eval — 评测</a></li>
+    <li><a href="#s15">sidecar — Python 边车</a></li>
+    <li><a href="#s16">横切设计原则</a></li>
+    <li><a href="#s17">关键参数速查</a></li>
+  </ol>
+</nav>
+
+<!-- ================= 正文 ================= -->
+<main>
+
+<header class="hero">
+  <div class="kicker">Technical Report / Functional Specification</div>
+  <h1>AgentMemView 功能实现说明报告</h1>
+  <p class="lead">本地单机的编码 Agent 记忆系统：通过透明代理沉淀对话记忆、提供可观测的记忆血缘与检索轨迹、离线优先设计。本报告基于对 <code>packages/</code> 全部七个包源码的逐文件调研，完整梳理其功能实现。</p>
+  <div class="meta">
+    <span class="chip">架构形态 <b>pnpm monorepo · 7 packages</b></span>
+    <span class="chip">核心栈 <b>TypeScript · Hono · SQLite(WAL+FTS5+sqlite-vec)</b></span>
+    <span class="chip">前端 <b>React 19 + Vite 7</b></span>
+    <span class="chip">端口 <b>proxy :8619 / core :8620</b></span>
+    <span class="chip">许可 <b>MIT</b></span>
+  </div>
+</header>
+
+<!-- ============ 1 项目概览 ============ -->
+<section id="s1">
+  <div class="sec-head"><span class="no">01</span><h2>项目概览</h2><span class="tag">README · docs/architecture.md</span></div>
+
+  <p>AgentMemView 是一套面向编码 Agent（Claude Code / Codex / OpenCode）的<strong>本地单机记忆系统</strong>，核心闭环为：</p>
+  <ul class="plain">
+    <li><strong>透明代理接入</strong>（:8619）：Agent 把 base-url 指向代理，代理在对话链路上完成「记忆注入 → 上游转发 → 响应捕获 → 脱敏写回」，业务路径零感知；</li>
+    <li><strong>四级记忆分层</strong>：L0 原始消息 → L1 原子事实 → L2 场景索引 → L3 用户画像；</li>
+    <li><strong>混合检索</strong>：FTS5 trigram BM25 与 sqlite-vec 余弦双通道 + RRF 融合 + 艾宾浩斯衰减，<strong>检索期零 LLM 调用</strong>；</li>
+    <li><strong>全程可观测</strong>：每次检索的六阶段决策完整落盘（retrieval traces），注入记录逐轮 MD5 监控，Dashboard 实时回放；</li>
+    <li><strong>离线优先</strong>：不开启任何选配能力时全功能离线可用，所有外部依赖（LLM/Embedding/Sidecar）失败一律降级而非报错。</li>
+  </ul>
+
+  <h3>包结构</h3>
+  <div class="grid g2">
+    <div class="card"><h5>packages/core <span class="badge b-blue">引擎</span></h5><p>存储 / 检索 / 精炼 / 任务队列 / 能力中心 / REST + SSE + Dashboard 静态托管，SQLite 单文件承载全部状态。</p></div>
+    <div class="card"><h5>packages/proxy <span class="badge b-violet">透明代理</span></h5><p>双协议适配（Anthropic / OpenAI）、记忆注入、限流、SSE tee、L0 写回、mem: 命令。</p></div>
+    <div class="card"><h5>packages/mcp <span class="badge b-green">MCP</span></h5><p>MCP Server（8 个工具，JSON-RPC over stdio，零 SDK 依赖）。</p></div>
+    <div class="card"><h5>packages/ui <span class="badge b-amber">Dashboard</span></h5><p>React 19，13 页面 + 7 组件，由 core 在 :8620 静态托管。</p></div>
+    <div class="card"><h5>packages/eval <span class="badge b-gray">评测</span></h5><p>LongMemEval-S / LoCoMo / 合成数据集加载器 + R@k / MRR 指标 harness。</p></div>
+    <div class="card"><h5>packages/cli <span class="badge b-gray">CLI</span></h5><p>init / start / stop / proxy / export / import / doctor 七组命令。</p></div>
+    <div class="card"><h5>packages/sidecar <span class="badge b-violet">选配</span></h5><p>Python uv 项目（fastembed），JSON-RPC stdio 提供 embed 能力，v1 预留 rerank/cluster。</p></div>
+  </div>
+
+  <h3>能力开关表（默认状态）</h3>
+  <table>
+    <tr><th>能力</th><th>默认</th><th>开启方式</th></tr>
+    <tr><td>L0 写回 / L1 CRUD / 混合检索 / 检索轨迹</td><td><span class="badge b-green">开启</span></td><td>—</td></tr>
+    <tr><td>LLM 精炼（L1 抽取 / L2 摘要 / L3 画像）</td><td><span class="badge b-gray">关闭</span></td><td>Dashboard 能力中心配置 OpenAI 兼容网关（热生效，无需重启）</td></tr>
+    <tr><td>Embedding API（云端向量）</td><td><span class="badge b-gray">关闭</span></td><td>能力中心配置，向量命名空间自动治理</td></tr>
+    <tr><td>Python Sidecar（embed）</td><td><span class="badge b-gray">未安装</span></td><td><code>uv tool install ./packages/sidecar</code></td></tr>
+  </table>
+</section>
+
+<!-- ============ 2 总体架构 ============ -->
+<section id="s2">
+  <div class="sec-head"><span class="no">02</span><h2>总体架构</h2><span class="tag">proxy/server.ts · core/http/server.ts</span></div>
+
+  <div class="stack">
+    <div class="stack-title">端到端链路</div>
+    <div class="layer"><span class="dot"></span><b>编码 Agent</b><span>Claude Code / Codex / OpenCode，base-url 指向代理</span><span class="right">ANTHROPIC_BASE_URL / config.toml / opencode.json</span></div>
+    <div class="arrow-down">▼ 每轮对话</div>
+    <div class="layer"><span class="dot" style="background:var(--violet)"></span><b>透明代理</b><span>认证 → 分类 → 会话映射 → 注入 → 限流 → 转发 → tee → 写回</span><span class="right">:8619</span></div>
+    <div class="arrow-down">▼ 写回 L0（已脱敏）/ 注入记录 / mem: 命令</div>
+    <div class="layer"><span class="dot" style="background:var(--accent2)"></span><b>core 引擎</b><span>REST + SSE + Dashboard 静态托管</span><span class="right">:8620</span></div>
+    <div class="arrow-down">▼</div>
+    <div class="layer"><span class="dot" style="background:var(--amber)"></span><b>SQLite 单文件</b><span>WAL 模式 + FTS5(trigram) + sqlite-vec 向量扩展</span><span class="right">~/.AgentMemView/agentmemview.db</span></div>
+    <div class="arrow-down">▼ 事件驱动</div>
+    <div class="layer"><span class="dot" style="background:var(--green)"></span><b>jobs 任务队列</b><span>refine.l1 / eval.run / embedding.rebuild / 衰减扫描</span><span class="right">poll 500ms · 并发 2</span></div>
+    <div class="layer"><span class="dot" style="background:var(--pink)"></span><b>sidecar（选配）</b><span>stdio JSON-RPC，embed 能力，三态降级</span><span class="right">agentmemview-sidecar</span></div>
+  </div>
+
+  <h3>上游解析与密钥纪律</h3>
+  <p>代理不代管 API Key：客户端携带的 <code>x-api-key</code> / <code>Authorization</code> 原样透传至真实 LLM 网关。上游地址解析优先级为：</p>
+  <pre><span class="c">// 显式 option / --anthropic-upstream|--openai-upstream</span>
+&gt; <span class="n">AGENTMEMVIEW_UPSTREAM_ANTHROPIC / AGENTMEMVIEW_UPSTREAM_OPENAI</span>
+&gt; <span class="n">AGENTMEMVIEW_UPSTREAM_BASE</span>（双协议统一上游）
+&gt; agent 自身的 ANTHROPIC_BASE_URL / OPENAI_BASE_URL（<span class="h">当其不指向本代理 8619 时，防转发回环</span>）
+&gt; 硬默认 https://api.anthropic.com / https://api.openai.com</pre>
+
+  <h3>路由约定</h3>
+  <table>
+    <tr><th>路径</th><th>协议</th><th>agent / space 归属</th></tr>
+    <tr><td><code>/v1/messages</code></td><td>Anthropic</td><td>默认空间 default</td></tr>
+    <tr><td><code>/v1/chat/completions</code></td><td>OpenAI</td><td>默认空间 default</td></tr>
+    <tr><td><code>/{agent}/{spaceId}/v1/messages</code></td><td>Anthropic</td><td>取路径前两段，实现「一空间一记忆上下文、多 Agent 各自路由」</td></tr>
+    <tr><td><code>/{agent}/{spaceId}/v1/chat/completions</code></td><td>OpenAI</td><td>同上</td></tr>
+  </table>
+</section>
+
+<!-- ============ 3 数据模型 ============ -->
+<section id="s3">
+  <div class="sec-head"><span class="no">03</span><h2>数据模型与记忆分层</h2><span class="tag">core/db/migrations/*.sql</span></div>
+
+  <h3>租户四层模型</h3>
+  <div class="flow">
+    <div class="step"><span class="no">SERVICES</span><b>服务</b><span>首启幂等创建 local 服务</span></div>
+    <div class="step"><span class="no">SPACES</span><b>空间</b><span>记忆隔离单元，default 为默认空间</span></div>
+    <div class="step"><span class="no">AGENTS</span><b>Agent</b><span>claude-code / codex / opencode</span></div>
+    <div class="step"><span class="no">SESSIONS</span><b>会话</b><span>external_id → 内部 id 幂等映射</span></div>
+  </div>
+  <p class="tip">所有记忆查询被 <code>Scope{serviceId, spaceId, agentId?}</code> 信封强制约束（ScopedDao 构造校验），SQL 层面绑定 <code>space_id = ? AND (agent_id IS NULL OR agent_id = ?)</code> —— <code>agent_id IS NULL</code> 表示空间共享，结构性杜绝裸跨空间查询。</p>
+
+  <h3>四级记忆分层</h3>
+  <div class="grid g2">
+    <div class="card"><h5>L0 原始消息 <span class="badge b-blue">l0_messages</span></h5>
+      <p>对话原文逐轮落库：session、turn、seq 分块序号、role、content、redacted（脱敏命中数）、token_count。写入前完成脱敏 + 信封剥离 + 8192 字符定长分块。仅作溯源与血缘锚点，<strong>永不自动注入</strong>。</p></div>
+    <div class="card"><h5>L1 原子事实 <span class="badge b-green">l1_facts</span></h5>
+      <p>记忆检索单元。content + SHA-256 content_hash + 三态 status（active/superseded/forgotten）+ pinned + confidence + half_life_days + access_count + superseded_by 自引用链。<strong>编辑即 supersede（不删旧行），遗忘可恢复</strong>。</p></div>
+    <div class="card"><h5>L2 场景索引 <span class="badge b-amber">l2_scenarios</span></h5>
+      <p>每场会话的标题 + 200 字摘要 + token 预估。注入时只注入索引行，全文按需经 memory_search 读取——控制每轮注入成本。</p></div>
+    <div class="card"><h5>L3 用户画像 <span class="badge b-violet">l3_profiles</span></h5>
+      <p>按 scope_key + version 追加式版本化存储 Markdown 画像。<strong>每轮全文注入最新版</strong>，保证注入前缀字节稳定（支撑上游 KV-cache 命中）。</p></div>
+  </div>
+
+  <h3>核心表清单（0001 + 0002 两次迁移）</h3>
+  <table>
+    <tr><th>表</th><th>用途与关键设计</th></tr>
+    <tr><td><code>l0_messages</code></td><td>原始消息，索引 (session_id, turn, seq)</td></tr>
+    <tr><td><code>l1_facts</code></td><td>三索引：(space_id,status)、(space_id,last_accessed_at)、(space_id,content_hash,created_at) 支撑去重窗口</td></tr>
+    <tr><td><code>entities</code> / <code>l1_fact_entities</code></td><td>实体表（name 唯一 + aliases_json）与 fact↔entity 多对多关联（双 FK CASCADE）</td></tr>
+    <tr><td><code>l1_facts_fts</code></td><td>FTS5 虚拟表，<code>tokenize='trigram'</code>（中文友好）；&lt;3 码点查询自动回退 LIKE</td></tr>
+    <tr><td><code>vec_facts_{provider}_{model}_{dims}</code></td><td>按 embedding 三元组<strong>动态分表</strong>的向量命名空间（vec0 虚拟表），切换 provider 建新表而非作废旧向量</td></tr>
+    <tr><td><code>retrieval_traces</code></td><td>检索六阶段留痕：query、scope、stages、results、latency_ms</td></tr>
+    <tr><td><code>injections</code></td><td>注入记录：turn、blocks、tokens、cache_prefix_md5</td></tr>
+    <tr><td><code>jobs</code> / <code>jobs_dlq</code></td><td>任务队列 + 死信表，status ∈ pending/running/done/failed/dead</td></tr>
+    <tr><td><code>events</code> / <code>config</code></td><td>事件持久化（SSE 可回放）/ 热配置存储（能力中心写入）</td></tr>
+    <tr><td><code>skills</code> / <code>knowledge</code></td><td>空间附属资产（技能带版本与状态）</td></tr>
+  </table>
+
+  <h3>存储引擎细节</h3>
+  <ul class="plain">
+    <li><strong>打开即加固</strong>：<code>journal_mode=WAL</code>（写时并发读）+ <code>foreign_keys=ON</code> + sqlite-vec 扩展加载；加载失败由 doctor 命令翻译为可操作指引。</li>
+    <li><strong>版本链迁移器</strong>：扫描 migrations/*.sql 按名排序，跳过已应用项，每个迁移事务内执行 + 记录 schema_migrations，失败整体回滚。</li>
+    <li><strong>稳定游标分页</strong>：默认 50 条、硬上限 200；cursor = 上页末条 id，<code>rowid</code> 定位；多取 1 条判断 hasMore。</li>
+    <li><strong>.mempack 迁移包</strong>：格式 <code>agentmemview-mempack/1</code> = tar.gz{ manifest.json + agentmemview.db }。导出走 SQLite online backup 得一致快照；导入时<strong>维度不匹配的向量不拒绝</strong>，写入 <code>config.pending_rebuild</code> 标记待重建。tar 实现为零依赖 ustar 子集。</li>
+  </ul>
+</section>
+
+<!-- ============ 4 core 引擎 ============ -->
+<section id="s4">
+  <div class="sec-head"><span class="no">04</span><h2>core — 核心引擎</h2><span class="tag">packages/core/src</span></div>
+
+  <h3>脱敏引擎 <span class="path">redaction/redactor.ts</span></h3>
+  <p>写回 L0 <strong>之前</strong>（代理进程内）执行，10 条内置规则编译为大小写不敏感全局正则依序替换，命中数写入 l0.redacted 列：</p>
+  <table>
+    <tr><th>规则</th><th>模式</th><th>替换为</th></tr>
+    <tr><td>private-tag</td><td><code>&lt;private&gt;…&lt;/private&gt;</code> 整块</td><td><code>[REDACTED:private-tag]</code></td></tr>
+    <tr><td>pem-key</td><td>PEM 私钥块</td><td><code>[REDACTED:pem-key]</code></td></tr>
+    <tr><td>anthropic-key</td><td><code>sk-ant-</code>+20 位（<strong>先于 sk- 匹配防误吞</strong>）</td><td><code>[REDACTED:anthropic-key]</code></td></tr>
+    <tr><td>openai-key / github-token / aws-key / google-key / slack-token / jwt / bearer-token</td><td>各平台令牌特征</td><td>对应 <code>[REDACTED:*]</code>（Bearer 保留前缀）</td></tr>
+  </table>
+
+  <h3>事件总线 <span class="path">events/bus.ts</span></h3>
+  <p>进程内 pub/sub + events 表持久化。publish 先落库再同步通知订阅者，单订阅者异常被捕获不中断其余投递；<code>replay(sinceId)</code> 支持晚加入的 SSE 客户端追赶错过的事件。全系统五类事件：<code>l0.appended</code>、<code>decay.forgotten</code>、<code>retrieval.completed</code>、<code>injections.added</code>、<code>config.updated</code>。</p>
+
+  <h3>LLM Provider 与降级</h3>
+  <ul class="plain">
+    <li><strong>NoneProvider（默认）</strong>：chat 一律抛 <code>CapabilityOffError</code>，上层据此切换启发式精炼——离线基线。</li>
+    <li><strong>OpenAICompatProvider</strong>：POST <code>{baseUrl}/chat/completions</code>，Bearer 鉴权，30s 超时；<strong>仅对 429/5xx 重试</strong>，最多 3 次，退避 2s×(i+1)（针对智谱等网关对突发精炼调用的限流）。</li>
+  </ul>
+
+  <h3>Embedding Provider 与向量治理</h3>
+  <table>
+    <tr><th>Provider</th><th>实现</th><th>三元组</th></tr>
+    <tr><td>Mock（默认）</td><td>trigram 袋哈希投影的确定性向量（测试/离线基线）</td><td>—</td></tr>
+    <tr><td>Local</td><td>transformers.js 动态加载 <code>Xenova/multilingual-e5-small</code>；LRU 缓存 1024；支持 <code>AGENTMEMVIEW_HF_ENDPOINT</code> 镜像</td><td>local / e5-small / 384</td></tr>
+    <tr><td>API</td><td>OpenAI 兼容 <code>POST /embeddings</code>，30s 超时，维度逐条校验</td><td>由配置决定</td></tr>
+    <tr><td>Sidecar</td><td>spawn Python 进程，JSON-RPC 调 embed，失败返回 undefined 回退默认</td><td>sidecar / bge-small / 384</td></tr>
+  </table>
+  <p class="tip"><strong>切换治理（AC-10）</strong>：切换 provider = 建新 vec 表 + 更新 activeKey + 标记 pending_rebuild + 入队 embedding.rebuild 后台重嵌（32 条/批）。重建完成前检索自动退化为纯关键词通道，<strong>永不拒绝服务</strong>。</p>
+</section>
+
+<!-- ============ 5 检索管线 ============ -->
+<section id="s5">
+  <div class="sec-head"><span class="no">05</span><h2>六阶段检索管线</h2><span class="tag">retrieval/engine.ts · 检索期零 LLM</span></div>
+
+  <div class="flow">
+    <div class="step"><span class="no">STAGE 1</span><b>预过滤</b><span>scope SQL 过滤<br>status='active'</span></div>
+    <div class="step"><span class="no">STAGE 2</span><b>双通道并行</b><span>FTS5 BM25 ∥ vec 余弦<br>各取 100 → 截 30</span></div>
+    <div class="step"><span class="no">STAGE 3</span><b>RRF 融合</b><span>k=60 倒数排名</span></div>
+    <div class="step"><span class="no">STAGE 4</span><b>衰减+实体</b><span>艾宾浩斯 × 分数<br>实体命中 +0.1</span></div>
+    <div class="step"><span class="no">STAGE 5</span><b>Top-K</b><span>默认 8 条</span></div>
+    <div class="step"><span class="no">STAGE 6</span><b>留痕</b><span>全阶段落盘<br>retrieval_traces</span></div>
+  </div>
+
+  <h4>通道一：FTS5 trigram（keyword.ts）</h4>
+  <p>查询按 Unicode 属性 <code>[^\p{L}\p{N}_-]+</code> 切词（CJK 友好），仅保留 ≥3 码点的词（trigram 下限），双引号包裹为短语以 <strong>OR 连接</strong>（偏召回）；无合格词时自动降级 <code>LIKE %word%</code> 扫描。</p>
+
+  <h4>通道二：sqlite-vec 余弦（vecIndexer.ts）</h4>
+  <p>按三元组定位 vec 表，查询向量 Float32 blob 执行 KNN（k=100）；<strong>任何失败（模型缺失 / 网关挂 / 维度不匹配）仅降级该通道为空并告警，绝不失败整个搜索（AC-02）</strong>。事实写入时向量索引为事务提交后的异步微任务，异常静默吞掉——写路径永不因 embedding 阻塞。</p>
+
+  <h4>融合与排序公式</h4>
+  <div class="formula">
+    <div class="f">rrf(d) = Σ 1 / (60 + rank<sub>c</sub>(d))</div>
+    <div class="d">RRF 倒数排名融合，k=60；平分按 id 字典序保证确定性</div>
+  </div>
+  <div class="formula">
+    <div class="f">score = rrf × 0.5<sup>days / halfLife</sup> + (entityHit ? 0.1 : 0)</div>
+    <div class="d">days = 距 last_accessed_at 天数；halfLife 默认 30 天；pinned 豁免衰减（因子恒 1）</div>
+  </div>
+
+  <ul class="plain">
+    <li><strong>实体加权</strong>：取空间内全部实体（name + aliases），查询文本小写 includes 命中后经关联表反查 fact 集合，命中者 +0.1。</li>
+    <li><strong>触达反馈</strong>：检索命中调用 touch → access_count+1、刷新 last_accessed_at，反哺衰减公式（用得越多忘得越慢）。</li>
+    <li><strong>留痕回放</strong>：六阶段每阶段候选 id 列表 + 总时延写入 retrieval_traces，Dashboard 轨迹页可逐步回放定位召回丢失发生在哪一阶段。</li>
+    <li><strong>质量门禁</strong>：合成基线 200 事实 × 40 查询，默认参数 <strong>R@5 ≥ 0.85</strong> 作为 core 测试门禁。</li>
+  </ul>
+</section>
+
+<!-- ============ 6 精炼管线 ============ -->
+<section id="s6">
+  <div class="sec-head"><span class="no">06</span><h2>精炼管线</h2><span class="tag">refine/*.ts · L0 → L1/L2/L3</span></div>
+
+  <h3>L1 事实抽取 <span class="path">l1Extract.ts — 双策略 + 自动降级</span></h3>
+  <div class="grid g2">
+    <div class="card"><h5>LLM 策略 <span class="badge b-blue">写路径恰好一次 LLM 调用</span></h5>
+      <p>对话转写 <code>[role] content</code> 拼接（截断 20000 字符），要求仅输出 JSON：<code>{"facts":[{"action":"ADD|UPDATE","content":…,"supersedes":…}]}</code>。Zod 校验（content 1–2000 字符、最多 50 条）；<code>parseLlmJson</code> 兼容小模型用 markdown 围栏包裹 JSON 的输出。</p></div>
+    <div class="card"><h5>启发式策略 <span class="badge b-green">离线兜底</span></h5>
+      <p>仅扫 user 消息：<code>^记住：…</code> / <code>^remember:…</code> → ADD；<code>以后用 X 不用 Y</code> → 修正类 ADD。</p></div>
+  </div>
+  <p>降级链：LLM 输出脏（DegradedSignal / SyntaxError）→ 自动切换启发式并置 <code>degraded:true</code>，<strong>任务永不因此失败</strong>。UPDATE 通过 content 精确匹配库存事实走 DAO supersede；ADD 天然享受 5 分钟去重窗口（同 space + 同 SHA-256 + active + 窗口内 → 直接 deduped）。</p>
+
+  <h3>L2 场景索引 <span class="path">l2Summarize.ts — 规则式，零 LLM</span></h3>
+  <p>标题 = 首条 user 消息截 40 字符；摘要 = 全部消息以中文分号连接截 200 字符；token_estimate = ceil(字符数/4)。</p>
+
+  <h3>L3 用户画像 <span class="path">l3Profile.ts — 单次 LLM + 版本化追加</span></h3>
+  <p>单次 LLM 调用输出更新后的画像 Markdown；能力关闭或输出为空则整条跳过。落库为 scope_key 下 version+1 新行（唯一索引 (scope_key, version)）——注入时取最新版全文，实现逐轮字节稳定。</p>
+
+  <h3>衰减扫描 <span class="path">decayScan.ts — 与评分同公式</span></h3>
+  <div class="formula">
+    <div class="f">factor = 0.5 <sup>days / halfLife</sup> &nbsp;&nbsp;遗忘阈值 0.05</div>
+    <div class="d">默认半衰期 30 天 ⇒ 约 129.6 天未访问进入候选；pinned 跳过；dryRun 支持预览</div>
+  </div>
+  <p>候选置 <code>status='forgotten'</code> + 删 FTS 行（<strong>物理保留可恢复</strong>），逐条发布 <code>decay.forgotten</code> 事件。</p>
+</section>
+
+<!-- ============ 7 任务队列与能力中心 ============ -->
+<section id="s7">
+  <div class="sec-head"><span class="no">07</span><h2>任务队列与能力中心</h2><span class="tag">jobs/*.ts · capabilities/registry.ts</span></div>
+
+  <h3>SQLite 任务队列</h3>
+  <ul class="plain">
+    <li><strong>原子认领</strong>：<code>UPDATE … SET status='running' WHERE id=? AND status='pending'</code> 以 changes&gt;0 判定抢占成功，多 worker 安全；<code>recoverRunning()</code> 看门狗重置崩溃残留。</li>
+    <li><strong>重试与死信</strong>：退避 <code>200ms × 2^(attempts-1)</code>（200/400/800ms），上限 3 次，耗尽移入 jobs_dlq。</li>
+    <li><strong>Worker</strong>：轮询 500ms、并发 2（有界）。</li>
+  </ul>
+  <table>
+    <tr><th>任务类型</th><th>处理逻辑</th></tr>
+    <tr><td><code>refine.l1</code></td><td>每次执行时<strong>从热配置重读策略</strong>（配置合法→LlmStrategy，否则→HeuristicStrategy），跑 L1 抽取并同步向量索引</td></tr>
+    <tr><td><code>eval.run</code></td><td>在隔离租户（service=eval，space=eval-&lt;runId&gt;）执行合成评测，不污染用户空间；进度/报告写 config 表</td></tr>
+    <tr><td><code>embedding.rebuild</code></td><td>全部 active 事实按 32 条/批重嵌进当前三元组表，完成后清除 pending_rebuild 标记</td></tr>
+  </table>
+
+  <h3>能力中心（六项能力 · 四态状态机）</h3>
+  <p>状态 <code>off / configured / error / active</code> 完全由 config 表驱动，<strong>PUT /config 热切换无需重启</strong>（发布 config.updated 事件 + worker 执行时重读）。</p>
+  <table>
+    <tr><th>能力 key</th><th>active 条件</th><th>解锁</th></tr>
+    <tr><td><code>llm-gateway</code></td><td>baseUrl / apiKey / model 三字段齐备</td><td>L1 LLM 精炼、L2 增强、L3 画像自动更新</td></tr>
+    <tr><td><code>embedding-api</code></td><td>同上三字段校验</td><td>云端向量检索</td></tr>
+    <tr><td><code>sidecar</code></td><td>握手成功 protocol=1</td><td>embed（rerank/cluster 预留 v1.5）</td></tr>
+    <tr><td><code>local-embedding</code></td><td>transformers.js 已装 且（模型缓存存在 或 ALLOW_DOWNLOAD=1）</td><td>离线 384 维向量</td></tr>
+    <tr><td><code>cloud-vector</code> / <code>reranker-api</code></td><td>恒 off</td><td>接口预留（v1.5）</td></tr>
+  </table>
+</section>
+
+<!-- ============ 8 HTTP API ============ -->
+<section id="s8">
+  <div class="sec-head"><span class="no">08</span><h2>HTTP API 与安全</h2><span class="tag">http/routes/*.ts · 挂载于 :8620/api/v1</span></div>
+
+  <table>
+    <tr><th>分组</th><th>端点（节选）</th><th>说明</th></tr>
+    <tr><td>租户管理</td><td><code>GET/POST /services</code>、<code>/spaces</code>、<code>/agents</code> + PATCH/DELETE</td><td>DELETE space 支持 ?force=1 事务级联（含遍历 vec_facts_% 逐表清理）；FK 预检查把未知父资源转 404</td></tr>
+    <tr><td>L1 记忆</td><td><code>POST/GET /memories</code>、<code>PATCH /memories/:id</code>（supersede）、<code>GET /memories/:id/lineage</code>、<code>POST /memories/:id/pin|recover</code></td><td>跨空间 id 经 locateFact 路由到正确 scope 的 DAO</td></tr>
+    <tr><td>检索</td><td><code>POST /search</code>（topK 1–50）、<code>GET /traces</code>、<code>GET /traces/:id</code></td><td>复用全局 bus 保证 retrieval.completed 事件到达 SSE 订阅者</td></tr>
+    <tr><td>L0 写入</td><td><code>POST /l0/messages</code>、<code>GET /l0/messages?sessionId=</code></td><td>写入成功后触发精炼：同 session 已有 pending/running 的 refine.l1 则跳过（去抖），否则延迟 5s 入队；精炼触发 fail-open</td></tr>
+    <tr><td>会话</td><td><code>POST /sessions/ensure</code>（幂等映射）、<code>GET /sessions/:id/diff</code></td><td>diff 严格限定会话所属 space，返回 added/updated/forgotten 三类记忆变更</td></tr>
+    <tr><td>辅助</td><td><code>POST /memories/forget</code>、<code>POST /injections</code>、<code>GET /injections/stream</code></td><td>SSE 流：先 replay(since) 补发错过事件再实时订阅，15s 心跳</td></tr>
+    <tr><td>注入源（只读）</td><td><code>GET /profiles/:scope</code>、<code>/scenarios</code>、<code>/skills</code></td><td>代理注入管线的三数据源</td></tr>
+    <tr><td>平台</td><td><code>GET /capabilities</code>、<code>GET|PUT /config</code>、<code>GET /jobs</code>、<code>GET /onboard/status</code>、<code>POST /onboard/apply</code></td><td>PUT /config 逐 key upsert 并发布热更事件</td></tr>
+    <tr><td>评测</td><td><code>POST /eval/run</code>、<code>GET /eval/reports</code></td><td>入队 eval.run，异步出报告</td></tr>
+  </table>
+
+  <h3>错误映射与静态托管</h3>
+  <ul class="plain">
+    <li>域错误按 name 映射（规避双模块实例的 instanceof 失效）：NotFound→404、Conflict→409、Validation/Zod→400（统一信封 fields 列表）；onError 是唯一可靠拦截点。</li>
+    <li>UI 静态托管：<code>/assets/*</code> 哈希文件 immutable 缓存一年，其余 no-cache；路径穿越防护；无扩展名路径回退 index.html（SPA 深链）。</li>
+    <li>API 404 时才回落静态文件；port 0 支持临时端口；EADDRINUSE 必须 reject 而非挂起。</li>
+  </ul>
+</section>
+
+<!-- ============ 9 proxy 透明代理 ============ -->
+<section id="s9">
+  <div class="sec-head"><span class="no">09</span><h2>proxy — 透明代理</h2><span class="tag">packages/proxy/src · :8619</span></div>
+
+  <h3>请求八阶段管线</h3>
+  <div class="flow vertical">
+    <div class="step"><span class="no">01</span><div class="body"><b>解析路由与协议</b><span>四种路径形态 → anthropic / openai 适配器 parse() 出统一 IR（AgentContext）；<code>/health</code> 免认证；非 JSON body 400</span></div></div>
+    <div class="step"><span class="no">02</span><div class="body"><b>认证（边缘）</b><span>可选本地门禁头 <code>x-agentmemview-key</code>（未配置则放行）；上游凭据 x-api-key/Authorization 透传不动</span></div></div>
+    <div class="step"><span class="no">03</span><div class="body"><b>mem: 命令短路</b><span>当前 prompt 以 mem: 开头 → 本地执行，合成原生形状响应，零上游 token；从消息末尾向前找最近一条真实 user 文本，绝不向前扫历史（防命令劫持）</span></div></div>
+    <div class="step"><span class="no">04</span><div class="body"><b>三分类</b><span>forkOf 存在 → fork；metadata.user_id 含 sidequery 或 max_tokens≤50 → sidequery；否则 main。<strong>仅 main 注入</strong>，sidequery/fork 完全跳过</span></div></div>
+    <div class="step"><span class="no">05</span><div class="body"><b>会话映射</b><span>resolveSpace → ensureAgent（无 agent 自动建，防 FK 裸异常）→ ensureSession（external_id 幂等映射）</span></div></div>
+    <div class="step"><span class="no">06</span><div class="body"><b>记忆注入（仅 main）</b><span>三源并发拉取 → 组装 → 应用到 IR → 记录 InjectionRecord（见第 10 章）</span></div></div>
+    <div class="step"><span class="no">07</span><div class="body"><b>滑动窗口限流 + 上游转发</b><span>key=spaceId:model，QPM 默认 600，超限 429+retry-after；转发 120s 超时，429/500/502/503 重试一次，剥离 hop-by-hop 头与 content-encoding（防二次解压）</span></div></div>
+    <div class="step"><span class="no">08</span><div class="body"><b>响应 tee + 写回</b><span>SSE 字节级透传 + 旁路捕获 token/文本；flush 时提取「当前轮」消息 → 脱敏 → fire-and-forget 写回 core</span></div></div>
+  </div>
+
+  <h3>双协议 IR 适配 <span class="path">adapters/ — 互转在 IR 层，透传在字节层</span></h3>
+  <p>代理<strong>不做 Anthropic↔OpenAI 协议互转</strong>：进什么协议出什么协议。adapter 把两种协议解析为统一 <code>AgentContext</code>（model/stream/systemBlocks 只读视图/tools/raw 深克隆），在 IR 的三个注入槽位（systemPrefix / systemSuffix / toolsAppend）上打注入，再各自序列化回原生协议。</p>
+  <p class="tip"><strong>往返纪律</strong>：injections 为空时 <code>serialize(parse(x)) === x</code> 深相等 —— tool_use / tool_result / cache_control / thinking / tool_calls 等原生块逐字节保留。</p>
+  <ul class="plain">
+    <li><strong>Anthropic</strong>：system 字符串或块数组 → 重组为 [prefix…原生块…suffix]；注入文本块不带 cache_control。</li>
+    <li><strong>OpenAI</strong>：找 system 消息拼接 content；无 system 消息则 unshift 新建；流式请求强制加 <code>stream_options.include_usage</code> 以捕获用量。</li>
+    <li><strong>OpenAI 流处理</strong>：JSON data 行（非 event:/data: 帧）单独用 TransformStream 逐行解析；工具调用分片按 index 聚合后合并为 <code>[tool_call: name(args)]</code> 文本。</li>
+    <li><strong>畸形防御</strong>：非流式 Anthropic 响应中丢弃畸形 thinking 块再提取文本。</li>
+  </ul>
+
+  <h3>mem: 斜杠命令（代理本地执行）</h3>
+  <table>
+    <tr><th>命令</th><th>行为</th></tr>
+    <tr><td><code>mem:remember &lt;fact&gt;</code></td><td>POST /memories 显式写入一条 L1 事实 → 回「remembered」</td></tr>
+    <tr><td><code>mem:forget &lt;query&gt;</code></td><td>按 query LIKE 匹配本空间事实逐条软遗忘 → 回计数（可恢复）</td></tr>
+    <tr><td><code>mem:status</code></td><td>显示最近一次注入的 turn 与前缀 MD5（稳定性监控的用户出口）</td></tr>
+    <tr><td><code>mem:sync</code></td><td>提示后台精炼需开启 LLM 网关能力</td></tr>
+  </table>
+</section>
+
+<!-- ============ 10 注入与写回 ============ -->
+<section id="s10">
+  <div class="sec-head"><span class="no">10</span><h2>注入纪律与写回</h2><span class="tag">injection/*.ts · writeback/*.ts</span></div>
+
+  <h3>固定注入内容（AC-03：L0/L1 永不自动注入）</h3>
+  <table>
+    <tr><th>kind</th><th>渲染</th><th>落点</th><th>优先级</th></tr>
+    <tr><td>profile（L3）</td><td><code>[AgentMemView L3 profile] + 画像全文</code></td><td>systemPrefix</td><td>1 最高</td></tr>
+    <tr><td>skills-list</td><td><code>- name: oneLiner</code></td><td>systemPrefix</td><td>2</td></tr>
+    <tr><td>scenario-index（L2）</td><td><code>- title: summary (~N tokens, read on demand)</code></td><td>systemPrefix</td><td>3</td></tr>
+    <tr><td>memory-guide</td><td><code>memory_search</code> 工具定义 JSON（必填 query、可选 top_k）</td><td>toolsAppend</td><td>4</td></tr>
+  </table>
+
+  <ul class="plain">
+    <li><strong>Token 预算</strong>：maxTokens 默认 2000，贪心累加，装不下的块<strong>整块丢弃不截断</strong>，高优先级保留。</li>
+    <li><strong>前缀稳定性监控</strong>：注入前缀是空间数据（profile/scenarios/skills）的纯函数，规范化为 canonical JSON 后取 MD5。逐轮 MD5 恒定 ⇒ 上游 KV-cache 前缀命中；变化 ⇒ 前缀击穿信号（Dashboard 红/绿指示）。三源缓存 TTL 30s。</li>
+    <li>InjectionPipeline 按 spaceId 复用实例；注入记录 fail-open 落库。</li>
+  </ul>
+
+  <h3>L0 写回（防二次方膨胀）</h3>
+  <ul class="plain">
+    <li><strong>当前轮提取</strong>：Agent 每轮重发全量历史，因此只取「最后一条 assistant 之后」的消息（user 追问 + tool_result），再拼上本轮捕获的 assistant 文本——否则旧轮次每轮重复入库导致 L0 二次方膨胀。轮终结符 = <strong>不含 tool_use 块的干净 assistant</strong>。</li>
+    <li><strong>脱敏时机</strong>：enqueue 时（离开代理进程前）对每条 content 执行 redact，再 POST 给 core；脱敏只作用于写回内容，不影响转发上游的请求。</li>
+    <li><strong>可靠性</strong>：fire-and-forget，enqueue 立即返回绝不抛错；有界退避重试 [200, 800, 2400] ms 共 4 次尝试；耗尽进内存死信表；<code>drain()</code> 优雅停机排水。</li>
+    <li><strong>core 侧配套</strong>：L0 写入路径再做信封剥离（8 个 IDE 注入标签如 system-reminder/attached_files 等仅从 user 消息剥离，剥空回退原文）+ 8192 字符分块 + 事务批量插入 + 发布 l0.appended 事件。</li>
+  </ul>
+
+  <h3>Agent 接入（onboard 适配器）</h3>
+  <table>
+    <tr><th>Agent</th><th>改写文件</th><th>写入内容</th><th>语义</th></tr>
+    <tr><td>Claude Code</td><td><code>~/.claude/settings.json</code> 的 env 块</td><td><code>ANTHROPIC_BASE_URL={proxy}/claude-code/{space}</code>（不带 /v1）+ 可选 token/模型/超时等 env</td><td>合并写入，只动管理的 key，其余逐字节保留</td></tr>
+    <tr><td>Codex</td><td><code>~/.codex/config.toml</code></td><td><code>[model_providers.agentmemview] base_url={proxy}/codex/{space}/v1</code>（带 /v1，wire_api=chat）</td><td>行级文本编辑，不依赖 TOML 库</td></tr>
+    <tr><td>OpenCode</td><td><code>~/.config/opencode/opencode.json</code></td><td><code>providers.agentmemview.baseUrl={proxy}/opencode/{space}/v1</code></td><td>保留其它 provider 与字段</td></tr>
+  </table>
+  <p class="tip"><strong>可逆接入</strong>：改前备份 <code>*.agentmemview.bak</code>（只备一次）+ <code>*.agentmemview.created</code> 标记新建文件；已配置其他网关报 conflict，<code>--force</code> 覆盖（自动备份），<code>--restore</code> 还原；双重幂等检测（managed key 已匹配 / 序列化内容逐字节相同均跳过）。</p>
+</section>
+
+<!-- ============ 11 MCP ============ -->
+<section id="s11">
+  <div class="sec-head"><span class="no">11</span><h2>mcp — MCP 服务器</h2><span class="tag">packages/mcp · agentmemview-mcp · stdio</span></div>
+
+  <p><strong>零 SDK 原生实现</strong>（仅 initialize / tools/list / tools/call 三个方法，protocolVersion 2024-11-05），行分隔 JSON-RPC 2.0 over stdio。所有状态都在 core，每个工具只是对 core REST 的一次薄校验调用；handler 异常转 <code>isError:true</code> 结果而非杀死进程（否则客户端会永久等待该 id）。环境变量：<code>AGENTMEMVIEW_CORE_URL</code>（默认 :8620）、<code>AGENTMEMVIEW_SPACE</code>。</p>
+
+  <table>
+    <tr><th>#</th><th>工具</th><th>参数</th><th>功能</th></tr>
+    <tr><td>1</td><td><code>memory_search</code></td><td>query*, space, topK</td><td>完整混合检索管线（写 trace）—— 即注入的 memory_search 工具的落地实现</td></tr>
+    <tr><td>2</td><td><code>memory_read</code></td><td>id*</td><td>读单条记忆 + supersede 谱系（并行 fact + lineage）</td></tr>
+    <tr><td>3</td><td><code>memory_write</code></td><td>content*, space</td><td>显式写入一条 L1 事实</td></tr>
+    <tr><td>4</td><td><code>memory_pin</code></td><td>id*, pinned</td><td>置顶/取消（豁免衰减）</td></tr>
+    <tr><td>5</td><td><code>memory_forget</code></td><td>query*, space</td><td>按查询匹配软遗忘（可恢复）</td></tr>
+    <tr><td>6</td><td><code>memory_traces</code></td><td>—</td><td>列出最近检索轨迹（决策可回放）</td></tr>
+    <tr><td>7</td><td><code>profile_read</code></td><td>scope*</td><td>读 L3 画像（service:&lt;id&gt; / space:&lt;id&gt;）</td></tr>
+    <tr><td>8</td><td><code>skills_list</code></td><td>space</td><td>列出空间技能资产</td></tr>
+  </table>
+</section>
+
+<!-- ============ 12 UI ============ -->
+<section id="s12">
+  <div class="sec-head"><span class="no">12</span><h2>ui — Dashboard</h2><span class="tag">React 19 · 13 页面 · core :8620 静态托管</span></div>
+
+  <p>零状态管理库（页面级 useState，跨页共享仅靠 URL），类型化 REST 客户端覆盖 22 个端点，SSE hook 带断线重连（500ms）+ <code>?since=lastId</code> 断点续传 + lastEventId 幂等去重 + 500 条滚动窗口。</p>
+
+  <table>
+    <tr><th>页面</th><th>核心功能</th></tr>
+    <tr><td>总览</td><td>四统计卡：记忆总量 / 今日注入 / 检索轨迹 / 会话数；空态引导接入</td></tr>
+    <tr><td>注入面板</td><td><strong>SSE 实时流</strong>（唯一订阅 /injections/stream）+ 两枚指示灯：SSE 连接状态、<strong>MD5 稳定性</strong>（视图内前缀 MD5 去重后唯一 → 绿，否则红）；TokenBar 堆叠条展示注入块占比</td></tr>
+    <tr><td>记忆浏览</td><td>服务→空间→agent 三级 scope 下钻；状态过滤（active/superseded/forgotten/pinned）；<strong>前端镜像衰减公式</strong>计算衰减分</td></tr>
+    <tr><td>记忆详情</td><td>血缘链可视化（旧→新）；编辑=保存即新版本（supersede）；pin/遗忘均 confirm 二次确认，遗忘可在 forgotten 过滤器恢复</td></tr>
+    <tr><td>检索轨迹</td><td>六阶段步进器回放：逐阶段候选 ID 列表（截断 30），定位召回丢失发生在哪一阶段</td></tr>
+    <tr><td>会话</td><td>按天分组时间线 + 会话记忆 diff（新增/更新/遗忘三栏）</td></tr>
+    <tr><td>画像与场景</td><td>L3 画像全文（标注「每轮全文注入，字节稳定」）+ L2 场景索引表（标注「索引每轮注入，全文按需读取」）</td></tr>
+    <tr><td>技能与知识</td><td>技能版本列表，内容行内展开（mono 全文）</td></tr>
+    <tr><td>能力中心</td><td>六项能力四态徽标 + 配置表单（apiKey 掩码 + 显示切换）；保存即热生效，清空即停用</td></tr>
+    <tr><td>设置 / 选配设置 / 代理配置</td><td>衰减半衰期滑杆（1–180 天热生效）、.mempack 迁移命令说明、上游配置 + <strong>自动生成 proxy start 命令</strong>、三 Agent 接入表单（检测状态 + 冲突 force + restore 还原 + claude-code 专属 env 覆盖）</td></tr>
+    <tr><td>评测中心</td><td>R@5 / R@10 / MRR 报告表（harness 展示壳）</td></tr>
+  </table>
+
+  <ul class="plain">
+    <li><strong>设计体系</strong>：tokens.css 单一事实源（禁其它文件硬编码颜色），亮暗双主题 token 已备（暗色 .dark 待接切换 UI）；状态徽标语义固定 active=绿 / superseded=黄 / forgotten=红 / pinned=蓝。</li>
+    <li><strong>空态纪律（P0）</strong>：8 个页面使用可操作空态（EmptyState），每条 guidance 都带具体下一步动作，禁止空洞占位文案。</li>
+    <li><strong>开发形态</strong>：Vite dev :5173 将 /api 代理到 :8620；生产 vite build 产出 dist 由 core 单进程同时提供 API 与 Dashboard。</li>
+  </ul>
+</section>
+
+<!-- ============ 13 CLI ============ -->
+<section id="s13">
+  <div class="sec-head"><span class="no">13</span><h2>cli — 命令行</h2><span class="tag">commander · agentmemview</span></div>
+
+  <table>
+    <tr><th>命令</th><th>功能要点</th></tr>
+    <tr><td><code>doctor [--json]</code></td><td>六项体检：Node≥22（20–21 警告）、平台、<strong>真实探测 :8619/:8620 端口占用</strong>、<strong>真实 SQL 跑 vec_distance_cosine 验证 sqlite-vec 二进制</strong>、数据目录可写探针；数据目录与 start 完全同源（--data &gt; AGENTMEMVIEW_DATA &gt; ~/.AgentMemView）；fail 退出码 1</td></tr>
+    <tr><td><code>init [--agent] [--restore]</code></td><td>复用三个 onboard 适配器写入接入配置；不指定 --agent 时对全部三家执行；幂等 + 备份/恢复</td></tr>
+    <tr><td><code>start / stop</code></td><td>启动 core（建目录 → 打开 db → 迁移 → HTTP 服务 → pid 文件）；-d 分离模式；SIGINT/SIGTERM 优雅关闭</td></tr>
+    <tr><td><code>proxy start / stop</code></td><td>启动透明代理（--anthropic-upstream/--openai-upstream/--access-key/-d）；detach 时 <strong>access-key 必须显式透传给子进程</strong>（否则后台无鉴权运行）；pid 文件 + SIGTERM 停止</td></tr>
+    <tr><td><code>export [--out]</code></td><td>导出 .mempack（online backup 快照 + manifest 含向量三元组清单），打印事实数与版本数</td></tr>
+    <tr><td><code>import &lt;pack&gt;</code></td><td>导入 .mempack；维度不匹配向量标 pending_rebuild，重建完成前检索降级 FTS（打印警告而非拒绝）</td></tr>
+  </table>
+</section>
+
+<!-- ============ 14 eval ============ -->
+<section id="s14">
+  <div class="sec-head"><span class="no">14</span><h2>eval — 检索评测</h2><span class="tag">agentmemview-eval</span></div>
+
+  <ul class="plain">
+    <li><strong>数据集加载</strong>：LongMemEval-S（JSONL，question_id 区分问题/轮次记录，坏行报 1 起始行号）；LoCoMo（observation/qa_pairs，turn 索引证据指针，宽松校验）；合成集（N 主题 × 5 条中文事实，ingest 顺序即相关性真值）。</li>
+    <li><strong>隔离纪律</strong>：评测跑在 service=eval、space=&lt;dataset&gt;-&lt;runId&gt; 的隔离租户，<strong>永不污染用户数据</strong>；事实按 25 条/批、批间 5ms 写入。</li>
+    <li><strong>指标（手工可验证语义）</strong>：R@k = |top-k ∩ relevant| / |relevant|；MRR = 首个相关结果排名倒数（未命中记 0）；宏平均聚合 R@5 / R@10 / MRR。</li>
+    <li><strong>报告</strong>：JSON 结构（dataset/runId/config 快照/逐题明细/judge 缺省 unavailable）+ Markdown 渲染；Dashboard 评测页与 core 的 eval.run 任务消费同一报告格式。</li>
+  </ul>
+</section>
+
+<!-- ============ 15 sidecar ============ -->
+<section id="s15">
+  <div class="sec-head"><span class="no">15</span><h2>sidecar — Python 边车</h2><span class="tag">uv · fastembed · JSON-RPC stdio</span></div>
+
+  <ul class="plain">
+    <li><strong>协议（冻结契约）</strong>：stdio 每行一个 JSON；方法 handshake / embed / rerank / cluster / consolidate（后三者 v1 预留返回 -32601）；协议版本 1；<strong>单向依赖：sidecar 永不反向调用 core</strong>。</li>
+    <li><strong>embed</strong>：fastembed 懒加载 <code>BAAI/bge-small-en-v1.5</code>，返回 {vectors, dims}；模型加载失败转 -32000 协议错误而非崩进程。</li>
+    <li><strong>core 侧三态治理（AC-09）</strong>：</li>
+  </ul>
+  <table>
+    <tr><th>状态</th><th>触发</th><th>行为</th></tr>
+    <tr><td><span class="badge b-gray">not-installed</span></td><td>spawn 失败（命令不存在）</td><td>不报错；embed() 返回 undefined → 回退默认 provider</td></tr>
+    <tr><td><span class="badge b-green">active</span></td><td>握手成功且 protocol=1</td><td>正常提供 embed（调用超时 5s、自增 id 关联、按行分发）</td></tr>
+    <tr><td><span class="badge b-red">degraded</span></td><td>子进程退出（挂起请求全部 reject）或握手协议不符</td><td>embed() 返回 undefined；能力中心显示「已退出或握手失败，已降级」</td></tr>
+  </table>
+  <p class="tip"><code>start()</code> 永不抛异常——sidecar 是纯选配增强，其存在与否不影响任何主流程。</p>
+</section>
+
+<!-- ============ 16 横切原则 ============ -->
+<section id="s16">
+  <div class="sec-head"><span class="no">16</span><h2>横切设计原则</h2><span class="tag">贯穿全部七个包</span></div>
+
+  <div class="grid g2">
+    <div class="card"><h5>① 离线优先 · Fail-open</h5><p>默认 provider 为确定性 Mock；LLM 缺失→启发式精炼；embedding 失败→FTS 照常；sidecar 失败→回退默认；写路径（L0/L1）永不因外部依赖阻塞或失败。</p></div>
+    <div class="card"><h5>② 字节级透明</h5><p>无注入时请求体深相等往返；SSE 客户端流字节级透传；原生块（thinking/tool_use/cache_control/tool_calls）逐字节不动。</p></div>
+    <div class="card"><h5>③ 不可变叙事</h5><p>L1 编辑即 supersede（链式 superseded_by + lineage API）；遗忘即状态翻转（可 recover）；物理删除仅发生在空间级联与 DLQ。</p></div>
+    <div class="card"><h5>④ 前缀稳定（KV-cache 友好）</h5><p>注入只加 systemPrefix/toolsAppend；前缀是空间数据的纯函数；逐轮 MD5 恒定即缓存命中，变化即击穿告警。</p></div>
+    <div class="card"><h5>⑤ 防重防膨胀</h5><p>写回只取当前轮（防 L0 二次方膨胀）；mem: 只匹配当前 prompt（防历史命令劫持）；L1 五分钟去重窗口；精炼任务按 session 去抖。</p></div>
+    <div class="card"><h5>⑥ 热更新</h5><p>config 表 + config.updated 事件 + worker 每次执行重读策略；配置变更无需重启即改变精炼策略与能力状态。</p></div>
+    <div class="card"><h5>⑦ 可观测</h5><p>检索六阶段留痕可回放；事件全量持久化可 replay；注入逐轮记录；DLQ 死信可见；会话记忆 diff。</p></div>
+    <div class="card"><h5>⑧ 可逆接入</h5><p>onboard 一律备份 + created 标记 + restore；冲突不静默覆盖；密钥永远留在 Agent 客户端侧透传。</p></div>
+  </div>
+</section>
+
+<!-- ============ 17 参数速查 ============ -->
+<section id="s17">
+  <div class="sec-head"><span class="no">17</span><h2>关键参数速查</h2><span class="tag">constants across packages</span></div>
+
+  <table>
+    <tr><th>类别</th><th>参数</th><th>值</th></tr>
+    <tr><td rowspan="2">端口</td><td>core REST / Dashboard</td><td><code>8620</code></td></tr>
+    <tr><td>透明代理</td><td><code>8619</code></td></tr>
+    <tr><td rowspan="5">检索</td><td>topK 默认 / 每通道上限 / 每通道取数</td><td>8 / 30 / 100</td></tr>
+    <tr><td>RRF k</td><td>60</td></tr>
+    <tr><td>实体加成</td><td>+0.1</td></tr>
+    <tr><td>半衰期默认 / 遗忘阈值</td><td>30 天 / 0.05（≈129.6 天未访问）</td></tr>
+    <tr><td>质量门禁</td><td>合成基线 R@5 ≥ 0.85（core 测试）</td></tr>
+    <tr><td rowspan="2">L0 / L1</td><td>分块大小 / token 估算</td><td>8192 字符 / ceil(chars/4)</td></tr>
+    <tr><td>L1 去重窗口</td><td>5 分钟（SHA-256 内容哈希）</td></tr>
+    <tr><td rowspan="3">注入</td><td>Token 预算</td><td>2000（整块丢弃不截断）</td></tr>
+    <tr><td>三源缓存 TTL</td><td>30s</td></tr>
+    <tr><td>写回退避</td><td>200 / 800 / 2400 ms × 4 次</td></tr>
+    <tr><td rowspan="3">队列</td><td>轮询 / 并发</td><td>500ms / 2</td></tr>
+    <tr><td>重试上限 / 退避</td><td>3 次 / 200ms × 2^(n-1)</td></tr>
+    <tr><td>refine.l1 延迟</td><td>5s（去抖）</td></tr>
+    <tr><td rowspan="3">外部调用</td><td>LLM 网关</td><td>超时 30s；仅 429/5xx 重试 3 次，退避 2s×(i+1)</td></tr>
+    <tr><td>上游转发</td><td>超时 120s；429/500/502/503 重试 1 次</td></tr>
+    <tr><td>Sidecar</td><td>协议 v1；调用超时 5s</td></tr>
+    <tr><td>限流</td><td>QPM 默认</td><td>600 / space:model / 分钟（滑动窗口）</td></tr>
+    <tr><td>分页</td><td>默认 / 上限</td><td>50 / 200（rowid 游标）</td></tr>
+    <tr><td>向量</td><td>默认三元组</td><td>local / e5-small / 384</td></tr>
+  </table>
+
+  <h3>环境变量一览</h3>
+  <table>
+    <tr><th>变量</th><th>作用</th></tr>
+    <tr><td><code>AGENTMEMVIEW_DATA / PORT / HOST / PROXY_PORT</code></td><td>数据目录与端口覆盖</td></tr>
+    <tr><td><code>AGENTMEMVIEW_UPSTREAM_ANTHROPIC / OPENAI / BASE</code></td><td>代理上游</td></tr>
+    <tr><td><code>AGENTMEMVIEW_ACCESS_KEY</code></td><td>代理本地门禁（x-agentmemview-key）</td></tr>
+    <tr><td><code>AGENTMEMVIEW_HF_ENDPOINT / ALLOW_DOWNLOAD</code></td><td>本地模型镜像 / 首跑下载许可</td></tr>
+    <tr><td><code>AGENTMEMVIEW_CORE_URL / SPACE</code></td><td>MCP server 连接与默认空间</td></tr>
+    <tr><td><code>AGENTMEMVIEW_HOME / LOG_LEVEL</code></td><td>重定向家目录 / 日志级别</td></tr>
+  </table>
+
+  <footer>AgentMemView 功能实现说明报告 · 基于 packages/ 七包源码逐文件调研生成 · 生成日期 2026-08-24</footer>
+</section>
+
+</main>
+</div>
+</body>
+</html>
